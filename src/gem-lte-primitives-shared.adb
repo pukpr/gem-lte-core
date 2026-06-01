@@ -87,6 +87,421 @@ package body GEM.LTE.Primitives.Shared is
 
    protected body Server is
 
+      --  Store parameters (allocates on first call, updates thereafter)
+      procedure Put (P : in Param_S) is
+      begin
+         if not Available then -- only do once to allocate
+            Params := new Param_S'(P);
+         else  -- use allocated space
+            Params.all := P;
+         end if;
+         Available := True;
+      end Put;
+
+      --  Retrieve parameters (blocks until first Put() completes)
+      entry Get (P : in out Param_S) when Available is
+      begin
+         P := Params.all;
+      end Get;
+
+   end Server;
+
+   --  Public wrappers for Server access
+   procedure Put (P : in Param_S) is
+   begin
+      Server.Put (P);
+   end Put;
+
+   function Get (N_Tides, N_Modulations : in Integer) return Param_S is
+      P : Param_S (N_Tides, N_Modulations);
+   begin
+      Server.Get (P);
+      return P;
+   end Get;
+
+   --  =========================================================================
+   --  Output Formatting Helpers
+   --  =========================================================================
+
+   --  Write parameter name + Long_Float value in fixed format
+   procedure Put
+     (FT : in Ada.Text_IO.File_Type; Text : in String; Value : in Long_Float)
+   is
+   begin
+      Ada.Text_IO.Put (FT, Text & " ");
+      Ada.Long_Float_Text_IO.Put (FT, Value, Fore => 4, Aft => 11, Exp => 0);
+      Ada.Text_IO.New_Line (FT);
+   end Put;
+
+   --  Write parameter name + Integer value
+   procedure Put
+     (FT : in Ada.Text_IO.File_Type; Text : in String; Value : in Integer)
+   is
+   begin
+      Ada.Text_IO.Put (FT, Text & " " & Integer'Image (Value));
+      Ada.Text_IO.New_Line (FT);
+   end Put;
+
+   --  Write triplet (period, amplitude, phase) for tidal constituents
+   procedure Put (FT : Ada.Text_IO.File_Type; V1, V2, V3 : in Long_Float) is
+   begin
+      Ada.Long_Float_Text_IO.Put (FT, V1, Fore => 4, Aft => 11, Exp => 0);
+      Ada.Long_Float_Text_IO.Put (FT, V2, Fore => 4, Aft => 11, Exp => 0);
+      Ada.Long_Float_Text_IO.Put (FT, V3, Fore => 4, Aft => 11, Exp => 0);
+      Ada.Text_IO.New_Line (FT);
+   end Put;
+
+   --  =========================================================================
+   --  Write: Save parameters to text .par files
+   --
+   --  Generates two files:
+   --    1. <executable>.par - General parameters for all climate indices
+   --    2. <executable>.<climate_index>.par - Index-specific parameters
+   --
+   --  Format: 4-character tag followed by space and value
+   --  Example: "offs  0.12345678901"
+   --  =========================================================================
+   procedure Write (D : in Param_S) is
+      FN : constant String :=
+        Ada.Directories.Simple_Name (Ada.Command_Line.Command_Name) & ".par";
+      FN2 : constant String :=
+        Ada.Directories.Simple_Name (Ada.Command_Line.Command_Name) & "." &
+        CI & ".par";
+      FT : Ada.Text_IO.File_Type;
+   begin
+      Ada.Text_IO.Create (FT, Ada.Text_IO.Out_File, FN);
+      Put (FT, "offs", D.B.Offset);
+      Put (FT, "bg  ", D.B.bg);
+      Put (FT, "impA", D.B.ImpA);
+      Put (FT, "impB", D.B.ImpB);
+      Put (FT, "impC", D.B.ImpC);
+      Put (FT, "delA", D.B.DelA);
+      Put (FT, "delB", D.B.DelB);
+      Put (FT, "asym", D.B.Asym);
+      Put (FT, "ann1", D.B.Ann1);
+      Put (FT, "ann2", D.B.Ann2);
+      Put (FT, "sem1", D.B.Sem1);
+      Put (FT, "sem2", D.B.Sem2);
+      Put (FT, "year", D.B.Year);
+      Put (FT, "IR  ", D.B.IR);
+      Put (FT, "ma  ", D.B.mA);
+      Put (FT, "mp  ", D.B.mP);
+      Put (FT, "shfT", D.B.shiftT);
+      Put (FT, "init", D.B.init);
+      for I in D.B.LPAP'Range loop
+         Ada.Text_IO.Put (FT, " ");
+         Put (FT, D.A.LP (I), D.B.LPAP (I).Amplitude, D.B.LPAP (I).Phase);
+      end loop;
+      for I in D.B.LT'Range loop
+         Put (FT, "ltep", D.B.LT (I));
+      end loop;
+      for I in D.C'Range loop
+         Put (FT, "harm", D.C (I));
+         exit when D.C (I) = 0;
+      end loop;
+      Ada.Text_IO.Close (FT);
+      -- per data set
+      Ada.Text_IO.Create (FT, Ada.Text_IO.Out_File, FN2);
+      Put (FT, "offs", D.B.Offset);
+      Put (FT, "bg  ", D.B.bg);
+      Put (FT, "impA", D.B.ImpA);
+      Put (FT, "impB", D.B.ImpB);
+      Put (FT, "impC", D.B.ImpC);
+      Put (FT, "delA", D.B.DelA);
+      Put (FT, "delB", D.B.DelB);
+      Put (FT, "asym", D.B.Asym);
+      Put (FT, "ann1", D.B.Ann1);
+      Put (FT, "ann2", D.B.Ann2);
+      Put (FT, "sem1", D.B.Sem1);
+      Put (FT, "sem2", D.B.Sem2);
+      Put (FT, "year", D.B.Year);
+      Put (FT, "IR  ", D.B.IR);
+      Put (FT, "ma  ", D.B.mA);
+      Put (FT, "mp  ", D.B.mP);
+      Put (FT, "shfT", D.B.shiftT);
+      Put (FT, "init", D.B.init);
+      for I in D.B.LT'Range loop
+         Put (FT, "ltep", D.B.LT (I));
+      end loop;
+      for I in D.C'Range loop
+         Put (FT, "harm", D.C (I));
+         exit when D.C (I) = 0;
+      end loop;
+      Ada.Text_IO.Close (FT);
+   end Write;
+
+   --  =========================================================================
+   --  Write_JSON: Save parameters to JSON .p files
+   --
+   --  Generates two files:
+   --    1. <executable>.p - General parameters for all climate indices
+   --    2. <executable>.<climate_index>.p - Index-specific parameters
+   --
+   --  Format: JSON with same structure as Read_JSON expects
+   --  =========================================================================
+   
+   function File_To_String (Name : in String) return String;  -- Forward declaration
+   
+   --  Detect NM and NH from JSON file array lengths
+   --  Overrides default values to match actual JSON array sizes
+   procedure Detect_NM_NH_From_JSON (Filename : in String) is
+      use GNATCOLL.JSON;
+      Result : Read_Result;
+      Data : JSON_Value;
+      Arr : JSON_Array;
+      NM_Count, NH_Count : Natural;
+   begin
+      -- Read JSON file
+      declare
+         Text : constant String := File_To_String (Filename);
+      begin
+         Result := Read (Text);
+      exception
+         when Ada.Text_IO.Name_Error | Ada.IO_Exceptions.Name_Error =>
+            return;  -- File doesn't exist, skip detection
+         when others =>
+            return;
+      end;
+      
+      if not Result.Success then
+         return;  -- Parse error, skip detection
+      end if;
+      
+      Data := Result.Value;
+      
+      -- Count ltep array length and override NM
+      if Kind (Data) = JSON_Object_Type and then Has_Field (Data, "ltep") then
+         Arr := Get (Data, "ltep");
+         NM_Count := Length (Arr);
+         GEM.Setenv ("NM", Integer'Image (NM_Count));
+         --  Silently detect NM from JSON (uncomment for debug)
+         --  Ada.Text_IO.Put_Line ("Detected NM=" & Integer'Image (NM_Count) & " from JSON ltep array");
+      end if;
+      
+      -- Count harm array length and override NH
+      if Kind (Data) = JSON_Object_Type and then Has_Field (Data, "harm") then
+         Arr := Get (Data, "harm");
+         NH_Count := Length (Arr);
+         -- Build NH string as "1 1 1 ..." with NH_Count entries
+         declare
+            NH_Str : String (1 .. NH_Count * 2 - 1) := (others => ' ');
+            Pos : Positive := 1;
+         begin
+            for I in 1 .. NH_Count loop
+               NH_Str (Pos) := '1';
+               if I < NH_Count then
+                  Pos := Pos + 2;  -- Skip space
+               end if;
+            end loop;
+            GEM.Setenv ("NH", NH_Str);
+            --  Silently detect NH from JSON (uncomment for debug)
+            --  Ada.Text_IO.Put_Line ("Detected NH with" & Natural'Image (NH_Count) & " entries from JSON harm array");
+         end;
+      end if;
+   exception
+      when others =>
+         null;  -- Silently ignore any errors during detection
+   end Detect_NM_NH_From_JSON;
+   
+   -- Helper function to parse NH: supports "6" (count) or "1 1 1 1 1 1" (list)
+   function Parse_NH (NH_Str : String) return Ns is
+      Harms_Temp : constant Ns := S_to_I (NH_Str);
+   begin
+      -- If NH is a single integer > 1 (count), convert to array of 1's
+      if Harms_Temp'Length = 1 and then Harms_Temp (1) > 1 then
+         return (1 .. Harms_Temp (1) => 1);
+      else
+         -- Old format: space-separated list of integers
+         return Harms_Temp;
+      end if;
+   end Parse_NH;
+
+   procedure Write_JSON (D : in Param_S) is
+      use GNATCOLL.JSON;
+      FN : constant String :=
+        Ada.Directories.Simple_Name (Ada.Command_Line.Command_Name) & ".p";
+      FN2 : constant String :=
+        Ada.Directories.Simple_Name (Ada.Command_Line.Command_Name) & "." &
+        CI & ".p";
+      
+      -- Use NH/NM from environment (.resp file takes precedence)
+      NM : constant Integer := GEM.Getenv ("NM", D.B.LT'Length);
+      Harms : constant Ns := Parse_NH (GEM.Getenv ("NH", ""));
+      NH : constant Integer := Harms'Length;
+      
+      procedure Write_To_File (Filename : String; Include_LPAP : Boolean);
+      
+      procedure Write_To_File (Filename : String; Include_LPAP : Boolean) is
+         Obj : constant JSON_Value := Create_Object;
+         LPAP_Arr : JSON_Array := Empty_Array;
+         LT_Arr : JSON_Array := Empty_Array;
+         Harm_Arr : JSON_Array := Empty_Array;
+      begin
+         -- Scalar parameters
+         Set_Field (Obj, "offs", Create (D.B.Offset));
+         Set_Field (Obj, "bg", Create (D.B.bg));
+         Set_Field (Obj, "impA", Create (D.B.ImpA));
+         Set_Field (Obj, "impB", Create (D.B.ImpB));
+         Set_Field (Obj, "impC", Create (D.B.ImpC));
+         Set_Field (Obj, "delA", Create (D.B.DelA));
+         Set_Field (Obj, "delB", Create (D.B.DelB));
+         Set_Field (Obj, "asym", Create (D.B.Asym));
+         Set_Field (Obj, "ann1", Create (D.B.Ann1));
+         Set_Field (Obj, "ann2", Create (D.B.Ann2));
+         Set_Field (Obj, "sem1", Create (D.B.Sem1));
+         Set_Field (Obj, "sem2", Create (D.B.Sem2));
+         Set_Field (Obj, "year", Create (D.B.Year));
+         Set_Field (Obj, "IR", Create (D.B.IR));
+         Set_Field (Obj, "ma", Create (D.B.mA));
+         Set_Field (Obj, "mp", Create (D.B.mP));
+         Set_Field (Obj, "shfT", Create (D.B.shiftT));
+         Set_Field (Obj, "init", Create (D.B.init));
+         
+         -- LPAP array (tidal constituents) - only in primary file
+         if Include_LPAP then
+            for I in D.B.LPAP'Range loop
+               declare
+                  Triplet : JSON_Array := Empty_Array;
+               begin
+                  Append (Triplet, Create (D.A.LP (I)));
+                  Append (Triplet, Create (D.B.LPAP (I).Amplitude));
+                  Append (Triplet, Create (D.B.LPAP (I).Phase));
+                  Append (LPAP_Arr, Create (Triplet));
+               end;
+            end loop;
+            Set_Field (Obj, "lpap", Create (LPAP_Arr));
+         end if;
+         
+         -- ltep array (LT modulation periods) - only first NM terms
+         for I in 1 .. NM loop
+            Append (LT_Arr, Create (D.B.LT (I)));
+         end loop;
+         Set_Field (Obj, "ltep", Create (LT_Arr));
+         
+         -- harm array (harmonics) - only first NH values if NH specified
+         if NH > 0 then
+            for I in 1 .. NH loop
+               Append (Harm_Arr, Create (Long_Float (D.C (I))));
+            end loop;
+         else
+            -- Fallback: only non-zero values (original behavior)
+            for I in D.C'Range loop
+               exit when D.C (I) = 0;
+               Append (Harm_Arr, Create (Long_Float (D.C (I))));
+            end loop;
+         end if;
+         Set_Field (Obj, "harm", Create (Harm_Arr));
+         
+         -- Write to file
+         declare
+            JSON_Text : constant String := Write (Obj, Compact => False);
+            FT : Ada.Text_IO.File_Type;
+         begin
+            Ada.Text_IO.Create (FT, Ada.Text_IO.Out_File, Filename);
+            Ada.Text_IO.Put_Line (FT, JSON_Text);
+            Ada.Text_IO.Close (FT);
+         end;
+      end Write_To_File;
+      
+   begin
+      Write_To_File (FN, Include_LPAP => True);   -- Primary file with LPAP
+      Write_To_File (FN2, Include_LPAP => False); -- Secondary file without LPAP
+   end Write_JSON;
+
+   --  =========================================================================
+   --  Save: Persist parameters to binary .parms file, text .par, and JSON .p files
+   --
+   --  Uses Ada.Direct_IO for fast binary serialization (legacy format).
+   --  Also writes human-readable .par files and JSON .p files to keep all formats in sync.
+   --  =========================================================================
+   procedure Save (P : in Param_S) is
+      subtype PS is Param_S (P.NLP, P.NLT);
+      package DIO is new Ada.Direct_IO (PS);
+      FN : constant String :=
+        Ada.Directories.Simple_Name (Ada.Command_Line.Command_Name) & ".parms";
+      use DIO;
+      FT : File_Type;
+   begin
+      Create (FT, Out_File, FN);
+      Write (FT, P);
+      Close (FT);
+      --  TODO: Can remove - Command-line flag 'r' was intended for conditional
+      --  writing but Write() is now always called. The flag check is redundant.
+      --if GEM.Command_Line_Option_Exists("r") then
+      Write (P);       -- Write text .par files
+      Write_JSON (P);  -- Write JSON .p files (keep in sync with .par)
+      --end if;
+      -- Server.Put (P);
+   end Save;
+
+   --  =========================================================================
+   --  Input Parsing Helpers - Read parameters from text files
+   --  =========================================================================
+
+   --  Read 4-char tag + Long_Float value, validate tag matches expected
+   procedure Read
+     (FT : in Ada.Text_IO.File_Type; Text : in String;
+      Value : in out Long_Float)
+   is
+      Str : String (1 .. 100);
+      N : Integer;
+   begin
+      Ada.Text_IO.Get_Line (FT, Str, N);
+      if Text = Str (1 .. 4) then
+         Ada.Long_Float_Text_IO.Get (Str (5 .. N), Value, N);
+      else
+         Ada.Text_IO.Put_Line (Text & " mismatches " & Str (1 .. N));
+         GNAT.OS_Lib.OS_Exit (0);
+      end if;
+   end Read;
+
+   --  Read 4-char tag + Integer value, validate tag matches expected
+   procedure Read
+     (FT : in Ada.Text_IO.File_Type; Text : in String; Value : in out Integer)
+   is
+      Str : String (1 .. 100);
+      N : Integer;
+   begin
+      Ada.Text_IO.Get_Line (FT, Str, N);
+      if Text = Str (1 .. 4) then
+         Ada.Integer_Text_IO.Get (Str (5 .. N), Value, N);
+      else
+         Ada.Text_IO.Put_Line (Text & " mismatches " & Str (1 .. N));
+         GNAT.OS_Lib.OS_Exit (0);
+      end if;
+   end Read;
+
+   procedure Read (FT : in Ada.Text_IO.File_Type; V1, V2, V3 : out Long_Float)
+   is
+      Str : String (1 .. 100);
+      N : Integer;
+      Floats : Fs (1 .. 3);
+   begin
+      Ada.Text_IO.Get_Line (FT, Str, N);
+      Floats := S_to_LF (Str (1 .. N));
+      V1 := Floats (1);
+      V2 := Floats (2);
+      V3 := Floats (3);
+   exception
+      when others =>
+         Ada.Text_IO.Put_Line ("Finished " & Str (1 .. N));
+   end Read;
+
+   function File_To_String (Name : in String) return String is
+      FT : Ada.Text_IO.File_Type;
+      Line : String (1 .. 1_024);
+      Last : Natural;
+      Contents : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.Null_Unbounded_String;
+   begin
+      Ada.Text_IO.Open (FT, Ada.Text_IO.In_File, Name);
+      begin
+         while not Ada.Text_IO.End_Of_File (FT) loop
+            Ada.Text_IO.Get_Line (FT, Line, Last);
+            Ada.Strings.Unbounded.Append (Contents, Line (1 .. Last));
+            Ada.Strings.Unbounded.Append (Contents, Ada.Characters.Latin_1.LF);
+         end loop;
+         Ada.Text_IO.Close (FT);
       exception
          when others =>
             if Ada.Text_IO.Is_Open (FT) then
@@ -337,9 +752,10 @@ package body GEM.LTE.Primitives.Shared is
       end if;
       Data := Result.Value;
       D.B.Offset := Get_Float_Field (Data, "offs", D.B.Offset);
-      D.B.DelA := Get_Float_Field (Data, "delA", D.B.DelA);
+      D.B.bg :=      D.B.ImpA :=      D.B.ImpB :=      D.B.ImpC :=      D.B.DelA := Get_Float_Field (Data, "delA", D.B.DelA);
       D.B.DelB := Get_Float_Field (Data, "delB", D.B.DelB);
       D.B.Asym := Get_Float_Field (Data, "asym", D.B.Asym);
+      D.B.Ann1 :=      D.B.Ann2 :=      D.B.Sem1 :=      D.B.Sem2 :=      D.B.Year :=      D.B.IR :=
       D.B.mA := Get_Float_Field (Data, "ma", D.B.mA);
       D.B.mP := Get_Float_Field (Data, "mp", D.B.mP);
       D.B.shiftT :=
@@ -409,6 +825,11 @@ package body GEM.LTE.Primitives.Shared is
       Check ("delA", D_PAR.B.DelA, D_JSON.B.DelA);
       Check ("delB", D_PAR.B.DelB, D_JSON.B.DelB);
       Check ("asym", D_PAR.B.Asym, D_JSON.B.Asym);
+      Check ("ann1", D_PAR.B.Ann1, D_JSON.B.Ann1);
+      Check ("ann2", D_PAR.B.Ann2, D_JSON.B.Ann2);
+      Check ("sem1", D_PAR.B.Sem1, D_JSON.B.Sem1);
+      Check ("sem2", D_PAR.B.Sem2, D_JSON.B.Sem2);
+      Check ("year", D_PAR.B.Year, D_JSON.B.Year);
       Check ("IR  ", D_PAR.B.IR, D_JSON.B.IR);
       Check ("ma  ", D_PAR.B.mA, D_JSON.B.mA);
       Check ("mp  ", D_PAR.B.mP, D_JSON.B.mP);
@@ -485,9 +906,6 @@ package body GEM.LTE.Primitives.Shared is
       Ada.Text_IO.Open (FT, Ada.Text_IO.In_File, FN);
       Read (FT, "offs", D.B.Offset);
       Read (FT, "bg  ", D.B.bg);
-      Read (FT, "impA", D.B.ImpA);
-      Read (FT, "impB", D.B.ImpB);
-      Read (FT, "impC", D.B.ImpC);
       Read (FT, "delA", D.B.DelA);
       Read (FT, "delB", D.B.DelB);
       Read (FT, "asym", D.B.Asym);
@@ -537,9 +955,6 @@ package body GEM.LTE.Primitives.Shared is
          Ada.Text_IO.Open (FT, Ada.Text_IO.In_File, FN2);
          Read (FT, "offs", D.B.Offset);
          Read (FT, "bg  ", D.B.bg);
-         Read (FT, "impA", D.B.ImpA);
-         Read (FT, "impB", D.B.ImpB);
-         Read (FT, "impC", D.B.ImpC);
          Read (FT, "delA", D.B.DelA);
          Read (FT, "delB", D.B.DelB);
          Read (FT, "asym", D.B.Asym);
