@@ -374,7 +374,7 @@ package body GEM.LTE.Primitives.Solution is
 
       function Impulse (Time : Long_Float) return Long_Float;
 
-      function Impulse_Amplify is new Amplify (Impulse => Impulse)
+      function Impulse_Amplify is new Amplify (Impulse => Impulse);
 
       Impulses : Data_Pairs := Data_Records;
       Forcing : Data_Pairs := Data_Records;
@@ -393,6 +393,12 @@ package body GEM.LTE.Primitives.Solution is
         GEM.LTE.Primitives.Shared.Get (N_Tides, N_Modulations);
       DKeep : Shared.Param_S (N_Tides, N_Modulations) := D;
       D0 : constant Shared.Param_S := D;  -- reference
+
+      Filter : constant Long_Float := GEM.Getenv ("FILTER", 0.333_333_33);
+      Local_Max : constant Boolean := GEM.Getenv ("LOCAL", False);
+      Maximum_Loops : constant Long_Integer :=
+        GEM.Getenv ("MAXLOOPS", 100_000);
+      Threshold : constant Integer := GEM.Getenv ("THRESHOLD", 99);
 
       Spread_Min : constant Long_Float :=
         GEM.Getenv ("SPREAD_MIN", 0.000_000_1);
@@ -654,8 +660,11 @@ package body GEM.LTE.Primitives.Solution is
                    Year_Len => Year_Length, Integ => D.B.ShiftT,
                    Ext_Forcing => Data_Ext, Ext_Factor => 0.0,
                    Ext_Phase => 0.0,
-                   Ext_Amp => 0.0),
-              Start => Data_Records (Data_Records'First).Date);
+                   Ext_Amp => 0.0)
+              --Offset => 0.0, 
+              --Ramp => 0.0,
+              --Start => Data_Records (Data_Records'First).Date
+              );
 
          F :=
            IIR
@@ -792,8 +801,8 @@ package body GEM.LTE.Primitives.Solution is
                   Model := Filter9Point (Model);
                end loop;
             else
-   -- extra filtering, 2 equal-weighted 3-point box windows creating triangle
-                  Model :=
+               -- extra filtering, 2 equal-weighted 3-point box windows creating triangle
+               Model :=
                  FIR
                    (FIR (Model, Filter, 1.0 - 2.0 * Filter, Filter), Filter,
                     1.0 - 2.0 * Filter, Filter);
@@ -833,11 +842,7 @@ package body GEM.LTE.Primitives.Solution is
                end if;
             end if;
 
-            if Pareto then
-            else
-               CorrCoeff := CorrCoeffP;
-               exit;
-            end if;
+            CorrCoeff := CorrCoeffP;
    
          if not Split_Training then
             if Exclude then  -- calculate OOB
