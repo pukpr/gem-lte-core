@@ -60,8 +60,6 @@ package body GEM.LTE.Primitives.Solution is
    Ratio : constant Long_Float := GEM.Getenv ("RATIO", 0.0);
    NLoops : constant Integer := GEM.Getenv ("NLOOPS", 20); --100
    LTE_abs : constant Long_Float := GEM.Getenv ("LTE_ABS", 0.0);
-   Delay_Difference : constant Long_Float :=
-     GEM.Getenv ("DD", 0.0); -- 1.0 = Full
    Ext_Forcing : constant String := GEM.Getenv ("EFF", "");
    Test_Only : constant Boolean := GEM.Getenv ("TEST_ONLY", False);
 
@@ -421,6 +419,7 @@ package body GEM.LTE.Primitives.Solution is
       Climate_Trend : constant Boolean := GEM.Getenv ("TREND", False);
       Lock_Tidal : constant Boolean := GEM.Getenv ("LOCKT", False);
       Lock_T_Amp : constant Boolean := GEM.Getenv ("LOCKA", False);
+      Lock_Short_Tidal : constant Boolean := GEM.Getenv ("LOCKST", False);
       Partial : constant Boolean := GEM.Getenv ("PART", True);  -- FALSE
       Initial_Conditions_Date : constant Long_Float :=
         GEM.Getenv ("IDATE", 0.0);
@@ -715,8 +714,6 @@ package body GEM.LTE.Primitives.Solution is
       Text_IO.Put_Line ("Catchup mode enabled:" & Boolean'Image (Catchup));
       Keep := Set;
       Set0 := Set;
-      Init_Value0 := D.B.init;
-
       for I in 1 .. Harms'Length loop
          exit when D.C (I) = 0;
          Harms (I) := D.C (I);
@@ -772,34 +769,21 @@ package body GEM.LTE.Primitives.Solution is
          end;
          
             CorrCoeff := 0.0;
-         Pareto_Scale := 1.0;
-         if Pareto then
-            Pareto_Start := 1;
-         else
-            Pareto_Start := NH + 1;
-         end if;
                   --if Bessel_Mode = 3 then
                --end if;
                Model :=
                  LTE
                    (Forcing => Forcing,
                     Wave_Numbers =>
-                      M (1 .. NM - 1 + Pareto_Index), --D.B.Lt(1..NM),
-                    Amp_Phase => MAP (1 .. NM - 1 + Pareto_Index), --D.A.LTAP,
+                      M (1 .. NM + NH), --D.B.Lt(1..NM),
+                    Amp_Phase => MAP (1 .. NM + NH), --D.A.LTAP,
                     Offset => D.A.level, K0 => D.A.k0, Trend => Secular_Trend,
                     Accel => Accel,
-                    Third => 0.0);  0.0);
-                           Model (I).Value :=
-                          Model (I).Value -
-                          Delay_Difference * Model (I - Diff_Delay_N).Value;
-                     end if;
-                  end loop;
-               end if;
+                    Third => 0.0);
 
                --  TODO: Can remove - Clamp mode using sinusoidal bounding was
                --  experimental approach to limit model values. Not effective and
                --  made the model non-linear in unhelpful ways. Never used in practice.
-            end if;
 
             -- Diff Delay was here
 
@@ -809,10 +793,7 @@ package body GEM.LTE.Primitives.Solution is
                end loop;
             else
    -- extra filtering, 2 equal-weighted 3-point box windows creating triangle
-               if not Derivative and Filter > 0.0 then
-                  Model := Median (Model);
-               end if;
-               Model :=
+                  Model :=
                  FIR
                    (FIR (Model, Filter, 1.0 - 2.0 * Filter, Filter), Filter,
                     1.0 - 2.0 * Filter, Filter);
@@ -853,21 +834,11 @@ package body GEM.LTE.Primitives.Solution is
             end if;
 
             if Pareto then
-               if Pareto_Index = Pareto_Start then
-                  CorrCoeff := CorrCoeffP;
-               else
-                  Pareto_Scale :=
-                    Pareto_Scale + 1.0 / Long_Float (Harms (Pareto_Index - 1));
-                  CorrCoeff :=
-                    CorrCoeffP / Long_Float (Harms (Pareto_Index - 1)) +
-                    CorrCoeff;
-               end if;
             else
                CorrCoeff := CorrCoeffP;
                exit;
             end if;
    
-         CorrCoeff := CorrCoeff / Pareto_Scale;
          if not Split_Training then
             if Exclude then  -- calculate OOB
                CorrCoeffP :=
@@ -909,12 +880,8 @@ package body GEM.LTE.Primitives.Solution is
             Prior_Best_CC := CorrCoeff;
          else
             -- Go back to starting point (Keep) if local max not retained
-            if Vary_Initial then
-               D.B.init := Keep_Initial_Value;
-            else
                Set := Keep;
                Harms := Harms_Keep;
-            end if;
          end if;
 
          if Singular or
@@ -938,14 +905,10 @@ package body GEM.LTE.Primitives.Solution is
          if Counter = 0 then
             Spread := 0.0;
          else
-            Spread :=
-              Spread_Min +
-              Spread_Max * (1.0 - LEF.Cos (Progress_Cycle / Spread_Cycle));
+            Spread := Spread_Max;
          end if;
          if Test_Only then
             exit;
-         elsif Vary_Initial then
-            Walker.Markov (D.B.init, Keep_Initial_Value, Spread, Init_Value0);
          else
             if Lock_Short_Tidal then
                declare
@@ -979,7 +942,6 @@ package body GEM.LTE.Primitives.Solution is
             end if;
             Walker.Random_Harmonic (Harms, Harms_Keep);
          end if;
-
       end loop;
       Monitor.Stop;
       if Test_Only or Best_Client = ID then
