@@ -61,26 +61,39 @@ begin
       --  Load previously saved parameters if available (warm start)
       GEM.LTE.Primitives.Shared.Load (D);
 
-      --  Initialize tidal forcing amplitudes and phases from dLOD data
-      if GEM.Command_Line_Option_Exists ("r") or
-        not GEM.Getenv ("DLOD_REF", True)
-      then
-         --  Fresh start: use dLOD data directly with optional scaling
-         Text_IO.Put_Line ("Loading dLOD");
+      --  Initialize tidal forcing amplitudes and phases from dLOD data.
+      --
+      --  NOTE: GEM.LTE.LPAP defaults to zero amplitudes at elaboration time.
+      --  If no saved .par was loaded and we only "reference" dLOD, the forcing
+      --  stays near-identically 0 and CC will stay pinned at 0.0.
+      declare
+         Max_Abs_Amp : Long_Float := 0.0;
+      begin
          for I in D.B.LPAP'Range loop
-            GEM.LTE.LPRef (I).Amplitude := AP (I).Amplitude;
-            GEM.LTE.LPRef (I).Phase := AP (I).Phase;
-            D.B.LPAP (I).Amplitude := AP (I).Amplitude;
-            D.B.LPAP (I).Phase := AP (I).Phase;
+            Max_Abs_Amp := Long_Float'Max (Max_Abs_Amp, abs D.B.LPAP (I).Amplitude);
          end loop;
-      else
-         --  Reference mode: store dLOD but don't overwrite current parameters
-         Text_IO.Put_Line ("Referencing dLOD");
-         for I in D.B.LPAP'Range loop
-            GEM.LTE.LPRef (I).Amplitude := AP (I).Amplitude;
-            GEM.LTE.LPRef (I).Phase := AP (I).Phase;
-         end loop;
-      end if;
+
+         if GEM.Command_Line_Option_Exists ("r") or
+           (not GEM.Getenv ("DLOD_REF", True)) or
+           Max_Abs_Amp < 1.0E-18
+         then
+            --  Fresh start (or uninitialized LPAP): seed from dLOD
+            Text_IO.Put_Line ("Loading dLOD");
+            for I in D.B.LPAP'Range loop
+               GEM.LTE.LPRef (I).Amplitude := AP (I).Amplitude;
+               GEM.LTE.LPRef (I).Phase := AP (I).Phase;
+               D.B.LPAP (I).Amplitude := AP (I).Amplitude;
+               D.B.LPAP (I).Phase := AP (I).Phase;
+            end loop;
+         else
+            --  Reference mode: store dLOD but don't overwrite current parameters
+            Text_IO.Put_Line ("Referencing dLOD");
+            for I in D.B.LPAP'Range loop
+               GEM.LTE.LPRef (I).Amplitude := AP (I).Amplitude;
+               GEM.LTE.LPRef (I).Phase := AP (I).Phase;
+            end loop;
+         end if;
+      end;
 
       --  Store initialized parameters for worker tasks to access
       GEM.LTE.Primitives.Shared.Put (D);

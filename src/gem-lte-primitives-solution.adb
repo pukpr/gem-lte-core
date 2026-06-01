@@ -143,7 +143,21 @@ package body GEM.LTE.Primitives.Solution is
       end loop;
    end Start;
 
-   Worst_Case : constant Long_Float := GEM.Getenv ("STARTING_METRIC", 0.001);
+   Metric_Name : constant String := GEM.Getenv ("METRIC", "CC");
+
+   --  CC-like metrics can legitimately be negative; starting at a positive
+   --  floor (e.g. 0.001) can prevent any progress from being recorded.
+   Allows_Negative : constant Boolean :=
+     Metric_Name = "CC" or else Metric_Name = "CID" or else Metric_Name = "DER" or else
+     Metric_Name = "FT" or else Metric_Name = "W" or else Metric_Name = "ZC" or else
+     Metric_Name = "HOYER" or else Metric_Name = "DC" or else Metric_Name = "EC" or else
+     Metric_Name = "ED";
+
+   Worst_Case_Default : constant Long_Float :=
+     (if Allows_Negative then -1.0 else 0.001);
+
+   Worst_Case : constant Long_Float :=
+     GEM.Getenv ("STARTING_METRIC", Worst_Case_Default);
 
    --  =========================================================================
    --  Monitor: Protected object for inter-thread coordination
@@ -261,8 +275,8 @@ package body GEM.LTE.Primitives.Solution is
       --  Reset best metric tracking (used in alternating exclude mode)
       procedure Reset is
       begin
-         Best_Metric := 0.0;
-         Best_OOB := 0.0;
+         Best_Metric := Worst_Case;
+         Best_OOB := Worst_Case;
       end Reset;
 
    end Monitor;
@@ -590,7 +604,9 @@ package body GEM.LTE.Primitives.Solution is
       end Put_CC;
 
       der : Long_Float;
-      CorrCoeff, Old_CC, Prior_Best_CC : Long_Float := 0.0;
+      CorrCoeff : Long_Float := 0.0;
+      Old_CC : Long_Float := Worst_Case;
+      Prior_Best_CC : Long_Float := Worst_Case;
       CorrCoeffP : Long_Float;
       CorrCoeffTest : Long_Float := 0.0;
       Progress_Cycle, Spread : Long_Float;
@@ -671,9 +687,12 @@ package body GEM.LTE.Primitives.Solution is
       --  Field positions are documented via named constants in the overlay package.
       --  Walker only searches 1..Size_Shared (NM-limited), not the full array.
       ------------------------------------------------------------------------
-      Harms : Ns := Parse_NH (GEM.Getenv ("NH", ""));
+      NH_Str : constant String := GEM.Getenv ("NH", "");
+      Harms : Ns :=
+        (if NH_Str'Length = 0 then (1 .. 1 => 0) else Parse_NH (NH_Str));
       Harms_Keep : Ns := Harms;
-      NH : Integer := Harms'Length;
+      NH : Integer :=
+        (if Harms'Length = 1 and then Harms (Harms'First) = 0 then 0 else Harms'Length);
 
       use Ada.Numerics.Long_Elementary_Functions;
       Secular_Trend : Long_Float := 0.0;
@@ -760,7 +779,7 @@ package body GEM.LTE.Primitives.Solution is
            RMS_Data + Data_Records (I).Value * Data_Records (I).Value;
       end loop;
       RMS_Data := Ada.Numerics.Long_Elementary_Functions.Sqrt (RMS_Data);
-      Old_CC := 0.0;
+      Old_CC := Worst_Case;
       
       -- Verify overlay layout before optimization begins (use full size)
       GEM.LTE.Primitives.Param_B_Overlay.Verify_Layout (D.B, Full_Size);
@@ -959,7 +978,7 @@ package body GEM.LTE.Primitives.Solution is
                D := D0; -- load back reference model parameters
             end if;
             Counter := 1;
-            Old_CC := 0.0;
+            Old_CC := Worst_Case;
          end if;
 
          exit when Halted;
