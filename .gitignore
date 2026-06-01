@@ -1,0 +1,17 @@
+build/
+*.ali
+*.o
+b~*.ads
+b~*.adb
+.#*
+\#*#
+lt.exe
+lt.exe.par
+lt.exe.parms
+lt.exe.*.par
+lt.exe.*.parms
+lte_results.csv
+*.png
+__pycache__/
+*.pyc
+.venv/

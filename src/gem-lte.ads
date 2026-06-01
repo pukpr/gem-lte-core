@@ -1,0 +1,278 @@
+package GEM.LTE is
+   -- Laplace's Tidal Equations model for equatorial waves -- Chap 11, Chap 12
+
+   -- Top level holds the main Tidal Constituents and LTE modulation parameters
+
+   pragma Elaborate_Body;
+
+   -- The year value is close to the Tropical year of 365.24219 days
+   -- which accumulates to ~1/2 day error over 100 years
+   -- Year : constant Long_Float := 365.2412384; -- 365.246462;
+--   Draconic : constant Long_Float := 27.21222082;
+--   Tropical : constant Long_Float := 27.32163237; -- 27.32166155;
+--   Anomalistic : constant Long_Float := 27.55454988;
+
+   Draconic : constant Long_Float := 27.212_220_815;
+   --Draconic : constant Long_Float := 27.212_0;
+   Tropical : constant Long_Float := 27.321_661_554; -- 27.32166155;
+   --Tropical : constant Long_Float := 27.321_582_252;
+   Anomalistic : constant Long_Float := 27.554_549_886;
+
+   N : constant := 1.0 / (1.0 / Draconic - 1.0 / Tropical);
+   p : constant := 1.0 / (1.0 / Tropical - 1.0 / Anomalistic);
+   --Year_Length : constant := 365.2412384;  -- 365.241237718675000;
+
+   function Year_Length return Long_Float;
+
+   type Doodson_Argument is record
+      s, h, p : Integer;
+      N : Long_Float;
+      Period : Long_Float; --
+   end record;
+
+   type Doodson_List is array (Positive range <>) of Doodson_Argument;
+
+   Doodson_Args : Doodson_List :=
+     ((1, 0, 0, 0.0, 1.0),
+      (1, 0, 0, 1.0, 1.0), --A   (3, 0, -1, 0.0, 0.0)
+      (0, 0, 2, 2.0, 1.0), -- (1, 0, 0, 2.0, 0.0),
+--*      (3, 0, 0, 2.0, 1.0),  --!!! (0, 1, 0, 1.0, 1.0), -- (1, 0, 0, 3.0, 0.0),
+   -- (0, 2, 0, 2.0, 1.0), -- (1, 0,-1, 0.0, 0.0),
+
+--*      (4, 0, 0, 2.0, 1.0), 
+      (2, 0, 0, 1.0, 1.0), -- (2, 0, 0, 1.0, 0.0),
+      (2, 0, 0, 0.0, 1.0), 
+      (2, 0, 0, 2.0, 1.0),
+      (1, 0, -1, 0.0, 1.0),
+      (2, 0, -2, 0.0, 1.0),
+      (0, 0, 0, 1.0, 1.0), --! (3, 0, -1, 0.0, 0.0),
+      (0, 0, 2, 0.0, 1.0), 
+  --- (2, 0, 2, 2.0, 1.0), --!!! (0, -1, 1, 0.0, 1.0), -- (2, 0, -1, 0.0, 0.0),
+      (1,-2, 1, 0.0, 1.0),  -- 26.985(1, 0, 1, 1.0, 0.0),  -- (1, 0, 1, 0.0, 0.0),
+--*      (3, 0, 0, 1.0, 1.0),
+--*      (2, 0, -1, 1.0, 1.0), -- (0, 0, 0, 1.0, 0.0), -- ^^^ (2, 0, -1, 1.0, 0.0),
+      (0, 0, 2, 1.0, 1.0),  --(3, 0, -1, 2.0, 0.0),  -- 9.108
+      (1, 0, -1, 1.0, 1.0), 
+      (1, 0, -1, -1.0, 1.0),
+      (0, 0, 1, 1.0, 1.0),
+
+      (1, 0, 1, 1.0, 1.0), -- (0, 2, -1, 2.0, 0.0),  --next
+
+      (0, 0, 1, -1.0, 1.0), --(0, 1, 0, 0.0, 0.5),
+      (0, 0, -1, 0.0, 1.0),  --(2, 0, -2, 2.0, 1.0),
+      (0, 0, -2, 1.0, 1.0),  -- 6.413 (2, 0, -3, -2.0, 1.0),  -- 6.413
+--*      (1, 0, -1, 2.0, 1.0), --,
+--      (0, 1, 0, 0.0, 0.5),
+
+--       (0, 0,-2, 1.0, 1.0),
+--       (2, 0, 2, 1.0, 1.0),
+--       (1, 0, 2, 1.0, 1.0),
+--       (2, 0,-2, 1.0, 1.0),
+--       (1, 0,-2, 1.0, 1.0)
+
+--*      (2, 0, -1, 0.0, 1.0), 
+      (3, 0, -1, 0.0, 1.0), 
+      (3, 0, -1, 1.0, 1.0),
+      (3, 0, -1, 2.0, 1.0), 
+      (0, 0, 0, 2.0, 1.0),
+      (0, 0, 1, 2.0, 1.0),
+--*      (1, 0, 0, 2.0, 1.0),
+      
+--      (2, 0, 0, 1.0, 0.5)  -- doubling 18.6
+
+--       (3, 0, -2, 1.0, 1.0),
+--       (1, 0, -2, -1.0, 1.0),
+--       (2, 0, 2, 1.0, 1.0),
+--       (1, 0, 2, 1.0, 1.0),
+--       (2, 0,-2, 1.0, 1.0),
+--       (1, 0,-2, 1.0, 1.0),
+
+
+       (3,-2, 1, 0.0, 1.0),
+       (3, 0,-3, 0.0, 1.0), 
+       (3, -2, 1, 1.0, 1.0),
+       (4, -2, 0, 1.0, 1.0),
+       (4, 0,-2, 1.0, 1.0),
+       (4, 0,-2, 0.0, 1.0),
+       (4, -2, 0, 0.0, 1.0),
+       (5, -2, -1, 0.0, 1.0),
+
+--
+       (2, -2, 0, 0.0, 1.0), 
+       (3, -2, -1, 0.0, 1.0), 
+       (1,  0, 1, 0.0, 1.0),
+       (5, -2, -1, 1.0, 1.0),
+       (5,  0, -3, 0.0, 1.0),
+       (2, -2, 0, -1.0, 1.0), 
+       (2, -2, 0,  1.0, 1.0), 
+       (2, -3, 0, 0.0, 1.0), 
+       (1,  2, -1, 0.0, 1.0),
+       (0, 2, 0, 0.0, 1.0)
+
+      );
+
+   QBO_Args : Doodson_List :=
+     ((0, 1, 0, 0.0, 1.0), (0, 2, 0, 0.0, 1.0), (0, 3, 0, 0.0, 1.0),
+      (1, 0, 0, 0.0, 1.0), (2, 0, 0, 0.0, 1.0), (1, 0, 0, 1.0, 1.0),
+      (2, 0, 0, 1.0, 1.0), (2, 0, 0, 2.0, 1.0), (0, 0, 0, 1.0, 1.0),
+      (1, 0, -1, 0.0, 1.0)
+);
+
+   Doodson_Set : Doodson_List :=
+     ((1, 0, 0, 0.0, 1.0), -- T
+      (1, 0, 0, 1.0, 1.0), -- D
+--       (0, 0, 2, 2.0, 1.0), -- 3Y
+
+      (0, 0, -2, 2.0, 1.0), -- 8.5
+--       (0, 0, 0, 2.0, 1.0), -- N/2
+
+      (2, 0, 0, 1.0, 1.0), -- DT
+      (2, 0, 0, 0.0, 1.0), -- t
+      (2, 0, 0, 2.0, 1.0), -- d
+   --      (1, 0,-1, 0.0, 1.0), -- A
+
+      (2, 0, -2, 0.0, 1.0), -- a
+      (0, 0, 0, 1.0, 1.0), -- N
+      (0, 0, 2, 0.0, 1.0), -- p
+      (1, 0, 1, 0.0, 1.0), -- E
+      (2, 0, -1, 1.0, 1.0), -- AD
+      (0, 0, 2, 1.0, 1.0), -- 3.56
+      (1, 0, -1, 1.0, 1.0), -- A+
+      (1, 0, -1, -1.0, 1.0), -- A-
+      (0, 0, 1, 1.0, 1.0), -- 6Y
+--       (1, 0, 1, 1.0, 1.0), -- 26.985
+--       (0, 0, 1,-1.0, 1.0),-- 16.8y
+--       (2, 0, 1, 0.0, 1.0), -- 0.15
+--       (1, 0, -2, 1.0, 1.0), -- 0.19
+
+      (0, 0, -1, 0.0, 1.0), -- P
+      (2,
+       0,
+       2,
+       0.0,
+       1.0) -- Fake
+   --       (4, 0,-2, 2.0, 1.0) -- A2D2
+--       (3, 0,-1, 1.0, 1.0), -- Mt'
+--       (3, 0,-1, 0.0, 1.0),  -- Mt
+--       (3, 0,-1, 2.0, 1.0)  -- Mtd
+      );
+
+   Doodson_RSet : Doodson_List :=
+     ((1, 0, 0, 0.0, 1.0), -- T
+      (1, 0, 0, 1.0, 1.0), -- D
+--       (0, 0, 2, 2.0, 1.0), -- 3Y
+--       (0, 0,-2, 2.0, 1.0), -- 5.7
+--       (0, 0, 0, 2.0, 1.0), -- N/2
+
+      (2, 0, 0, 1.0, 1.0), -- DT
+      (2, 0, 0, 0.0, 1.0), -- t
+      (2, 0, 0, 2.0, 1.0), -- d
+      (1, 0, -1, 0.0, 1.0), -- A
+      (1, 0, 1, 0.0, 1.0), -- evect
+--       (0, 0, 0, 1.0, 1.0), -- N
+--       (0, 0, 2, 0.0, 1.0), -- p
+--       (1, 0, 1, 0.0, 1.0), -- E
+
+      (2,
+       0,
+       -1,
+       1.0,
+       1.0) -- AD
+   --       (0, 0, 2, 1.0, 1.0), -- 3.56
+--       (1, 0,-1, 1.0, 1.0), -- A+
+--       (1, 0,-1,-1.0, 1.0), -- A-
+--       (0, 0, 1, 1.0, 1.0), -- 6Y
+--       (1, 0, 1, 1.0, 1.0), -- 26.985
+--       (0, 0, 1,-1.0, 1.0),-- 16.8y
+--       (0, 0,-1, 0.0, 1.0) -- P
+      );
+
+   Doodson_QSet : Doodson_List :=
+     ((1, 0, 0, 1.0, 1.0), -- D
+      (2, 0, 0, 2.0, 1.0), -- d
+      (2, 0, 0, 1.0, 1.0), -- DT
+      (2,
+       0,
+       -1,
+       1.0,
+       1.0) -- AD
+   );
+
+   Annual_Set : Doodson_List :=
+     ((0, 1, 0, 0.0, 365.242), -- annual
+      (0, 2, 0, 0.0, 365.242)  -- semi
+      );
+
+   type Amp_Phase is record
+      Amplitude, Phase : Long_Float;
+   end record;
+   subtype Period is Long_Float;
+
+   type Amp_Phases is array (Positive range <>) of Amp_Phase;
+   type Periods is array (Positive range <>) of Period;
+
+   -- Tidal Factor types
+   subtype Long_Periods_Amp_Phase is Amp_Phases;
+   subtype Long_Periods is Periods;
+
+   -- LTE modulation types
+   subtype Modulations_Amp_Phase is Amp_Phases;
+   subtype Modulations is Periods;
+
+   type Period_Set (N : Positive) is record
+      LP : Periods (1 .. N);
+      AP : Amp_Phases (1 .. N);
+   end record;
+
+   -- Default values that produce a fit to NINO34 of cc = ~0.83
+   -- The period values can be derived from the constants above
+   -- but are left as values for easy identification.
+   -- Also, the phases are not reduced to within (-PI .. PI)  boundaries
+
+   -- Tidal periods computed at elaboration from Doodson_Args via Doodson().
+
+   LPAP : Long_Periods_Amp_Phase (Doodson_Args'Range);
+   LP : Long_Periods (Doodson_Args'Range);
+
+   LPAP_Set : Long_Periods_Amp_Phase (Doodson_Set'Range);
+   LP_Set : Long_Periods (Doodson_Set'Range);
+
+   LPAP_RSet : Long_Periods_Amp_Phase (Doodson_RSet'Range);
+   LP_RSet : Long_Periods (Doodson_RSet'Range);
+
+   LPAP_QSet : Long_Periods_Amp_Phase (Doodson_QSet'Range);
+   LP_QSet : Long_Periods (Doodson_QSet'Range);
+
+   LPAP_Annual : Long_Periods_Amp_Phase (Annual_Set'Range);
+   LP_Annual : Long_Periods (Annual_Set'Range);
+
+   LPRef : Long_Periods_Amp_Phase (Doodson_Args'Range);
+
+   QBOAP : Long_Periods_Amp_Phase (QBO_Args'Range);
+   QBO : Long_Periods (QBO_Args'Range);
+
+   LTM : constant Modulations :=
+     (2.763_168_894, 42.387_030_79, 18.682_160_48, 100.0, 10.0, 200.0, 600.0,
+      70.0, 150.0, 400.0, 0.5);
+
+   LTAP : constant Modulations_Amp_Phase :=
+     ((0.0, 0.0), (0.0, 0.0), (0.0, 0.0), (0.0, 0.0), (0.0, 0.0), (0.0, 0.0),
+      (0.0, 0.0), (0.0, 0.0), (0.0, 0.0), (0.0, 0.0), (0.0, 0.0));
+
+   LT0 : Modulations (1 .. 0);
+
+   LTM_NINO34 : constant Modulations :=
+     (5.418_249_691, 1.388_909_654, 20.017_448_03, 3.621_585_351,
+      10.194_369_77, 34.495_669_78, 154.522_497_8, 80.357_003_62,
+      328.306_545_2, 648.429_878_7, 5_161.288_96);
+
+   LTAP_NINO34 : constant Modulations_Amp_Phase := LTAP;
+
+   LTM_IOD : constant Modulations :=
+     (10.477_944_03, 28.704_772_54, 46.969_261_87, 82.588_775_22,
+      166.597_934_8, 597.510_673_9, 51.950_857_45, 41.468_720_24,
+      120.767_629_6, 4.536_710_575, 4_235.964_024);
+
+   procedure Year_Adjustment (Value : in Long_Float; List : in out Periods);
+
+end GEM.LTE;
