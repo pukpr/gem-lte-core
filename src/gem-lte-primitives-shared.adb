@@ -171,19 +171,9 @@ package body GEM.LTE.Primitives.Shared is
    begin
       Ada.Text_IO.Create (FT, Ada.Text_IO.Out_File, FN);
       Put (FT, "offs", D.B.Offset);
-      Put (FT, "bg  ", D.B.bg);
-      Put (FT, "impA", D.B.ImpA);
-      Put (FT, "impB", D.B.ImpB);
-      Put (FT, "impC", D.B.ImpC);
       Put (FT, "delA", D.B.DelA);
       Put (FT, "delB", D.B.DelB);
       Put (FT, "asym", D.B.Asym);
-      Put (FT, "ann1", D.B.Ann1);
-      Put (FT, "ann2", D.B.Ann2);
-      Put (FT, "sem1", D.B.Sem1);
-      Put (FT, "sem2", D.B.Sem2);
-      Put (FT, "year", D.B.Year);
-      Put (FT, "IR  ", D.B.IR);
       Put (FT, "ma  ", D.B.mA);
       Put (FT, "mp  ", D.B.mP);
       Put (FT, "shfT", D.B.shiftT);
@@ -203,19 +193,9 @@ package body GEM.LTE.Primitives.Shared is
       -- per data set
       Ada.Text_IO.Create (FT, Ada.Text_IO.Out_File, FN2);
       Put (FT, "offs", D.B.Offset);
-      Put (FT, "bg  ", D.B.bg);
-      Put (FT, "impA", D.B.ImpA);
-      Put (FT, "impB", D.B.ImpB);
-      Put (FT, "impC", D.B.ImpC);
       Put (FT, "delA", D.B.DelA);
       Put (FT, "delB", D.B.DelB);
       Put (FT, "asym", D.B.Asym);
-      Put (FT, "ann1", D.B.Ann1);
-      Put (FT, "ann2", D.B.Ann2);
-      Put (FT, "sem1", D.B.Sem1);
-      Put (FT, "sem2", D.B.Sem2);
-      Put (FT, "year", D.B.Year);
-      Put (FT, "IR  ", D.B.IR);
       Put (FT, "ma  ", D.B.mA);
       Put (FT, "mp  ", D.B.mP);
       Put (FT, "shfT", D.B.shiftT);
@@ -339,19 +319,9 @@ package body GEM.LTE.Primitives.Shared is
       begin
          -- Scalar parameters
          Set_Field (Obj, "offs", Create (D.B.Offset));
-         Set_Field (Obj, "bg", Create (D.B.bg));
-         Set_Field (Obj, "impA", Create (D.B.ImpA));
-         Set_Field (Obj, "impB", Create (D.B.ImpB));
-         Set_Field (Obj, "impC", Create (D.B.ImpC));
          Set_Field (Obj, "delA", Create (D.B.DelA));
          Set_Field (Obj, "delB", Create (D.B.DelB));
          Set_Field (Obj, "asym", Create (D.B.Asym));
-         Set_Field (Obj, "ann1", Create (D.B.Ann1));
-         Set_Field (Obj, "ann2", Create (D.B.Ann2));
-         Set_Field (Obj, "sem1", Create (D.B.Sem1));
-         Set_Field (Obj, "sem2", Create (D.B.Sem2));
-         Set_Field (Obj, "year", Create (D.B.Year));
-         Set_Field (Obj, "IR", Create (D.B.IR));
          Set_Field (Obj, "ma", Create (D.B.mA));
          Set_Field (Obj, "mp", Create (D.B.mP));
          Set_Field (Obj, "shfT", Create (D.B.shiftT));
@@ -752,10 +722,9 @@ package body GEM.LTE.Primitives.Shared is
       end if;
       Data := Result.Value;
       D.B.Offset := Get_Float_Field (Data, "offs", D.B.Offset);
-      D.B.bg :=      D.B.ImpA :=      D.B.ImpB :=      D.B.ImpC :=      D.B.DelA := Get_Float_Field (Data, "delA", D.B.DelA);
+      D.B.DelA := Get_Float_Field (Data, "delA", D.B.DelA);
       D.B.DelB := Get_Float_Field (Data, "delB", D.B.DelB);
       D.B.Asym := Get_Float_Field (Data, "asym", D.B.Asym);
-      D.B.Ann1 :=      D.B.Ann2 :=      D.B.Sem1 :=      D.B.Sem2 :=      D.B.Year :=      D.B.IR :=
       D.B.mA := Get_Float_Field (Data, "ma", D.B.mA);
       D.B.mP := Get_Float_Field (Data, "mp", D.B.mP);
       D.B.shiftT :=
@@ -818,19 +787,9 @@ package body GEM.LTE.Primitives.Shared is
       Ada.Text_IO.Put_Line ("=== Validating JSON vs PAR for " & FN & " ===");
       
       Check ("offs", D_PAR.B.Offset, D_JSON.B.Offset);
-      Check ("bg  ", D_PAR.B.bg, D_JSON.B.bg);
-      Check ("impA", D_PAR.B.ImpA, D_JSON.B.ImpA);
-      Check ("impB", D_PAR.B.ImpB, D_JSON.B.ImpB);
-      Check ("impC", D_PAR.B.ImpC, D_JSON.B.ImpC);
       Check ("delA", D_PAR.B.DelA, D_JSON.B.DelA);
       Check ("delB", D_PAR.B.DelB, D_JSON.B.DelB);
       Check ("asym", D_PAR.B.Asym, D_JSON.B.Asym);
-      Check ("ann1", D_PAR.B.Ann1, D_JSON.B.Ann1);
-      Check ("ann2", D_PAR.B.Ann2, D_JSON.B.Ann2);
-      Check ("sem1", D_PAR.B.Sem1, D_JSON.B.Sem1);
-      Check ("sem2", D_PAR.B.Sem2, D_JSON.B.Sem2);
-      Check ("year", D_PAR.B.Year, D_JSON.B.Year);
-      Check ("IR  ", D_PAR.B.IR, D_JSON.B.IR);
       Check ("ma  ", D_PAR.B.mA, D_JSON.B.mA);
       Check ("mp  ", D_PAR.B.mP, D_JSON.B.mP);
       Check ("shfT", D_PAR.B.shiftT, D_JSON.B.shiftT);
@@ -905,11 +864,9 @@ package body GEM.LTE.Primitives.Shared is
       -- Standard mode: Read .par files with optional JSON validation
       Ada.Text_IO.Open (FT, Ada.Text_IO.In_File, FN);
       Read (FT, "offs", D.B.Offset);
-      Read (FT, "bg  ", D.B.bg);
       Read (FT, "delA", D.B.DelA);
       Read (FT, "delB", D.B.DelB);
       Read (FT, "asym", D.B.Asym);
-      Read (FT, "IR  ", D.B.IR);
       Read (FT, "ma  ", D.B.mA);
       Read (FT, "mp  ", D.B.mP);
       Read (FT, "shfT", D.B.shiftT);
@@ -954,11 +911,9 @@ package body GEM.LTE.Primitives.Shared is
       else
          Ada.Text_IO.Open (FT, Ada.Text_IO.In_File, FN2);
          Read (FT, "offs", D.B.Offset);
-         Read (FT, "bg  ", D.B.bg);
          Read (FT, "delA", D.B.DelA);
          Read (FT, "delB", D.B.DelB);
          Read (FT, "asym", D.B.Asym);
-         Read (FT, "IR  ", D.B.IR);
          Read (FT, "ma  ", D.B.mA);
          Read (FT, "mp  ", D.B.mP);
          Read (FT, "shfT", D.B.shiftT);
@@ -1054,19 +1009,9 @@ package body GEM.LTE.Primitives.Shared is
    begin
       Ada.Text_IO.Put_Line ("```");
       Put (D.B.Offset, " :offset:", NL);
-      Put (D.B.bg, " :bg:", NL);
-      Put (D.B.ImpA, " :impA:", NL);
-      Put (D.B.ImpB, " :impB:", NL);
-      Put (D.B.ImpC, " :impC:", NL);
       Put (D.B.DelA, ":delA:", NL);
       Put (D.B.DelB, ":delB:", NL);
       Put (D.B.Asym, ":asym:", NL);
-      Put (D.B.Ann1, ":ann1:", NL);
-      Put (D.B.Ann2, ":ann2:", NL);
-      Put (D.B.Sem1, ":sem1:", NL);
-      Put (D.B.Sem2, ":sem2:", NL);
-      Put (D.B.Year, ":year:", NL);
-      Put (D.B.IR, ":IR:", NL);
       Put (D.B.mA, " :mA:", NL);
       Put (D.B.mP, " :mP:", NL);
       Put (D.B.shiftT, " :shiftT:", NL);
