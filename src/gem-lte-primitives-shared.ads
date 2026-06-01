@@ -11,13 +11,19 @@ package GEM.LTE.Primitives.Shared is
 
    type Param_B (NLP, NLT : Integer)
    is record                    -- Random walk values
-      Offset : Long_Float;   -- Integrated trend on forcing (kept for FWR path)
-      DelA   : Long_Float;   -- Primary annual impulse amplitude
-      DelB   : Long_Float;   -- Phase (month position) of annual impulse
-      Asym   : Long_Float;   -- Semi-annual counter-impulse amplitude
+      Offset : Long_Float;   -- Integrated trend on forcing
+      ImpA   : Long_Float;   -- Amplitude of sin impulse
+      ImpB   : Long_Float;   -- Phase of sin impulse
+      DelA   : Long_Float;   -- Amplitude of delta impulse
+      DelB   : Long_Float;   -- Phase of delta impulse
+      Asym   : Long_Float;   -- Asymmetry of semi-annual impulse
+      Ann1   : Long_Float;   -- Annual cosine amplitude
+      Ann2   : Long_Float;   -- Annual cosine phase
+      Sem1   : Long_Float;   -- Semi-annual cosine amplitude
+      Sem2   : Long_Float;   -- Semi-annual cosine phase
       mA     : Long_Float;   -- 1st order IIR feedback
-      mP     : Long_Float;   -- 2nd order IIR feedback (ramp/asymmetric damping)
-      shiftT : Long_Float;   -- Starting time correction (Integ param of Tide_Sum)
+      mP     : Long_Float;   -- 2nd order IIR feedback
+      shiftT : Long_Float;   -- Starting time correction
       init   : Long_Float;   -- IIR initial value
 
       LPAP   : Long_Periods_Amp_Phase (1 .. NLP);
@@ -31,10 +37,10 @@ package GEM.LTE.Primitives.Shared is
    --  in the random descent optimization algorithm.
    --
    --  STRUCTURE (for NLP=29, NLT=11):
-   --    - 8 scalar Long_Float fields (Offset, DelA, DelB, Asym, mA, mP, shiftT, init)
+   --    - 14 scalar Long_Float fields (Offset through init)
    --    - LPAP array: NLP Amp_Phase records = NLP * 2 Long_Floats (58 floats)
    --    - LT array: NLT Long_Floats (11 floats)
-   --    TOTAL: 8 + NLP*2 + NLT = 8 + 58 + 11 = 77 Long_Float values
+   --    TOTAL: 14 + NLP*2 + NLT = 8 + 58 + 11 = 77 Long_Float values
    --
    --  SIZE CALCULATION:
    --    With GNAT compiler, unconstrained arrays have dope information (bounds)

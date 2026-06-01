@@ -63,18 +63,24 @@ package GEM.LTE.Primitives.Param_B_Overlay is
    
    --  Named constants for scalar field positions in overlay array
    Offset_Index  : constant := 1;
-   DelA_Index    : constant := 2;
-   DelB_Index    : constant := 3;
-   Asym_Index    : constant := 4;
-   MA_Index      : constant := 5;
-   MP_Index      : constant := 6;
-   ShiftT_Index  : constant := 7;
-   Init_Index    : constant := 8;
+   ImpA_Index    : constant := 2;
+   ImpB_Index    : constant := 3;
+   DelA_Index    : constant := 4;
+   DelB_Index    : constant := 5;
+   Asym_Index    : constant := 6;
+   Ann1_Index    : constant := 7;
+   Ann2_Index    : constant := 8;
+   Sem1_Index    : constant := 9;
+   Sem2_Index    : constant := 10;
+   MA_Index      : constant := 11;
+   MP_Index      : constant := 12;
+   ShiftT_Index  : constant := 13;
+   Init_Index    : constant := 14;
 
    --  Overlay layout: 8 scalars + NLP*2 (LPAP amp+phase pairs) + NLT (LT periods)
    --  First_LPAP_Index = 9
    --  First_LT_Index(NLP) = 9 + NLP*2
-   Scalar_Field_Count : constant := 8;
+   Scalar_Field_Count : constant := 14;
 
    --  Calculate overlay array size for given discriminants
    --  Formula: Scalar_Fields + (NLP * 2) + NLT

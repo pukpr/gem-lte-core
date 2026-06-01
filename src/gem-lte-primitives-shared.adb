@@ -171,6 +171,8 @@ package body GEM.LTE.Primitives.Shared is
    begin
       Ada.Text_IO.Create (FT, Ada.Text_IO.Out_File, FN);
       Put (FT, "offs", D.B.Offset);
+      Put (FT, "impA", D.B.ImpA);
+      Put (FT, "impB", D.B.ImpB);
       Put (FT, "delA", D.B.DelA);
       Put (FT, "delB", D.B.DelB);
       Put (FT, "asym", D.B.Asym);
@@ -193,6 +195,8 @@ package body GEM.LTE.Primitives.Shared is
       -- per data set
       Ada.Text_IO.Create (FT, Ada.Text_IO.Out_File, FN2);
       Put (FT, "offs", D.B.Offset);
+      Put (FT, "impA", D.B.ImpA);
+      Put (FT, "impB", D.B.ImpB);
       Put (FT, "delA", D.B.DelA);
       Put (FT, "delB", D.B.DelB);
       Put (FT, "asym", D.B.Asym);
@@ -319,6 +323,8 @@ package body GEM.LTE.Primitives.Shared is
       begin
          -- Scalar parameters
          Set_Field (Obj, "offs", Create (D.B.Offset));
+         Set_Field (Obj, "impA", Create (D.B.ImpA));
+         Set_Field (Obj, "impB", Create (D.B.ImpB));
          Set_Field (Obj, "delA", Create (D.B.DelA));
          Set_Field (Obj, "delB", Create (D.B.DelB));
          Set_Field (Obj, "asym", Create (D.B.Asym));

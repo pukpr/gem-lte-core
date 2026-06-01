@@ -372,7 +372,6 @@ package body GEM.LTE.Primitives.Solution is
       Data_Ext : Data_Pairs := Make_Data (Ext_Forcing);
       DR : Data_Pairs := Data_Records;
 
-      function Impulse (Time : Long_Float) return Long_Float;
 
       function Impulse_Amplify is new Amplify (Impulse => Impulse)
 
@@ -394,6 +393,10 @@ package body GEM.LTE.Primitives.Solution is
       DKeep : Shared.Param_S (N_Tides, N_Modulations) := D;
       D0 : constant Shared.Param_S := D;  -- reference
 
+      Sin_Impulse : constant Boolean :=
+        GEM.Getenv ("IMPULSE", "DELTA") = "SIN";
+      Sin_Power : constant Integer := GEM.Getenv ("SINPOW", 1);
+      Sampling_Per_Year : constant Long_Float := GEM.Getenv ("SAMPLING", 12.0);
       Spread_Min : constant Long_Float :=
         GEM.Getenv ("SPREAD_MIN", 0.000_000_1);
       Spread_Max : constant Long_Float := GEM.Getenv ("SPREAD_MAX", 0.1);
@@ -472,17 +475,61 @@ package body GEM.LTE.Primitives.Solution is
       end Metric;
 
       --  Monthly delta-impulse: a positive kick at the annual phase (DelB)
-      --  and a counter-kick six months later. 12.0 = monthly sampling.
-      function Impulse (Time : Long_Float) return Long_Float is
-         Trunc : Integer := Integer (((Time - Long_Float'Floor (Time)) * 12.0));
-         DPos  : Integer := Integer (abs (D.B.DelB) * 12.0);
+      --  Forward declarations
+      function Impulse_Delta (Time : Long_Float) return Long_Float;
+      function Impulse_Sin   (Time : Long_Float) return Long_Float;
+
+      --  Monthly discrete comb: kick at annual phase (DelB), counter-kick 6 months later
+      function Impulse_Delta (Time : Long_Float) return Long_Float is
+         Trunc : Integer := Integer (((Time - Long_Float'Floor (Time)) * Sampling_Per_Year));
+         DPos  : Integer := Integer (abs (D.B.DelB) * Sampling_Per_Year);
       begin
          if Trunc = DPos then
             return D.B.DelA;
-         elsif Trunc = (DPos + 6) mod 12 then
+         elsif Trunc = (DPos + Integer (Sampling_Per_Year) / 2) mod Integer (Sampling_Per_Year) then
             return D.B.Asym;
          else
             return 0.0;
+         end if;
+      end Impulse_Delta;
+
+      --  Sinusoidal comb using ImpA/ImpB with Sin_Power shaping
+      function Impulse_Sin (Time : Long_Float) return Long_Float is
+         Pi   : Long_Float := Ada.Numerics.Pi;
+         NPow : Long_Float := abs D.B.DelA;
+         Value : Long_Float := 0.0;
+         use Ada.Numerics.Long_Elementary_Functions;
+      begin
+         Value := Cos (Pi * (Time + D.B.ImpB));
+         if Sin_Power = 1 then
+            Value :=
+              (abs (Cos (Pi * (Time - D.B.DelB))))**(NPow) -
+              D.B.Asym * (abs (Cos (Pi * (Time - D.B.DelB - 0.5))))**(NPow);
+         elsif Sin_Power = 2 then
+            Value :=
+              D.B.Sem2 * Cos (Pi * (Time + D.B.DelB)) *
+              (abs (Cos (Pi * (Time + D.B.DelB))))**(NPow) +
+              D.B.Asym * Cos (2.0 * Pi * (Time + 0.5 * D.B.DelB)) *
+                (abs (Cos (2.0 * Pi * (Time + 0.5 * D.B.DelB))))**(NPow) +
+              D.B.Sem1 * Cos (0.5 * Pi * (Time + 2.0 * D.B.DelB)) *
+                (abs (Cos (0.5 * Pi * (Time + 2.0 * D.B.DelB))))**(NPow);
+         elsif Sin_Power < 0 then
+            Value := D.B.ImpA * Value;
+         else
+            Value :=
+              Impulse_Delta (Time) +
+              D.B.ImpA * Value;
+         end if;
+         return Value;
+      end Impulse_Sin;
+
+      --  Dispatcher: select sinusoidal or discrete impulse
+      function Impulse (Time : Long_Float) return Long_Float is
+      begin
+         if Sin_Impulse then
+            return Impulse_Sin (Time);
+         else
+            return Impulse_Delta (Time);
          end if;
       end Impulse;
 
@@ -639,6 +686,25 @@ package body GEM.LTE.Primitives.Solution is
       Accel : Long_Float;
       LagDelay : Long_Float;
       Random_M : Long_Float := 0.0;
+
+      function Annual_Add
+        (Model : in Data_Pairs; Polarity : Long_Float := 1.0) return Data_Pairs
+      is
+         M : Data_Pairs := Model;
+         Pi : Long_Float := Ada.Numerics.Pi;
+         Annual_Factor, Semi_Factor : Long_Float := 1.0;
+         use Ada.Numerics.Long_Elementary_Functions;
+      begin
+         for I in Model'Range loop
+            M (I).Value :=
+              M (I).Value +
+              Polarity * Annual_Factor * D.B.Ann1 *
+                Cos (2.0 * Pi * M (I).Date + D.B.Ann2) +
+              Polarity * Annual_Factor * Semi_Factor * D.B.Sem1 *
+                Cos (4.0 * Pi * M (I).Date + D.B.Sem2);
+         end loop;
+         return M;
+      end Annual_Add;
 
       function Calc_Forcing return Data_Pairs is
          F : Data_Pairs := Forcing;

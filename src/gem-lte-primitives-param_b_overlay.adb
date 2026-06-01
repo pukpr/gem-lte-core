@@ -114,16 +114,11 @@ package body GEM.LTE.Primitives.Param_B_Overlay is
             Value : Long_Float;
          end record;
          
-         Fields : constant array (1 .. Scalar_Field_Count) of Field_Check := (
-            (Offset_Index, "Offset   ", P.Offset),
-            (DelA_Index,   "DelA     ", P.DelA),
-            (DelB_Index,   "DelB     ", P.DelB),
-            (Asym_Index,   "Asym     ", P.Asym),
-            (MA_Index,     "mA       ", P.mA),
-            (MP_Index,     "mP       ", P.mP),
-            (ShiftT_Index, "shiftT   ", P.shiftT),
-            (Init_Index,   "init     ", P.init)
-         );
+         Fields : constant array (1 .. 14) of String (1 .. 6) :=
+         ("Offset", "ImpA  ", "ImpB  ",
+          "DelA  ", "DelB  ", "Asym  ",
+          "Ann1  ", "Ann2  ", "Sem1  ", "Sem2  ",
+          "mA    ", "mP    ", "shiftT", "init  ");
          
          Matches : Natural := 0;
       begin
