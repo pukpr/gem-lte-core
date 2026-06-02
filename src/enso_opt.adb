@@ -17,8 +17,7 @@ with GEM.dLOD;
 with GNAT.OS_Lib;
 with Ada.Calendar;
 
-procedure ENSO_Opt
-is  -- gprbuild lte.gpr enso_opt -largs -Wl, --stack=40000000
+procedure ENSO_Opt is  -- gprbuild lte.gpr enso_opt -largs -Wl, --stack=40000000
 
    --  Configuration from environment variables
    N : Positive :=  --  Number of parallel worker threads
@@ -30,6 +29,8 @@ is  -- gprbuild lte.gpr enso_opt -largs -Wl, --stack=40000000
    T : Ada.Calendar.Time;  --  Timeout tracking
    Cycle : Duration :=  --  Maximum optimization duration
      Duration (GEM.Getenv ("TIMEOUT", Long_Float (Duration'Last) / 2.0));
+   dLOD_Scale : constant Long_Float := GEM.Getenv ("DLOD_SCALE", 0.0);
+   Expect : constant Boolean := GEM.Getenv ("EXPECT", False);
    use type Ada.Calendar.Time;
 
    --  D = Complete model parameter set (tidal periods, amplitudes, phases,
@@ -41,15 +42,39 @@ is  -- gprbuild lte.gpr enso_opt -largs -Wl, --stack=40000000
          NLT => GEM.LTE.LTM'Length, LP => GEM.LTE.LP, LTAP => GEM.LTE.LTAP),
       B =>
         (NLP => GEM.LTE.LP'Length, NLT => GEM.LTE.LTM'Length,
-         LPAP => GEM.LTE.LPAP, LT => GEM.LTE.LTM, Offset => 0.0,
-         ImpA => 1.0, ImpB => 0.0, DelA => 0.0, DelB => 0.0,
-         Asym => 0.0, Ann1 => 0.0, Ann2 => 0.0,
-         Sem1 => 0.0, Sem2 => 0.0,
-         mA => 0.0, mP => 0.0, shiftT => 0.000_00,
+         LPAP => GEM.LTE.LPAP, LT => GEM.LTE.LTM, Offset => 0.0, bg => 0.0,
+         ImpA => 1.0, ImpB => 0.0, ImpC => 0.0, DelA => 0.0, DelB => 0.0,
+         Asym => 0.0, Ann1 => 0.0, Ann2 => 0.0, Sem1 => 0.0, Sem2 => 0.0,
+         Year => 0.0, IR => 0.0, mA => 0.0, mP => 0.0, shiftT => 0.000_00,
          init => 0.006_3),
       C => (others => 0));
 
 begin
+   --  Stack size limit is now raised by the launcher (ulimit -s unlimited)
+   --  before this executable is invoked, so the setrlimit block below is
+   --  no longer needed here.
+   --
+   --  --  Remove the main thread stack size limit (equivalent to ulimit -s unlimited).
+   --  --  The default ~8 MB limit causes STORAGE_ERROR with large data sets.
+   --  declare
+   --     RLIMIT_STACK : constant Interfaces.C.int := 3;
+   --     type rlim_t is mod 2 ** 64;
+   --     type Rlimit is record
+   --        rlim_cur, rlim_max : rlim_t;
+   --     end record;
+   --     pragma Convention (C, Rlimit);
+   --     function setrlimit
+   --       (resource : Interfaces.C.int; rlp : access Rlimit)
+   --        return Interfaces.C.int;
+   --     pragma Import (C, setrlimit, "setrlimit");
+   --     R : aliased Rlimit := (rlim_t'Last, rlim_t'Last);
+   --     use type Interfaces.C.int;
+   --  begin
+   --     if setrlimit (RLIMIT_STACK, R'Access) /= 0 then
+   --        Text_IO.Put_Line ("Warning: could not remove stack size limit");
+   --     end if;
+   --  end;
+
    declare
       --  AP = Amplitude/Phase data from day-length-of-day (dLOD) measurements
       --  Used as reference forcing for the tidal model
@@ -61,39 +86,37 @@ begin
       --  Load previously saved parameters if available (warm start)
       GEM.LTE.Primitives.Shared.Load (D);
 
-      --  Initialize tidal forcing amplitudes and phases from dLOD data.
-      --
-      --  NOTE: GEM.LTE.LPAP defaults to zero amplitudes at elaboration time.
-      --  If no saved .par was loaded and we only "reference" dLOD, the forcing
-      --  stays near-identically 0 and CC will stay pinned at 0.0.
-      declare
-         Max_Abs_Amp : Long_Float := 0.0;
-      begin
-         for I in D.B.LPAP'Range loop
-            Max_Abs_Amp := Long_Float'Max (Max_Abs_Amp, abs D.B.LPAP (I).Amplitude);
-         end loop;
+      --  COMMENTED CODE: Year adjustment feature - disabled
+      --  Would adjust the annual period parameter based on LP values
+      --  TODO: Remove after confirming not needed - was experimental feature
+      --  for testing sensitivity to yearly modulation
+      --if GEM.Getenv("YTRIM", FALSE) then
+--   GEM.LTE.Year_Adjustment(D.B.Year, D.A.LP); -- should be a protected call?
+      --end if;
 
-         if GEM.Command_Line_Option_Exists ("r") or
-           (not GEM.Getenv ("DLOD_REF", True)) or
-           Max_Abs_Amp < 1.0E-18
-         then
-            --  Fresh start (or uninitialized LPAP): seed from dLOD
-            Text_IO.Put_Line ("Loading dLOD");
-            for I in D.B.LPAP'Range loop
-               GEM.LTE.LPRef (I).Amplitude := AP (I).Amplitude;
-               GEM.LTE.LPRef (I).Phase := AP (I).Phase;
-               D.B.LPAP (I).Amplitude := AP (I).Amplitude;
-               D.B.LPAP (I).Phase := AP (I).Phase;
-            end loop;
-         else
-            --  Reference mode: store dLOD but don't overwrite current parameters
-            Text_IO.Put_Line ("Referencing dLOD");
-            for I in D.B.LPAP'Range loop
-               GEM.LTE.LPRef (I).Amplitude := AP (I).Amplitude;
-               GEM.LTE.LPRef (I).Phase := AP (I).Phase;
-            end loop;
-         end if;
-      end;
+      Text_IO.Put_Line ("YA=" & D.B.Year'Img);
+
+      --  Initialize tidal forcing amplitudes and phases from dLOD data
+      if GEM.Command_Line_Option_Exists ("r") or
+        not GEM.Getenv ("DLOD_REF", True)
+      then
+         --  Fresh start: use dLOD data directly with optional scaling
+         Text_IO.Put_Line ("Loading dLOD");
+         for I in D.B.LPAP'Range loop
+            GEM.LTE.LPRef (I).Amplitude := AP (I).Amplitude;
+            GEM.LTE.LPRef (I).Phase := AP (I).Phase;
+            D.B.LPAP (I).Amplitude :=
+              AP (I).Amplitude * (1.0 + dLOD_Scale * D.A.LP (I));
+            D.B.LPAP (I).Phase := AP (I).Phase;
+         end loop;
+      else
+         --  Reference mode: store dLOD but don't overwrite current parameters
+         Text_IO.Put_Line ("Referencing dLOD");
+         for I in D.B.LPAP'Range loop
+            GEM.LTE.LPRef (I).Amplitude := AP (I).Amplitude;
+            GEM.LTE.LPRef (I).Phase := AP (I).Phase;
+         end loop;
+      end if;
 
       --  Store initialized parameters for worker tasks to access
       GEM.LTE.Primitives.Shared.Put (D);
@@ -120,8 +143,13 @@ begin
          exit when GEM.LTE.Primitives.Halted;
       end;
 
-      --  Check for user keyboard commands (non-blocking)
-      Text_IO.Get_Immediate (Ch, Avail);
+      --  Check for user keyboard commands
+      if Expect then
+         Text_IO.Get (Ch);  --  Blocking for scripted use
+         Avail := True;
+      else
+         Text_IO.Get_Immediate (Ch, Avail);  --  Non-blocking for interactive
+      end if;
 
       if Avail then
          if Ch = 'q' or Ch = 's' then
@@ -150,6 +178,10 @@ begin
       end if;
 
    end loop;
+
+   --  COMMENTED CODE: Debug message for main thread exit
+   --  TODO: Can remove - leftover from debugging parallel task shutdown
+   --Text_IO.Put_Line("Main exiting, flushing other tasks");
 
    --  Wait for worker tasks to complete their final output writes
    delay 5.0;

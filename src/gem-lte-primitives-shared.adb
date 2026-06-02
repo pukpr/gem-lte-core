@@ -40,12 +40,9 @@
 --
 --  ============================================================================
 
-with Ada.Direct_IO;
 with Ada.Command_Line;
 with Ada.Text_IO;
 with GNAT.OS_Lib;
-with Ada.Long_Float_Text_IO;
-with Ada.Integer_Text_IO;
 with GNATCOLL.JSON;
 with Ada.Strings.Unbounded;
 with Ada.Characters.Latin_1;
@@ -54,14 +51,7 @@ with Ada.Directories;
 
 package body GEM.LTE.Primitives.Shared is
 
-   -- Canonical parameter/response file prefix per GEM-LTE-Refactor-Plan.md
-   Canonical_Base : constant String := "lt.exe";
-
    CI : constant String := GEM.Getenv (Name => "CLIMATE_INDEX", Default => "");
-   CI_Simple : constant String :=
-     (if CI'Length = 0 then "" else Ada.Directories.Simple_Name (CI));
-   CI_Dir : constant String :=
-     (if CI'Length = 0 then "" else Ada.Directories.Containing_Directory (CI));
 
    --  Access type required for protected object storage
    --  (cannot directly store discriminated record in protected object)
@@ -126,106 +116,6 @@ package body GEM.LTE.Primitives.Shared is
       return P;
    end Get;
 
-   --  =========================================================================
-   --  Output Formatting Helpers
-   --  =========================================================================
-
-   --  Write parameter name + Long_Float value in fixed format
-   procedure Put
-     (FT : in Ada.Text_IO.File_Type; Text : in String; Value : in Long_Float)
-   is
-   begin
-      Ada.Text_IO.Put (FT, Text & " ");
-      Ada.Long_Float_Text_IO.Put (FT, Value, Fore => 4, Aft => 11, Exp => 0);
-      Ada.Text_IO.New_Line (FT);
-   end Put;
-
-   --  Write parameter name + Integer value
-   procedure Put
-     (FT : in Ada.Text_IO.File_Type; Text : in String; Value : in Integer)
-   is
-   begin
-      Ada.Text_IO.Put (FT, Text & " " & Integer'Image (Value));
-      Ada.Text_IO.New_Line (FT);
-   end Put;
-
-   --  Write triplet (period, amplitude, phase) for tidal constituents
-   procedure Put (FT : Ada.Text_IO.File_Type; V1, V2, V3 : in Long_Float) is
-   begin
-      Ada.Long_Float_Text_IO.Put (FT, V1, Fore => 4, Aft => 11, Exp => 0);
-      Ada.Long_Float_Text_IO.Put (FT, V2, Fore => 4, Aft => 11, Exp => 0);
-      Ada.Long_Float_Text_IO.Put (FT, V3, Fore => 4, Aft => 11, Exp => 0);
-      Ada.Text_IO.New_Line (FT);
-   end Put;
-
-   --  =========================================================================
-   --  Write: Save parameters to text .par files
-   --
-   --  Generates two files:
-   --    1. <executable>.par - General parameters for all climate indices
-   --    2. <executable>.<climate_index>.par - Index-specific parameters
-   --
-   --  Format: 4-character tag followed by space and value
-   --  Example: "offs  0.12345678901"
-   --  =========================================================================
-   procedure Write (D : in Param_S) is
-      -- Legacy .par writing is retained for backward compatibility, but
-      -- filenames follow the canonical lt.exe.* convention.
-      Dir_Prefix : constant String :=
-        (if CI_Dir'Length = 0 or else CI_Dir = "." then "" else CI_Dir & "/");
-      FN : constant String := Dir_Prefix & Canonical_Base & ".par";
-      FN2 : constant String := Dir_Prefix & Canonical_Base & "." & CI_Simple & ".par";
-      FT : Ada.Text_IO.File_Type;
-   begin
-      Ada.Text_IO.Create (FT, Ada.Text_IO.Out_File, FN);
-      Put (FT, "offs", D.B.Offset);
-      Put (FT, "impA", D.B.ImpA);
-      Put (FT, "impB", D.B.ImpB);
-      Put (FT, "delA", D.B.DelA);
-      Put (FT, "delB", D.B.DelB);
-      Put (FT, "asym", D.B.Asym);
-      Put (FT, "ma  ", D.B.mA);
-      Put (FT, "mp  ", D.B.mP);
-      Put (FT, "shfT", D.B.shiftT);
-      Put (FT, "init", D.B.init);
-      for I in D.B.LPAP'Range loop
-         Ada.Text_IO.Put (FT, " ");
-         Put (FT, D.A.LP (I), D.B.LPAP (I).Amplitude, D.B.LPAP (I).Phase);
-      end loop;
-      for I in D.B.LT'Range loop
-         Put (FT, "ltep", D.B.LT (I));
-      end loop;
-      for I in D.C'Range loop
-         Put (FT, "harm", D.C (I));
-         exit when D.C (I) = 0;
-      end loop;
-      Ada.Text_IO.Close (FT);
-
-      if CI_Simple'Length = 0 then
-         return;
-      end if;
-
-      -- per data set
-      Ada.Text_IO.Create (FT, Ada.Text_IO.Out_File, FN2);
-      Put (FT, "offs", D.B.Offset);
-      Put (FT, "impA", D.B.ImpA);
-      Put (FT, "impB", D.B.ImpB);
-      Put (FT, "delA", D.B.DelA);
-      Put (FT, "delB", D.B.DelB);
-      Put (FT, "asym", D.B.Asym);
-      Put (FT, "ma  ", D.B.mA);
-      Put (FT, "mp  ", D.B.mP);
-      Put (FT, "shfT", D.B.shiftT);
-      Put (FT, "init", D.B.init);
-      for I in D.B.LT'Range loop
-         Put (FT, "ltep", D.B.LT (I));
-      end loop;
-      for I in D.C'Range loop
-         Put (FT, "harm", D.C (I));
-         exit when D.C (I) = 0;
-      end loop;
-      Ada.Text_IO.Close (FT);
-   end Write;
 
    --  =========================================================================
    --  Write_JSON: Save parameters to JSON .p files
@@ -266,35 +156,34 @@ package body GEM.LTE.Primitives.Shared is
       
       Data := Result.Value;
       
-      -- Count ltep array length and (optionally) set NM.
-      -- Response file (lt.exe.resp) should take precedence when present.
+      -- Count ltep array length and override NM
       if Kind (Data) = JSON_Object_Type and then Has_Field (Data, "ltep") then
          Arr := Get (Data, "ltep");
          NM_Count := Length (Arr);
-         if GEM.Getenv ("NM", "") = "" then
-            GEM.Setenv ("NM", Integer'Image (NM_Count));
-         end if;
+         GEM.Setenv ("NM", Integer'Image (NM_Count));
+         --  Silently detect NM from JSON (uncomment for debug)
+         --  Ada.Text_IO.Put_Line ("Detected NM=" & Integer'Image (NM_Count) & " from JSON ltep array");
       end if;
-       
-      -- Count harm array length and (optionally) set NH.
+      
+      -- Count harm array length and override NH
       if Kind (Data) = JSON_Object_Type and then Has_Field (Data, "harm") then
          Arr := Get (Data, "harm");
          NH_Count := Length (Arr);
-         if GEM.Getenv ("NH", "") = "" then
-            -- Build NH string as "1 1 1 ..." with NH_Count entries
-            declare
-               NH_Str : String (1 .. NH_Count * 2 - 1) := (others => ' ');
-               Pos : Positive := 1;
-            begin
-               for I in 1 .. NH_Count loop
-                  NH_Str (Pos) := '1';
-                  if I < NH_Count then
-                     Pos := Pos + 2;  -- Skip space
-                  end if;
-               end loop;
-               GEM.Setenv ("NH", NH_Str);
-            end;
-         end if;
+         -- Build NH string as "1 1 1 ..." with NH_Count entries
+         declare
+            NH_Str : String (1 .. NH_Count * 2 - 1) := (others => ' ');
+            Pos : Positive := 1;
+         begin
+            for I in 1 .. NH_Count loop
+               NH_Str (Pos) := '1';
+               if I < NH_Count then
+                  Pos := Pos + 2;  -- Skip space
+               end if;
+            end loop;
+            GEM.Setenv ("NH", NH_Str);
+            --  Silently detect NH from JSON (uncomment for debug)
+            --  Ada.Text_IO.Put_Line ("Detected NH with" & Natural'Image (NH_Count) & " entries from JSON harm array");
+         end;
       end if;
    exception
       when others =>
@@ -316,18 +205,16 @@ package body GEM.LTE.Primitives.Shared is
 
    procedure Write_JSON (D : in Param_S) is
       use GNATCOLL.JSON;
-      Dir_Prefix : constant String :=
-        (if CI_Dir'Length = 0 or else CI_Dir = "." then "" else CI_Dir & "/");
-      FN : constant String := Dir_Prefix & Canonical_Base & ".p";
-      FN2 : constant String := Dir_Prefix & Canonical_Base & "." & CI_Simple & ".p";
+      FN : constant String :=
+        Ada.Directories.Simple_Name (Ada.Command_Line.Command_Name) & ".p";
+      FN2 : constant String :=
+        Ada.Directories.Simple_Name (Ada.Command_Line.Command_Name) & "." &
+        CI & ".p";
       
       -- Use NH/NM from environment (.resp file takes precedence)
       NM : constant Integer := GEM.Getenv ("NM", D.B.LT'Length);
-      NH_Str : constant String := GEM.Getenv ("NH", "");
-      Harms : constant Ns :=
-        (if NH_Str'Length = 0 then (1 .. 1 => 0) else Parse_NH (NH_Str));
-      NH : constant Integer :=
-        (if Harms'Length = 1 and then Harms (Harms'First) = 0 then 0 else Harms'Length);
+      Harms : constant Ns := Parse_NH (GEM.Getenv ("NH", ""));
+      NH : constant Integer := Harms'Length;
       
       procedure Write_To_File (Filename : String; Include_LPAP : Boolean);
       
@@ -339,11 +226,19 @@ package body GEM.LTE.Primitives.Shared is
       begin
          -- Scalar parameters
          Set_Field (Obj, "offs", Create (D.B.Offset));
+         Set_Field (Obj, "bg", Create (D.B.bg));
          Set_Field (Obj, "impA", Create (D.B.ImpA));
          Set_Field (Obj, "impB", Create (D.B.ImpB));
+         Set_Field (Obj, "impC", Create (D.B.ImpC));
          Set_Field (Obj, "delA", Create (D.B.DelA));
          Set_Field (Obj, "delB", Create (D.B.DelB));
          Set_Field (Obj, "asym", Create (D.B.Asym));
+         Set_Field (Obj, "ann1", Create (D.B.Ann1));
+         Set_Field (Obj, "ann2", Create (D.B.Ann2));
+         Set_Field (Obj, "sem1", Create (D.B.Sem1));
+         Set_Field (Obj, "sem2", Create (D.B.Sem2));
+         Set_Field (Obj, "year", Create (D.B.Year));
+         Set_Field (Obj, "IR", Create (D.B.IR));
          Set_Field (Obj, "ma", Create (D.B.mA));
          Set_Field (Obj, "mp", Create (D.B.mP));
          Set_Field (Obj, "shfT", Create (D.B.shiftT));
@@ -397,9 +292,7 @@ package body GEM.LTE.Primitives.Shared is
       
    begin
       Write_To_File (FN, Include_LPAP => True);   -- Primary file with LPAP
-      if CI_Simple'Length > 0 then
-         Write_To_File (FN2, Include_LPAP => False); -- Secondary file without LPAP
-      end if;
+      Write_To_File (FN2, Include_LPAP => False); -- Secondary file without LPAP
    end Write_JSON;
 
    --  =========================================================================
@@ -410,63 +303,12 @@ package body GEM.LTE.Primitives.Shared is
    --  =========================================================================
    procedure Save (P : in Param_S) is
    begin
-      -- Per refactor plan: .p (JSON) is the canonical persisted format.
-      -- Legacy .par / .parms outputs are intentionally not written.
-      Write_JSON (P);
+      Write_JSON (P);  -- Write JSON .p files (keep in sync with .par)
    end Save;
 
    --  =========================================================================
    --  Input Parsing Helpers - Read parameters from text files
    --  =========================================================================
-
-   --  Read 4-char tag + Long_Float value, validate tag matches expected
-   procedure Read
-     (FT : in Ada.Text_IO.File_Type; Text : in String;
-      Value : in out Long_Float)
-   is
-      Str : String (1 .. 100);
-      N : Integer;
-   begin
-      Ada.Text_IO.Get_Line (FT, Str, N);
-      if Text = Str (1 .. 4) then
-         Ada.Long_Float_Text_IO.Get (Str (5 .. N), Value, N);
-      else
-         Ada.Text_IO.Put_Line (Text & " mismatches " & Str (1 .. N));
-         GNAT.OS_Lib.OS_Exit (0);
-      end if;
-   end Read;
-
-   --  Read 4-char tag + Integer value, validate tag matches expected
-   procedure Read
-     (FT : in Ada.Text_IO.File_Type; Text : in String; Value : in out Integer)
-   is
-      Str : String (1 .. 100);
-      N : Integer;
-   begin
-      Ada.Text_IO.Get_Line (FT, Str, N);
-      if Text = Str (1 .. 4) then
-         Ada.Integer_Text_IO.Get (Str (5 .. N), Value, N);
-      else
-         Ada.Text_IO.Put_Line (Text & " mismatches " & Str (1 .. N));
-         GNAT.OS_Lib.OS_Exit (0);
-      end if;
-   end Read;
-
-   procedure Read (FT : in Ada.Text_IO.File_Type; V1, V2, V3 : out Long_Float)
-   is
-      Str : String (1 .. 100);
-      N : Integer;
-      Floats : Fs (1 .. 3);
-   begin
-      Ada.Text_IO.Get_Line (FT, Str, N);
-      Floats := S_to_LF (Str (1 .. N));
-      V1 := Floats (1);
-      V2 := Floats (2);
-      V3 := Floats (3);
-   exception
-      when others =>
-         Ada.Text_IO.Put_Line ("Finished " & Str (1 .. N));
-   end Read;
 
    function File_To_String (Name : in String) return String is
       FT : Ada.Text_IO.File_Type;
@@ -619,7 +461,6 @@ package body GEM.LTE.Primitives.Shared is
       
       procedure Apply (Period, Amp, Phase : in Long_Float) is
          Found : Boolean := False;
-         Tolerance : Long_Float;
          Best_Index : Integer := 0;
          Best_Diff : Long_Float := Long_Float'Last;
       begin
@@ -733,9 +574,20 @@ package body GEM.LTE.Primitives.Shared is
       end if;
       Data := Result.Value;
       D.B.Offset := Get_Float_Field (Data, "offs", D.B.Offset);
+      D.B.bg := Get_Float_Field (Data, "bg", D.B.bg);
+      D.B.ImpA := Get_Float_Field (Data, "impA", D.B.ImpA);
+      D.B.ImpB := Get_Float_Field (Data, "impB", D.B.ImpB);
+      D.B.ImpC := Get_Float_Field (Data, "impC", D.B.ImpC);
       D.B.DelA := Get_Float_Field (Data, "delA", D.B.DelA);
       D.B.DelB := Get_Float_Field (Data, "delB", D.B.DelB);
       D.B.Asym := Get_Float_Field (Data, "asym", D.B.Asym);
+      D.B.Ann1 := Get_Float_Field (Data, "ann1", D.B.Ann1);
+      D.B.Ann2 := Get_Float_Field (Data, "ann2", D.B.Ann2);
+      D.B.Sem1 := Get_Float_Field (Data, "sem1", D.B.Sem1);
+      D.B.Sem2 := Get_Float_Field (Data, "sem2", D.B.Sem2);
+      D.B.Year := Get_Float_Field (Data, "year", D.B.Year);
+      D.B.IR :=
+        Get_Float_Field (Data, "IR", Get_Float_Field (Data, "ir", D.B.IR));
       D.B.mA := Get_Float_Field (Data, "ma", D.B.mA);
       D.B.mP := Get_Float_Field (Data, "mp", D.B.mP);
       D.B.shiftT :=
@@ -762,73 +614,7 @@ package body GEM.LTE.Primitives.Shared is
          -- GNAT.OS_Lib.Os_Exit(0);
    end Read_JSON;
 
-   --  =========================================================================
-   --  Read: Load parameters from text .par files (fallback to JSON)
-   --
-   --  Tries JSON first, falls back to text .par format. Loads:
-   --    1. General parameters from <executable>.par or .json
-   --    2. Index-specific overrides from <executable>.<climate_index>.par
-   --
-   --  Validates tag names and exits on mismatch to catch file corruption.
-   --  =========================================================================
-   procedure Validate_JSON_vs_PAR (D_PAR, D_JSON : in Param_S; FN : in String) is
-      Tolerance : constant Long_Float := 1.0e-10;
-      Errors : Natural := 0;
-      
-      procedure Check (Name : in String; PAR_Val, JSON_Val : in Long_Float) is
-      begin
-         if abs (PAR_Val - JSON_Val) > Tolerance then
-            Ada.Text_IO.Put_Line 
-              ("MISMATCH " & Name & ": PAR=" & Long_Float'Image (PAR_Val) &
-               " JSON=" & Long_Float'Image (JSON_Val));
-            Errors := Errors + 1;
-         end if;
-      end Check;
-      
-      procedure Check_Int (Name : in String; PAR_Val, JSON_Val : in Integer) is
-      begin
-         if PAR_Val /= JSON_Val then
-            Ada.Text_IO.Put_Line 
-              ("MISMATCH " & Name & ": PAR=" & Integer'Image (PAR_Val) &
-               " JSON=" & Integer'Image (JSON_Val));
-            Errors := Errors + 1;
-         end if;
-      end Check_Int;
-   begin
-      Ada.Text_IO.Put_Line ("=== Validating JSON vs PAR for " & FN & " ===");
-      
-      Check ("offs", D_PAR.B.Offset, D_JSON.B.Offset);
-      Check ("delA", D_PAR.B.DelA, D_JSON.B.DelA);
-      Check ("delB", D_PAR.B.DelB, D_JSON.B.DelB);
-      Check ("asym", D_PAR.B.Asym, D_JSON.B.Asym);
-      Check ("ma  ", D_PAR.B.mA, D_JSON.B.mA);
-      Check ("mp  ", D_PAR.B.mP, D_JSON.B.mP);
-      Check ("shfT", D_PAR.B.shiftT, D_JSON.B.shiftT);
-      Check ("init", D_PAR.B.init, D_JSON.B.init);
-      
-      for I in D_PAR.B.LPAP'Range loop
-         Check ("LPAP(" & Integer'Image (I) & ").Amplitude", 
-                D_PAR.B.LPAP (I).Amplitude, D_JSON.B.LPAP (I).Amplitude);
-         Check ("LPAP(" & Integer'Image (I) & ").Phase", 
-                D_PAR.B.LPAP (I).Phase, D_JSON.B.LPAP (I).Phase);
-      end loop;
-      
-      for I in D_PAR.B.LT'Range loop
-         Check ("ltep(" & Integer'Image (I) & ")", D_PAR.B.LT (I), D_JSON.B.LT (I));
-      end loop;
-      
-      for I in D_PAR.C'Range loop
-         Check_Int ("harm(" & Integer'Image (I) & ")", D_PAR.C (I), D_JSON.C (I));
-      end loop;
-      
-      if Errors = 0 then
-         Ada.Text_IO.Put_Line ("*** ALL FIELDS MATCH - JSON LOADING IS CORRECT ***");
-      else
-         Ada.Text_IO.Put_Line ("*** TOTAL MISMATCHES: " & Natural'Image (Errors) & " ***");
-      end if;
-      Ada.Text_IO.Put_Line ("");
-   end Validate_JSON_vs_PAR;
-
+   
    procedure Read (D : in out Param_S) is
       Exec : constant String :=
         Ada.Directories.Simple_Name (Ada.Command_Line.Command_Name);
@@ -836,174 +622,39 @@ package body GEM.LTE.Primitives.Shared is
         (if Exec'Length > 0 and then Exec (Exec'Last) = '.' then
            Exec (Exec'First .. Exec'Last - 1)
          else Exec);
-      Index_Tag : constant String := CI_Simple;
-      Dir_Prefix : constant String :=
-        (if CI_Dir'Length = 0 or else CI_Dir = "." then "" else CI_Dir & "/");
-
+      FN_JSON : constant String := Base & ".p";
+      FN2_JSON : constant String := Base & "." & CI & ".p";
       FT : Ada.Text_IO.File_Type;
-      JSON_Only_Mode : constant Boolean := GEM.Command_Line_Option_Exists ("-j");
-
-      function Try_Read_JSON_Set (Prefix : in String) return Boolean is
-         FN_JSON : constant String := Prefix & ".p";
-         FN2_JSON : constant String :=
-           (if Index_Tag'Length = 0 then "" else Prefix & "." & Index_Tag & ".p");
-         Loaded : Boolean := False;
-      begin
-         -- Initialize NM/NH from JSON only if the response file did not set them.
-         if Index_Tag'Length > 0 then
-            Detect_NM_NH_From_JSON (FN2_JSON);
-         end if;
-         Detect_NM_NH_From_JSON (FN_JSON);
-
-         if Read_JSON (FN_JSON, D, True) then
-            Loaded := True;
-         end if;
-
-         if Index_Tag'Length > 0 then
-            if Read_JSON (FN2_JSON, D, False) then
-               Loaded := True;
-            end if;
-         end if;
-
-         return Loaded;
-      end Try_Read_JSON_Set;
-
-      function Try_Read_PAR_Set (Prefix : in String) return Boolean is
-         FN : constant String := Prefix & ".par";
-         FN2 : constant String :=
-           (if Index_Tag'Length = 0 then "" else Prefix & "." & Index_Tag & ".par");
-      begin
-         begin
-            Ada.Text_IO.Open (FT, Ada.Text_IO.In_File, FN);
-         exception
-            when Ada.Text_IO.Name_Error | Ada.IO_Exceptions.Name_Error =>
-               return False;
-         end;
-
-         Read (FT, "offs", D.B.Offset);
-         Read (FT, "delA", D.B.DelA);
-         Read (FT, "delB", D.B.DelB);
-         Read (FT, "asym", D.B.Asym);
-         Read (FT, "ma  ", D.B.mA);
-         Read (FT, "mp  ", D.B.mP);
-         Read (FT, "shfT", D.B.shiftT);
-         Read (FT, "init", D.B.init);
-         for I in D.B.LPAP'Range loop
-            Read (FT, D.A.LP (I), D.B.LPAP (I).Amplitude, D.B.LPAP (I).Phase);
-            D.A.LP (I) := GEM.LTE.LP (I);
-         end loop;
-         for I in D.B.LT'Range loop
-            Read (FT, "ltep", D.B.LT (I));
-         end loop;
-
-         begin
-            for I in D.C'Range loop
-               Read (FT, "harm", D.C (I));
-            end loop;
-            Ada.Text_IO.Close (FT);
-         exception
-            when Ada.Text_IO.End_Error =>
-               if Ada.Text_IO.Is_Open (FT) then
-                  Ada.Text_IO.Close (FT);
-               end if;
-            when others =>
-               if Ada.Text_IO.Is_Open (FT) then
-                  Ada.Text_IO.Close (FT);
-               end if;
-               raise;
-         end;
-
-         -- Optional index-specific overrides (scalars/LT/harm only)
-         if Index_Tag'Length = 0 then
-            return True;
-         end if;
-
-         begin
-            Ada.Text_IO.Open (FT, Ada.Text_IO.In_File, FN2);
-         exception
-            when Ada.Text_IO.Name_Error | Ada.IO_Exceptions.Name_Error =>
-               return True;
-         end;
-
-         Read (FT, "offs", D.B.Offset);
-         Read (FT, "delA", D.B.DelA);
-         Read (FT, "delB", D.B.DelB);
-         Read (FT, "asym", D.B.Asym);
-         Read (FT, "ma  ", D.B.mA);
-         Read (FT, "mp  ", D.B.mP);
-         Read (FT, "shfT", D.B.shiftT);
-         Read (FT, "init", D.B.init);
-         for I in D.B.LT'Range loop
-            Read (FT, "ltep", D.B.LT (I));
-         end loop;
-         begin
-            for I in D.C'Range loop
-               Read (FT, "harm", D.C (I));
-            end loop;
-            Ada.Text_IO.Close (FT);
-         exception
-            when Ada.Text_IO.End_Error =>
-               if Ada.Text_IO.Is_Open (FT) then
-                  Ada.Text_IO.Close (FT);
-               end if;
-            when others =>
-               if Ada.Text_IO.Is_Open (FT) then
-                  Ada.Text_IO.Close (FT);
-               end if;
-         end;
-
-         return True;
-      end Try_Read_PAR_Set;
-
    begin
       -- Initialize D.A.LP with canonical Doodson-calculated periods BEFORE any JSON reading
       for I in D.A.LP'Range loop
          D.A.LP (I) := GEM.LTE.LP (I);
       end loop;
-
-      -- Per refactor plan, prefer canonical lt.exe.*.p regardless of executable.
-      if JSON_Only_Mode then
-         if (Dir_Prefix'Length > 0 and then Try_Read_JSON_Set (Dir_Prefix & Canonical_Base))
-           or else Try_Read_JSON_Set (Canonical_Base)
-           or else (Dir_Prefix'Length > 0 and then Try_Read_JSON_Set (Dir_Prefix & Base))
-           or else Try_Read_JSON_Set (Base)
-         then
-            return;
+      
+      -- Detect NM/NH from JSON to override defaults with actual JSON array sizes
+      Detect_NM_NH_From_JSON (FN2_JSON);  -- Try secondary file first (more specific)
+      Detect_NM_NH_From_JSON (FN_JSON);   -- Then primary file (may override if present)
+      
+         Ada.Text_IO.Put_Line ("*** JSON-ONLY MODE ***");
+         Ada.Text_IO.Put_Line ("Reading primary file: " & FN_JSON);
+         if not Read_JSON (FN_JSON, D, True) then
+            raise Ada.Text_IO.Name_Error with "JSON file not found: " & FN_JSON;
          end if;
-
-         raise Ada.Text_IO.Name_Error with
-           "JSON file not found: " & Canonical_Base & ".p";
-      end if;
-
-      if (Dir_Prefix'Length > 0 and then Try_Read_JSON_Set (Dir_Prefix & Canonical_Base))
-        or else Try_Read_JSON_Set (Canonical_Base)
-        or else (Dir_Prefix'Length > 0 and then Try_Read_JSON_Set (Dir_Prefix & Base))
-        or else Try_Read_JSON_Set (Base)
-      then
-         return;
-      end if;
-
-      -- Backward compatibility: fall back to legacy .par if no JSON exists.
-      if (Dir_Prefix'Length > 0 and then Try_Read_PAR_Set (Dir_Prefix & Canonical_Base))
-        or else Try_Read_PAR_Set (Canonical_Base)
-        or else (Dir_Prefix'Length > 0 and then Try_Read_PAR_Set (Dir_Prefix & Base))
-        or else Try_Read_PAR_Set (Base)
-      then
-         return;
-      end if;
-
-      if Index_Tag'Length > 0 then
-         Ada.Text_IO.Put_Line ("? Opening " & Canonical_Base & "." & Index_Tag & ".p");
-      else
-         Ada.Text_IO.Put_Line ("? Opening " & Canonical_Base & ".p");
-      end if;
+         Ada.Text_IO.Put_Line ("Successfully loaded: " & FN_JSON);
+         
+         Ada.Text_IO.Put_Line ("Reading secondary file: " & FN2_JSON);
+         if not Read_JSON (FN2_JSON, D, False) then
+            raise Ada.Text_IO.Name_Error with "JSON file not found: " & FN2_JSON;
+         end if;
+         Ada.Text_IO.Put_Line ("Successfully loaded: " & FN2_JSON);
+         Ada.Text_IO.Put_Line ("*** JSON FILES LOADED SUCCESSFULLY ***");
+      
 
    exception
       when others =>
          if Ada.Text_IO.Is_Open (FT) then
             Ada.Text_IO.Close (FT);
          end if;
-         raise;
    end Read;
 
    --  =========================================================================
@@ -1016,35 +667,11 @@ package body GEM.LTE.Primitives.Shared is
    --    -w : Write parameters to .par files and exit
    --  =========================================================================
    procedure Load (P : in out Param_S) is
-      subtype PS is Param_S (P.NLP, P.NLT);
-      package DIO is new Ada.Direct_IO (PS);
-      FN : constant String := Canonical_Base & ".parms";
-      use DIO;
-      FT : File_Type;
    begin
-      if GEM.Command_Line_Option_Exists ("-l") then  -- legacy file
-         begin
-            Open (FT, In_File, FN);
-            Read (FT, P);
-            Close (FT);
-         exception
-            when Name_Error =>
-               Ada.Text_IO.Put_Line ("No PARMS file: " & FN);
-            when others =>
-               Ada.Text_IO.Put_Line ("Error:" & FN);
-               if Is_Open (FT) then
-                  Close (FT);
-               end if;
-         end;
-      else
-         Read (P);
-      end if;
+      Read (P);
 
-      if GEM.Command_Line_Option_Exists ("-p") then
+      if GEM.Command_Line_Option_Exists ("p") then
          Dump (P);
-         GNAT.OS_Lib.OS_Exit (0);
-      elsif GEM.Command_Line_Option_Exists ("-w") then
-         Write (P);
          GNAT.OS_Lib.OS_Exit (0);
       end if;
    end Load;
@@ -1058,14 +685,28 @@ package body GEM.LTE.Primitives.Shared is
    procedure Dump (D : in Param_S) is
       function Percent (A, B : in Long_Float) return String is
       begin
-         return ", " & Integer'Image (Integer ((B - A) / A * 100.0));
+         if A = 0.0 then
+            return ", 0.0";
+         else
+            return ", " & Integer'Image (Integer ((B - A) / A * 100.0));
+         end if;
       end Percent;
    begin
       Ada.Text_IO.Put_Line ("```");
       Put (D.B.Offset, " :offset:", NL);
+      Put (D.B.bg, " :bg:", NL);
+      Put (D.B.ImpA, " :impA:", NL);
+      Put (D.B.ImpB, " :impB:", NL);
+      Put (D.B.ImpC, " :impC:", NL);
       Put (D.B.DelA, ":delA:", NL);
       Put (D.B.DelB, ":delB:", NL);
       Put (D.B.Asym, ":asym:", NL);
+      Put (D.B.Ann1, ":ann1:", NL);
+      Put (D.B.Ann2, ":ann2:", NL);
+      Put (D.B.Sem1, ":sem1:", NL);
+      Put (D.B.Sem2, ":sem2:", NL);
+      Put (D.B.Year, ":year:", NL);
+      Put (D.B.IR, ":IR:", NL);
       Put (D.B.mA, " :mA:", NL);
       Put (D.B.mP, " :mP:", NL);
       Put (D.B.shiftT, " :shiftT:", NL);

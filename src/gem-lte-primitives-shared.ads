@@ -12,22 +12,28 @@ package GEM.LTE.Primitives.Shared is
    type Param_B (NLP, NLT : Integer)
    is record                    -- Random walk values
       Offset : Long_Float;   -- Integrated trend on forcing
-      ImpA   : Long_Float;   -- Amplitude of sin impulse
-      ImpB   : Long_Float;   -- Phase of sin impulse
-      DelA   : Long_Float;   -- Amplitude of delta impulse
-      DelB   : Long_Float;   -- Phase of delta impulse
-      Asym   : Long_Float;   -- Asymmetry of semi-annual impulse
-      Ann1   : Long_Float;   -- Annual cosine amplitude
-      Ann2   : Long_Float;   -- Annual cosine phase
-      Sem1   : Long_Float;   -- Semi-annual cosine amplitude
-      Sem2   : Long_Float;   -- Semi-annual cosine phase
-      mA     : Long_Float;   -- 1st order IIR feedback
-      mP     : Long_Float;   -- 2nd order IIR feedback
-      shiftT : Long_Float;   -- Starting time correction
-      init   : Long_Float;   -- IIR initial value
+      bg : Long_Float;   -- Background of impulse
+      ImpA : Long_Float;   -- Amplitude of sin impulse
+      ImpB : Long_Float;   -- Phase of sin impulse
+      ImpC : Long_Float;   -- Power of sin impulse
+      DelA : Long_Float;   -- Amp of delta impulse
+      DelB : Long_Float;   -- Phase of delta impulse
+      Asym : Long_Float;   -- Asymmetry of semi-annual impulse
 
-      LPAP   : Long_Periods_Amp_Phase (1 .. NLP);
-      LT     : Modulations (1 .. NLT);
+      Ann1 : Long_Float;   -- Amplitude annual
+      Ann2 : Long_Float;   -- Phase annual
+      Sem1 : Long_Float;   -- Amplitude semi-annual
+      Sem2 : Long_Float;   -- Phase semi-annual
+      IR : Long_Float;   -- Impulse pass-through
+      Year : Long_Float;   -- Year correction (in days)
+
+      mA : Long_Float;   -- 1st order response
+      mP : Long_Float;   -- 2nd order response
+      shiftT : Long_Float;   -- Starting time correction
+      init : Long_Float;   -- Initial value
+
+      LPAP : Long_Periods_Amp_Phase (1 .. NLP);
+      LT : Modulations (1 .. NLT);
    end record;
    
    --  ==========================================================================
@@ -37,10 +43,10 @@ package GEM.LTE.Primitives.Shared is
    --  in the random descent optimization algorithm.
    --
    --  STRUCTURE (for NLP=29, NLT=11):
-   --    - 14 scalar Long_Float fields (Offset through init)
+   --    - 18 scalar Long_Float fields (Offset through init)
    --    - LPAP array: NLP Amp_Phase records = NLP * 2 Long_Floats (58 floats)
    --    - LT array: NLT Long_Floats (11 floats)
-   --    TOTAL: 14 + NLP*2 + NLT = 8 + 58 + 11 = 77 Long_Float values
+   --    TOTAL: 18 + 58 + 11 = 87 Long_Float values
    --
    --  SIZE CALCULATION:
    --    With GNAT compiler, unconstrained arrays have dope information (bounds)

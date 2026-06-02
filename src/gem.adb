@@ -49,13 +49,13 @@ package body GEM is
    --  Enumeration of all recognized configuration parameters
    --  Used for response file parsing validation
    type Options is
-     (CLIMATE_INDEX, DLOD_REF, DTW, EXCLUDE,
-      F9, FLIP, IDATE, LOCKA, LOCKT,
-      MAXH, METRIC, NH, NM,
-      PART, SPREAD_MIN, SPREAD_MAX,
-      TEST_ONLY, THRESHOLD_ACTION, TIMEOUT,
-      TRAIN_END, TRAIN_START, TREND,
-      YEAR);
+     (ALIAS, EXCLUDE, ALTERNATE, CLIMATE_INDEX, DLOD_REF, EVERY, FILTER, FLIP,
+      FORCING, FSTEP, IMPULSE, MAXH, MAXLOOPS,
+      MERMS, METRIC, MLR, NH, NM, RESET, SAMPLING, SCALING,
+      SPLIT_LOW, SPLIT_TRAINING, SPREAD_CYCLE, SPREAD_MIN, SPREAD_MAX,
+      STARTING_METRIC, STEP, THRESHOLD, THRESHOLD_ACTION, TRAIN_END,
+      TRAIN_START, TREND, YEAR, F9, DECAY, FMULT, FSTART, LOCKF, SYM,
+      NONLIN, IDATE, TEST_ONLY, TIMEOUT, NUMBER_OF_PROCESSORS, LOCKT, DTW, LOCKA);
 
    type Option_Pair is record
       Name, Value : Ada.Command_Line.Response_File.String_Access;
@@ -212,28 +212,8 @@ package body GEM is
    --    Example: CLIMATE_INDEX nino4.dat
    --  =========================================================================
    procedure Read_Response_File is
-      Canonical_FN : constant String := "lt.exe.resp";
-      Exec_FN : constant String :=
-        Ada.Directories.Simple_Name (Ada.Command_Line.Command_Name) & ".resp";
-
-      CI : constant String := Getenv ("CLIMATE_INDEX", "");
-      CI_Dir : constant String :=
-        (if CI'Length = 0 then "" else Ada.Directories.Containing_Directory (CI));
-      Canonical_In_Dir : constant String :=
-        (if CI_Dir'Length = 0 or else CI_Dir = "." then "" else CI_Dir & "/" & Canonical_FN);
-      Exec_In_Dir : constant String :=
-        (if CI_Dir'Length = 0 or else CI_Dir = "." then "" else CI_Dir & "/" & Exec_FN);
-
       FN : constant String :=
-        (if Canonical_In_Dir'Length > 0 and then Ada.Directories.Exists (Canonical_In_Dir) then
-            Canonical_In_Dir
-         elsif Ada.Directories.Exists (Canonical_FN) then
-            Canonical_FN
-         elsif Exec_In_Dir'Length > 0 and then Ada.Directories.Exists (Exec_In_Dir) then
-            Exec_In_Dir
-         else
-            Exec_FN);
-
+        Ada.Directories.Simple_Name (Ada.Command_Line.Command_Name) & ".resp";
       use type Ada.Command_Line.Response_File.String_Access;
    begin
       Text_IO.Put_Line ("RESPONSE FILE");
@@ -245,21 +225,12 @@ package body GEM is
          --  during development but now redundant (lines 207-209 print all values).
          --Ada.Text_IO.Put_Line(L(2*I-1).all & " " & L(2*I).all);
          for I in L'First .. L'Last / 2 loop
-            declare
-               Raw_Key : constant String := L (2 * I - 1).all;
-               Key : constant String :=
-                 (if Raw_Key'Length > 1 and then Raw_Key (Raw_Key'First) = '-' then
-                     Raw_Key (Raw_Key'First + 1 .. Raw_Key'Last)
-                  else Raw_Key);
-            begin
-               for EV in Options loop
-                  if EV'Image = Key then
-                     -- Store the canonical key name (without leading '-') so Getenv() matches.
-                     OL (EV).Name := new String'(EV'Image);
-                     OL (EV).Value := L (2 * I);
-                  end if;
-               end loop;
-            end;
+            for EV in Options loop
+               if EV'Image = L (2 * I - 1).all then
+                  OL (EV).Name := L (2 * I - 1);
+                  OL (EV).Value := L (2 * I);
+               end if;
+            end loop;
          end loop;
       end;
       for EV in Options loop

@@ -22,9 +22,9 @@ package GEM.LTE.Primitives is
 
    -- Infinite Impulse Response -- integrator
    function IIR
-     (Raw : in Data_Pairs; lagA, lagB, lagC : in Long_Float;
-      iA, iB, iC : in Long_Float := 0.0;
-      Start : in Long_Float := Long_Float'First; mA, mB : in Long_Float := 0.0)
+     (Raw : in Data_Pairs; lagA,  lagC : in Long_Float; -- lagB,
+      iA : in Long_Float := 0.0; -- , iB, iC 
+      Start : in Long_Float := Long_Float'First) -- ; mA, mB : in Long_Float := 0.0)
       return Data_Pairs;
 
    -- Finite Impulse Response -- smoother
@@ -36,7 +36,8 @@ package GEM.LTE.Primitives is
    generic
       with function Impulse (Time : in Long_Float) return Long_Float;
    function Amplify
-     (Raw : in Data_Pairs) return Data_Pairs;
+     (Raw : in Data_Pairs; Offset, Ramp, Start : in Long_Float)
+      return Data_Pairs;
 
    -- LTE models = Superposition of tides + Laplace's Tidal Eqn modulation
 
@@ -44,16 +45,15 @@ package GEM.LTE.Primitives is
      (Template : in Data_Pairs; Constituents : in Long_Periods_Amp_Phase;
       Periods : in Long_Periods; Ref_Time : in Long_Float := 0.0;
       Scaling : in Long_Float := 1.0; Cos_Phase : in Boolean := True;
-      Year_Len : in Long_Float := Year_Length; Integ : in Long_Float := 0.0;
-      Ext_Forcing : in Data_Pairs := Empty_Data;
-      Ext_Factor : in Long_Float := 0.0; Ext_Phase : in Long_Float := 0.0;
-      Ext_Amp : in Long_Float := 0.0) return Data_Pairs;
+      Year_Len : in Long_Float := Year_Length; Integ : in Long_Float := 0.0) return Data_Pairs;
 
    function LTE
      (Forcing : in Data_Pairs; Wave_Numbers : in Modulations;
       Amp_Phase : in Modulations_Amp_Phase;
       Offset, K0, Trend, Accel : in Long_Float := 0.0;
-      NonLin : in Long_Float := 1.0; Third : in Long_Float := 0.0)
+      NonLin : in Long_Float := 1.0; 
+      Annual : in Annual_Harmonics := (0.0, 0.0, 0.0, 0.0);
+      Third : in Long_Float := 0.0)
       return Data_Pairs;
 
    -- Query to determine if a Tidal Constituent value should not be changed
@@ -71,6 +71,7 @@ package GEM.LTE.Primitives is
       DBLT : in Periods; DALTAP : out Amp_Phases; DALEVEL : out Long_Float;
       DAK0 : out Long_Float; Secular_Trend : in out Long_Float;
       Accel : out Long_Float; Singular : out Boolean;
+      Annual : out Annual_Harmonics;
       Third : in Long_Float := 0.0);
 
    --

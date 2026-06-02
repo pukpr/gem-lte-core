@@ -57,6 +57,7 @@ is
    -- & Gem.LTE.Long_Periods_Amp_Phase'((0.0,0.0), (0.0,0.0), (0.0,0.0));
    Level, K0, Trend, Accel : Long_Float := 0.0;  -- Regression constants
    Last_Time : Long_Float;
+   Annual : Annual_Harmonics;
 begin
    First := D'First;
    Last := D'Last;
@@ -92,8 +93,12 @@ begin
       NM => DBLT'Last, -- # modulations
       DBLT => DBLT, --D.B.LT,
       DALTAP => DBLTAP, --D.A.LTAP,
-      DALEVEL => Level, DAK0 => K0, Secular_Trend => Trend,
-      Accel => Accel, Singular => Singular);
+      DALEVEL => Level, 
+      DAK0 => K0, 
+      Secular_Trend => Trend,
+      Accel => Accel, 
+      Annual => Annual,
+      Singular => Singular);
 
    Text_IO.Put_Line ("Singular? " & Singular'Img);
    

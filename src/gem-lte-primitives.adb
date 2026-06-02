@@ -47,8 +47,6 @@ package body GEM.LTE.Primitives is
    Start_Year : constant Long_Float := GEM.Getenv ("CC_START", 0.0);
    End_Year : constant Long_Float := GEM.Getenv ("CC_END", 999_999_999.0);
    Sinc : constant Long_Float := GEM.Getenv ("SINC", 0.0);
-   Modulation : constant Boolean := GEM.Getenv ("MODULATION", True); -- FALSE
-   Ealign : constant Integer := GEM.Getenv ("EALIGN", 24);
    Custom_Tide : constant Boolean := GEM.Getenv ("CUSTOM", False);
 
    --  Returns true if using minimum entropy metric for optimization
@@ -192,9 +190,9 @@ package body GEM.LTE.Primitives is
    --
    --  Note: Can run backwards from Start point to create pre-history
    function IIR
-     (Raw : in Data_Pairs; lagA, lagB, lagC : in Long_Float;
-      iA, iB, iC : in Long_Float := 0.0;
-      Start : in Long_Float := Long_Float'First; mA, mB : in Long_Float := 0.0)
+     (Raw : in Data_Pairs; lagA, lagC : in Long_Float;
+      iA : in Long_Float := 0.0;
+      Start : in Long_Float := Long_Float'First)
       return Data_Pairs
    is
       Res : Data_Pairs := Raw;
@@ -232,14 +230,7 @@ package body GEM.LTE.Primitives is
       return Res;
    end IIR;
 
-   -- a running mean filter, used to damp the inpulse response
-   --
-   --  UNUSED FUNCTION (Compiler Warning):
-   --  This entire function is not called anywhere in the codebase.
-   --
-   --  UNUSED FUNCTION (Compiler Warning):
-   --  This entire function is not called anywhere in the codebase.
-   --
+
    --  FIR: Finite Impulse Response filter (3-point moving average/boxcar filter)
    --
    --  Smooths time series using weighted average of neighboring points:
@@ -264,13 +255,18 @@ package body GEM.LTE.Primitives is
 
    -- Amplifies a tidal time series with an impulse array (i.e. Dirac comb)
    function Amplify
-     (Raw : in Data_Pairs)
+     (Raw : in Data_Pairs; Offset, Ramp, Start : in Long_Float)
       return Data_Pairs
    is
       Res : Data_Pairs := Raw;
    begin
       for I in Raw'Range loop
-         Res (I).Value := Impulse (Raw (I).Date);
+         -- Res(I).Value := Offset + Raw(I).Value * Impulse(Raw(I).Date + Ramp*(Raw(I).Date-Start));
+         Res (I).Value :=
+           Raw (I).Value *
+           Impulse
+             (Raw (I).Date + Ramp * (Raw (I).Date - Start) +
+              Offset / 1_000_000.0 * (Raw (I).Date - Start)**2);
       end loop;
       return Res;
    end Amplify;
@@ -280,20 +276,14 @@ package body GEM.LTE.Primitives is
      (Template : in Data_Pairs; Constituents : in Long_Periods_Amp_Phase;
       Periods : in Long_Periods; Ref_Time : in Long_Float := 0.0;
       Scaling : in Long_Float := 1.0; Cos_Phase : in Boolean := True;
-      Year_Len : in Long_Float := Year_Length; Integ : in Long_Float := 0.0;
-      Ext_Forcing : in Data_Pairs := Empty_Data;
-      Ext_Factor : in Long_Float := 0.0; Ext_Phase : in Long_Float := 0.0;
-      Ext_Amp : in Long_Float := 0.0) return Data_Pairs
+      Year_Len : in Long_Float := Year_Length; Integ : in Long_Float := 0.0) return Data_Pairs
    is
       Pi : Long_Float := Ada.Numerics.Pi;
       Time : Long_Float;
       Res : Data_Pairs := Template;
       One : constant Long_Float := 1.0;
       Partition : constant Integer := 7; -- 4
-      Pad : Integer;
-      -- pragma Unreferenced (Integ);
    begin
-      Pad := Integer (abs Ext_Factor * 1_000.0) mod Ealign;
       for I in Template'Range loop
          Time := Template (I).Date + Ref_Time;
          declare
@@ -344,27 +334,6 @@ package body GEM.LTE.Primitives is
                end;
             end loop;
             Res (I) := (Time, TF1 + TF2 + Scaling * TF1 * TF2);
-            if Ext_Forcing /= Empty_Data then
-               for I in Res'First + Pad + 1 .. Res'Last - Pad loop
-                  -- Res(I).Value := Res(I).Value + Ext_Factor * Ext_Forcing(I-2).Value + Ext_Phase * Ext_Forcing(I-1).Value;
-                  --Res(I).Value := Res(I).Value + Ext_Factor * (Ext_Forcing(I-12).Value + Ext_Forcing(I-11).Value + Ext_Forcing(I-10).Value
-                  --                                             + Ext_Forcing(I-9).Value + Ext_Forcing(I-8).Value + Ext_Forcing(I-7).Value
-                  --                                             + Ext_Forcing(I-6).Value + Ext_Forcing(I-5).Value + Ext_Forcing(I-4).Value
-                  --                                             + Ext_Forcing(I-3).Value + Ext_Forcing(I-2).Value + Ext_Forcing(I-1).Value)
-                  --  + Ext_Phase * Ext_Forcing(I).Value;
-                  if Ext_Factor > 0.0 then
-                     Res (I).Value :=
-                       Res (I).Value +
-                       Ext_Phase * Ext_Forcing (I + Pad).Value +
-                       Ext_Amp * Ext_Forcing (I + Pad - 1).Value;
-                  else
-                     Res (I).Value :=
-                       Res (I).Value +
-                       Ext_Phase * Ext_Forcing (I - Pad).Value +
-                       Ext_Amp * Ext_Forcing (I - Pad - 1).Value;
-                  end if;
-               end loop;
-            end if;
          end;
       end loop;
       return Res;
@@ -509,10 +478,7 @@ package body GEM.LTE.Primitives is
      (Template : in Data_Pairs; Constituents : in Long_Periods_Amp_Phase;
       Periods : in Long_Periods; Ref_Time : in Long_Float := 0.0;
       Scaling : in Long_Float := 1.0; Cos_Phase : in Boolean := True;
-      Year_Len : in Long_Float := Year_Length; Integ : in Long_Float := 0.0;
-      Ext_Forcing : in Data_Pairs := Empty_Data;
-      Ext_Factor : in Long_Float := 0.0; Ext_Phase : in Long_Float := 0.0;
-      Ext_Amp : in Long_Float := 0.0) return Data_Pairs
+      Year_Len : in Long_Float := Year_Length; Integ : in Long_Float := 0.0) return Data_Pairs
    is
       Res : Data_Pairs := Template;
       pragma Unreferenced (Ref_Time);
@@ -521,12 +487,12 @@ package body GEM.LTE.Primitives is
          Res :=
            Tide_Sum_Custom
              (Template, Constituents, Periods, 0.0, Scaling, Cos_Phase,
-              Year_Len, Integ, Ext_Forcing, Ext_Factor, Ext_Phase, Ext_Amp);
+              Year_Len, Integ);
       else
          Res :=
            Tide_Sum_Diff
              (Template, Constituents, Periods, 0.0, Scaling, Cos_Phase,
-              Year_Len, Integ, Ext_Forcing, Ext_Factor, Ext_Phase, Ext_Amp);
+              Year_Len, Integ);
       end if;
       return Res;
    end Tide_Sum;
@@ -559,7 +525,9 @@ package body GEM.LTE.Primitives is
      (Forcing : in Data_Pairs; Wave_Numbers : in Modulations;
       Amp_Phase : in Modulations_Amp_Phase;
       Offset, K0, Trend, Accel : in Long_Float := 0.0;
-      NonLin : in Long_Float := 1.0; Third : in Long_Float := 0.0)
+      NonLin : in Long_Float := 1.0; 
+      Annual : in Annual_Harmonics := (0.0, 0.0, 0.0, 0.0);
+      Third : in Long_Float := 0.0)
       return Data_Pairs
    is
       Res : Data_Pairs := Forcing;
@@ -601,6 +569,10 @@ package body GEM.LTE.Primitives is
                 (Res (I).Date -
                    Res (Forcing'First)
                      .Date)**2.0; -- K0 is wavenumber=0 solution
+            LF := LF + Annual.Ann1 * Sin(2.0 * Pi * Res (I).Date) 
+                     + Annual.Ann2 * Cos(2.0 * Pi * Res (I).Date) 
+                     + Annual.Semi1 * Sin(4.0 * Pi * Res (I).Date) 
+                     + Annual.Semi2 * Cos(4.0 * Pi * Res (I).Date);
             Res (I).Value := LF;
          end;
       end loop;
@@ -1511,9 +1483,14 @@ package body GEM.LTE.Primitives is
       Forcing : in Data_Pairs;  -- Value @ Time
       -- Factors_Matrix : in out Matrix;
 
-      DBLT : in Periods; DALTAP : out Amp_Phases; DALEVEL : out Long_Float;
-      DAK0 : out Long_Float; Secular_Trend : in out Long_Float;
-      Accel : out Long_Float; Singular : out Boolean;
+      DBLT : in Periods; 
+      DALTAP : out Amp_Phases; 
+      DALEVEL : out Long_Float;
+      DAK0 : out Long_Float; 
+      Secular_Trend : in out Long_Float;
+      Accel : out Long_Float; 
+      Singular : out Boolean;
+      Annual : out Annual_Harmonics;
       Third : in Long_Float := 0.0)
    is
 
@@ -1523,9 +1500,9 @@ package body GEM.LTE.Primitives is
       Pi : Long_Float := Ada.Numerics.Pi;
       Trend : Boolean := Secular_Trend > 0.0;
       -- Add_Trend : Integer := Integer(Secular_Trend);
-      Add_Trend : Integer := 2 * Boolean'Pos (Trend);
+      Add_Trend : Integer := 6 * Boolean'Pos (Trend);
       Num_Coefficients : constant Integer :=
-        2 + NM * 2 + Add_Trend; -- !!! sin + cos mod
+        2 + NM * 2 + Add_Trend; -- 4 for annual harmonics
       RData : Vector (1 .. Last - First + 1);
       Factors_Matrix : Matrix (1 .. Last - First + 1, 1 .. Num_Coefficients);
       Value : Long_Float;
@@ -1545,6 +1522,10 @@ package body GEM.LTE.Primitives is
             Factors_Matrix (I - First + 1, 4 + (K - 1) * 2) := Value;
          end loop;
          if Trend then
+            Factors_Matrix (I - First + 1, Num_Coefficients - 2) := Sin(4.0 * Pi * Forcing (I).Date);
+            Factors_Matrix (I - First + 1, Num_Coefficients - 3) := Cos(4.0 * Pi * Forcing (I).Date);
+            Factors_Matrix (I - First + 1, Num_Coefficients - 4) := Sin(2.0 * Pi * Forcing (I).Date);
+            Factors_Matrix (I - First + 1, Num_Coefficients - 5) := Cos(2.0 * Pi * Forcing (I).Date);
             Factors_Matrix (I - First + 1, Num_Coefficients - 1) :=
               Forcing (I).Date;
             Factors_Matrix (I - First + 1, Num_Coefficients) :=
@@ -1572,6 +1553,10 @@ package body GEM.LTE.Primitives is
                  Arctan (Coefficients (K), Coefficients (K - 1));
                K := K + 2;
             end loop;
+            Annual.Semi1 := Coefficients (Num_Coefficients - 2);
+            Annual.Semi2 := Coefficients (Num_Coefficients - 3);
+            Annual.Ann1 := Coefficients (Num_Coefficients - 4);
+            Annual.Ann2 := Coefficients (Num_Coefficients - 5);
             if Trend then
                Secular_Trend := Coefficients (Num_Coefficients - 1); --!!!
                Accel := Coefficients (Num_Coefficients); --!!!

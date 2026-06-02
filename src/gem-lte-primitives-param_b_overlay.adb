@@ -13,7 +13,7 @@ package body GEM.LTE.Primitives.Param_B_Overlay is
    
    function First_LPAP_Index return Positive is
    begin
-      return Scalar_Field_Count + 1;  -- 9
+      return Scalar_Field_Count + 1;  -- 19
    end First_LPAP_Index;
    
    function First_LT_Index (NLP : Integer) return Positive is
@@ -24,8 +24,8 @@ package body GEM.LTE.Primitives.Param_B_Overlay is
    function LPAP_Amplitude_Index (Constituent : Positive) return Positive is
    begin
       --  Each constituent has 2 floats: Amplitude, Phase
-      --  Constituent 1: indices 9 (Amp), 10 (Phase)
-      --  Constituent 2: indices 11 (Amp), 12 (Phase)
+      --  Constituent 1: indices 19 (Amp), 20 (Phase)
+      --  Constituent 2: indices 21 (Amp), 22 (Phase)
       --  Formula: First_LPAP_Index + (Constituent - 1) * 2
       return First_LPAP_Index + (Constituent - 1) * 2;
    end LPAP_Amplitude_Index;
@@ -51,7 +51,7 @@ package body GEM.LTE.Primitives.Param_B_Overlay is
       Text_IO.Put_Line ("  NLT (modulations) = " & P.NLT'Image);
       Text_IO.Put_Line ("  Expected overlay size = " & Expected_Size'Image);
       Text_IO.Put_Line ("  Calculated (P'Size / LF'Size - 1) = " & Calculated_Size'Image);
-      Text_IO.Put_Line ("  Manual (8 + NLP*2 + NLT) = " & Manual_Size'Image);
+      Text_IO.Put_Line ("  Manual (18 + NLP*2 + NLT) = " & Manual_Size'Image);
       
       if Calculated_Size /= Expected_Size then
          Text_IO.Put_Line ("  ERROR: Calculated size mismatch!");
@@ -114,11 +114,26 @@ package body GEM.LTE.Primitives.Param_B_Overlay is
             Value : Long_Float;
          end record;
          
-         Fields : constant array (1 .. 14) of String (1 .. 6) :=
-         ("Offset", "ImpA  ", "ImpB  ",
-          "DelA  ", "DelB  ", "Asym  ",
-          "Ann1  ", "Ann2  ", "Sem1  ", "Sem2  ",
-          "mA    ", "mP    ", "shiftT", "init  ");
+         Fields : constant array (1 .. Scalar_Field_Count) of Field_Check := (
+            (Offset_Index, "Offset   ", P.Offset),
+            (BG_Index,     "bg       ", P.bg),
+            (ImpA_Index,   "ImpA     ", P.ImpA),
+            (ImpB_Index,   "ImpB     ", P.ImpB),
+            (ImpC_Index,   "ImpC     ", P.ImpC),
+            (DelA_Index,   "DelA     ", P.DelA),
+            (DelB_Index,   "DelB     ", P.DelB),
+            (Asym_Index,   "Asym     ", P.Asym),
+            (Ann1_Index,   "Ann1     ", P.Ann1),
+            (Ann2_Index,   "Ann2     ", P.Ann2),
+            (Sem1_Index,   "Sem1     ", P.Sem1),
+            (Sem2_Index,   "Sem2     ", P.Sem2),
+            (IR_Index,     "IR       ", P.IR),
+            (Year_Index,   "Year     ", P.Year),
+            (MA_Index,     "mA       ", P.mA),
+            (MP_Index,     "mP       ", P.mP),
+            (ShiftT_Index, "shiftT   ", P.shiftT),
+            (Init_Index,   "init     ", P.init)
+         );
          
          Matches : Natural := 0;
       begin

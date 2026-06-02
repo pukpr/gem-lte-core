@@ -25,4 +25,9 @@ package GEM is
 
    function Command_Line_Option_Exists (Option : in String) return Boolean;
 
+   type Annual_Harmonics is
+      record
+         Ann1, Ann2, Semi1, Semi2 : Long_Float;
+      end record;
+
 end GEM;

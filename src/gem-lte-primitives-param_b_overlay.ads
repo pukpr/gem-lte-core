@@ -20,15 +20,17 @@
 --    - Ensures portability across platforms
 --
 --  FIELD INDICES IN OVERLAY ARRAY:
---    Scalars (8 fields):
---      1. Offset    5. mA
---      2. DelA      6. mP
---      3. DelB      7. shiftT
---      4. Asym      8. init
+--    Scalars (18 fields):
+--      1. Offset    7. DelB      13. Year    
+--      2. bg        8. Asym      14. mA      
+--      3. ImpA      9. Ann1      15. mP      
+--      4. ImpB     10. Ann2      16. shiftT  
+--      5. ImpC     11. Sem1      17. init    
+--      6. DelA     12. Sem2      18. IR      
 --
 --    Arrays (variable size):
---      9..9+NLP*2-1: LPAP (each constituent = 2 floats: Amplitude, Phase)
---      9+NLP*2..end: LT modulations
+--      19..19+NLP*2-1: LPAP (each constituent = 2 floats: Amplitude, Phase)
+--      19+NLP*2..end:  LT modulations
 --
 --  USAGE:
 --    Size := Param_B_Overlay.Overlay_Size (D.NLP, D.NLT);
@@ -63,25 +65,26 @@ package GEM.LTE.Primitives.Param_B_Overlay is
    
    --  Named constants for scalar field positions in overlay array
    Offset_Index  : constant := 1;
-   ImpA_Index    : constant := 2;
-   ImpB_Index    : constant := 3;
-   DelA_Index    : constant := 4;
-   DelB_Index    : constant := 5;
-   Asym_Index    : constant := 6;
-   Ann1_Index    : constant := 7;
-   Ann2_Index    : constant := 8;
-   Sem1_Index    : constant := 9;
-   Sem2_Index    : constant := 10;
-   MA_Index      : constant := 11;
-   MP_Index      : constant := 12;
-   ShiftT_Index  : constant := 13;
-   Init_Index    : constant := 14;
-
-   --  Overlay layout: 8 scalars + NLP*2 (LPAP amp+phase pairs) + NLT (LT periods)
-   --  First_LPAP_Index = 9
-   --  First_LT_Index(NLP) = 9 + NLP*2
-   Scalar_Field_Count : constant := 14;
-
+   BG_Index      : constant := 2;
+   ImpA_Index    : constant := 3;
+   ImpB_Index    : constant := 4;
+   ImpC_Index    : constant := 5;
+   DelA_Index    : constant := 6;
+   DelB_Index    : constant := 7;
+   Asym_Index    : constant := 8;
+   Ann1_Index    : constant := 9;
+   Ann2_Index    : constant := 10;
+   Sem1_Index    : constant := 11;
+   Sem2_Index    : constant := 12;
+   IR_Index      : constant := 13;
+   Year_Index    : constant := 14;
+   MA_Index      : constant := 15;
+   MP_Index      : constant := 16;
+   ShiftT_Index  : constant := 17;
+   Init_Index    : constant := 18;
+   
+   Scalar_Field_Count : constant := 18;
+   
    --  Calculate overlay array size for given discriminants
    --  Formula: Scalar_Fields + (NLP * 2) + NLT
    function Overlay_Size (NLP, NLT : Integer) return Positive;
