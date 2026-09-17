@@ -34,6 +34,61 @@ def load_zone_factor(target_dir):
     return float(ltep[-1])
 
 
+def load_ir(target_dir):
+    path = os.path.join(target_dir, "lt.exe.p")
+    with open(path, "r", encoding="utf-8") as fh:
+        payload = json.load(fh)
+
+    if not isinstance(payload, dict):
+        raise TypeError(f"{path} must contain a JSON object.")
+
+    return float(payload.get("IR", payload.get("ir", 0.0)))
+
+
+def uncompensate_yearly_feedback(values, ir):
+    """Invert the Ada model's post-LTE lag-12 IR adjustment
+    (gem-lte-primitives-solution.adb:1062-1066):
+
+        Model_final(I) = Model_orig(I) - ir*Model_orig(I-12)
+
+    computed with BOTH taps reading the ORIGINAL (pre-adjustment) Model --
+    the source loop runs in reverse and only ever reads not-yet-overwritten
+    entries. Recovering Model_orig therefore requires the recursive inverse,
+    built up in increasing-index order using the ALREADY-RECOVERED value 12
+    steps back (not the still-adjusted raw value there):
+
+        Model_orig(I) = Model_final(I) + ir*Model_orig(I-12)
+
+    A single vectorized `uncompensated[12:] += ir*values[:-12]` (using the
+    raw, still-adjusted array at the lag-12 offset instead of the
+    already-recovered one) is NOT equivalent to this and reintroduces a
+    large error -- verified by round-trip test to differ from the exact
+    inverse by ~0.8 on unit-variance synthetic data, vs ~1e-16 for the
+    recursive form below.
+
+    Unrolled, this recursion is Model_orig(I) = sum_k ir**k * Model_final
+    (I-12k) -- a geometric series that only stays bounded for |ir| < 1,
+    regardless of sign. For |ir| >= 1 (seen in practice, e.g. tpi's
+    ir=-1.21) it diverges as it compounds across the record, producing
+    huge/garbage values -- which then wreck the LTE Modulation panel's
+    best-fit scalar (dominated by the blown-up tail, collapsing everything
+    else toward zero). Guarded here: skip decompensation and return the
+    untouched series instead of silently returning garbage.
+    """
+    values = np.asarray(values, dtype=float)
+    uncompensated = values.copy()
+    if abs(ir) >= 1.0:
+        print(f"WARNING: |IR|={abs(ir):.4f} >= 1 -- the decompensation "
+              f"recursion is unstable at this magnitude (unrolled, it's a "
+              f"geometric series in ir). Skipping decompensation for this "
+              f"series; returning it unmodified.")
+        return uncompensated
+    if ir != 0.0:
+        for i in range(12, len(values)):
+            uncompensated[i] = values[i] + ir * uncompensated[i - 12]
+    return uncompensated
+
+
 def fold_to_zone(values, factor):
     return np.mod(np.asarray(values, dtype=float) * factor, 1.0)
 
@@ -50,9 +105,43 @@ time = df.iloc[:, 0]
 model = df.iloc[:, 1]
 data = df.iloc[:, 2]
 forcing = df.iloc[:, 3]
+# freq/model_psd/data_psd are precomputed independently when
+# lte_results.csv is generated, in the "modulation on latent" (Forcing)
+# domain -- reproducing that domain-correct, IR-decompensated would need
+# to happen on the Ada side (where that resampling/PSD is actually built),
+# not as a Python-side substitute here. Left as-is, still IR-contaminated
+# for now.
 freq = df.iloc[:, 4]
 model_psd = df.iloc[:, 5]
 data_psd = df.iloc[:, 6]
+ir = load_ir(os.getcwd())
+# `model` (IR included) is the actual fit and stays untouched everywhere
+# below (time series, Regression CC, etc.) -- the IR delayed differential
+# operates on the already-LTE-modulated Model and is part of what was
+# fitted, not noise to discard.
+#
+# For the LTE Modulation panel specifically, the goal is to see the pure
+# modulation-vs-Forcing relationship in isolation. `model_demod` undoes the
+# post-hoc lag-12 subtraction (gem-lte-primitives-solution.adb:1062-1066)
+# to recover that pure modulation. But its fair comparison partner is NOT
+# raw Data -- the regression is fit against DR (line 1007-1011 of the same
+# file), not Data_Records directly:
+#     DR(I) = Data(I) + ir*Data(I-12)        (line 991)
+# so `model_demod` approximates DR, not Data. `data_matched` reproduces
+# that same DR construction (a direct, non-recursive echo -- both taps read
+# the ORIGINAL Data, exactly like the Ada loop) so the two series being
+# plotted against each other were actually fit to match one another.
+# `model_demod` is then scaled by a single best-fit scalar (least squares,
+# no intercept) so the two series' amplitudes are visually comparable --
+# the raw regression output has no reason to already share Data's scale.
+# Forcing (the x-axis / manifold) is untouched throughout.
+model_demod = uncompensate_yearly_feedback(model, ir)
+data_matched = np.asarray(data, dtype=float).copy()
+if ir != 0.0:
+    data_matched[12:] = data_matched[12:] + ir * np.asarray(data)[:-12]
+scale = (np.dot(model_demod, data_matched) / np.dot(model_demod, model_demod)
+         if np.dot(model_demod, model_demod) > 0 else 1.0)
+model_demod_scaled = model_demod * scale
 
 mean_forcing_path = os.path.join(BASE_DIR, 'mean_forcing.dat')
 mean_forcing = None
@@ -88,7 +177,7 @@ else:
     forcing_ylabel = fold_label
     modulation_ylabel = fold_label
 
-fig, axs = plt.subplots(3, 2, figsize=(16, 12), gridspec_kw={'width_ratios': [2.5, 1]}, sharex=False, facecolor='#e6f2ff')
+fig, axs = plt.subplots(3, 2, figsize=(24, 12), gridspec_kw={'width_ratios': [2.5, 1]}, sharex=False, facecolor='#e6f2ff')
 
 # Top chart: Time Series
 axs[0,0].plot(time, model, linewidth=1, color='red', label='Model')
@@ -185,8 +274,8 @@ axs[0,1].legend(loc='upper left')
 fMod = folded_forcing
 
 # Middle chart: LTE Forcing Modulation
-axs[1,1].plot(model, fMod, linestyle="None", marker='_', color='red', label='Model')
-axs[1,1].plot(data, fMod,  linestyle="None", marker='_', color='blue', label='Data')
+axs[1,1].plot(model_demod_scaled, fMod, linestyle="None", marker='_', color='red', label='Model (IR-decompensated, scaled)')
+axs[1,1].plot(data_matched, fMod,  linestyle="None", marker='_', color='blue', label='Data (IR-matched)')
 axs[1,1].set_title('LTE Modulation')
 axs[1,1].set_ylabel(modulation_ylabel)
 axs[1,1].set_xlabel('Level Modulation')
@@ -195,13 +284,16 @@ if zone_factor is not None:
     axs[1,1].set_ylim(0.0, 1.0)
 
 
-# Bottom right chart: Power Spectrum (log/log)
-axs[2,1].loglog(freq, model_psd, linewidth=1, color='red', label='Model PSD')
-axs[2,1].loglog(freq, data_psd, linewidth=1, color='blue', label='Data PSD', alpha=0.7)
+# Bottom right chart: Power Spectrum (log/log). NOTE: still IR-contaminated
+# (model_psd is precomputed upstream, in the Forcing-domain "modulation on
+# latent" sense, from the IR-included Model) -- fixing this properly needs
+# to happen where that PSD is actually built, on the Ada side, not here.
+axs[2,1].loglog(freq.iloc[:-10], model_psd.iloc[:-10], linewidth=1, color='red', label='Model PSD')
+axs[2,1].loglog(freq.iloc[:-10], data_psd.iloc[:-10], linewidth=1, color='blue', label='Data PSD', alpha=0.7)
 axs[2,1].set_title('Power Spectrum, modulation on latent')
 axs[2,1].set_xlabel('Frequency (per level)')
 axs[2,1].set_ylabel('Power')
-axs[2,1].set_xlim(left=1.0)
+axs[2,1].set_xlim(left=0.1)
 axs[2,1].legend(loc='lower left')
 
 #axs[2,1].text(0.02, 0.02, metrics, transform=axs[2,1].transAxes,

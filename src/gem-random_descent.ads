@@ -31,6 +31,14 @@ package GEM.Random_Descent is
    procedure Random_Harmonic (Index : in out Positive; Ref : out Positive);
    procedure Random_Harmonic (Index : in out Ns; Ref : out Ns);
 
+   --  Unconditional harmonic redraw: unlike Random_Harmonic (which only
+   --  mutates probabilistically — gated by FLIP/FIX, meant for the search's
+   --  own periodic exploration), this always draws a fresh multiplier from
+   --  2 .. Harmonic_Range. For correctness-recovery use (e.g. escaping a
+   --  harmonic that collides with a base period), where the caller needs a
+   --  guaranteed change, not a "maybe" one.
+   procedure Force_Harmonic (Index : out Positive);
+
    -- Random number generator reset, otherwise it will start from fixed seed
    procedure Reset;
 

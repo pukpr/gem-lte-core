@@ -23,17 +23,18 @@ package GEM.LTE is
    p : constant := 1.0 / (1.0 / Tropical - 1.0 / Anomalistic);
    --Year_Length : constant := 365.2412384;  -- 365.241237718675000;
 
-   function Year_Length return Long_Float;
+   function Year_Length (Dynamic_Correction : Long_Float := 0.0)
+     return Long_Float;
 
    type Doodson_Argument is record
       s, h, p : Integer;
       N : Integer;
-      Period : Long_Float; --
+      Year_Multiplier : Long_Float;
    end record;
 
    type Doodson_List is array (Positive range <>) of Doodson_Argument;
 
-   Doodson_Args : Doodson_List :=
+   Doodson_Args : constant Doodson_List :=
      ((1, 0, 0, 0, 1.0),
       (1, 0, 0, 1, 1.0),
       (0, 0, 2, 2, 1.0),

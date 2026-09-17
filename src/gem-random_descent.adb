@@ -195,6 +195,16 @@ package body GEM.Random_Descent is
       end if;
    end Random_Harmonic;
 
+   --  Force_Harmonic: same draw as Random_Harmonic's uniform branch, but
+   --  unconditional — ignores Fix_Harm/Flip_Value entirely, since a caller
+   --  reaching for this needs a guaranteed new value (e.g. to escape a
+   --  harmonic that collides with a base period), not a probabilistic
+   --  "might mutate" step.
+   procedure Force_Harmonic (Index : out Positive) is
+   begin
+      Index := HR.Random (H);
+   end Force_Harmonic;
+
    --  Overloaded version: Randomize array of harmonics with duplicate checking
    --  Ensures no duplicate harmonic indices (would cause singular matrix in
    --  multivariate regression). Retries if duplicate detected.

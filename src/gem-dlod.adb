@@ -42,7 +42,9 @@
 with Text_IO;
 with GEM.LTE.Primitives;
 
-function GEM.dLOD (File_Name : in String) return GEM.LTE.Long_Periods_Amp_Phase
+function GEM.dLOD
+  (File_Name : in String; Year_Correction : in Long_Float := 0.0)
+   return GEM.LTE.Long_Periods_Amp_Phase
 is
    use GEM.LTE, GEM.LTE.Primitives;
    D : Data_Pairs := Make_Data (File_Name);  -- Load dLOD observations
@@ -58,6 +60,7 @@ is
    Level, K0, Trend, Accel : Long_Float := 0.0;  -- Regression constants
    Last_Time : Long_Float;
    Annual : Annual_Harmonics;
+   Calibrate : constant Long_Float := GEM.Getenv ("CAL_LOD", 0.0);   
 begin
    First := D'First;
    Last := D'Last;
@@ -68,16 +71,18 @@ begin
    --  Create forcing function as linear time ramp
    --  This represents the secular trend component
    for I in Forcing'Range loop
-      Forcing (I).Value := Forcing (I).Date;
+      -- Forcing (I).Value := Forcing (I).Date;
+      Forcing (I).Value := Forcing (I).Date + Calibrate;      
       Last_Time := Forcing (I).Value;
    end loop;
    Text_IO.Put ("updated forcing  ");
    Put (Last_Time);
    Text_IO.New_Line;
    
-   --  Convert periods (years) to frequencies (cycles per year)
+   --  Recalculate periods for this candidate before converting to frequencies.
+   GEM.LTE.Year_Adjustment (Year_Correction, DBLT);
    for I in DBLT'Range loop
-      DBLT (I) := GEM.LTE.Year_Length / DBLT (I);
+      DBLT (I) := GEM.LTE.Year_Length (Year_Correction) / DBLT (I);
    end loop;
 
    --  Perform multivariate regression to fit tidal constituents
@@ -100,22 +105,24 @@ begin
       Annual => Annual,
       Singular => Singular);
 
-   Text_IO.Put_Line ("Singular? " & Singular'Img);
+   if GEM.Getenv ("LOD_DEBUG", False) then
+      Text_IO.Put_Line ("Singular? " & Singular'Img);
    
-   --  Print fitted parameters for each constituent
-   for I in DBLT'Range loop
-      Put (DBLT (I));
-      Text_IO.Put ("   ");
+      --  Print fitted parameters for each constituent
+      for I in DBLT'Range loop
+         Put (DBLT (I));
+         Text_IO.Put ("   ");
       --  NOTE: Integration step commented out - dLOD is already a rate (derivative).
       --  If analyzing absolute LOD (length of day) instead, would need:
       --    DBLTAP(I).Amplitude := DBLTAP(I).Amplitude * 26.736 / DBLT(I);
       --    DBLTAP(I).Phase := DBLTAP(I).Phase + Pi/2.0;
-      Put (DBLTAP (I).Amplitude);
-      Text_IO.Put ("   ");
-      Put (DBLTAP (I).Phase);
-      Text_IO.Put ("   ");
-      Text_IO.New_Line;
-   end loop;
+         Put (DBLTAP (I).Amplitude);
+         Text_IO.Put ("   ");
+         Put (DBLTAP (I).Phase);
+         Text_IO.Put ("   ");
+         Text_IO.New_Line;
+      end loop;
+   end if;
 
    --  Generate model from fitted parameters and compute correlation
    Model :=
@@ -123,7 +130,7 @@ begin
        (Forcing => Forcing, Wave_Numbers => DBLT, Amp_Phase => DBLTAP,
         Offset => Level, K0 => K0, Trend => 0.0, NonLin => 1.0);
    Put (CC (D, Model), "=CC ");
-   Put (Year_Length, "=Yr", True);
+   Put (Year_Length (Year_Correction), "=Yr", True);
 
    return DBLTAP;
 

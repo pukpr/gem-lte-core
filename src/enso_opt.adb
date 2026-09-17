@@ -78,7 +78,7 @@ begin
    declare
       --  AP = Amplitude/Phase data from day-length-of-day (dLOD) measurements
       --  Used as reference forcing for the tidal model
-      AP : GEM.LTE.Long_Periods_Amp_Phase := GEM.dLOD (dLOD_dat);
+      AP : GEM.LTE.Long_Periods_Amp_Phase (GEM.LTE.Doodson_Args'Range);
    begin
 
       Text_IO.Put_Line (N'Img & " processors available, timeout=" & Cycle'Img);
@@ -86,13 +86,9 @@ begin
       --  Load previously saved parameters if available (warm start)
       GEM.LTE.Primitives.Shared.Load (D);
 
-      --  COMMENTED CODE: Year adjustment feature - disabled
-      --  Would adjust the annual period parameter based on LP values
-      --  TODO: Remove after confirming not needed - was experimental feature
-      --  for testing sensitivity to yearly modulation
-      --if GEM.Getenv("YTRIM", FALSE) then
---   GEM.LTE.Year_Adjustment(D.B.Year, D.A.LP); -- should be a protected call?
-      --end if;
+      --  Set the startup candidate periods before calibrating dLOD phases.
+      GEM.LTE.Year_Adjustment (D.B.Year, D.A.LP);
+      AP := GEM.dLOD (dLOD_dat, D.B.Year);
 
       Text_IO.Put_Line ("YA=" & D.B.Year'Img);
 

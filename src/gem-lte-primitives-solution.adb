@@ -39,6 +39,7 @@ with Text_IO;
 with Ada.Numerics.Long_Elementary_Functions;
 with Ada.Long_Float_Text_IO;
 with GEM.Random_Descent;
+with GEM.dLOD;
 with GNAT.Ctrl_C;
 with System.Task_Info;
 with System.Multiprocessors;
@@ -65,7 +66,8 @@ package body GEM.LTE.Primitives.Solution is
    --  Used for validation rather than optimization - generates CSV files
    --  showing how well the tidal reconstruction matches reference data.
    function CompareRef
-     (LP : in Long_Periods; LPRef, AP : in Long_Periods_Amp_Phase)
+     (LP : in Long_Periods; AP : in Long_Periods_Amp_Phase;
+      Year_Correction : in Long_Float)
       return Long_Float
    is
       dLOD_dat : String := GEM.Getenv ("DLOD_DAT", "../dlod3.dat");
@@ -73,17 +75,21 @@ package body GEM.LTE.Primitives.Solution is
       Ref, R2, M2 : Data_Pairs := D;
       Metric : Long_Float := -1.0;
       Ref_Time : Long_Float := 0.0;
+      LPRef : constant Long_Periods_Amp_Phase :=
+        GEM.dLOD (dLOD_dat, Year_Correction);
       File : Text_IO.File_Type;
    begin
       R2 :=
         Tide_Sum
           (Template => Ref, Constituents => LPRef, Periods => LP,
-           Ref_Time => Ref_Time, Scaling => 1.0, Cos_Phase => False);
+           Ref_Time => Ref_Time, Scaling => 1.0, Cos_Phase => False,
+           Year_Len => Year_Length (Year_Correction));
 
       M2 :=
         Tide_Sum
           (Template => Ref, Constituents => AP, Periods => LP,
-           Ref_Time => Ref_Time, Scaling => 1.0, Cos_Phase => False);
+           Ref_Time => Ref_Time, Scaling => 1.0, Cos_Phase => False,
+           Year_Len => Year_Length (Year_Correction));
       Metric := Long_Float'Max (CC (R2, M2), Metric);
       Text_IO.Create (File, Text_IO.Out_File, "dlod_compare.csv");
       for I in R2'Range loop
@@ -426,9 +432,26 @@ package body GEM.LTE.Primitives.Solution is
       NonLin : constant Long_Float := GEM.Getenv ("NONLIN", 1.0);
       Decay : constant Long_Float := GEM.Getenv ("DECAY", 1.0);
       Lock_Freq : constant Boolean := GEM.Getenv ("LOCKF", False);
+      --  When set, the DR pre-emphasis below is skipped (regression target
+      --  stays raw Data_Records) and Regression_Factors instead folds the
+      --  lag-12 delay differential directly into its basis columns -- see
+      --  the note at Regression_Factors' Uncompensated_Mode in
+      --  gem-lte-primitives.adb for why this is the jointly-optimal
+      --  version of what DR only approximates. Same flag also gates the
+      --  Save-time modulation-power-spectrum correction.
+      Uncompensated : constant Boolean := GEM.Getenv ("UNCOMPENSATED", False);
       Local_Max : constant Boolean := GEM.Getenv ("LOCAL", False);
       Lock_Tidal : constant Boolean := GEM.Getenv ("LOCKT", False);
       Lock_T_Amp : constant Boolean := GEM.Getenv ("LOCKA", False);
+      Impulse_Only  : constant Boolean := GEM.Getenv ("IMPULSE", True);
+      Has_Friction : constant Boolean := GEM.Getenv ("FRICTION", False);
+      Jerk : constant Long_Float := GEM.Getenv ("JERK", 0.0);
+      --  Read independently from GEM.LTE.Primitives' own Ridge_Lambda (that
+      --  one lives in the parent package BODY, not visible here) — used
+      --  only to report the effective value that Regression_Coefficients
+      --  actually applied for this run; see the "---- LTE ----" printout.
+      Ridge_Lambda : constant Long_Float := GEM.Getenv ("RIDGE", 0.0);
+            
       --  UNUSED CONSTANT (Compiler Warning):
       --  ImpMonth loaded from environment but never referenced in code.
       --
@@ -506,10 +529,42 @@ package body GEM.LTE.Primitives.Solution is
          return Value;
       end Impulse_Delta;
 
+      function Impulse_Delta_Smear (Time : Long_Float) return Long_Float is
+         Value : Long_Float;
+         -- Impulses will occur on a month for monthly data
+         Trunc : Integer :=
+           Integer (((Time - Long_Float'Floor (Time)) * Sampling_Per_Year));
+         DPos : Integer := Integer ((abs (D.B.DelB) * Sampling_Per_Year));
+         DPos2 : Integer := (DPos + Integer (Sampling_Per_Year) / 2) mod 12;
+      begin
+         if Trunc = DPos2-1 then
+            if D.B.DelA < 0.0 then
+               Value := -D.B.DelA;
+            else
+               Value := 0.0;
+            end if;
+         elsif Trunc = Dpos2 then
+            Value := D.B.Asym;
+         elsif Trunc = DPos2+1 then
+            if D.B.DelA > 0.0 then
+               Value := D.B.DelA;
+            else
+               Value := 0.0;
+            end if;
+         else
+            Value := 0.0;
+         end if;
+         return Value;
+      end Impulse_Delta_Smear;
+
       function Impulse (Time : Long_Float) return Long_Float is
          Value : Long_Float;
       begin
-         Value := Impulse_Delta (Time);
+         if Impulse_Only then
+            Value := Impulse_Delta (Time);
+         else
+            Value := Impulse_Delta_Smear (Time);
+         end if;
          return Value;
       end Impulse;
 
@@ -542,13 +597,31 @@ package body GEM.LTE.Primitives.Solution is
          for I in Model'Range loop
             M (I).Value := M (I).Value + eS*Sin(2.0 * Pi * k * M (I).Value) + 
                                          eC*Cos(2.0 * Pi * k * M (I).Value) +
-                                     eS2*eS*Sin(2.0 * Pi * k2* M (I).Value) + 
-                                     eC2*eC*Cos(2.0 * Pi * k2* M (I).Value);
-                               -- Secondary*eS*Sin(2.0 * Pi * k2* M (I).Value) + 
-                               -- Secondary*eC*Cos(2.0 * Pi * k2* M (I).Value);
+                                     eS2*eS*Sin(4.0 * Pi * k * M (I).Value) + 
+                                     eC2*eC*Cos(4.0 * Pi * k * M (I).Value);
+                                     --eS2*eS*Sin(2.0 * Pi * k2* M (I).Value) + 
+                                     --eC2*eC*Cos(2.0 * Pi * k2* M (I).Value);
          end loop;
          return M;
       end Bessel;
+
+      function Frictional (Model : in Data_Pairs;
+                           Offset, Saturate, Eps : in Long_Float) return Data_Pairs
+      is
+         M : Data_Pairs := Model;
+         use Ada.Numerics.Long_Elementary_Functions;
+         k : Long_Float := 0.0001 + abs Saturate;
+         Y : Long_Float;
+      begin
+         for I in Model'Range loop
+            --Y := abs (M (I).Value - abs Offset);
+            Y := sqrt( (abs(M (I).Value - abs Offset))**2.25 + abs Eps );
+            --Y := sqrt (abs ( (M (I).Value - abs Offset) )) + abs Eps;
+            --Y := abs (M (I).Value - abs Offset) + abs Eps;
+            M (I).Value := 1.0/k*(1.0 - exp(-k*Y));
+         end loop;
+         return M;
+      end Frictional;
 
       
       procedure Put_CC
@@ -588,6 +661,68 @@ package body GEM.LTE.Primitives.Solution is
       Last : Integer := Find_Index (TE);
       Mid : Integer := (First + Last) / 2;
 
+      --  COVERAGE (0.0 .. 1.0, default 1.0 = current unregularized
+      --  behavior): standalone alternative to SPLIT_TRAINING/RATIO. The
+      --  regression fits only the leading Coverage fraction of the training
+      --  interval [First, Cov_Last]; the resulting fit is then scored over
+      --  the WHOLE training interval [First, Last] and that whole-interval
+      --  score directly gates each thread's own accept/reject (unlike
+      --  SPLIT_TRAINING's CorrCoeffTest / RATIO's OOB, which only affect
+      --  cross-thread selection, never an individual thread's own search).
+      --  A parameter set that only fits the coverage slice by chasing its
+      --  noise will predict the withheld remainder poorly and get rejected
+      --  right here, not just deprioritized after the fact. The true
+      --  out-of-band interval (outside [First,Last] entirely) is untouched
+      --  either way and still reported separately for final validation.
+      Coverage : constant Long_Float := GEM.Getenv ("COVERAGE", 1.0);
+      Cov_Last : constant Integer :=
+        Integer'Min
+          (Last, First + Integer (Long_Float (Last - First) * Coverage));
+
+      function Coverage_Region (D : Data_Pairs) return Data_Pairs is
+      begin
+         return D (First .. Cov_Last);
+      end Coverage_Region;
+
+      --  ENCLOSING (default False): standalone alternative to COVERAGE,
+      --  for the opposite geometry — training data that BRACKETS the
+      --  [TRAIN_START,TRAIN_END] gap on both sides rather than a window
+      --  the gap sits outside of. No fraction parameter is needed (unlike
+      --  COVERAGE) because the split is already fully determined by
+      --  First/Last: fit on LOWER only (Data'First .. First — the data
+      --  before the gap); accept/reject is driven by ENCLOSED (below);
+      --  and the gap itself, [First,Last], is always reported as the true
+      --  held-out validation — untouched by both fitting and accept/
+      --  reject in this mode, unlike Exclude_Metric's LOWER+UPPER
+      --  combination which is no longer "held out" once ENCLOSING is
+      --  using both flanks for the search. Takes precedence over
+      --  EXCLUDE/SPLIT_TRAINING the same way COVERAGE does — the two
+      --  standalone mechanisms assume opposite fit geometries and aren't
+      --  meant to combine, so COVERAGE (checked first) wins if both are
+      --  somehow set.
+      Enclosing : constant Boolean := GEM.Getenv ("ENCLOSING", False);
+
+      --  ENCLOSED (default "UL"): which region(s) drive ENCLOSING's
+      --  accept/reject, mirroring SPLIT_TRAINING/SPLIT_LOW's pattern of a
+      --  companion selector next to the activating flag.
+      --    "UL" (default) — UPPER + LOWER combined (Exclude_Metric): the
+      --      search is rewarded for fitting LOWER *and* predicting UPPER
+      --      together, so it can't drift away from LOWER's pattern
+      --      without being penalized — matches how COVERAGE scores the
+      --      whole interval, not just the withheld remainder.
+      --    "U" — UPPER only: a stricter, pure-generalization signal (the
+      --      original behavior) — the search is judged solely on
+      --      predicting UPPER, with no direct penalty for drifting away
+      --      from LOWER's own pattern (the regression's own best-fit
+      --      mechanics are the only thing keeping it anchored to LOWER).
+      Enclosed_Upper_Only : constant Boolean :=
+        GEM.Getenv ("ENCLOSED", "UL") = "U";
+
+      function Lower_Region (D : Data_Pairs) return Data_Pairs is
+      begin
+         return D (D'First .. First);
+      end Lower_Region;
+
       function Exclude_Metric return Long_Float is
          X : Data_Pairs :=
            Model (Model'First .. First) & Model (Last .. Model'Last);
@@ -618,6 +753,7 @@ package body GEM.LTE.Primitives.Solution is
    -- the Param_B_Overlay package for maximum safety.
       ------------------------------------------------------------------------
       NM : constant Integer := GEM.Getenv ("NM", N_Modulations);
+      Minimum_Modulation : constant Long_Float := GEM.Getenv ("MIN_LT", 0.01);
       
       -- Full overlay size for verification (entire D.B structure)
       Full_Size : constant Positive :=
@@ -659,6 +795,48 @@ package body GEM.LTE.Primitives.Solution is
       Annual_Cycle : Annual_Harmonics;
       Keep_Initial_Value, Init_Value0 : Long_Float := 0.0;
 
+      function Modulations_Are_Valid return Boolean is
+      begin
+         if Minimum_Modulation <= 0.0 then
+            raise Constraint_Error with "MIN_LT must be positive";
+         end if;
+         for I in 1 .. NM loop
+            if abs (D.B.LT (I)) < Minimum_Modulation then
+               return False;
+            end if;
+         end loop;
+         return True;
+      end Modulations_Are_Valid;
+
+      function Jerked_Tidal_Factors return Long_Periods_Amp_Phase is
+         Result : Long_Periods_Amp_Phase := D.B.LPAP;
+         Reference_Period : constant Long_Float := 13.660_830_77;
+         Normal_Weight, Derivative_Weight : Long_Float;
+      begin
+         if Jerk < 0.0 or else Jerk > 1.0 then
+            raise Constraint_Error with "JERK must be between 0.0 and 1.0";
+         end if;
+         if Jerk = 0.0 then
+            return Result;
+         end if;
+
+         for I in Result'Range loop
+            if D.A.LP (I) = 0.0 then
+               raise Constraint_Error with "Cannot differentiate a zero-period tide";
+            end if;
+            Normal_Weight := 1.0 - Jerk;
+            Derivative_Weight := Jerk * Reference_Period / D.A.LP (I);
+            -- Tide_Sum uses cosine phases here; d/dt cos(theta) is
+            -- proportional to cos(theta + pi / 2).
+            Result (I).Amplitude :=
+              Result (I).Amplitude *
+                LEF.Sqrt (Normal_Weight**2 + Derivative_Weight**2);
+            Result (I).Phase := Result (I).Phase +
+              LEF.Arctan (Derivative_Weight, Normal_Weight);
+         end loop;
+         return Result;
+      end Jerked_Tidal_Factors;
+
       function Calc_Forcing return Data_Pairs is
          F : Data_Pairs := Forcing;
       begin
@@ -668,9 +846,9 @@ package body GEM.LTE.Primitives.Solution is
            Impulse_Amplify
              (Raw =>
                 Tide_Sum
-                  (Template => Data_Records, Constituents => D.B.LPAP,
+                  (Template => Data_Records, Constituents => Jerked_Tidal_Factors,
                    Periods => D.A.LP, Ref_Time => 0.0, Scaling => 0.0,
-                   Year_Len => Year_Length, Integ => D.B.ShiftT),
+                   Year_Len => Year_Length (D.B.Year), Integ => D.B.ShiftT),
               Offset => 0.0, Ramp => 0.0,
               Start => Data_Records (Data_Records'First).Date);
 
@@ -727,6 +905,11 @@ package body GEM.LTE.Primitives.Solution is
       loop
          Counter := Counter + 1;
          delay 0.0; -- context switching point if multi-processing not avilable
+         
+         GEM.LTE.Year_Adjustment (D.B.Year, D.A.LP);
+         if not Modulations_Are_Valid then
+            raise Constraint_Error with "Loaded LT modulation is below MIN_LT";
+         end if;
 
          -- Tidal constituents summed, amplified by impulse, and LTE modulated
          Forcing := Calc_Forcing;
@@ -740,39 +923,67 @@ package body GEM.LTE.Primitives.Solution is
             M (NM + I) := Long_Float (Harms (I)) * M (NM);
          end loop;
          
-         -- Check for duplicate periods that could cause singular regression matrix
+         -- Check for duplicate periods that could cause singular regression
+         -- matrix. Recover by regenerating the offending harmonic's own
+         -- multiplier via Force_Harmonic — an UNCONDITIONAL redraw (unlike
+         -- Random_Harmonic, which only mutates probabilistically, gated by
+         -- FLIP/FIX; with the default FLIP=0.0 it would never actually
+         -- change anything, which is exactly what let this collision go
+         -- unresolved originally). Force_Harmonic only ever draws from
+         -- Harmonic_Index'Range = 2 .. Harmonic_Range (gem-random_descent
+         -- .adb), so it can never re-propose the trivial multiplier=1 case
+         -- that would trivially equal M(NM) itself. If a clean value can't
+         -- be found within a bounded number of tries (a persistent
+         -- configuration problem, not just a random coincidence — should
+         -- essentially never happen), fall through leaving M as-is:
+         -- Regression_Factors' own Constraint_Error handler already
+         -- recovers gracefully from a singular design matrix, and the
+         -- existing Singular-triggered reset below then picks a fresh
+         -- starting point — the same recovery path any other rejected
+         -- trial already goes through, rather than a special case that
+         -- kills this thread outright.
          declare
             Has_Duplicates : Boolean := False;
          begin
-            -- Check if harmonic periods match any base periods
-            for I in 1 .. NH loop
-               for J in 1 .. NM loop
-                  if abs (M (NM + I) - M (J)) < 1.0E-10 then
-                     Text_IO.Put_Line ("Error: Harmonic period matches base period - cannot perform regression");
-                     Has_Duplicates := True;
-                     exit;
-                  end if;
-               end loop;
-               exit when Has_Duplicates;
-            end loop;
-            
-            -- Check for duplicate harmonic periods
-            if not Has_Duplicates and NH > 1 then
-               for I in 1 .. NH - 1 loop
-                  for J in I + 1 .. NH loop
-                     if abs (M (NM + I) - M (NM + J)) < 1.0E-10 then
-                        Text_IO.Put_Line ("Error: Duplicate harmonic periods detected - cannot perform regression");
+            for Attempt in 1 .. 25 loop
+               Has_Duplicates := False;
+
+               -- Check if harmonic periods match any base periods
+               for I in 1 .. NH loop
+                  for J in 1 .. NM loop
+                     if abs (M (NM + I) - M (J)) < 1.0E-10 then
                         Has_Duplicates := True;
+                        Walker.Force_Harmonic (Harms (I));
+                        M (NM + I) := Long_Float (Harms (I)) * M (NM);
                         exit;
                      end if;
                   end loop;
                   exit when Has_Duplicates;
                end loop;
-            end if;
-            
+
+               -- Check for duplicate harmonic periods
+               if not Has_Duplicates and NH > 1 then
+                  for I in 1 .. NH - 1 loop
+                     for J in I + 1 .. NH loop
+                        if abs (M (NM + I) - M (NM + J)) < 1.0E-10 then
+                           Has_Duplicates := True;
+                           Walker.Force_Harmonic (Harms (I));
+                           M (NM + I) := Long_Float (Harms (I)) * M (NM);
+                           exit;
+                        end if;
+                     end loop;
+                     exit when Has_Duplicates;
+                  end loop;
+               end if;
+
+               exit when not Has_Duplicates;
+            end loop;
+
             if Has_Duplicates then
-               Singular := True;
-               return;
+               Text_IO.Put_Line
+                 ("Warning:" & ID'Img &
+                  " harmonic collision persisted after regeneration " &
+                  "attempts, resetting");
             end if;
          end;
          
@@ -783,19 +994,36 @@ package body GEM.LTE.Primitives.Solution is
                Secular_Trend := 0.0;
             end if;
             DR := Data_Records;
+            if D.B.IR /= 0.0 and then not Uncompensated then
+               for I in reverse Data_Records'First + 12 .. Data_Records'Last loop
+                  DR (I).Value := Data_Records (I).Value + D.B.IR*Data_Records (I - 12).Value;
+               end loop;
+            end if;
+            --  Uncompensated=True: DR stays equal to raw Data_Records --
+            --  Regression_Factors folds the delay differential into its
+            --  own basis columns instead (see IR parameter below).
+            
 --            DR := Annual_Add (DR, -1.0);
-            if NM = 1 then
-               Forcing := Bessel(Forcing, D.B.ImpA, D.B.ImpB, M(NM), 0.0, 0.0, 0.0);
+            if Has_Friction then
+               Forcing := Frictional(Forcing, D.B.ImpA, D.B.ImpB, D.B.ImpC);
+            elsif NM = 1 then
+               Forcing := Bessel(Forcing, D.B.ImpA, D.B.ImpB, M(NM)*(1.0-D.B.BG), D.B.ImpC, D.B.Offset, D.B.bg);
             else
                if Lock_Freq then
-                  Forcing := Bessel(Forcing, D.B.ImpA, D.B.ImpB, M(NM-1), M(NM), D.B.ImpC, D.B.IR);
+                  Forcing := Bessel(Forcing, D.B.ImpA, D.B.ImpB, M(NM-1), M(NM), D.B.Offset, D.B.bg);
                else
-                  Forcing := Bessel(Forcing, D.B.ImpA, D.B.ImpB, M(NM), M(NM-1), D.B.ImpC, D.B.IR);
+                  Forcing := Bessel(Forcing, D.B.ImpA, D.B.ImpB, M(NM), M(NM-1), D.B.Offset, D.B.bg);
                end if;
             end if;
             Regression_Factors
-              (Data_Records => Excluded (DR), -- Time series
-               Forcing => Excluded (Forcing),  -- Value @ Time
+              (Data_Records =>
+                 (if Coverage < 1.0 then Coverage_Region (DR)
+                  elsif Enclosing then Lower_Region (DR)
+                  else Excluded (DR)), -- Time series
+               Forcing =>
+                 (if Coverage < 1.0 then Coverage_Region (Forcing)
+                  elsif Enclosing then Lower_Region (Forcing)
+                  else Excluded (Forcing)),  -- Value @ Time
                NM => NM + NH, -- # modulations
                DBLT => M, --D.B.LT,
                DALTAP => MAP, --D.A.LTAP,
@@ -805,8 +1033,15 @@ package body GEM.LTE.Primitives.Solution is
                Accel => Accel,
                Singular => Singular, 
                Annual => Annual_Cycle,
-               Third => 0.0 
+               Third => 0.0,
+               IR => D.B.IR
             );
+            if Climate_Trend and then not Singular then
+               D.B.Ann1 := Annual_Cycle.Ann1;
+               D.B.Ann2 := Annual_Cycle.Ann2;
+               D.B.Sem1 := Annual_Cycle.Semi1;
+               D.B.Sem2 := Annual_Cycle.Semi2;
+            end if;
          else
             Singular := False;
          end if;
@@ -834,6 +1069,15 @@ package body GEM.LTE.Primitives.Solution is
                end if;
 
 --               Model := Annual_Add (Model);
+
+               -- Delay differential
+               if D.B.IR /= 0.0 then
+                  for I in reverse Model'First + 12 .. Model'Last loop
+                     Model (I).Value := Model (I).Value - D.B.IR*Model (I - 12).Value; 
+                  end loop;
+               end if;
+
+
             end if;
 
 
@@ -852,7 +1096,38 @@ package body GEM.LTE.Primitives.Solution is
 
             -- pragma Debug ( Dump(Model, Data_Records, Run_Time) );
 
-            if Split_Training then
+            if Coverage < 1.0 then
+               -- COVERAGE: fit was on Coverage_Region (the leading fraction
+               -- above); score on the WHOLE training interval so a thread's
+               -- own accept/reject (Old_CC/Keep, below) directly rejects
+               -- parameter sets that don't predict the withheld remainder.
+               CorrCoeff :=
+                 Metric
+                   (Model (First .. Last), Data_Records (First .. Last),
+                    Forcing (First .. Last));
+               CorrCoeffP := Exclude_Metric; -- true out-of-band, unaffected
+            elsif Enclosing then
+               -- ENCLOSING: fit was on LOWER (above); accept/reject is
+               -- driven by ENCLOSED_UPPER_ONLY's choice of region(s) — see
+               -- its declaration for the "U" vs "UL" tradeoff. CorrCoeffP
+               -- reports the enclosed [First,Last] gap either way — the
+               -- true held-out region in this mode, since both flanks are
+               -- now spent on fitting/selection, not Exclude_Metric's
+               -- LOWER+UPPER (no longer held out here at all).
+               if Enclosed_Upper_Only then
+                  CorrCoeff :=
+                    Metric
+                      (Model (Last .. Model'Last),
+                       Data_Records (Last .. Data_Records'Last),
+                       Forcing (Last .. Forcing'Last));
+               else
+                  CorrCoeff := Exclude_Metric; -- LOWER + UPPER combined
+               end if;
+               CorrCoeffP :=
+                 Metric
+                   (Model (First .. Last), Data_Records (First .. Last),
+                    Forcing (First .. Last));
+            elsif Split_Training then
                if Split_Low then
                   CorrCoeff :=
                     Metric
@@ -884,9 +1159,22 @@ package body GEM.LTE.Primitives.Solution is
                end if;
             end if;
 
+         -- BUG FIX (was unconditional): CorrCoeffP is only assigned in the
+         -- "else" branch above (Split_Training's branch sets CorrCoeff/
+         -- CorrCoeffTest directly and never touches CorrCoeffP), so an
+         -- unconditional "CorrCoeff := CorrCoeffP" here clobbered
+         -- Split_Training's correctly-computed CorrCoeff with an
+         -- uninitialized value every iteration — which also broke each
+         -- thread's own accept/reject below (Old_CC never improved past 0),
+         -- silently degrading the search into undirected random sampling
+         -- whenever SPLIT_TRAINING=true. COVERAGE's and ENCLOSING's
+         -- branches above already set both CorrCoeff and CorrCoeffP
+         -- directly, so both are excluded here the same way Split_Training
+         -- is — this guard is only for the plain EXCLUDE/no-modifier case.
+         if Coverage >= 1.0 and then not Enclosing
+           and then not Split_Training
+         then
             CorrCoeff := CorrCoeffP;
-
-         if not Split_Training then
             if Exclude then  -- calculate OOB
                CorrCoeffP :=
                  Metric
@@ -985,6 +1273,9 @@ package body GEM.LTE.Primitives.Solution is
                Walker.Markov (Set, Keep, Spread, Set0);
             end if;
             Walker.Random_Harmonic (Harms, Harms_Keep);
+            if not Modulations_Are_Valid then
+               Set := Keep;
+            end if;
          end if;
 
       end loop;
@@ -996,6 +1287,12 @@ package body GEM.LTE.Primitives.Solution is
          GEM.LTE.Primitives.Shared.Dump (DKeep);
 
          Text_IO.Put_Line ("---- LTE ----");
+         Put (Ridge_Lambda, " :ridge:", NL);
+         Put (Coverage, " :coverage:", NL);
+         Text_IO.Put_Line (" " & Boolean'Image (Enclosing) & " :enclosing:");
+         Text_IO.Put_Line
+           (" " & (if Enclosed_Upper_Only then "U" else "UL") &
+            " :enclosed:");
          Put (Secular_Trend, " :trend:", NL);
          Put (Accel, " :accel:", NL);
          Put (D.A.k0, " :K0:", NL);
@@ -1016,9 +1313,28 @@ package body GEM.LTE.Primitives.Solution is
          Text_IO.Put_Line ("```");
 
          GEM.LTE.Primitives.Shared.Save (DKeep);
-         Save (KeepModel, Data_Records, Forcing);    -- saves to file
+         Save (KeepModel, Data_Records, Forcing, IR => D.B.IR);    -- saves to file
          if Split_Training then
             Put_CC (CorrCoeff, CorrCoeffTest, Counter, ID);
+         elsif Enclosing then
+            -- Mirror the per-iteration ENCLOSING branch above: report
+            -- whichever region(s) drove accept/reject (per ENCLOSED_
+            -- UPPER_ONLY) and the enclosed gap (the true held-out region
+            -- in this mode).
+            if Enclosed_Upper_Only then
+               CorrCoeff :=
+                 Metric
+                   (Model (Last .. Model'Last),
+                    Data_Records (Last .. Data_Records'Last),
+                    Forcing (Last .. Forcing'Last));
+            else
+               CorrCoeff := Exclude_Metric;
+            end if;
+            CorrCoeffP :=
+              Metric
+                (Model (First .. Last), Data_Records (First .. Last),
+                 Forcing (First .. Last));
+            Put_CC (CorrCoeff, CorrCoeffP, Counter, ID);
          else
             CorrCoeffP := Exclude_Metric;
             CorrCoeff :=
@@ -1028,9 +1344,10 @@ package body GEM.LTE.Primitives.Solution is
             Put_CC (CorrCoeff, CorrCoeffP, Counter, ID);
          end if;
 
-         CorrCoeff := CompareRef (D.A.LP, LPRef, D.B.LPAP);
+         CorrCoeff :=
+           CompareRef (DKeep.A.LP, DKeep.B.LPAP, DKeep.B.Year);
          Put (CorrCoeff, ":dLOD:   ");
-         Put (Year_Length, ":Yr: " & File_Name);
+         Put (Year_Length (DKeep.B.Year), ":Yr: " & File_Name);
 
       else
          null; -- Text_IO.Put_Line("Exited " & ID'Img);

@@ -20,10 +20,10 @@ package GEM.LTE.Primitives.Shared is
       DelB : Long_Float;   -- Phase of delta impulse
       Asym : Long_Float;   -- Asymmetry of semi-annual impulse
 
-      Ann1 : Long_Float;   -- Amplitude annual
-      Ann2 : Long_Float;   -- Phase annual
-      Sem1 : Long_Float;   -- Amplitude semi-annual
-      Sem2 : Long_Float;   -- Phase semi-annual
+      Ann1 : Long_Float;   -- Annual sine coefficient
+      Ann2 : Long_Float;   -- Annual cosine coefficient
+      Sem1 : Long_Float;   -- Semi-annual sine coefficient
+      Sem2 : Long_Float;   -- Semi-annual cosine coefficient
       IR : Long_Float;   -- Impulse pass-through
       Year : Long_Float;   -- Year correction (in days)
 

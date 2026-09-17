@@ -95,6 +95,24 @@ def compose_sinusoids(lpap: list, t_days: np.ndarray) -> np.ndarray:
 # ---------------------------------------------------------------------------
 
 DAYS_PER_YEAR = 365.25  # mean Julian year (accounts for leap years)
+JERK_REFERENCE_PERIOD_DAYS = 13.66083077
+
+
+def _jerk_corrected_lpap(lpap: list) -> list:
+    """Return display-only long-period amplitudes corrected for JERK=1."""
+    if os.environ.get("JERK") != "1":
+        return lpap
+
+    corrected = []
+    for entry in lpap:
+        period = float(entry[0])
+        adjusted_entry = list(entry)
+        if abs(period) > 365.0:
+            adjusted_entry[1] = (
+                float(entry[1]) * JERK_REFERENCE_PERIOD_DAYS / abs(period)
+            )
+        corrected.append(adjusted_entry)
+    return corrected
 
 
 def _date_array(start_year: int, n_years: int, dt_days: float = 1.0):
@@ -117,7 +135,7 @@ def plot_lpap(lpap: list, index: str, start_year: int = 1950, n_years: int = 50,
        start_year = 1880
        t_days, dates = _date_array(start_year, 150, dt_days=DAYS_PER_YEAR)
     
-    y = compose_sinusoids(lpap, t_days)
+    y = compose_sinusoids(_jerk_corrected_lpap(lpap), t_days)
     
     with open("lpap.csv", "w", newline="") as f:
         writer = csv.writer(f)
@@ -154,7 +172,7 @@ def plot_lpap_amplitudes(lpap: list, index: str):
     Ordinals with periods greater than 365 days are plotted as gray bars.
     """
     periods = [float(e[0]) for e in lpap]
-    amplitudes = [abs(float(e[1])) for e in lpap]
+    amplitudes = [abs(float(e[1])) for e in _jerk_corrected_lpap(lpap)]
 
     # Build y-axis labels: "period" in days, formatted to 5 sig-figs
     labels = [f"{p:.5g} d" for p in periods]

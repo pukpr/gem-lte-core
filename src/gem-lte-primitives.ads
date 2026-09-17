@@ -14,7 +14,8 @@ package GEM.LTE.Primitives is
    -- Save results
    procedure Save
      (Model, Data, Forcing : in Data_Pairs;
-      File_Name : in String := "lte_results.csv");
+      File_Name : in String := "lte_results.csv";
+      IR : in Long_Float := 0.0);
 
    --
    -- Main algorithms
@@ -72,7 +73,8 @@ package GEM.LTE.Primitives is
       DAK0 : out Long_Float; Secular_Trend : in out Long_Float;
       Accel : out Long_Float; Singular : out Boolean;
       Annual : out Annual_Harmonics;
-      Third : in Long_Float := 0.0);
+      Third : in Long_Float := 0.0;
+      IR : in Long_Float := 0.0);
 
    --
    -- Utility procedures

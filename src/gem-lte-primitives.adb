@@ -49,6 +49,15 @@ package body GEM.LTE.Primitives is
    Sinc : constant Long_Float := GEM.Getenv ("SINC", 0.0);
    Custom_Tide : constant Boolean := GEM.Getenv ("CUSTOM", False);
 
+   --  Ridge (Tikhonov/L2) penalty added to Regression_Coefficients' normal
+   --  equations, shrinking the OLS-fit level/k0/per-mode amp-phase/trend/
+   --  accel/annual coefficients toward zero instead of letting them freely
+   --  absorb whatever the training window happens to contain. 0.0 (default)
+   --  reproduces the exact unregularized behavior; RIDGE also improves the
+   --  conditioning of Regressors_T * Regressors, so it should reduce
+   --  "Singular result" failures as a side effect even at small values.
+   Ridge_Lambda : constant Long_Float := GEM.Getenv ("RIDGE", 0.0);
+
    --  Returns true if using minimum entropy metric for optimization
    function Is_Minimum_Entropy return Boolean is
    begin
@@ -1308,31 +1317,96 @@ package body GEM.LTE.Primitives is
 
    protected Safe is
       procedure Save
-        (Model, Data, Forcing : in Data_Pairs; File_Name : in String);
+        (Model, Data, Forcing : in Data_Pairs; File_Name : in String;
+         IR : in Long_Float := 0.0);
       procedure Save
         (Model : in Data_Pairs; Mag : in Integer; File_Name : in String);
    end Safe;
 
    protected body Safe is
       procedure Save
-        (Model, Data, Forcing : in Data_Pairs; File_Name : in String)
+        (Model, Data, Forcing : in Data_Pairs; File_Name : in String;
+         IR : in Long_Float := 0.0)
       is
          FT : Text_IO.File_Type;
          Model_S : Data_Pairs := Model;
          Data_S : Data_Pairs := Data;
          RMS : Long_Float;
+         --  Modulation-only power spectrum, gated by UNCOMPENSATED (default
+         --  False -- old behavior unchanged). The saved Model already has
+         --  the post-LTE lag-12 IR differential applied
+         --  (Model(I) := Model(I) - IR*Model(I-12), computed with both taps
+         --  reading the pre-adjustment Model); the regression that produced
+         --  the pre-adjustment modulation was fit against DR = Data +
+         --  IR*Data(I-12), not Data itself. To see the modulation alone,
+         --  against what it was actually fit to match: undo the lag-12
+         --  differential on Model (a recursive inverse, built up in
+         --  increasing-index order using the already-recovered value 12
+         --  steps back), reproduce DR on Data (non-recursive -- both taps
+         --  are the original Data, exactly like the forward construction),
+         --  then rescale the decompensated Model by a single best-fit
+         --  scalar so its amplitude is comparable to DR's -- the raw
+         --  modulation has no inherent reason to already share that scale.
+         --  This only feeds the spectrum below; the CSV row output further
+         --  down still uses the untouched Model/Data/Forcing parameters, so
+         --  the actual fit (IR included) is never altered.
+         Uncompensated_Mode : constant Boolean :=
+           GEM.Getenv ("UNCOMPENSATED", False);
+         Model_Spec : Data_Pairs := Model;
+         Data_Spec : Data_Pairs := Data;
       begin
+         --  Unrolled, the Model_Spec recursion below is a geometric series
+         --  in IR (Model_orig(I) = sum_k IR**k * Model_final(I-12k)) and
+         --  only stays bounded for |IR| < 1, regardless of sign -- for
+         --  |IR| >= 1 (seen in practice, e.g. tpi's IR=-1.21) it diverges
+         --  across the record, which then wrecks the Scale computation
+         --  below (dominated by the blown-up tail). Guarded: skip the
+         --  decompensation and fall through to the unmodified Model/Data
+         --  (same as Uncompensated_Mode=False) rather than emitting
+         --  garbage into the saved spectrum.
+         if Uncompensated_Mode and then IR /= 0.0 and then abs (IR) >= 1.0
+         then
+            Text_IO.Put_Line
+              ("WARNING: |IR| =" & IR'Img &
+               " >= 1 -- decompensation is unstable at this magnitude." &
+               " Skipping for the saved spectrum.");
+         end if;
+         if Uncompensated_Mode and then IR /= 0.0 and then abs (IR) < 1.0 then
+            for I in Model'First + 12 .. Model'Last loop
+               Model_Spec (I).Value :=
+                 Model (I).Value + IR * Model_Spec (I - 12).Value;
+            end loop;
+            for I in Data'First + 12 .. Data'Last loop
+               Data_Spec (I).Value :=
+                 Data (I).Value + IR * Data (I - 12).Value;
+            end loop;
+            declare
+               Num, Den : Long_Float := 0.0;
+               Scale : Long_Float := 1.0;
+            begin
+               for I in Model_Spec'Range loop
+                  Num := Num + Model_Spec (I).Value * Data_Spec (I).Value;
+                  Den := Den + Model_Spec (I).Value * Model_Spec (I).Value;
+               end loop;
+               if Den > 0.0 then
+                  Scale := Num / Den;
+               end if;
+               for I in Model_Spec'Range loop
+                  Model_Spec (I).Value := Model_Spec (I).Value * Scale;
+               end loop;
+            end;
+         end if;
          Text_IO.Create
            (File => FT, Name => File_Name, Mode => Text_IO.Out_File);
          if Model_S'Length < 10_000 then
             if Is_Minimum_Entropy then
                ME_Power_Spectrum
-                 (Forcing => Model, Model => Forcing, Data => Data,
+                 (Forcing => Model_Spec, Model => Forcing, Data => Data_Spec,
                   Model_Spectrum => Model_S, Data_Spectrum => Data_S,
                   RMS => RMS, Phase => False);
             else
                ME_Power_Spectrum
-                 (Forcing => Forcing, Model => Model, Data => Data,
+                 (Forcing => Forcing, Model => Model_Spec, Data => Data_Spec,
                   Model_Spectrum => Model_S, Data_Spectrum => Data_S,
                   RMS => RMS);
                Model_S := Window (Model_S, 2);
@@ -1370,10 +1444,11 @@ package body GEM.LTE.Primitives is
 
    procedure Save
      (Model, Data, Forcing : in Data_Pairs;
-      File_Name : in String := "lte_results.csv")
+      File_Name : in String := "lte_results.csv";
+      IR : in Long_Float := 0.0)
    is
    begin
-      Safe.Save (Model, Data, Forcing, File_Name);
+      Safe.Save (Model, Data, Forcing, File_Name, IR);
       Safe.Save (Forcing, Magnify, "mag_" & File_Name);
    end Save;
 
@@ -1464,8 +1539,14 @@ package body GEM.LTE.Primitives is
          use MLR;
       begin
          Result :=
-           MLR.Inverse (Regressors_T * Regressors) * Regressors_T *
-           To_Matrix (Source);
+           MLR.Inverse
+             (Regressors_T * Regressors +
+              Ridge_Lambda *
+                MLR.Unit_Matrix
+                  (Order   => Regressors'Length (2),
+                   First_1 => Regressors'First (2),
+                   First_2 => Regressors'First (2))) *
+           Regressors_T * To_Matrix (Source);
       end;
       return To_Row_Vector (Source => Result);
    exception
@@ -1483,15 +1564,16 @@ package body GEM.LTE.Primitives is
       Forcing : in Data_Pairs;  -- Value @ Time
       -- Factors_Matrix : in out Matrix;
 
-      DBLT : in Periods; 
-      DALTAP : out Amp_Phases; 
+      DBLT : in Periods;
+      DALTAP : out Amp_Phases;
       DALEVEL : out Long_Float;
-      DAK0 : out Long_Float; 
+      DAK0 : out Long_Float;
       Secular_Trend : in out Long_Float;
-      Accel : out Long_Float; 
+      Accel : out Long_Float;
       Singular : out Boolean;
       Annual : out Annual_Harmonics;
-      Third : in Long_Float := 0.0)
+      Third : in Long_Float := 0.0;
+      IR : in Long_Float := 0.0)
    is
 
       use Ada.Numerics.Long_Elementary_Functions;
@@ -1506,7 +1588,26 @@ package body GEM.LTE.Primitives is
       RData : Vector (1 .. Last - First + 1);
       Factors_Matrix : Matrix (1 .. Last - First + 1, 1 .. Num_Coefficients);
       Value : Long_Float;
+      --  Fold the same post-LTE lag-12 delay differential
+      --  (Model(I) := Model(I) - IR*Model(I-12), see the Save procedure
+      --  below and Calc_Forcing in -solution.adb) into the regression
+      --  BASIS instead of approximating it via a pre-emphasized target
+      --  (DR = Data + IR*Data(I-12)). Fitting X against DR then applying
+      --  L post-hoc is NOT equivalent to directly minimizing
+      --  ||L*X*beta - Data||^2 in general (L is not orthogonal), so it's
+      --  provably non-optimal for the actual quantity the search's own
+      --  accept/reject metric measures (Model_final vs Data). Regressing
+      --  L*X directly against the untransformed Data_Records (the caller
+      --  skips the DR pre-emphasis in this mode, passing raw Data through
+      --  unchanged) is a single, jointly-optimal regression -- the
+      --  standard pre-whitening/GLS way of handling a known
+      --  autocorrelation structure, rather than approximating around it.
+      --  Gated by UNCOMPENSATED (default False, old behavior byte-for-byte
+      --  unchanged) so the original DR-based approach stays available.
+      Uncompensated_Mode : constant Boolean :=
+        GEM.Getenv ("UNCOMPENSATED", False);
    begin
+      Annual := (0.0, 0.0, 0.0, 0.0);
       for I in First .. Last loop
          RData (I - First + 1) := Data_Records (I).Value;
          Factors_Matrix (I - First + 1, 1) := 1.0;  -- DC offset
@@ -1533,6 +1634,21 @@ package body GEM.LTE.Primitives is
          end if;
       end loop;
 
+      --  Fold L (the lag-12 delay differential) into every basis column,
+      --  matching exactly how it's later applied to the combined LTE
+      --  output -- both taps read the not-yet-modified column, via the
+      --  same reverse-order trick used on Model itself, so this is an
+      --  exact (not approximate) transform of the basis, unlike DR's
+      --  single-term approximation of L^{-1} on the target side.
+      if Uncompensated_Mode and then IR /= 0.0 then
+         for J in 1 .. Num_Coefficients loop
+            for Row in reverse 13 .. Last - First + 1 loop
+               Factors_Matrix (Row, J) :=
+                 Factors_Matrix (Row, J) - IR * Factors_Matrix (Row - 12, J);
+            end loop;
+         end loop;
+      end if;
+
       declare
          Coefficients : constant Vector := -- MLR.
            Regression_Coefficients
@@ -1553,11 +1669,11 @@ package body GEM.LTE.Primitives is
                  Arctan (Coefficients (K), Coefficients (K - 1));
                K := K + 2;
             end loop;
-            Annual.Semi1 := Coefficients (Num_Coefficients - 2);
-            Annual.Semi2 := Coefficients (Num_Coefficients - 3);
-            Annual.Ann1 := Coefficients (Num_Coefficients - 4);
-            Annual.Ann2 := Coefficients (Num_Coefficients - 5);
             if Trend then
+               Annual.Semi1 := Coefficients (Num_Coefficients - 2);
+               Annual.Semi2 := Coefficients (Num_Coefficients - 3);
+               Annual.Ann1 := Coefficients (Num_Coefficients - 4);
+               Annual.Ann2 := Coefficients (Num_Coefficients - 5);
                Secular_Trend := Coefficients (Num_Coefficients - 1); --!!!
                Accel := Coefficients (Num_Coefficients); --!!!
             else

@@ -1,0 +1,11 @@
+FSTART                         0.01
+FLIP                           0.01
+FILTER                         0.0
+SPREAD_MIN                     0.000001
+SPREAD_MAX                     0.25
+MAXH                           30
+NH                             "1 1 1 1 1 1"
+NM                             1
+YEAR                           0.00385
+-LOCKF                          TRUE
+UNCOMPENSATED                  TRUE
