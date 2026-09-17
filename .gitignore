@@ -3,6 +3,8 @@ build/
 *.o
 b~*.ads
 b~*.adb
+*.ads.*
+*.adb.*
 .#*
 \#*#
 lt.exe
@@ -10,6 +12,8 @@ lt.exe.par
 lt.exe.parms
 lt.exe.*.par
 lt.exe.*.parms
+lt.exe.p.*
+lt.exe.resp.*
 lte_results.csv
 *.png
 __pycache__/
