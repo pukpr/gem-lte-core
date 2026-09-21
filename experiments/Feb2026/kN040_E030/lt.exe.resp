@@ -19,6 +19,3 @@ PART                           FALSE
 FILTER                         0.0
 JERK                           0.0
 -CAL_LOD                        -0.0002
-TRAIN_START                    2000.0
-TRAIN_END                      2005.0
-EXCLUDE                        TRUE
