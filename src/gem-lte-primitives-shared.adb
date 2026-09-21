@@ -296,6 +296,89 @@ package body GEM.LTE.Primitives.Shared is
    end Write_JSON;
 
    --  =========================================================================
+   --  Save_Windings: Persist the per-winding amplitude/phase table as its
+   --  own JSON file, named "<exe>.windings.json". This mirrors the
+   --  "---- LTE ----" stdout block emitted at the end of a run so the same
+   --  amplitude/phase data can be collected from disk instead of scraped
+   --  from stdout, for cross-index/cross-region phase analysis.
+   --  Additive only: no other Save/Load/Dump behavior is touched.
+   --
+   --  Includes a "manifold" sub-object of the forcing-shaping parameters
+   --  (DelA/DelB/Asym/mA/mP/ShiftT/ImpA/ImpB/Offset/Bg/Year). This is NOT
+   --  needed to use the winding table on its own -- it exists so a
+   --  cross-index/cross-region phase comparison can first check whether
+   --  two files' manifolds actually agree closely enough to compare
+   --  phases directly. Verified this session (two separate cases:
+   --  Baltic MSL vs Kaplan SST, and kN_baltic vs kN_northsea) that two
+   --  independently-optimized manifolds correlating as high as 99.6%
+   --  overall can still decorrelate to near-zero or even NEGATIVE once
+   --  multiplied by a winding number M inside sin(2*pi*M*Forcing) --
+   --  manufacturing a spurious "antiphase" reading with no counterpart
+   --  in the real data. Comparing this block first (mismatched values
+   --  are a warning to rebuild a shared reference forcing rather than
+   --  trust a direct phase comparison) is the fix.
+   --  =========================================================================
+   procedure Save_Windings
+     (Trend, Accel, K0, Level, IR : in Long_Float;
+      M                           : in Modulations;
+      MAP                         : in Modulations_Amp_Phase;
+      NM, NH                      : in Integer;
+      B                           : in Param_B)
+   is
+      use GNATCOLL.JSON;
+      FN : constant String :=
+        Ada.Directories.Simple_Name (Ada.Command_Line.Command_Name) &
+        ".windings.json";
+      Obj      : constant JSON_Value := Create_Object;
+      K_Arr    : JSON_Array          := Empty_Array;
+      Manifold : constant JSON_Value := Create_Object;
+   begin
+      Set_Field (Obj, "trend", Create (Trend));
+      Set_Field (Obj, "accel", Create (Accel));
+      Set_Field (Obj, "k0", Create (K0));
+      Set_Field (Obj, "level", Create (Level));
+      Set_Field (Obj, "IR", Create (IR));
+
+      Set_Field (Manifold, "delA", Create (B.DelA));
+      Set_Field (Manifold, "delB", Create (B.DelB));
+      Set_Field (Manifold, "asym", Create (B.Asym));
+      Set_Field (Manifold, "ma", Create (B.mA));
+      Set_Field (Manifold, "mp", Create (B.mP));
+      Set_Field (Manifold, "shiftT", Create (B.shiftT));
+      Set_Field (Manifold, "impA", Create (B.ImpA));
+      Set_Field (Manifold, "impB", Create (B.ImpB));
+      Set_Field (Manifold, "offs", Create (B.Offset));
+      Set_Field (Manifold, "bg", Create (B.bg));
+      Set_Field (Manifold, "year", Create (B.Year));
+      Set_Field (Obj, "manifold", Manifold);
+
+      for I in 1 .. NM + NH loop
+         declare
+            Triplet : JSON_Array := Empty_Array;
+         begin
+            Append (Triplet, Create (M (I)));
+            Append (Triplet, Create (MAP (I).Amplitude));
+            Append (Triplet, Create (MAP (I).Phase));
+            Append (K_Arr, Create (Triplet));
+         end;
+      end loop;
+      Set_Field (Obj, "k_amp_phase", Create (K_Arr));
+
+      declare
+         JSON_Text : constant String := Write (Obj, Compact => False);
+         FT        : Ada.Text_IO.File_Type;
+      begin
+         Ada.Text_IO.Create (FT, Ada.Text_IO.Out_File, FN);
+         Ada.Text_IO.Put_Line (FT, JSON_Text);
+         Ada.Text_IO.Close (FT);
+      end;
+   exception
+      when others =>
+         -- Never let this best-effort side output disturb a real run.
+         null;
+   end Save_Windings;
+
+   --  =========================================================================
    --  Save: Persist parameters to binary .parms file, text .par, and JSON .p files
    --
    --  Uses Ada.Direct_IO for fast binary serialization (legacy format).

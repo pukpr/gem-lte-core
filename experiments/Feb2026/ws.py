@@ -313,7 +313,17 @@ def load_index(root: Path, index: str) -> dict:
     params = json.loads((idx_dir / "lt.exe.p").read_text())
     resp = read_resp(idx_dir / "lt.exe.resp")
     overrides = {}
-    if "harm" in params:
+    # resp's own NH line is normally an all-ones ACTIVE-MASK ("1 1 1 1"),
+    # not the actual harmonic multipliers -- those live in params["harm"],
+    # so harm normally should win. But a resp that explicitly sets NH to
+    # an EMPTY string means that specific optimization run had harmonics
+    # switched off entirely; params["harm"] can still be present but
+    # stale (left over from an earlier attempt that did use it) --
+    # trusting it anyway silently fabricates fixed extra windings that
+    # were never actually part of the fit. Found directly on kN040_E030
+    # ("NH \"\"" in its resp, but a leftover harm=[7,3,4,15] in its .p).
+    resp_nh = str(resp.get("NH", "1")).strip()
+    if "harm" in params and resp_nh != "":
         overrides["NH"] = " ".join(str(int(float(h))) for h in params["harm"])
     cfg = Config(resp, overrides)
 

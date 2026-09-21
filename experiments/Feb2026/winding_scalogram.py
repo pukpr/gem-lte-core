@@ -146,40 +146,86 @@ def winding_transform(t, x, forcing, m_grid, t0_grid, sigma, valid=None):
 
 
 def noise_floor(year, forcing, m_grid, t0_grid, sigma, n_reps=32, seed=0,
-                 valid=None):
+                 valid=None, rho=0.97):
     """The winding basis exp(-i*2*pi*M*Forcing(t)) is not a clean orthogonal
     basis in M — Forcing's own recurrence structure makes some M values
     intrinsically more "resonant" than others for *any* input, independent
-    of signal content (verified: pure white noise run through the same
-    transform shows the same M-dependent ridges). This estimates that
-    per-M leakage floor from matched-length white-noise surrogates, so it
-    can be divided out, leaving only power that exceeds what noise alone
-    would produce at that M. `valid` is threaded through so the floor is
-    estimated the same way the real transform is -- excluding fabricated
-    filler across a real data gap, if any."""
+    of signal content. This estimates that per-M leakage floor from
+    matched-length surrogates, so it can be divided out, leaving only power
+    that exceeds what noise alone would produce at that M. `valid` is
+    threaded through so the floor is estimated the same way the real
+    transform is -- excluding fabricated filler across a real data gap, if
+    any.
+
+    Surrogates are AR(1) red noise (rho=0.97 by default), matching
+    winding_rank.ar1_floor's convention, NOT white noise. Real climate/
+    geophysical series are strongly autocorrelated month-to-month, so they
+    carry far more low-frequency power than white noise does with zero
+    forced signal required -- a white-noise floor is anti-conservative for
+    this kind of data (confirmed directly: pure AR1 red noise with no real
+    signal produced a false "bright ridge" of ~4 bits against a white-noise
+    floor, vs. ~1.2 bits -- correctly unremarkable -- against this one, at
+    the same M). Use a lower rho (or plug in the series' own measured lag-1
+    autocorrelation) if the target index is known to be less persistent
+    than typical monthly SST."""
     rng = np.random.default_rng(seed)
     floor = np.zeros(len(m_grid))
+    s = np.sqrt(max(1e-12, 1.0 - rho * rho))
+    n = len(year)
     for _ in range(n_reps):
-        noise = standardize(rng.standard_normal(len(year)))
+        e = rng.standard_normal(n)
+        z = np.zeros(n)
+        for i in range(1, n):
+            z[i] = rho * z[i - 1] + s * e[i]
+        noise = standardize(z)
         Gn, _, _ = winding_transform(year, noise, forcing, m_grid, t0_grid,
                                       sigma, valid=valid)
         floor += np.mean(np.abs(Gn) ** 2, axis=1)
     return floor / n_reps
 
 
-def compute_log_power(G, floor):
+def compute_log_power(G, floor=None):
+    """Raw log2(power) by default -- floor is no longer divided out here.
+
+    Dividing power by a per-M floor before display reshapes the very
+    thing being looked at: the floor itself has real M-dependent
+    structure (the winding basis's own non-orthogonality), so dividing
+    by it can distort relative-amplitude comparisons ACROSS M, which is
+    exactly what this tool is for (see spectrum_panel for the intended
+    role of the floor -- a reference curve alongside the signal, the way
+    an AR1 line sits alongside a power spectrum, not a divisor baked into
+    it). `floor` is accepted and ignored if passed, kept only so old call
+    sites don't break."""
     power = np.abs(G) ** 2
-    snr = power / floor[:, None]
-    snr = np.maximum(snr, 1e-6)
-    return np.log2(snr)
+    return np.log2(np.maximum(power, 1e-12))
 
 
 def robust_scale(log_power):
     # Robust (percentile-based) color scale: a handful of extreme outlier
     # bins otherwise wash out the visible contrast in the bulk of the map.
     vmin, vmax = np.percentile(log_power, [3, 99.5])
-    vmin = min(vmin, 0.0)  # keep 0 (= noise floor) inside the visible range
     return vmin, vmax
+
+
+def spectrum_panel(ax, m_grid, log_power_obs, log_power_model, floor,
+                    fitted_m):
+    """The floor's actual role: a 1D reference curve against M (like an
+    AR1 dashed line on a power spectrum), plotted alongside the
+    time-averaged raw power -- not divided into the 2D heatmaps above."""
+    mean_obs = np.log2(np.maximum(np.mean(2.0 ** log_power_obs, axis=1), 1e-12))
+    mean_model = np.log2(np.maximum(np.mean(2.0 ** log_power_model, axis=1), 1e-12))
+    log_floor = np.log2(np.maximum(floor, 1e-12))
+    ax.plot(mean_obs, m_grid, color="tab:blue", lw=1.0, label="Data (time-mean)")
+    ax.plot(mean_model, m_grid, color="tab:orange", lw=1.0, label="Model (time-mean)")
+    ax.plot(log_floor, m_grid, color="0.4", lw=1.0, linestyle="--",
+             label="AR1 red-noise floor")
+    if fitted_m is not None:
+        for m in fitted_m:
+            ax.axhline(abs(m), color="red", linestyle=":", linewidth=0.6,
+                       alpha=0.6)
+    ax.set_xlabel("log2 power")
+    ax.legend(fontsize=6, loc="upper right")
+    ax.set_title("mean spectrum vs. AR1 floor", fontsize=8)
 
 
 def plot_panel(ax, t0_grid, m_grid, log_power, edge_mask, fitted_m, title,
@@ -255,15 +301,19 @@ def make_winding_scalogram(idx: str, m_max: float, dm: float, sigma: float,
     w = compute_winding(idx)
     fitted_m = np.abs(w["m"]) if w is not None else None
 
-    log_power_obs = compute_log_power(G_obs, floor)
-    log_power_model = compute_log_power(G_model, floor)
+    log_power_obs = compute_log_power(G_obs)
+    log_power_model = compute_log_power(G_model)
 
     title_obs = f"{idx}: Data (col 3) winding against Forcing (col 4)"
     title_model = (f"{idx}: Model (col 2, IR-corrected) winding against "
                     f"Forcing (col 4)")
 
     if stacked:
-        fig, axes = plt.subplots(2, 1, figsize=(11, 9), sharex=True)
+        fig = plt.figure(figsize=(13, 9))
+        gs = fig.add_gridspec(2, 2, width_ratios=[1, 4], hspace=0.3, wspace=0.15)
+        ax_spec = fig.add_subplot(gs[:, 0])
+        axes = (fig.add_subplot(gs[0, 1]), fig.add_subplot(gs[1, 1]))
+        axes[0].sharex(axes[1])
         vmin_obs, vmax_obs = robust_scale(log_power_obs)
         vmin_model, vmax_model = robust_scale(log_power_model)
         pcm1 = plot_panel(axes[0], t0_grid, m_grid, log_power_obs, edge_mask,
@@ -272,13 +322,18 @@ def make_winding_scalogram(idx: str, m_max: float, dm: float, sigma: float,
         pcm2 = plot_panel(axes[1], t0_grid, m_grid, log_power_model,
                            edge_mask, fitted_m, title_model, vmin_model,
                            vmax_model, cmap=cmap, gap_mask=gap_mask)
+        spectrum_panel(ax_spec, m_grid, log_power_obs, log_power_model,
+                       floor, fitted_m)
+        ax_spec.set_ylabel("winding number  M  (dimensionless)")
         axes[1].set_xlabel("year (window center)")
         for pcm, ax in ((pcm1, axes[0]), (pcm2, axes[1])):
             cb = fig.colorbar(pcm, ax=ax, pad=0.01)
-            cb.set_label("log2 power / matched-noise floor")
+            cb.set_label("log2 power (raw)")
     else:
-        fig, axes = plt.subplots(1, 2, figsize=(16, 6.5), sharey=True,
-                                  layout="constrained")
+        fig, (ax_spec, axes0, axes1) = plt.subplots(
+            1, 3, figsize=(19, 6.5), sharey=True, layout="constrained",
+            gridspec_kw={"width_ratios": [1, 2.5, 2.5]})
+        axes = (axes0, axes1)
         vmin, vmax = robust_scale(np.concatenate([log_power_obs.ravel(),
                                                    log_power_model.ravel()]))
         pcm1 = plot_panel(axes[0], t0_grid, m_grid, log_power_obs, edge_mask,
@@ -287,17 +342,22 @@ def make_winding_scalogram(idx: str, m_max: float, dm: float, sigma: float,
         pcm2 = plot_panel(axes[1], t0_grid, m_grid, log_power_model,
                            edge_mask, fitted_m, title_model, vmin, vmax,
                            cmap=cmap, gap_mask=gap_mask)
+        spectrum_panel(ax_spec, m_grid, log_power_obs, log_power_model,
+                       floor, fitted_m)
+        ax_spec.set_ylabel("winding number  M  (dimensionless)")
         axes[0].set_xlabel("year (window center)")
         axes[1].set_xlabel("year (window center)")
         axes[1].set_ylabel("")
-        cb = fig.colorbar(pcm2, ax=axes, pad=0.01, shrink=0.9)
-        cb.set_label("log2 power / matched-noise floor")
+        cb = fig.colorbar(pcm2, ax=list(axes), pad=0.01, shrink=0.9)
+        cb.set_label("log2 power (raw)")
 
     fig.suptitle(
         f"Winding scalograms — {idx}  (window sigma={sigma:g}yr; dashed "
         f"lines = this index's own fitted winding numbers; hatched = "
-        f"within one sigma of record edge; color = power relative to a "
-        f"white-noise floor through the same Forcing basis)", fontsize=9)
+        f"within one sigma of record edge; color = RAW log2 power, "
+        f"undivided -- see left panel for the AR1 red-noise floor as a "
+        f"reference curve, not a divisor)",
+        fontsize=9)
     if stacked:
         fig.tight_layout(rect=(0, 0, 1, 0.96))
 

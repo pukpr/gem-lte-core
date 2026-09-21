@@ -1312,6 +1312,11 @@ package body GEM.LTE.Primitives.Solution is
          end loop;
          Text_IO.Put_Line ("```");
 
+         GEM.LTE.Primitives.Shared.Save_Windings
+           (Trend => Secular_Trend, Accel => Accel, K0 => D.A.k0,
+            Level => D.A.level, IR => D.B.IR, M => M, MAP => MAP,
+            NM => NM, NH => NH, B => D.B);
+
          GEM.LTE.Primitives.Shared.Save (DKeep);
          Save (KeepModel, Data_Records, Forcing, IR => D.B.IR);    -- saves to file
          if Split_Training then

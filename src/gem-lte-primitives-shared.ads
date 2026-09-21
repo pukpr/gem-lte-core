@@ -97,4 +97,18 @@ package GEM.LTE.Primitives.Shared is
 
    procedure Dump (D : in Param_S);
 
+   --  Persist the winding amplitudes/phases (tidal + harmonic) computed by
+   --  the regression at the end of a run, as a standalone JSON file
+   --  alongside the existing .p/.par output -- named "<exe>.windings.json".
+   --  Purely additive: mirrors the "---- LTE ----" stdout block, does not
+   --  read back in anywhere or affect Save/Load/Dump or the optimization
+   --  loop. Intended to let downstream tooling collect amplitude/phase
+   --  data across many runs/indices without scraping stdout.
+   procedure Save_Windings
+     (Trend, Accel, K0, Level, IR : in Long_Float;
+      M                           : in Modulations;
+      MAP                         : in Modulations_Amp_Phase;
+      NM, NH                      : in Integer;
+      B                           : in Param_B);
+
 end GEM.LTE.Primitives.Shared;
