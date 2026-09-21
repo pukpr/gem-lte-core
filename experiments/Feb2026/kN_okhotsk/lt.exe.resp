@@ -6,7 +6,7 @@ MAXH                           20
 -NH                             "1 1 1 1 1 1 1 1 1"
 NH                             "1 1 1 1 1 1"
 NH                             "1 1 1 1 1"
-NM                             4
+NM                             3
 YEAR                           0.00405305
 -DLOD_REF                       TRUE
 -LOCKT                          FALSE
@@ -21,6 +21,3 @@ JERK                           0.0
 -CAL_LOD                        -0.0002
 UNCOMPENSATED                TRUE
 
-TRAIN_START                    2000.0
-TRAIN_END                      2005.0
-EXCLUDE                        TRUE
