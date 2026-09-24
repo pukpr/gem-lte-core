@@ -24,9 +24,24 @@ package GEM.LTE.Primitives is
    -- Infinite Impulse Response -- integrator
    function IIR
      (Raw : in Data_Pairs; lagA,  lagC : in Long_Float; -- lagB,
-      iA : in Long_Float := 0.0; -- , iB, iC 
+      iA : in Long_Float := 0.0; -- , iB, iC
       Start : in Long_Float := Long_Float'First) -- ; mA, mB : in Long_Float := 0.0)
       return Data_Pairs;
+
+   --  Prepends synthetic (date-only, Value=0.0) rows before D'First, from
+   --  D's own first date back to (at least) Target_First_Date, spaced at
+   --  1/Sampling_Per_Year. A pure function of dates only -- for use
+   --  ahead of a chain of equally pure-date functions (Tide_Sum, then an
+   --  impulse gate, then IIR) so that chain can genuinely integrate from
+   --  an early anchor date (e.g. IDATE) even when the real record does
+   --  not reach back that far, rather than relying on IIR's own
+   --  Start_Index search silently clamping to D'First (see IIR's own
+   --  comment). Returns D unchanged (same bounds, no copy needed by the
+   --  caller to detect this) if D already starts at or before
+   --  Target_First_Date.
+   function Extend_Backward
+     (D : in Data_Pairs; Target_First_Date : in Long_Float;
+      Sampling_Per_Year : in Long_Float) return Data_Pairs;
 
    -- Finite Impulse Response -- smoother
    function FIR
@@ -48,13 +63,31 @@ package GEM.LTE.Primitives is
       Scaling : in Long_Float := 1.0; Cos_Phase : in Boolean := True;
       Year_Len : in Long_Float := Year_Length; Integ : in Long_Float := 0.0) return Data_Pairs;
 
+   --  Accel_Ref (default Long_Float'First, a sentinel meaning "use
+   --  Forcing'First's own date", today's exact behavior): the calendar
+   --  date the Accel*(Date-Ref)**2 term is anchored at. Regression_
+   --  Factors fits Accel assuming the reference is ITS OWN (possibly
+   --  TRAIN_START-restricted) first date -- when LTE is then called to
+   --  build Model over a DIFFERENT, larger array (e.g. a longer
+   --  companion series under STRICT_IDATE/INIT_DATE), Forcing'First's
+   --  date no longer matches that training reference, and the fitted
+   --  Accel gets applied around the wrong zero-point -- confirmed
+   --  directly: a 94-year reference mismatch (1856 vs the true 1950
+   --  training reference) produced a ~2.3-unit Model discrepancy on
+   --  kS040_W050 vs kS040_W050_ despite identical Forcing and nearly
+   --  identical regression coefficients. Pass the SAME date
+   --  Regression_Factors actually used (Forcing(First).Date at the
+   --  call site, using that call's own TRAIN_START-resolved First) to
+   --  fix this whenever Model is built over an array other than the one
+   --  Accel was fit on.
    function LTE
      (Forcing : in Data_Pairs; Wave_Numbers : in Modulations;
       Amp_Phase : in Modulations_Amp_Phase;
       Offset, K0, Trend, Accel : in Long_Float := 0.0;
-      NonLin : in Long_Float := 1.0; 
+      NonLin : in Long_Float := 1.0;
       Annual : in Annual_Harmonics := (0.0, 0.0, 0.0, 0.0);
-      Third : in Long_Float := 0.0)
+      Third : in Long_Float := 0.0;
+      Accel_Ref : in Long_Float := Long_Float'First)
       return Data_Pairs;
 
    -- Query to determine if a Tidal Constituent value should not be changed

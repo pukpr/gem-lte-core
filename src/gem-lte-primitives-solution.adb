@@ -149,6 +149,38 @@ package body GEM.LTE.Primitives.Solution is
 
    Worst_Case : constant Long_Float := GEM.Getenv ("STARTING_METRIC", 0.001);
 
+   --  Same value enso_opt.adb used to size the thread pool via Start's own
+   --  Number_of_Threads argument -- re-read here (rather than threading a
+   --  new parameter through Start/Thread/Dipole_Model) since GEM.Getenv's
+   --  resp/env state is fixed for the process's lifetime, so this is
+   --  guaranteed to match. Used only by the VALIDATE lockbox below, to
+   --  know how many final reports to wait for.
+   Validate_Thread_Count : constant Positive :=
+     GEM.Getenv ("NUMBER_OF_PROCESSORS", System.Task_Info.Number_Of_Processors);
+
+   --  Final-candidate lockbox (see Monitor.Report_Final/Winner below):
+   --  every thread's own search, accept/reject and Catchup resets are
+   --  completely unaffected by this -- it only changes which thread's
+   --  finished candidate actually gets saved at the very end, judged by
+   --  performance on the held-out [Last, D'Last] segment rather than by
+   --  whichever thread had the best TRAINING-window fit. Deliberately a
+   --  one-time, end-of-run decision, not a live search signal (see the
+   --  TNSTAAFL discussion this was designed against). Default False:
+   --  identical to today's Best_Client-based save. Package-level (rather
+   --  than local to Dipole_Model) so the live-progress Status function
+   --  below can also see it, to decide whether to show a validate column.
+   Validate : constant Boolean := GEM.Getenv ("VALIDATE", False);
+
+   --  Access types for the VALIDATE lockbox (see Monitor.Report_Final
+   --  below): Param_S is discriminated and Data_Pairs/Modulations/
+   --  Modulations_Amp_Phase are unconstrained, none of which a protected
+   --  object can hold directly -- same reason GEM.LTE.Primitives.Shared's
+   --  own Server uses an access type for Param_S.
+   type Final_Param_P is access all GEM.LTE.Primitives.Shared.Param_S;
+   type Final_Model_P is access all Data_Pairs;
+   type Final_M_P is access all Modulations;
+   type Final_MAP_P is access all Modulations_Amp_Phase;
+
    --  =========================================================================
    --  Monitor: Protected object for inter-thread coordination
    --
@@ -171,6 +203,7 @@ package body GEM.LTE.Primitives.Solution is
          OOB : in Long_Float; -- Out-of-band
          Client : in Integer;
          Count : in Long_Integer;
+         Validate_Live : in Long_Float; -- informational only, see below
          Best : out Boolean;  -- accessing thread deemed best
          BestClient : out Integer;
          Percentage : out Integer); -- % of best metric if not best
@@ -180,9 +213,37 @@ package body GEM.LTE.Primitives.Solution is
         (Metric : out Long_Float;   -- used by a monitoring thread, i.e. main
          OOB : out Long_Float;
          Client : out Integer;      -- returns client thread w/ best metric
-         Cycle : out Long_Integer); -- and the cycle count it is on
+         Cycle : out Long_Integer;  -- and the cycle count it is on
+         Validate_Live : out Long_Float); -- see Check's own comment
       procedure Stop;
       procedure Reset;
+
+      --  VALIDATE lockbox (see Dipole_Model's own use of it): each thread
+      --  calls this exactly once, when it stops searching, handing over
+      --  its own best-found candidate and that candidate's score on the
+      --  held-out validation segment. Validation NEVER feeds Check/
+      --  Best_Metric above -- it only ever decides which already-finished
+      --  candidate gets saved, never steers the search itself (see the
+      --  TNSTAAFL discussion this was designed against: blending it into
+      --  the live optimization target would just make it a second,
+      --  differently-weighted training signal, silently burning the one
+      --  thing a held-out check is for). Am_I_Last tells the calling
+      --  thread whether it is the one responsible for performing the
+      --  actual file save, once every thread has reported.
+      procedure Report_Final
+        (D : in GEM.LTE.Primitives.Shared.Param_S;
+         Model : in Data_Pairs;
+         M : in Modulations;
+         MAP : in Modulations_Amp_Phase;
+         Trend, Accel : in Long_Float;
+         Validate_Score : in Long_Float;
+         Am_I_Last : out Boolean);
+      procedure Winner
+        (D : out GEM.LTE.Primitives.Shared.Param_S;
+         Model : out Data_Pairs;
+         M : out Modulations;
+         MAP : out Modulations_Amp_Phase;
+         Trend, Accel : out Long_Float);
    private
       --  Current best metric and associated metadata
       Best_Metric : Long_Float :=
@@ -192,6 +253,27 @@ package body GEM.LTE.Primitives.Solution is
       Waiting : Boolean := True; -- triggers status only if value changes
       Best_Client : Integer := -1;
       Best_Count : Long_Integer := 0;
+
+      --  Live, informational-only running MAXIMUM of every thread's own
+      --  validate score (each thread's own KeepModel, scored per
+      --  Validate_Metric) seen so far -- purely for the progress display
+      --  (Status below), so a run can be watched to see the best
+      --  generalization found by ANY thread yet, not just whichever
+      --  thread currently happens to be leading on training. Tracked
+      --  unconditionally in Check below (independent of Best_Metric's
+      --  own update), never feeding Check's own accept/reject decision.
+      Best_Validate_Live : Long_Float := 0.0;
+
+      --  VALIDATE lockbox state -- deliberately separate from Best_Metric/
+      --  Best_Client above; the two never mix.
+      Threads_Reported : Natural := 0;
+      Best_Validate_Score : Long_Float := Long_Float'First;
+      Best_Validate_D : Final_Param_P := null;
+      Best_Validate_Model : Final_Model_P := null;
+      Best_Validate_M : Final_M_P := null;
+      Best_Validate_MAP : Final_MAP_P := null;
+      Best_Validate_Trend : Long_Float := 0.0;
+      Best_Validate_Accel : Long_Float := 0.0;
    end Monitor;
 
    protected body Monitor is
@@ -201,11 +283,30 @@ package body GEM.LTE.Primitives.Solution is
         (Metric : in Long_Float;
          OOB : in Long_Float; -- Out-of-band
          Client : in Integer;
-         Count : in Long_Integer; Best : out Boolean; BestClient : out Integer;
+         Count : in Long_Integer;
+         Validate_Live : in Long_Float; Best : out Boolean;
+         BestClient : out Integer;
          Percentage : out Integer)
       is
          M : Long_Float := Metric + Ratio * OOB;
       begin
+         --  BUG FIX: this used to live inside the "if M >= Best_Metric"
+         --  branch below, so the displayed "validate" number was really
+         --  "whatever the current TRAINING leader's own validate score
+         --  happens to be" -- since that leader's Validate_Live and OOB
+         --  are both reported from the SAME triggering call, they tended
+         --  to move in lockstep, making validate look like it was just
+         --  mirroring test. Tracking it here, unconditionally, makes it
+         --  a genuine running maximum across EVERY thread's own report --
+         --  including threads that never become the training leader --
+         --  matching what Report_Final/Winner actually select at the
+         --  end, rather than an incidental byproduct of train's own
+         --  record-setting. Does not change Waiting/the display's own
+         --  refresh cadence (still gated by Best_Metric improving), only
+         --  the VALUE shown when it does refresh.
+         if Validate_Live > Best_Validate_Live then
+            Best_Validate_Live := Validate_Live;
+         end if;
          if M >= Best_Metric then
             Waiting := not (M > Best_Metric);
             Best_Metric := M;
@@ -245,7 +346,8 @@ package body GEM.LTE.Primitives.Solution is
         (Metric : out Long_Float;
          OOB : out Long_Float; -- Out-of-band
          Client : out Integer;
-         Cycle : out Long_Integer)
+         Cycle : out Long_Integer;
+         Validate_Live : out Long_Float)
         when not Waiting is
       begin
          Waiting := True;
@@ -253,6 +355,7 @@ package body GEM.LTE.Primitives.Solution is
          OOB := Best_OOB;
          Client := Best_Client;
          Cycle := Best_Count;
+         Validate_Live := Best_Validate_Live;
       end Status;
 
       --  Force Status entry to release (for clean shutdown)
@@ -267,22 +370,89 @@ package body GEM.LTE.Primitives.Solution is
       begin
          Best_Metric := 0.0;
          Best_OOB := 0.0;
+         Best_Validate_Live := 0.0;
+         --  Also reset the VALIDATE lockbox: without this, a second
+         --  Alternate round would inherit the previous round's already-
+         --  satisfied Threads_Reported count (so Am_I_Last would fire on
+         --  the very first report) and its stale winner.
+         Threads_Reported := 0;
+         Best_Validate_Score := Long_Float'First;
+         Best_Validate_D := null;
+         Best_Validate_Model := null;
+         Best_Validate_M := null;
+         Best_Validate_MAP := null;
+         Best_Validate_Trend := 0.0;
+         Best_Validate_Accel := 0.0;
       end Reset;
+
+      procedure Report_Final
+        (D : in GEM.LTE.Primitives.Shared.Param_S;
+         Model : in Data_Pairs;
+         M : in Modulations;
+         MAP : in Modulations_Amp_Phase;
+         Trend, Accel : in Long_Float;
+         Validate_Score : in Long_Float;
+         Am_I_Last : out Boolean)
+      is
+      begin
+         --  Always reallocate rather than reuse-in-place: Model/M/MAP are
+         --  unconstrained, and different reports are only guaranteed to
+         --  match in length within a single run, not necessarily safe to
+         --  assign into a previous allocation's storage.
+         if Best_Validate_D = null or else Validate_Score > Best_Validate_Score
+         then
+            Best_Validate_Score := Validate_Score;
+            Best_Validate_D := new GEM.LTE.Primitives.Shared.Param_S'(D);
+            Best_Validate_Model := new Data_Pairs'(Model);
+            Best_Validate_M := new Modulations'(M);
+            Best_Validate_MAP := new Modulations_Amp_Phase'(MAP);
+            Best_Validate_Trend := Trend;
+            Best_Validate_Accel := Accel;
+         end if;
+         Threads_Reported := Threads_Reported + 1;
+         Am_I_Last := Threads_Reported >= Validate_Thread_Count;
+      end Report_Final;
+
+      procedure Winner
+        (D : out GEM.LTE.Primitives.Shared.Param_S;
+         Model : out Data_Pairs;
+         M : out Modulations;
+         MAP : out Modulations_Amp_Phase;
+         Trend, Accel : out Long_Float)
+      is
+      begin
+         D := Best_Validate_D.all;
+         Model := Best_Validate_Model.all;
+         M := Best_Validate_M.all;
+         MAP := Best_Validate_MAP.all;
+         Trend := Best_Validate_Trend;
+         Accel := Best_Validate_Accel;
+      end Winner;
 
    end Monitor;
 
    --  Query current best metric (blocking call - waits for improvement)
    --  Returns formatted string with thread ID, iteration count, metrics
    function Status return String is
-      Metric, OOB : Long_Float;
+      Metric, OOB, Validate_Live : Long_Float;
       Client : Integer;
       Cycle : Long_Integer;
-      S1, S2 : String (1 .. 10);
+      S1, S2, S3 : String (1 .. 10);
    begin
-      Monitor.Status (Metric, OOB, Client, Cycle);
+      Monitor.Status (Metric, OOB, Client, Cycle, Validate_Live);
       Ada.Long_Float_Text_IO.Put (S1, Metric, Aft => 5, Exp => 0);
       Ada.Long_Float_Text_IO.Put (S2, OOB, Aft => 5, Exp => 0);
-      return "Status: " & Client'Img & Cycle'Img & S1 & S2;
+      --  Validate score sits between the training (S1) and held-out test
+      --  (S2) readouts, and appears at all only when VALIDATE is on --
+      --  its mere presence in the live display is the tell that VALIDATE
+      --  is active (see Monitor.Check's own comment: purely informational,
+      --  never fed back into any thread's own accept/reject).
+      if Validate then
+         Ada.Long_Float_Text_IO.Put (S3, Validate_Live, Aft => 5, Exp => 0);
+         return "Status: " & Client'Img & Cycle'Img & S1 & " V:" & S3 & S2;
+      else
+         return "Status: " & Client'Img & Cycle'Img & S1 & S2;
+      end if;
    end Status;
 
    -----------------------------------
@@ -462,6 +632,55 @@ package body GEM.LTE.Primitives.Solution is
       Vary_Initial : constant Boolean := GEM.Getenv ("VI", False);
       Initial_Conditions_Date : constant Long_Float :=
         GEM.Getenv ("IDATE", 0.0);
+      --  The calendar date D.B.init's value actually applies at.
+      --  Defaults to THIS run's own Data_Records'First -- for the file a
+      --  region was originally fit on, that IS init's true meaning (it's
+      --  exactly where IIR's Start_Index already lands today, IDATE
+      --  clamping or not), so the default reproduces today's output
+      --  bit-for-bit with no config needed. Override only when applying
+      --  one region's already-fitted manifold to a DIFFERENT (e.g.
+      --  longer) file than it was fit on -- set it to that original
+      --  file's own first date so `init` keeps its real meaning instead
+      --  of being silently reinterpreted as "value at THIS file's first
+      --  date", which would be wrong whenever the two files differ.
+      --  Read with a sentinel (no real calendar date is negative) purely
+      --  to detect whether it was explicitly set at all, for
+      --  Strict_IDate's own default just below -- IDATE and INIT_DATE
+      --  answer different questions (how far back the physics should
+      --  integrate, vs. what date an already-fitted init corresponds to)
+      --  and neither can substitute for the other in general: 35 of this
+      --  project's own region configs -- every "_"-suffixed full-record
+      --  companion (kN_baltic, kN020_E050_, kS040_W050_, kRedSea,
+      --  kPersianGulf, ...) -- already have IDATE falling INSIDE their
+      --  own record rather than before it, so their own init is already
+      --  calibrated to mean "value near IDATE", not "value at the
+      --  record's own start"; unconditionally defaulting Init_Date to
+      --  Data_Records'First for everyone would silently break those.
+      Init_Date_Raw : constant Long_Float := GEM.Getenv ("INIT_DATE", -1.0);
+      Init_Date_Explicit : constant Boolean := Init_Date_Raw >= 0.0;
+      Init_Date : constant Long_Float :=
+        (if Init_Date_Explicit then Init_Date_Raw
+         else Data_Records (Data_Records'First).Date);
+      --  Default False: every existing .resp (none of which set this key)
+      --  keeps today's behavior byte-for-byte -- IIR's own Start_Index
+      --  search silently clamps to the record's own first sample whenever
+      --  IDATE precedes it, which is what every currently-fitted `init`
+      --  value's meaning implicitly assumes. Opting a NEW fit into True
+      --  makes Calc_Forcing genuinely integrate from IDATE via
+      --  Extend_Backward first -- correct and now safe to do (IIR's
+      --  backward pass is a verified exact inverse, see
+      --  iir_invariant_test.adb). Does NOT require re-fitting `init`:
+      --  its real, already-calibrated meaning is "value at Init_Date"
+      --  above, not "value at IDATE" -- Calc_Forcing seeds the extended
+      --  computation there, unchanged, and lets the exact backward pass
+      --  derive everything from IDATE to Init_Date on its own,
+      --  deterministically, from the SAME init every existing fit
+      --  already has. Also implied by Init_Date_Explicit: setting
+      --  INIT_DATE only ever makes sense together with the extended
+      --  computation, so it turns Strict_IDate on by itself -- one flag,
+      --  not two, for the cross-file case.
+      Strict_IDate : constant Boolean :=
+        GEM.Getenv ("STRICT_IDATE", False) or else Init_Date_Explicit;
       RMS_Data : Long_Float := 0.0;
 
       function Metric (X, Y, Z : in Data_Pairs) return Long_Float is
@@ -528,6 +747,46 @@ package body GEM.LTE.Primitives.Solution is
          end if;
          return Value;
       end Impulse_Delta;
+
+      --  Annual_Impulse: a genuine once-a-year DELTA (not a smooth Ann1/
+      --  Ann2 sinusoid) with its own independent amplitude, D.B.ImpC --
+      --  previously a dead pass-through (threaded into Bessel's k2
+      --  parameter, which the active Bessel body never actually reads).
+      --  Reuses Impulse_Delta's own DPos month-of-year slot (from DelB)
+      --  rather than adding a second free phase parameter -- this tests
+      --  specifically whether a sharp annual kick coincident with the
+      --  existing tidal-gating impulse explains real variance the smooth
+      --  seasonal terms don't, not a independently-phased new cycle.
+      --  Motivated directly by kN020_E050: Ann1/Ann2/Sem1/Sem2 together
+      --  account for only ~10% of the real data's peak-to-peak
+      --  excursion, so the seasonal-cycle SHAPE the smooth harmonics
+      --  can't reach is a real, unexplained gap worth testing an
+      --  impulsive (not sinusoidal) model against. Inert by construction
+      --  when ImpC = 0.0 (the default for every existing fit).
+      --
+      --  DPos is taken mod Sampling_Per_Year -- Impulse_Delta's own DPos
+      --  (reused here) is NOT range-limited to a valid Trunc slot
+      --  (0..Sampling_Per_Year-1) and a fitted |DelB|*Sampling_Per_Year
+      --  routinely lands above that (e.g. kN020_E050's own DelB=1.126
+      --  gives a raw DPos of 13, matching no Trunc value at all, which
+      --  would make Annual_Impulse permanently a no-op for that region
+      --  regardless of ImpC). Impulse_Delta's own second branch already
+      --  wraps its analogous position with `mod 12` for exactly this
+      --  reason; this mirrors that fix for the primary slot instead of
+      --  inheriting the same latent bug.
+      function Annual_Impulse (Time : Long_Float) return Long_Float is
+         Trunc : Integer :=
+           Integer (((Time - Long_Float'Floor (Time)) * Sampling_Per_Year));
+         DPos : Integer :=
+           Integer ((abs (D.B.DelB) * Sampling_Per_Year)) mod
+             Integer (Sampling_Per_Year);
+      begin
+         if Trunc = DPos then
+            return D.B.ImpC;
+         else
+            return 0.0;
+         end if;
+      end Annual_Impulse;
 
       function Impulse_Delta_Smear (Time : Long_Float) return Long_Float is
          Value : Long_Float;
@@ -624,13 +883,22 @@ package body GEM.LTE.Primitives.Solution is
       end Frictional;
 
       
+      --  Val_Validate sits between Val1 (train) and Val2 (test), and prints
+      --  at all only when VALIDATE is on (its presence is itself the tell)
+      --  -- mirrors Status's own live "V:" column, but this is the final,
+      --  once-only report of the score that actually decided the save.
       procedure Put_CC
         (Val1, Val2 : in Long_Float; Counter : in Long_Integer;
-         Thread : in Integer)
+         Thread : in Integer; Val_Validate : in Long_Float := 0.0)
       is
       begin
          Text_IO.Put (GEM.Getenv ("METRIC", "CC"));
          Ada.Long_Float_Text_IO.Put (Val1, Fore => 4, Aft => 10, Exp => 0);
+         if Validate then
+            Text_IO.Put (" V:");
+            Ada.Long_Float_Text_IO.Put
+              (Val_Validate, Fore => 4, Aft => 10, Exp => 0);
+         end if;
          Ada.Long_Float_Text_IO.Put (Val2, Fore => 4, Aft => 10, Exp => 0);
          Text_IO.Put_Line ("  " & Thread'Img & Counter'Img);
       end Put_CC;
@@ -734,6 +1002,67 @@ package body GEM.LTE.Primitives.Solution is
       begin
          return Metric (X, Y, Z);
       end Exclude_Metric;
+
+      --  VALIDATE lockbox: the genuinely-untouched-by-training region --
+      --  mirrors, independently (never by reusing CorrCoeffP itself, so
+      --  this can't leak into Monitor.Check's OOB-weighted M), whichever
+      --  region each mode's own CorrCoeffP-final assignment above already
+      --  treats as the true held-out set. Precedence matches that same
+      --  per-iteration branching exactly (COVERAGE first, unaffected by
+      --  EXCLUDE; then ENCLOSING; then SPLIT_TRAINING; then plain).
+      --
+      --  CORRECTNESS NOTE (bug fixed here): the first version of this
+      --  function always scored [Last, D'Last], on the unstated
+      --  assumption that region is always held out. That's only true
+      --  when EXCLUDE=FALSE. Under EXCLUDE=TRUE (and ENCLOSING),
+      --  training itself fits the concatenation of BOTH outer flanks --
+      --  [D'First,First] AND [Last,D'Last] -- so [Last,D'Last] is
+      --  in-sample there, and the genuinely held-out region is the
+      --  [First,Last] gap instead. Scoring the wrong region silently
+      --  reports in-sample fit quality as if it were a validation score
+      --  (confirmed live on a real EXCLUDE=TRUE run: "validate" tracked
+      --  the true held-out gap score far more closely than it should
+      --  have if it were really an independent, untouched check).
+      --
+      --  Takes the model to score explicitly (the thread's own KEPT best
+      --  candidate, KeepModel -- NOT the live Model, which may reflect a
+      --  since-rejected perturbation) rather than defaulting to Model.
+      function Validate_Metric (Scored_Model : Data_Pairs) return Long_Float is
+         function Outer_Flanks return Long_Float is
+            X : Data_Pairs :=
+              Scored_Model (Scored_Model'First .. First) &
+              Scored_Model (Last .. Scored_Model'Last);
+            Y : Data_Pairs :=
+              Data_Records (Data_Records'First .. First) &
+              Data_Records (Last .. Data_Records'Last);
+            Z : Data_Pairs :=
+              Forcing (Forcing'First .. First) &
+              Forcing (Last .. Forcing'Last);
+         begin
+            return Metric (X, Y, Z);
+         end Outer_Flanks;
+
+         function Gap return Long_Float is
+         begin
+            return Metric
+              (Scored_Model (First .. Last), Data_Records (First .. Last),
+               Forcing (First .. Last));
+         end Gap;
+      begin
+         if Coverage < 1.0 then
+            return Outer_Flanks; -- training only ever touches the leading
+                                  -- Coverage fraction of [First,Last]
+         elsif Enclosing then
+            return Gap; -- both flanks are training data in this mode
+         elsif Split_Training then
+            return Outer_Flanks; -- training only ever touches [First,Last]
+                                  -- (split at Mid), flanks untouched
+         elsif Exclude then
+            return Gap; -- both flanks are training data in this mode
+         else
+            return Outer_Flanks; -- plain training only touches [First,Last]
+         end if;
+      end Validate_Metric;
 
       function Excluded (D : Data_Pairs) return Data_Pairs is
       begin
@@ -842,21 +1171,82 @@ package body GEM.LTE.Primitives.Solution is
       begin
          der := 1.0 - D.B.mA; -- keeps the integrator stable
 
-         Impulses :=
-           Impulse_Amplify
-             (Raw =>
-                Tide_Sum
-                  (Template => Data_Records, Constituents => Jerked_Tidal_Factors,
-                   Periods => D.A.LP, Ref_Time => 0.0, Scaling => 0.0,
-                   Year_Len => Year_Length (D.B.Year), Integ => D.B.ShiftT),
-              Offset => 0.0, Ramp => 0.0,
-              Start => Data_Records (Data_Records'First).Date);
+         if Strict_IDate then
+            --  Extend the (pure-date) template back to IDATE before
+            --  Tide_Sum/Impulse_Amplify/IIR ever run, instead of letting
+            --  IIR's own Start_Index search clamp to Data_Records'First.
+            --  Tide_Sum and Impulse_Amplify (with Offset=Ramp=0.0, as
+            --  called here) are both pure per-element functions of .Date
+            --  alone -- see their own bodies -- so extending the template
+            --  needs no real data for the synthetic rows. The extended
+            --  result's real-data portion sits at exactly
+            --  Data_Records'Range (Extend_Backward only ever prepends),
+            --  so slicing back is a direct index copy, not a
+            --  date-matching search.
+            --
+            --  Seeded at Init_Date, NOT Initial_Conditions_Date: D.B.init
+            --  already means "value at Init_Date" (see its declaration
+            --  above), so seeding there and letting the now-exact
+            --  backward pass derive IDATE..Init_Date on its own is a
+            --  deterministic re-derivation of "value at IDATE", not a
+            --  refit -- seeding at IDATE directly with the unchanged
+            --  init would silently reinterpret it as meaning something
+            --  it doesn't.
+            declare
+               Extended_Template : constant Data_Pairs :=
+                 Extend_Backward
+                   (Data_Records, Initial_Conditions_Date, Sampling_Per_Year);
+               Extended_Impulses : constant Data_Pairs :=
+                 Impulse_Amplify
+                   (Raw =>
+                      Tide_Sum
+                        (Template => Extended_Template,
+                         Constituents => Jerked_Tidal_Factors,
+                         Periods => D.A.LP, Ref_Time => 0.0, Scaling => 0.0,
+                         Year_Len => Year_Length (D.B.Year), Integ => D.B.ShiftT),
+                    Offset => 0.0, Ramp => 0.0,
+                    Start => Extended_Template (Extended_Template'First).Date);
+               --  Start_Index searches for the first Date STRICTLY
+               --  GREATER than Start -- passing Init_Date itself would
+               --  land one row LATE whenever it exactly equals a real
+               --  sample's own date (the common case: Init_Date defaults
+               --  to Data_Records'First's own date), seeding `init` a
+               --  full sample late and throwing off everything
+               --  downstream (caught during development: this exact bug
+               --  produced discrepancies up to ~0.29 against the
+               --  non-strict path on the SAME file, which the corrected
+               --  Init_Date seeding is supposed to reproduce exactly).
+               --  A tenth of a sample step is comfortably inside the
+               --  gap to the next real row for any reasonable
+               --  Sampling_Per_Year, so this can't skip back an extra
+               --  row.
+               Extended_F : constant Data_Pairs :=
+                 IIR
+                   (Raw => Extended_Impulses, lagA => der,
+                    lagC => D.B.mP, iA => D.B.init,
+                    Start => Init_Date - 0.1 / Sampling_Per_Year);
+            begin
+               for I in Data_Records'Range loop
+                  F (I).Value := Extended_F (I).Value;
+               end loop;
+            end;
+         else
+            Impulses :=
+              Impulse_Amplify
+                (Raw =>
+                   Tide_Sum
+                     (Template => Data_Records, Constituents => Jerked_Tidal_Factors,
+                      Periods => D.A.LP, Ref_Time => 0.0, Scaling => 0.0,
+                      Year_Len => Year_Length (D.B.Year), Integ => D.B.ShiftT),
+                 Offset => 0.0, Ramp => 0.0,
+                 Start => Data_Records (Data_Records'First).Date);
 
-            F :=
-              IIR
-                (Raw => Impulses, lagA => der, -- lagB => D.B.mA,
-                 lagC => D.B.mP, iA => D.B.init, -- iB => 0.0, iC => 0.0, 
-                 Start => Initial_Conditions_Date);
+               F :=
+                 IIR
+                   (Raw => Impulses, lagA => der, -- lagB => D.B.mA,
+                    lagC => D.B.mP, iA => D.B.init, -- iB => 0.0, iC => 0.0,
+                    Start => Initial_Conditions_Date);
+         end if;
 
          return F;
       end Calc_Forcing;
@@ -1005,9 +1395,9 @@ package body GEM.LTE.Primitives.Solution is
             
 --            DR := Annual_Add (DR, -1.0);
             if Has_Friction then
-               Forcing := Frictional(Forcing, D.B.ImpA, D.B.ImpB, D.B.ImpC);
+               Forcing := Frictional(Forcing, D.B.ImpA, D.B.ImpB, 0.0);
             elsif NM = 1 then
-               Forcing := Bessel(Forcing, D.B.ImpA, D.B.ImpB, M(NM)*(1.0-D.B.BG), D.B.ImpC, D.B.Offset, D.B.bg);
+               Forcing := Bessel(Forcing, D.B.ImpA, D.B.ImpB, M(NM)*(1.0-D.B.BG), 0.0, D.B.Offset, D.B.bg);
             else
                if Lock_Freq then
                   Forcing := Bessel(Forcing, D.B.ImpA, D.B.ImpB, M(NM-1), M(NM), D.B.Offset, D.B.bg);
@@ -1059,16 +1449,32 @@ package body GEM.LTE.Primitives.Solution is
                     Offset => D.A.level, 
                     K0 => D.A.k0, 
                     Trend => Secular_Trend,
-                    Accel => Accel, 
+                    Accel => Accel,
                     NonLin => NonLin,
                     Annual => Annual_Cycle,
-                    Third => 0.0);  
+                    Third => 0.0,
+                    --  Anchor Accel's own reference date at the SAME
+                    --  point Regression_Factors actually fit it against
+                    --  (Forcing(First).Date, using this scope's own
+                    --  TRAIN_START-resolved First) rather than LTE's
+                    --  default (Forcing'First's date on WHATEVER array
+                    --  it's evaluated over) -- see LTE's own Accel_Ref
+                    --  doc comment for why these silently diverge
+                    --  whenever Model is built over a longer array than
+                    --  Accel was fit on.
+                    Accel_Ref => Forcing (First).Date);
                if Monotonic_Increase then
                   Secular_Trend := abs Secular_Trend;
                   Accel := abs Accel;
                end if;
 
 --               Model := Annual_Add (Model);
+               if D.B.ImpC /= 0.0 then
+                  for I in Model'Range loop
+                     Model (I).Value :=
+                       Model (I).Value + Annual_Impulse (Model (I).Date);
+                  end loop;
+               end if;
 
                -- Delay differential
                if D.B.IR /= 0.0 then
@@ -1187,15 +1593,26 @@ package body GEM.LTE.Primitives.Solution is
          end if;
 
          -- Register the results with a monitor
-         if Split_Training then
-            Monitor.Check
-              (CorrCoeffTest, CorrCoeff, ID, Counter, Best, Best_Client,
-               Percentage);
-         else
-            Monitor.Check
-              (CorrCoeff, CorrCoeffP, ID, Counter, Best, Best_Client,
-               Percentage);
-         end if;
+         declare
+            --  Live, display-only validate readout of this thread's own
+            --  best-kept candidate (KeepModel, not the live/just-tried
+            --  Model) -- see Monitor.Check's own comment: never fed back
+            --  into Best/Best_Client above, purely for Status's progress
+            --  line. Skipped (kept at 0.0) when VALIDATE is off, to avoid
+            --  the extra Metric call on every iteration for nothing.
+            Live_Validate_Score : constant Long_Float :=
+              (if Validate then Validate_Metric (KeepModel) else 0.0);
+         begin
+            if Split_Training then
+               Monitor.Check
+                 (CorrCoeffTest, CorrCoeff, ID, Counter, Live_Validate_Score,
+                  Best, Best_Client, Percentage);
+            else
+               Monitor.Check
+                 (CorrCoeff, CorrCoeffP, ID, Counter, Live_Validate_Score,
+                  Best, Best_Client, Percentage);
+            end if;
+         end;
 
          if ID = Best_Client then
             Counter := 1; -- no use penalizing thread in the lead
@@ -1280,7 +1697,47 @@ package body GEM.LTE.Primitives.Solution is
 
       end loop;
       Monitor.Stop;
-      if Test_Only or Best_Client = ID then
+
+      --  VALIDATE lockbox: every thread reports its own best-kept
+      --  candidate (DKeep/KeepModel, never the live/possibly-just-
+      --  rejected D/Model) and that candidate's score on the held-out
+      --  validation segment; only the last thread to report is told to
+      --  save -- using whichever candidate (potentially from a different
+      --  thread) scored best on validation. Default VALIDATE=False keeps
+      --  today's exact Best_Client-based decision, untouched.
+      declare
+         Save_Now : Boolean;
+         Final_Validate_Score : Long_Float := 0.0;
+      begin
+         if Validate and not Test_Only then
+            declare
+               Am_I_Last : Boolean;
+            begin
+               Monitor.Report_Final
+                 (D => DKeep, Model => KeepModel, M => M, MAP => MAP,
+                  Trend => Secular_Trend, Accel => Accel,
+                  Validate_Score => Validate_Metric (KeepModel),
+                  Am_I_Last => Am_I_Last);
+               if Am_I_Last then
+                  Monitor.Winner
+                    (D => DKeep, Model => KeepModel, M => M, MAP => MAP,
+                     Trend => Secular_Trend, Accel => Accel);
+                  --  Keep D.A/D.B AND the live Model in sync w/ the
+                  --  winning DKeep/KeepModel: the reporting below (CorrCoeff/
+                  --  CorrCoeffP, Exclude_Metric) reads Model directly, so
+                  --  without this it would print numbers from this thread's
+                  --  OWN last-tried candidate instead of the one actually
+                  --  being saved.
+                  D := DKeep;
+                  Model := KeepModel;
+               end if;
+               Save_Now := Am_I_Last;
+            end;
+         else
+            Save_Now := Test_Only or Best_Client = ID;
+         end if;
+
+      if Save_Now then
 
          -- Text_IO.Put_Line("### " & File_Name);
          -- Walker.Dump(Keep); -- Print results of last best evaluation,
@@ -1319,8 +1776,17 @@ package body GEM.LTE.Primitives.Solution is
 
          GEM.LTE.Primitives.Shared.Save (DKeep);
          Save (KeepModel, Data_Records, Forcing, IR => D.B.IR);    -- saves to file
+
+         --  Final, once-only report of the score that actually decided
+         --  what got saved above -- computed fresh from KeepModel (the
+         --  saved candidate itself) rather than reused from the loop, so
+         --  it is correct regardless of Split_Training/Enclosing/plain
+         --  branch below. 0.0 and unused when VALIDATE is off.
+         Final_Validate_Score :=
+           (if Validate then Validate_Metric (KeepModel) else 0.0);
+
          if Split_Training then
-            Put_CC (CorrCoeff, CorrCoeffTest, Counter, ID);
+            Put_CC (CorrCoeff, CorrCoeffTest, Counter, ID, Final_Validate_Score);
          elsif Enclosing then
             -- Mirror the per-iteration ENCLOSING branch above: report
             -- whichever region(s) drove accept/reject (per ENCLOSED_
@@ -1339,14 +1805,25 @@ package body GEM.LTE.Primitives.Solution is
               Metric
                 (Model (First .. Last), Data_Records (First .. Last),
                  Forcing (First .. Last));
-            Put_CC (CorrCoeff, CorrCoeffP, Counter, ID);
+            Put_CC (CorrCoeff, CorrCoeffP, Counter, ID, Final_Validate_Score);
          else
+            --  REVERTED (2026-09-24): a prior edit made this conditional
+            --  on Exclude, to mirror the per-iteration loop's own swap
+            --  above -- but that broke the VALIDATE=FALSE final report's
+            --  own long-standing contract, which every other mode
+            --  (Split_Training/Enclosing above, and every other caller
+            --  of Exclude_Metric) also honors: CorrCoeffP in the final
+            --  report is UNCONDITIONALLY the concatenation AROUND the
+            --  excluded [First,Last] area (Exclude_Metric) -- a fixed,
+            --  portable "what does the fit look like outside the
+            --  interval" reading regardless of which region the search
+            --  itself trained on. Restored to the original definition.
             CorrCoeffP := Exclude_Metric;
             CorrCoeff :=
               Metric
                 (Model (First .. Last), Data_Records (First .. Last),
                  Forcing (First .. Last));
-            Put_CC (CorrCoeff, CorrCoeffP, Counter, ID);
+            Put_CC (CorrCoeff, CorrCoeffP, Counter, ID, Final_Validate_Score);
          end if;
 
          CorrCoeff :=
@@ -1357,6 +1834,7 @@ package body GEM.LTE.Primitives.Solution is
       else
          null; -- Text_IO.Put_Line("Exited " & ID'Img);
       end if;
+      end;
 
    exception
       when E : others =>
@@ -1364,6 +1842,31 @@ package body GEM.LTE.Primitives.Solution is
            ("Solution err: " & Ada.Exceptions.Exception_Information (E));
          -- The following may need a debug-specifi compiler switch to activate
          Text_IO.Put_Line (GNAT.Traceback.Symbolic.Symbolic_Traceback (E));
+
+         --  VALIDATE safety net: a thread dying here never reaches its
+         --  normal Report_Final call above, which would otherwise leave
+         --  Threads_Reported permanently short of Validate_Thread_Count --
+         --  hanging every surviving thread's Am_I_Last check forever.
+         --  Report a deliberately unbeatable-low score so this thread can
+         --  never become Winner; the nested handler guards against a
+         --  second failure (e.g. DKeep/KeepModel never having been fully
+         --  assigned before the exception) turning a hang into a crash.
+         if Validate then
+            begin
+               declare
+                  Dummy_Last : Boolean;
+               begin
+                  Monitor.Report_Final
+                    (D => DKeep, Model => KeepModel, M => M, MAP => MAP,
+                     Trend => Secular_Trend, Accel => Accel,
+                     Validate_Score => Long_Float'First,
+                     Am_I_Last => Dummy_Last);
+               end;
+            exception
+               when others =>
+                  null;
+            end;
+         end if;
 
    end Dipole_Model;
 

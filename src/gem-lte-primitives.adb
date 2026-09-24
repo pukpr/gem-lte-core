@@ -230,14 +230,92 @@ package body GEM.LTE.Primitives is
          Res (I).Value := Raw (I).Value + Mem*Res (I - 1).Value - Ramp;
       end loop;
 
-   -- If Start is inside the series, create "pre-history" by running backwards
+   -- If Start is inside the series, create "pre-history" by running
+   -- backwards -- using the EXACT algebraic inverse of the forward step
+   -- above, not a separate heuristic. Forward:
+   --   Res(I) = Raw(I) + Mem*Res(I-1) - Copy_Sign(lagC, Res(I-1))
+   -- Copy_Sign's dependence on the SIGN of the unknown Res(I-1) makes
+   -- this piecewise rather than a single division, but each piece is
+   -- closed-form and exactly invertible where it applies:
+   --   assume Res(I-1) >= 0: Res(I-1) = (Res(I)-Raw(I)+lagC) / Mem
+   --   assume Res(I-1) <  0: Res(I-1) = (Res(I)-Raw(I)-lagC) / Mem
+   -- Exactly one candidate is self-consistent with its own sign
+   -- assumption whenever the two candidates don't straddle zero (the
+   -- usual case -- verified to machine precision, 9.3e-15, on a 1128-
+   -- step synthetic round-trip test in iir_invariant_test.adb). This
+   -- REPLACES an earlier heuristic ("Res(I-1) := -Raw(I-1) + Mem*Res(I)
+   -- + Copy_Sign(lagC, Res(I))") that was a plausible-looking but NOT
+   -- algebraically exact inverse -- confirmed by that same test, which
+   -- caught a ~2.5-unit round-trip discrepancy under the old formula.
+   --
+   -- Two edge cases, both real and both handled explicitly rather than
+   -- left to divide-by-zero or silent ambiguity:
+   --   * Mem = 0.0 (lagA <= 0.0, an unusual fitted configuration): the
+   --     forward step no longer depends on Res(I-1)'s MAGNITUDE at all
+   --     (only Copy_Sign's SIGN), so it is genuinely not invertible for
+   --     magnitude -- division would raise Constraint_Error. Falls back
+   --     to the old heuristic's shape in this singular case only.
+   --   * The two candidates straddle zero (both self-consistent, or
+   --     neither is): a real, provable dead zone of half-width lagC
+   --     around Res(I)-Raw(I) where the forward map is many-to-one, so
+   --     no inverse can be exact by construction, not just by omission --
+   --     falls back to averaging the two candidates. Not instrumented
+   --     here (IIR's signature stays unchanged so no call site needs
+   --     updating); iir_invariant_test.adb checks directly that this
+   --     never triggers for representative synthetic and real-manifold
+   --     cases, where lagC is tiny relative to Forcing's own amplitude.
+   --     A region whose own fitted lagC is instead large relative to its
+   --     typical Forcing amplitude would hit this often and should not
+   --     trust backward extrapolation without re-checking.
       for I in reverse (Raw'First + 1) .. Start_Index loop
-         Ramp := Long_Float'Copy_Sign (lagC, Res (I).Value);
-         Res (I - 1).Value := -Raw (I - 1).Value + Mem*Res (I).Value + Ramp; -- + Ramp
+         if Mem <= 0.0 then
+            Ramp := Long_Float'Copy_Sign (lagC, Res (I).Value);
+            Res (I - 1).Value := -Raw (I - 1).Value + Mem*Res (I).Value + Ramp;
+         else
+            declare
+               Cand_Pos : constant Long_Float :=
+                 (Res (I).Value - Raw (I).Value + lagC) / Mem;
+               Cand_Neg : constant Long_Float :=
+                 (Res (I).Value - Raw (I).Value - lagC) / Mem;
+            begin
+               if Cand_Pos >= 0.0 then
+                  Res (I - 1).Value := Cand_Pos;
+               elsif Cand_Neg < 0.0 then
+                  Res (I - 1).Value := Cand_Neg;
+               else
+                  Res (I - 1).Value := 0.5 * (Cand_Pos + Cand_Neg);
+               end if;
+            end;
+         end if;
       end loop;
 
       return Res;
    end IIR;
+
+   function Extend_Backward
+     (D : in Data_Pairs; Target_First_Date : in Long_Float;
+      Sampling_Per_Year : in Long_Float) return Data_Pairs
+   is
+      First_Date : constant Long_Float := D (D'First).Date;
+   begin
+      if Target_First_Date >= First_Date then
+         return D;
+      end if;
+      declare
+         N_Extra : constant Integer :=
+           Integer (Long_Float'Ceiling
+             ((First_Date - Target_First_Date) * Sampling_Per_Year));
+         Result : Data_Pairs (D'First - N_Extra .. D'Last);
+      begin
+         for K in 0 .. N_Extra - 1 loop
+            Result (D'First - N_Extra + K) :=
+              (Date => First_Date - Long_Float (N_Extra - K) / Sampling_Per_Year,
+               Value => 0.0);
+         end loop;
+         Result (D'First .. D'Last) := D;
+         return Result;
+      end;
+   end Extend_Backward;
 
 
    --  FIR: Finite Impulse Response filter (3-point moving average/boxcar filter)
@@ -534,12 +612,16 @@ package body GEM.LTE.Primitives is
      (Forcing : in Data_Pairs; Wave_Numbers : in Modulations;
       Amp_Phase : in Modulations_Amp_Phase;
       Offset, K0, Trend, Accel : in Long_Float := 0.0;
-      NonLin : in Long_Float := 1.0; 
+      NonLin : in Long_Float := 1.0;
       Annual : in Annual_Harmonics := (0.0, 0.0, 0.0, 0.0);
-      Third : in Long_Float := 0.0)
+      Third : in Long_Float := 0.0;
+      Accel_Ref : in Long_Float := Long_Float'First)
       return Data_Pairs
    is
       Res : Data_Pairs := Forcing;
+      Effective_Accel_Ref : constant Long_Float :=
+        (if Accel_Ref = Long_Float'First then Res (Forcing'First).Date
+         else Accel_Ref);
    begin
       for I in Forcing'Range loop
          declare
@@ -572,12 +654,22 @@ package body GEM.LTE.Primitives is
                      null;
                end;
             end loop;
+            --  Integer exponent (2, not 2.0): Ada's "**" for a Long_Float
+            --  base with a Long_Float exponent uses the general
+            --  Exp(Y*Log(X)) formula, undefined (ARGUMENT_ERROR) for a
+            --  negative base -- and (Date - Effective_Accel_Ref) IS
+            --  negative for any date before the reference whenever that
+            --  reference is supplied externally (Accel_Ref) rather than
+            --  being this array's own Forcing'First (which by
+            --  construction is always <= every date in the array, so
+            --  the original "**2.0" here never actually hit this).
+            --  "**2" (an Integer literal) instead resolves to the safe
+            --  repeated-multiplication overload, correct for any sign.
             LF :=
               LF + Offset + K0 * Res (I).Value + Trend * Res (I).Date +
               Accel *
                 (Res (I).Date -
-                   Res (Forcing'First)
-                     .Date)**2.0; -- K0 is wavenumber=0 solution
+                   Effective_Accel_Ref)**2; -- K0 is wavenumber=0 solution
             LF := LF + Annual.Ann1 * Sin(2.0 * Pi * Res (I).Date) 
                      + Annual.Ann2 * Cos(2.0 * Pi * Res (I).Date) 
                      + Annual.Semi1 * Sin(4.0 * Pi * Res (I).Date) 
@@ -1629,8 +1721,11 @@ package body GEM.LTE.Primitives is
             Factors_Matrix (I - First + 1, Num_Coefficients - 5) := Cos(2.0 * Pi * Forcing (I).Date);
             Factors_Matrix (I - First + 1, Num_Coefficients - 1) :=
               Forcing (I).Date;
+            --  Integer exponent -- see the matching comment in LTE; base
+            --  is never negative here (I ranges over First..Last of the
+            --  same array) but kept consistent with the same safe form.
             Factors_Matrix (I - First + 1, Num_Coefficients) :=
-              (Forcing (I).Date - Forcing (First).Date)**2.0;
+              (Forcing (I).Date - Forcing (First).Date)**2;
          end if;
       end loop;
 
