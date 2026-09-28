@@ -6,7 +6,7 @@ MAXH                           30
 -NH                             "1 1 1 1 1 1 1 1 1"
 NH                             "1 1 1 1 1 1"
 NH                             "1 1 1 1"
-NM                             3
+NM                             2
 YEAR                           0.00405305
 -DLOD_REF                       TRUE
 -LOCKT                          FALSE
@@ -19,3 +19,4 @@ PART                           FALSE
 FILTER                         0.0
 JERK                           0.0
 -CAL_LOD                        -0.0002
+VALIDATE                       TRUE

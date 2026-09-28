@@ -1,0 +1,110 @@
+[
+  {
+    "deadlocked": false,
+    "triplet": {
+      "metric": "DTW",
+      "train": 0.7019535266,
+      "validate": 0.6599952608,
+      "test": 0.5569418462
+    },
+    "pair": null,
+    "dlod": -0.47760096969,
+    "raw_tail": "MATCHED_TRIPLET: DTW   0.7019535266 V:   0.6599952608   0.5569418462   2 1\nMATCHED_DLOD: -0.47760096969:dLOD:    365.24629691183:Yr: kN000_W150_A.dat\nEOF_REACHED\n",
+    "tag": "A_DTW_T",
+    "elapsed_s": 98.0
+  },
+  {
+    "deadlocked": false,
+    "triplet": null,
+    "pair": {
+      "metric": "DTW",
+      "val1": 0.4826184893,
+      "val2": 0.7086498102
+    },
+    "dlod": -0.47763934338,
+    "raw_tail": "MATCHED_PAIR: DTW   0.4826184893   0.7086498102   1 1\nMATCHED_DLOD: -0.47763934338:dLOD:    365.24629690949:Yr: kN000_W150_A.dat\nEOF_REACHED\n",
+    "tag": "A_DTW_F",
+    "elapsed_s": 97.4
+  },
+  {
+    "deadlocked": false,
+    "triplet": {
+      "metric": "CC",
+      "train": 0.6499788157,
+      "validate": 0.565280219,
+      "test": 0.5092368546
+    },
+    "pair": null,
+    "dlod": -0.47727120679,
+    "raw_tail": "MATCHED_TRIPLET: CC   0.6499788157 V:   0.5652802190   0.5092368546   2 1\nMATCHED_DLOD: -0.47727120679:dLOD:    365.24629690346:Yr: kN000_W150_A.dat\nEOF_REACHED\n",
+    "tag": "A_CC_T",
+    "elapsed_s": 97.4
+  },
+  {
+    "deadlocked": false,
+    "triplet": null,
+    "pair": {
+      "metric": "CC",
+      "val1": 0.5069450405,
+      "val2": 0.6674475489
+    },
+    "dlod": -0.47744950716,
+    "raw_tail": "MATCHED_PAIR: CC   0.5069450405   0.6674475489   1 1\nMATCHED_DLOD: -0.47744950716:dLOD:    365.24629689355:Yr: kN000_W150_A.dat\nEOF_REACHED\n",
+    "tag": "A_CC_F",
+    "elapsed_s": 97.4
+  },
+  {
+    "deadlocked": false,
+    "triplet": {
+      "metric": "DTW",
+      "train": 0.6556652813,
+      "validate": 0.6998517647,
+      "test": 0.5484009361
+    },
+    "pair": null,
+    "dlod": 0.99474353882,
+    "raw_tail": "MATCHED_TRIPLET: DTW   0.6556652813 V:   0.6998517647   0.5484009361   2 1\nMATCHED_DLOD: 0.99474353882:dLOD:    365.24629685265:Yr: kN000_W150_B.dat\nEOF_REACHED\n",
+    "tag": "B_DTW_T",
+    "elapsed_s": 97.4
+  },
+  {
+    "deadlocked": false,
+    "triplet": null,
+    "pair": {
+      "metric": "DTW",
+      "val1": 0.6181690021,
+      "val2": 0.6808053799
+    },
+    "dlod": 0.99477613678,
+    "raw_tail": "MATCHED_PAIR: DTW   0.6181690021   0.6808053799   2 1\nMATCHED_DLOD: 0.99477613678:dLOD:    365.24629684749:Yr: kN000_W150_B.dat\nEOF_REACHED\n",
+    "tag": "B_DTW_F",
+    "elapsed_s": 97.4
+  },
+  {
+    "deadlocked": false,
+    "triplet": {
+      "metric": "CC",
+      "train": 0.6546671338,
+      "validate": 0.7836735614,
+      "test": 0.2603849052
+    },
+    "pair": null,
+    "dlod": 0.99480288237,
+    "raw_tail": "MATCHED_TRIPLET: CC   0.6546671338 V:   0.7836735614   0.2603849052   1 1\nMATCHED_DLOD: 0.99480288237:dLOD:    365.24629684877:Yr: kN000_W150_B.dat\nEOF_REACHED\n",
+    "tag": "B_CC_T",
+    "elapsed_s": 97.7
+  },
+  {
+    "deadlocked": false,
+    "triplet": null,
+    "pair": {
+      "metric": "CC",
+      "val1": 0.1548298742,
+      "val2": 0.6852575083
+    },
+    "dlod": 0.99482867971,
+    "raw_tail": "MATCHED_PAIR: CC   0.1548298742   0.6852575083   1 1\nMATCHED_DLOD: 0.99482867971:dLOD:    365.24629686351:Yr: kN000_W150_B.dat\nEOF_REACHED\n",
+    "tag": "B_CC_F",
+    "elapsed_s": 97.4
+  }
+]

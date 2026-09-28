@@ -5,7 +5,7 @@ SPREAD_MAX                     0.45
 MAXH                           20
 -NH                             "1 1 1 1 1 1 1 1 1"
 NH                             "1 1 1 1 1 1"
-NH                             "1 1 1 1 1"
+NH                             "1 1 1 1 1 1"
 NM                             3
 YEAR                           0.00405305
 -DLOD_REF                       TRUE

@@ -1,0 +1,24 @@
+Fourier Series Fit Summary
+===========================
+Target: Fit column 3 (amplitude) vs column 1 (decimal year) for 'amo/lte_results.csv' for t > 1885.0.
+Condition: Correlation Coefficient >= 0.85.
+
+Results:
+--------
+- Number of harmonics (N): 33
+- Total number of terms: 67 (1 constant, 33 cosine terms, 33 sine terms)
+- Fit Time Range: 1885.083333 to 2022.583333
+- Fundamental Period (T): 137.500000 years
+- Constant term (a0): -1.721233e-01
+- Pearson Correlation Coefficient: 0.850569
+
+Mathematical Formula:
+---------------------
+f(t) = a0 + sum_{n=1}^{33} [ a_n * cos(2 * pi * n * (t - 1885.083333) / 137.500000) + b_n * sin(2 * pi * n * (t - 1885.083333) / 137.500000) ]
+
+The top 5 most significant harmonics by magnitude (sqrt(a_n^2 + b_n^2)):
+  - Harmonic n= 2 (Period = 68.75 years): cos_coeff = 1.4803e+00, sin_coeff = -1.3004e+00, magnitude = 1.9703e+00
+  - Harmonic n=15 (Period =  9.17 years): cos_coeff = -4.6106e-01, sin_coeff = 3.7753e-01, magnitude = 5.9591e-01
+  - Harmonic n= 5 (Period = 27.50 years): cos_coeff = -1.2444e-01, sin_coeff = -3.6978e-01, magnitude = 3.9016e-01
+  - Harmonic n= 8 (Period = 17.19 years): cos_coeff = 6.2466e-02, sin_coeff = -3.6439e-01, magnitude = 3.6971e-01
+  - Harmonic n=19 (Period =  7.24 years): cos_coeff = -2.6647e-01, sin_coeff = 2.2430e-01, magnitude = 3.4831e-01

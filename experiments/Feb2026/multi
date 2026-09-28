@@ -1,0 +1,1 @@
+python3 lte_pysr_multi_fast.py --multi amo pdo  --multi-rounds 300

@@ -38,6 +38,43 @@ def decode_region(name: str):
     return lat_c, lon_c
 
 
+def plot_box(name: str, lat_lo: float, lat_hi: float, lon_lo: float, lon_hi: float) -> None:
+    """Generalization of plot_quadrangle for a region whose box was drawn
+    by hand to match a named sub-basin's real shape (extract_named_box.py)
+    rather than being centered on a 20x20 build_k_sst.py grid cell -- e.g.
+    kRedSea/kPersianGulf, which are neither square nor 20 degrees wide."""
+    lat_c, lon_c = (lat_lo + lat_hi) / 2.0, (lon_lo + lon_hi) / 2.0
+
+    fig = plt.figure(figsize=(10, 5))
+    ax = plt.axes(projection=ccrs.Robinson())
+    ax.set_global()
+    ax.coastlines()
+    ax.add_feature(cfeature.LAND, edgecolor="black", facecolor="none")
+    ax.add_feature(cfeature.OCEAN, facecolor="white")
+
+    box_lons = [lon_lo, lon_hi, lon_hi, lon_lo, lon_lo]
+    box_lats = [lat_lo, lat_lo, lat_hi, lat_hi, lat_lo]
+    ax.plot(box_lons, box_lats, color="red", linewidth=1.5,
+            transform=ccrs.PlateCarree())
+    ax.fill(box_lons, box_lats, color="red", alpha=0.35,
+            transform=ccrs.PlateCarree())
+    ax.plot(lon_c, lat_c, "ro", markersize=4, transform=ccrs.PlateCarree())
+    label_lat = min(lat_hi + 3, 88.0)
+    ax.text(lon_c, label_lat, name, fontsize=10,
+            transform=ccrs.PlateCarree(), ha="center", va="bottom",
+            color="blue")
+
+    plt.title(f"Location: {name}  "
+              f"[{lat_lo:+.0f}°..{lat_hi:+.0f}° lat, "
+              f"{lon_lo:+.0f}°..{lon_hi:+.0f}° lon]")
+    plt.tight_layout()
+    LOCS_DIR.mkdir(exist_ok=True)
+    out = LOCS_DIR / f"{name}_loc.png"
+    plt.savefig(out)
+    plt.close(fig)
+    print(f"wrote {out}")
+
+
 def plot_quadrangle(name: str, lat_c: float, lon_c: float) -> None:
     half = REGION_DEG / 2.0
     lat_lo, lat_hi = lat_c - half, lat_c + half

@@ -2,11 +2,11 @@
 FLIP                           0.0015
 SPREAD_MIN                     0.000001
 SPREAD_MAX                     0.45
-MAXH                           30
+MAXH                           10
 -NH                             "1 1 1 1 1 1 1 1 1"
 NH                             "1 1 1 1 1 1"
 NH                             "1 1 1 1"
-NM                             3
+NM                             2
 YEAR                           0.00405305
 -DLOD_REF                       TRUE
 -LOCKT                          FALSE
@@ -19,6 +19,5 @@ PART                           FALSE
 FILTER                         0.0
 JERK                           0.0
 -CAL_LOD                        -0.0002
-TRAIN_START                    2000.0
-TRAIN_END                      2005.0
-EXCLUDE                        TRUE
+VALIDATE                      TRUE
+INIT_DATE                     1880.0

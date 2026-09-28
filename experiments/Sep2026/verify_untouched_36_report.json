@@ -1,0 +1,1190 @@
+{
+  "kN000_E010": {
+    "cell": "kN000_E010",
+    "backbone": 0.229413230070668,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "DTW",
+        "train": 0.7774717963,
+        "validate": 0.9056124997,
+        "test": 0.8013368894
+      },
+      "pair": null,
+      "dlod": 0.99916527586
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "CC",
+        "train": 0.7170775899,
+        "validate": 0.4644491228,
+        "test": 5.70478e-05
+      },
+      "pair": null,
+      "dlod": 0.99916527586
+    },
+    "winner": "DTW",
+    "winner_quality": [
+      0.7774717963,
+      0.8281403951333334
+    ],
+    "needs_donor_seed": false
+  },
+  "kN000_E070": {
+    "cell": "kN000_E070",
+    "backbone": 0.229374636595795,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "DTW",
+        "train": 0.8554349775,
+        "validate": 0.930213711,
+        "test": 0.8567502441
+      },
+      "pair": null,
+      "dlod": 0.99916754593
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "CC",
+        "train": 0.8702474758,
+        "validate": 0.8040863881,
+        "test": 0.106602873
+      },
+      "pair": null,
+      "dlod": 0.99916754593
+    },
+    "winner": "DTW",
+    "winner_quality": [
+      0.8554349775,
+      0.8807996442
+    ],
+    "needs_donor_seed": false
+  },
+  "kN000_E130": {
+    "cell": "kN000_E130",
+    "backbone": 0.207277506543696,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "DTW",
+        "train": 0.7933397295,
+        "validate": 0.8980802107,
+        "test": 0.8325706328
+      },
+      "pair": null,
+      "dlod": 0.99489325642
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "CC",
+        "train": 0.8033642802,
+        "validate": 0.8230872307,
+        "test": 0.4990861989
+      },
+      "pair": null,
+      "dlod": 0.99489325642
+    },
+    "winner": "DTW",
+    "winner_quality": [
+      0.7933397295,
+      0.841330191
+    ],
+    "needs_donor_seed": false
+  },
+  "kN000_E170": {
+    "cell": "kN000_E170",
+    "backbone": 0.207290573762346,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "DTW",
+        "train": 0.8008616249,
+        "validate": 0.8800976617,
+        "test": 0.6750336685
+      },
+      "pair": null,
+      "dlod": 0.99448813199
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "CC",
+        "train": 0.8263209003,
+        "validate": 0.8913091197,
+        "test": 0.4460325029
+      },
+      "pair": null,
+      "dlod": 0.99448813199
+    },
+    "winner": "DTW",
+    "winner_quality": [
+      0.6750336685,
+      0.7853309850333333
+    ],
+    "needs_donor_seed": false
+  },
+  "kN000_W010": {
+    "cell": "kN000_W010",
+    "backbone": 0.229413716846234,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "DTW",
+        "train": 0.7874105832,
+        "validate": 0.9169927669,
+        "test": 0.7533549153
+      },
+      "pair": null,
+      "dlod": 0.99902771792
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "CC",
+        "train": 0.7729025481,
+        "validate": 0.6859940516,
+        "test": -0.0580445173
+      },
+      "pair": null,
+      "dlod": 0.99902771792
+    },
+    "winner": "DTW",
+    "winner_quality": [
+      0.7533549153,
+      0.8192527551333333
+    ],
+    "needs_donor_seed": false
+  },
+  "kN000_W050": {
+    "cell": "kN000_W050",
+    "backbone": 0.207700590624249,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": -0.5626488147,
+        "val2": 0.2872640102
+      },
+      "dlod": 0.99607918284
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": 0.4835428974,
+        "val2": 0.177420885
+      },
+      "dlod": 0.99607918284
+    },
+    "winner": "CC",
+    "winner_quality": [
+      0.177420885,
+      0.3304818912
+    ],
+    "needs_donor_seed": false
+  },
+  "kN000_W090": {
+    "cell": "kN000_W090",
+    "backbone": 0.20727531801657,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "DTW",
+        "train": 0.7597573595,
+        "validate": 0.7755552892,
+        "test": 0.1771284178
+      },
+      "pair": null,
+      "dlod": 0.99571193089
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "CC",
+        "train": 0.8085423061,
+        "validate": 0.7866474408,
+        "test": 0.2367768203
+      },
+      "pair": null,
+      "dlod": 0.99571193089
+    },
+    "winner": "CC",
+    "winner_quality": [
+      0.2367768203,
+      0.6106555224
+    ],
+    "needs_donor_seed": false
+  },
+  "kN000_W110": {
+    "cell": "kN000_W110",
+    "backbone": 0.207275657901703,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "DTW",
+        "train": 0.7372381858,
+        "validate": 0.7408487424,
+        "test": 0.3446843222
+      },
+      "pair": null,
+      "dlod": 0.99570257861
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "CC",
+        "train": 0.770478555,
+        "validate": 0.7802941461,
+        "test": 0.2493478579
+      },
+      "pair": null,
+      "dlod": 0.99570257861
+    },
+    "winner": "DTW",
+    "winner_quality": [
+      0.3446843222,
+      0.6075904168
+    ],
+    "needs_donor_seed": false
+  },
+  "kN000_W130": {
+    "cell": "kN000_W130",
+    "backbone": 0.207204946203428,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": 0.6861806363,
+        "val2": 0.6157062243
+      },
+      "dlod": 0.99612633952
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": 0.5821546358,
+        "val2": 0.5315299801
+      },
+      "dlod": 0.99612633952
+    },
+    "winner": "DTW",
+    "winner_quality": [
+      0.6157062243,
+      0.6509434303
+    ],
+    "needs_donor_seed": false
+  },
+  "kN020_E130": {
+    "cell": "kN020_E130",
+    "backbone": 0.204578760782202,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "DTW",
+        "train": 0.7582246543,
+        "validate": 0.8760534585,
+        "test": 0.8382497925
+      },
+      "pair": null,
+      "dlod": 0.99493109373
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "CC",
+        "train": 0.7769571895,
+        "validate": 0.6685315163,
+        "test": 0.3575233076
+      },
+      "pair": null,
+      "dlod": 0.99493109373
+    },
+    "winner": "DTW",
+    "winner_quality": [
+      0.7582246543,
+      0.8241759684333333
+    ],
+    "needs_donor_seed": false
+  },
+  "kN020_W010": {
+    "cell": "kN020_W010",
+    "backbone": 0.207282587641285,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": 0.8416285718,
+        "val2": 0.7152444028
+      },
+      "dlod": 0.99620304468
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": 0.4369750184,
+        "val2": 0.6687163984
+      },
+      "dlod": 0.99620304468
+    },
+    "winner": "DTW",
+    "winner_quality": [
+      0.7152444028,
+      0.7784364873
+    ],
+    "needs_donor_seed": false
+  },
+  "kN020_W070": {
+    "cell": "kN020_W070",
+    "backbone": 0.20731307829307,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": 0.4572693778,
+        "val2": 0.524293091
+      },
+      "dlod": 0.99617429333
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": 0.3557621896,
+        "val2": 0.6525128597
+      },
+      "dlod": 0.99617429333
+    },
+    "winner": "DTW",
+    "winner_quality": [
+      0.4572693778,
+      0.4907812344
+    ],
+    "needs_donor_seed": false
+  },
+  "kN020_W090": {
+    "cell": "kN020_W090",
+    "backbone": 0.207247958186969,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": -1.1544404222,
+        "val2": 0.0728338471
+      },
+      "dlod": 0.9960579891
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": 0.3963026146,
+        "val2": 0.0138183166
+      },
+      "dlod": 0.9960579891
+    },
+    "winner": "CC",
+    "winner_quality": [
+      0.0138183166,
+      0.2050604656
+    ],
+    "needs_donor_seed": false
+  },
+  "kN020_W110": {
+    "cell": "kN020_W110",
+    "backbone": 0.207304399390605,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "DTW",
+        "train": 0.8057930663,
+        "validate": 0.865745668,
+        "test": 0.5864672504
+      },
+      "pair": null,
+      "dlod": 0.99434745661
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "CC",
+        "train": 0.8403135027,
+        "validate": 0.8861151864,
+        "test": 0.3039249271
+      },
+      "pair": null,
+      "dlod": 0.99434745661
+    },
+    "winner": "DTW",
+    "winner_quality": [
+      0.5864672504,
+      0.7526686615666667
+    ],
+    "needs_donor_seed": false
+  },
+  "kN040_E010": {
+    "cell": "kN040_E010",
+    "backbone": 0.229413290901156,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "DTW",
+        "train": 0.7380598002,
+        "validate": 0.8690488077,
+        "test": 0.7379504074
+      },
+      "pair": null,
+      "dlod": 0.99892286104
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "CC",
+        "train": 0.7632635452,
+        "validate": 0.7916913968,
+        "test": 0.1739373995
+      },
+      "pair": null,
+      "dlod": 0.99892286104
+    },
+    "winner": "DTW",
+    "winner_quality": [
+      0.7379504074,
+      0.7816863384333333
+    ],
+    "needs_donor_seed": false
+  },
+  "kN040_E030": {
+    "cell": "kN040_E030",
+    "backbone": 0.22942950064305,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "DTW",
+        "train": 0.7472149762,
+        "validate": 0.8010316755,
+        "test": 0.3869762702
+      },
+      "pair": null,
+      "dlod": 0.99892628089
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "CC",
+        "train": 0.8020784708,
+        "validate": 0.8288813519,
+        "test": -0.1459589882
+      },
+      "pair": null,
+      "dlod": 0.99892628089
+    },
+    "winner": "DTW",
+    "winner_quality": [
+      0.3869762702,
+      0.6450743072999999
+    ],
+    "needs_donor_seed": false
+  },
+  "kN040_E130": {
+    "cell": "kN040_E130",
+    "backbone": 0.229414823973134,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "DTW",
+        "train": 0.7284869635,
+        "validate": 0.8302605411,
+        "test": 0.8047083777
+      },
+      "pair": null,
+      "dlod": 0.9986381235
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "CC",
+        "train": 0.7104417825,
+        "validate": 0.7164435818,
+        "test": 0.1781097378
+      },
+      "pair": null,
+      "dlod": 0.9986381235
+    },
+    "winner": "DTW",
+    "winner_quality": [
+      0.7284869635,
+      0.7878186274333334
+    ],
+    "needs_donor_seed": false
+  },
+  "kN040_E170": {
+    "cell": "kN040_E170",
+    "backbone": 0.207282998600494,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "DTW",
+        "train": 0.7743648718,
+        "validate": 0.7973887137,
+        "test": 0.597440821
+      },
+      "pair": null,
+      "dlod": 0.99455691479
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "CC",
+        "train": 0.8276081653,
+        "validate": 0.8514778383,
+        "test": 0.5945765014
+      },
+      "pair": null,
+      "dlod": 0.99455691479
+    },
+    "winner": "DTW",
+    "winner_quality": [
+      0.597440821,
+      0.7230648021666667
+    ],
+    "needs_donor_seed": false
+  },
+  "kN040_W130": {
+    "cell": "kN040_W130",
+    "backbone": 0.207312672243068,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "DTW",
+        "train": 0.7583324052,
+        "validate": 0.8255253275,
+        "test": 0.7069135622
+      },
+      "pair": null,
+      "dlod": 0.99462911892
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "CC",
+        "train": 0.7945066631,
+        "validate": 0.8869073924,
+        "test": 0.6555574878
+      },
+      "pair": null,
+      "dlod": 0.99462911892
+    },
+    "winner": "DTW",
+    "winner_quality": [
+      0.7069135622,
+      0.7635904316333333
+    ],
+    "needs_donor_seed": false
+  },
+  "kN060_W130": {
+    "cell": "kN060_W130",
+    "backbone": 0.207315650206893,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": -0.0705086531,
+        "val2": 0.5270377766
+      },
+      "dlod": 0.99608132734
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": 0.1347853014,
+        "val2": 0.4244416659
+      },
+      "dlod": 0.99608132734
+    },
+    "winner": "CC",
+    "winner_quality": [
+      0.1347853014,
+      0.27961348365
+    ],
+    "needs_donor_seed": false
+  },
+  "kN060_W150": {
+    "cell": "kN060_W150",
+    "backbone": 0.207282335785763,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": 0.5531704031,
+        "val2": 0.6185090451
+      },
+      "dlod": 0.74519799554
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": 0.2727004505,
+        "val2": 0.5557774723
+      },
+      "dlod": 0.74519799554
+    },
+    "winner": "DTW",
+    "winner_quality": [
+      -999.0,
+      -999.0
+    ],
+    "needs_donor_seed": true
+  },
+  "kN080_E010": {
+    "cell": "kN080_E010",
+    "backbone": 0.207488214685186,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": 0.7013391478,
+        "val2": 0.6633599775
+      },
+      "dlod": 0.97801904395
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": 0.7558060103,
+        "val2": 0.7377465897
+      },
+      "dlod": 0.97788897231
+    },
+    "winner": "DTW",
+    "winner_quality": [
+      -999.0,
+      -999.0
+    ],
+    "needs_donor_seed": true
+  },
+  "kS020_E090": {
+    "cell": "kS020_E090",
+    "backbone": 0.207248401851871,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "DTW",
+        "train": 0.7705661186,
+        "validate": 0.8583695342,
+        "test": 0.8418936759
+      },
+      "pair": null,
+      "dlod": 0.99479495574
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "CC",
+        "train": 0.743686708,
+        "validate": 0.5259121012,
+        "test": 0.0682032941
+      },
+      "pair": null,
+      "dlod": 0.99479495574
+    },
+    "winner": "DTW",
+    "winner_quality": [
+      0.7705661186,
+      0.8236097762333333
+    ],
+    "needs_donor_seed": false
+  },
+  "kS020_E130": {
+    "cell": "kS020_E130",
+    "backbone": 0.207274995460214,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "DTW",
+        "train": 0.7680853497,
+        "validate": 0.8701027144,
+        "test": 0.8226118305
+      },
+      "pair": null,
+      "dlod": 0.99435545254
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "CC",
+        "train": 0.7610741,
+        "validate": 0.8203307906,
+        "test": 0.3318707741
+      },
+      "pair": null,
+      "dlod": 0.99435545254
+    },
+    "winner": "DTW",
+    "winner_quality": [
+      0.7680853497,
+      0.8202666315333333
+    ],
+    "needs_donor_seed": false
+  },
+  "kS020_W010": {
+    "cell": "kS020_W010",
+    "backbone": 0.207494401448758,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": 0.2459308197,
+        "val2": 0.3653633973
+      },
+      "dlod": 0.99604977644
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": 0.280384663,
+        "val2": 0.5496658043
+      },
+      "dlod": 0.99604977644
+    },
+    "winner": "CC",
+    "winner_quality": [
+      0.280384663,
+      0.41502523365
+    ],
+    "needs_donor_seed": false
+  },
+  "kS020_W030": {
+    "cell": "kS020_W030",
+    "backbone": 0.207494401448758,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": 0.7230510697,
+        "val2": 0.6921105976
+      },
+      "dlod": 0.99614652084
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": 0.0231694031,
+        "val2": 0.6977097781
+      },
+      "dlod": 0.99614652084
+    },
+    "winner": "DTW",
+    "winner_quality": [
+      0.6921105976,
+      0.70758083365
+    ],
+    "needs_donor_seed": false
+  },
+  "kS020_W070": {
+    "cell": "kS020_W070",
+    "backbone": 0.207495156937732,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": 0.6519919247,
+        "val2": 0.6977351395
+      },
+      "dlod": 0.9953692522
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": 0.0443676839,
+        "val2": 0.5922139203
+      },
+      "dlod": 0.9953692522
+    },
+    "winner": "DTW",
+    "winner_quality": [
+      0.6519919247,
+      0.6748635321
+    ],
+    "needs_donor_seed": false
+  },
+  "kS020_W150": {
+    "cell": "kS020_W150",
+    "backbone": 0.207526824726858,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "DTW",
+        "train": 0.7584994546,
+        "validate": 0.8809535494,
+        "test": 0.8566980435
+      },
+      "pair": null,
+      "dlod": 0.99974182088
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "CC",
+        "train": 0.7624382675,
+        "validate": 0.6920184252,
+        "test": 0.3507624413
+      },
+      "pair": null,
+      "dlod": 0.99974182088
+    },
+    "winner": "DTW",
+    "winner_quality": [
+      0.7584994546,
+      0.8320503491666668
+    ],
+    "needs_donor_seed": false
+  },
+  "kS020_W170": {
+    "cell": "kS020_W170",
+    "backbone": 0.192672626169585,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "DTW",
+        "train": 0.7347275252,
+        "validate": 0.8428322561,
+        "test": 0.606042977
+      },
+      "pair": null,
+      "dlod": 0.99480901104
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": {
+        "metric": "CC",
+        "train": 0.7751411241,
+        "validate": 0.7767916298,
+        "test": 0.2050292932
+      },
+      "pair": null,
+      "dlod": 0.99480901104
+    },
+    "winner": "DTW",
+    "winner_quality": [
+      0.606042977,
+      0.7278675861
+    ],
+    "needs_donor_seed": false
+  },
+  "kS040_E010": {
+    "cell": "kS040_E010",
+    "backbone": 0.207276223557568,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": 0.7976204723,
+        "val2": 0.7321311367
+      },
+      "dlod": 0.99513287625
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": 0.2078606915,
+        "val2": 0.6944872274
+      },
+      "dlod": 0.99513287625
+    },
+    "winner": "DTW",
+    "winner_quality": [
+      0.7321311367,
+      0.7648758044999999
+    ],
+    "needs_donor_seed": false
+  },
+  "kS040_E030": {
+    "cell": "kS040_E030",
+    "backbone": 0.207275415190983,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": 0.6685938095,
+        "val2": 0.3898578458
+      },
+      "dlod": 0.9959322243
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": 0.4796661698,
+        "val2": 0.5238384141
+      },
+      "dlod": 0.9959322243
+    },
+    "winner": "CC",
+    "winner_quality": [
+      0.4796661698,
+      0.5017522919499999
+    ],
+    "needs_donor_seed": false
+  },
+  "kS040_E110": {
+    "cell": "kS040_E110",
+    "backbone": 0.207221315033144,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": 0.7423073674,
+        "val2": 0.6122718434
+      },
+      "dlod": 0.99495354952
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": 0.4039019652,
+        "val2": 0.4613941985
+      },
+      "dlod": 0.99495354952
+    },
+    "winner": "DTW",
+    "winner_quality": [
+      0.6122718434,
+      0.6772896053999999
+    ],
+    "needs_donor_seed": false
+  },
+  "kS040_E130": {
+    "cell": "kS040_E130",
+    "backbone": 1.0415511063207,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": 0.7549281772,
+        "val2": 0.6957739199
+      },
+      "dlod": 0.99515322955
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": 0.3339645711,
+        "val2": 0.7332060238
+      },
+      "dlod": 0.99515322955
+    },
+    "winner": "DTW",
+    "winner_quality": [
+      0.6957739199,
+      0.7253510485500001
+    ],
+    "needs_donor_seed": false
+  },
+  "kS040_W010": {
+    "cell": "kS040_W010",
+    "backbone": 0.20749610381394,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": -0.8642515684,
+        "val2": 0.3267131065
+      },
+      "dlod": 0.99637096703
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": 0.0427814664,
+        "val2": 0.4201043249
+      },
+      "dlod": 0.99637096703
+    },
+    "winner": "CC",
+    "winner_quality": [
+      0.0427814664,
+      0.23144289565
+    ],
+    "needs_donor_seed": false
+  },
+  "kS040_W030": {
+    "cell": "kS040_W030",
+    "backbone": 0.210023589241319,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": 0.5269981963,
+        "val2": 0.6289409417
+      },
+      "dlod": 0.99607604189
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": 0.4753729258,
+        "val2": 0.6118467117
+      },
+      "dlod": 0.99607604189
+    },
+    "winner": "DTW",
+    "winner_quality": [
+      0.5269981963,
+      0.577969569
+    ],
+    "needs_donor_seed": false
+  },
+  "kS040_W070": {
+    "cell": "kS040_W070",
+    "backbone": 0.207493638899117,
+    "backbone_ok": true,
+    "dtw": {
+      "metric": "DTW",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": -0.1305132978,
+        "val2": 0.4880416745
+      },
+      "dlod": 0.99631900245
+    },
+    "cc": {
+      "metric": "CC",
+      "deadlocked": false,
+      "triplet": null,
+      "pair": {
+        "val1": 0.0723270383,
+        "val2": 0.4290638036
+      },
+      "dlod": 0.99631900245
+    },
+    "winner": "CC",
+    "winner_quality": [
+      0.0723270383,
+      0.25069542095
+    ],
+    "needs_donor_seed": false
+  }
+}

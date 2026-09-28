@@ -12,6 +12,8 @@ lt.exe.par
 lt.exe.parms
 lt.exe.*.par
 lt.exe.*.parms
+lt.exe..p
+lt.exe.*.p
 lt.exe.p.*
 lt.exe.resp.*
 lte_results.csv
@@ -19,3 +21,9 @@ lte_results.csv
 __pycache__/
 *.pyc
 .venv/
+*.log
+*.windings.json
+dlod_ref.dat
+dlod_compare.csv
+*.npz
+

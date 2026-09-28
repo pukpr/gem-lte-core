@@ -244,6 +244,17 @@ package body GEM.LTE.Primitives.Solution is
          M : out Modulations;
          MAP : out Modulations_Amp_Phase;
          Trend, Accel : out Long_Float);
+
+      --  Non-blocking peek at the SAME three numbers the live Status
+      --  display shows (Best_Metric/Best_OOB/Best_Validate_Live) --
+      --  unlike the Status entry above, this returns immediately rather
+      --  than waiting for the next improvement. Used by the VALIDATE=TRUE
+      --  exit report so what gets printed at exit is exactly a copy of
+      --  the last live display, for the leader, rather than a value
+      --  freshly (and inconsistently) recomputed from Model/KeepModel.
+      procedure Current
+        (Metric : out Long_Float; OOB : out Long_Float;
+         Validate_Live : out Long_Float);
    private
       --  Current best metric and associated metadata
       Best_Metric : Long_Float :=
@@ -428,6 +439,16 @@ package body GEM.LTE.Primitives.Solution is
          Trend := Best_Validate_Trend;
          Accel := Best_Validate_Accel;
       end Winner;
+
+      procedure Current
+        (Metric : out Long_Float; OOB : out Long_Float;
+         Validate_Live : out Long_Float)
+      is
+      begin
+         Metric := Best_Metric;
+         OOB := Best_OOB;
+         Validate_Live := Best_Validate_Live;
+      end Current;
 
    end Monitor;
 
@@ -905,6 +926,14 @@ package body GEM.LTE.Primitives.Solution is
 
       der : Long_Float;
       CorrCoeff, Old_CC, Prior_Best_CC : Long_Float := 0.0;
+      --  True once this thread's search has accepted at least one
+      --  candidate (CorrCoeff > Old_CC, below) -- i.e. KeepModel/DKeep
+      --  have been updated away from their own declaration-time
+      --  initializers (a plain copy of the real Data_Records/D0, kept
+      --  only to give them the right bounds/shape before anything real
+      --  exists). If this never happens across the whole run, see the
+      --  deadlock guard right after the main loop.
+      Ever_Accepted : Boolean := False;
       CorrCoeffP : Long_Float;
       CorrCoeffTest : Long_Float := 0.0;
       Progress_Cycle, Spread : Long_Float;
@@ -1027,41 +1056,48 @@ package body GEM.LTE.Primitives.Solution is
       --  Takes the model to score explicitly (the thread's own KEPT best
       --  candidate, KeepModel -- NOT the live Model, which may reflect a
       --  since-rejected perturbation) rather than defaulting to Model.
-      function Validate_Metric (Scored_Model : Data_Pairs) return Long_Float is
-         function Outer_Flanks return Long_Float is
-            X : Data_Pairs :=
-              Scored_Model (Scored_Model'First .. First) &
-              Scored_Model (Last .. Scored_Model'Last);
-            Y : Data_Pairs :=
-              Data_Records (Data_Records'First .. First) &
-              Data_Records (Last .. Data_Records'Last);
-            Z : Data_Pairs :=
-              Forcing (Forcing'First .. First) &
-              Forcing (Last .. Forcing'Last);
-         begin
-            return Metric (X, Y, Z);
-         end Outer_Flanks;
+      --  Below this many points, a correlation coefficient is not just
+      --  noisy but MATHEMATICALLY DEGENERATE: Pearson CC on exactly 2
+      --  points is a line through 2 points, which is ALWAYS exactly +-1
+      --  (or 0.0 in CC's own zero-variance guard case) regardless of fit
+      --  quality -- confirmed live: with no TRAIN_START/TRAIN_END set
+      --  (First=D'First, Last=D'Last, the common default), Outer_Flanks'
+      --  own "two 1-point flanks concatenated" is exactly this 2-point
+      --  case, and hit exactly 1.0 on the very first report of a run.
+      --  Harmless for Exclude_Metric's OWN existing use (CorrCoeffP is
+      --  freshly recomputed every iteration, so a stray +-1.0 just
+      --  flickers), but genuinely corrupting for Validate_Metric: its
+      --  score feeds a running MAXIMUM (Monitor's Best_Validate_Live) and
+      --  the once-only lockbox winner comparison (Report_Final) -- a
+      --  single lucky +-1.0 hit gets locked in forever as "the best ever"
+      --  in the former, and can win the save outright in the latter,
+      --  with zero relation to real generalization.
+      Min_Validate_Segment : constant := 24; -- 2 years of monthly data
 
-         function Gap return Long_Float is
-         begin
-            return Metric
-              (Scored_Model (First .. Last), Data_Records (First .. Last),
-               Forcing (First .. Last));
-         end Gap;
+      --  REVERTED to the ORIGINAL spec ("uses the 2nd outer as a
+      --  validation set... instead of concatenating everything, the 2nd
+      --  outer interval is used"): ALWAYS score [Last, D'Last] alone --
+      --  not mode-dependent (no Coverage/Enclosing/Split_Training/Exclude
+      --  branching, no Outer_Flanks concatenation). A prior revision made
+      --  this Exclude-aware (switching to the [First,Last] gap under
+      --  EXCLUDE=TRUE), reasoning that [Last,D'Last] is technically part
+      --  of Exclude=TRUE's own combined training objective there -- true,
+      --  but it silently overrode the explicit original design: a fixed,
+      --  always-the-same-region check on the most RECENT real data,
+      --  precisely so a strong post-training-window score there (even one
+      --  the joint training objective also benefits from) is something
+      --  the user can see and act on. Confirmed directly: the display was
+      --  correctly reporting the [First,Last] EXCLUDE gap's score, not a
+      --  display/store bug -- just the wrong region for what was wanted.
+      function Validate_Metric (Scored_Model : Data_Pairs) return Long_Float is
       begin
-         if Coverage < 1.0 then
-            return Outer_Flanks; -- training only ever touches the leading
-                                  -- Coverage fraction of [First,Last]
-         elsif Enclosing then
-            return Gap; -- both flanks are training data in this mode
-         elsif Split_Training then
-            return Outer_Flanks; -- training only ever touches [First,Last]
-                                  -- (split at Mid), flanks untouched
-         elsif Exclude then
-            return Gap; -- both flanks are training data in this mode
-         else
-            return Outer_Flanks; -- plain training only touches [First,Last]
+         if Scored_Model'Last - Last + 1 < Min_Validate_Segment then
+            return Long_Float'First; -- too degenerate to trust; see above
          end if;
+         return Metric
+           (Scored_Model (Last .. Scored_Model'Last),
+            Data_Records (Last .. Data_Records'Last),
+            Forcing (Last .. Forcing'Last));
       end Validate_Metric;
 
       function Excluded (D : Data_Pairs) return Data_Pairs is
@@ -1184,14 +1220,29 @@ package body GEM.LTE.Primitives.Solution is
             --  so slicing back is a direct index copy, not a
             --  date-matching search.
             --
-            --  Seeded at Init_Date, NOT Initial_Conditions_Date: D.B.init
-            --  already means "value at Init_Date" (see its declaration
-            --  above), so seeding there and letting the now-exact
-            --  backward pass derive IDATE..Init_Date on its own is a
-            --  deterministic re-derivation of "value at IDATE", not a
-            --  refit -- seeding at IDATE directly with the unchanged
-            --  init would silently reinterpret it as meaning something
-            --  it doesn't.
+            --  REVISED (Option A, see project notes): seeded at
+            --  Initial_Conditions_Date (IDATE), NOT Init_Date. D.B.init
+            --  now ALWAYS means "value at IDATE" -- the same convention
+            --  the non-Strict branch below (and ws.py's own iir(),
+            --  independently) already uses -- rather than "value at
+            --  Init_Date", which required a human to keep `init`
+            --  numerically re-synced by hand every time Init_Date was
+            --  changed (found the hard way: changing a resp's INIT_DATE
+            --  alone, without also updating `init`, either silently
+            --  mis-anchors the whole trajectory or drives
+            --  Regression_Factors singular -- deadlocking every thread,
+            --  caught only because of the Ever_Accepted guard).
+            --
+            --  Init_Date is no longer a seeding input at all here: with
+            --  init pinned to IDATE, the computed trajectory is now
+            --  IDENTICAL regardless of what Init_Date says -- declaring a
+            --  different Init_Date (e.g. for a companion file's own
+            --  cross-file reuse) changes nothing about THIS run's own
+            --  fit, only what a human would read off the resulting
+            --  Forcing curve at that date to seed elsewhere. Reporting
+            --  that value automatically (reading Forcing at Init_Date
+            --  when it falls inside Data_Records'Range) is left for a
+            --  follow-on diagnostic, not implemented here.
             declare
                Extended_Template : constant Data_Pairs :=
                  Extend_Backward
@@ -1207,24 +1258,25 @@ package body GEM.LTE.Primitives.Solution is
                     Offset => 0.0, Ramp => 0.0,
                     Start => Extended_Template (Extended_Template'First).Date);
                --  Start_Index searches for the first Date STRICTLY
-               --  GREATER than Start -- passing Init_Date itself would
-               --  land one row LATE whenever it exactly equals a real
-               --  sample's own date (the common case: Init_Date defaults
-               --  to Data_Records'First's own date), seeding `init` a
-               --  full sample late and throwing off everything
-               --  downstream (caught during development: this exact bug
-               --  produced discrepancies up to ~0.29 against the
-               --  non-strict path on the SAME file, which the corrected
-               --  Init_Date seeding is supposed to reproduce exactly).
-               --  A tenth of a sample step is comfortably inside the
-               --  gap to the next real row for any reasonable
-               --  Sampling_Per_Year, so this can't skip back an extra
-               --  row.
+               --  GREATER than Start -- passing Initial_Conditions_Date
+               --  itself would land one row LATE whenever it exactly
+               --  equals a real sample's own date (the common case:
+               --  IDATE defaults to Data_Records'First's own date),
+               --  seeding `init` a full sample late and throwing off
+               --  everything downstream (caught during development: this
+               --  exact bug produced discrepancies up to ~0.29 against
+               --  the non-strict path on the SAME file, which this
+               --  seeding is supposed to reproduce exactly whenever
+               --  Initial_Conditions_Date already matches
+               --  Data_Records'First). A tenth of a sample step is
+               --  comfortably inside the gap to the next real row for
+               --  any reasonable Sampling_Per_Year, so this can't skip
+               --  back an extra row.
                Extended_F : constant Data_Pairs :=
                  IIR
                    (Raw => Extended_Impulses, lagA => der,
                     lagC => D.B.mP, iA => D.B.init,
-                    Start => Init_Date - 0.1 / Sampling_Per_Year);
+                    Start => Initial_Conditions_Date - 0.1 / Sampling_Per_Year);
             begin
                for I in Data_Records'Range loop
                   F (I).Value := Extended_F (I).Value;
@@ -1592,34 +1644,28 @@ package body GEM.LTE.Primitives.Solution is
             end if;
          end if;
 
-         -- Register the results with a monitor
-         declare
-            --  Live, display-only validate readout of this thread's own
-            --  best-kept candidate (KeepModel, not the live/just-tried
-            --  Model) -- see Monitor.Check's own comment: never fed back
-            --  into Best/Best_Client above, purely for Status's progress
-            --  line. Skipped (kept at 0.0) when VALIDATE is off, to avoid
-            --  the extra Metric call on every iteration for nothing.
-            Live_Validate_Score : constant Long_Float :=
-              (if Validate then Validate_Metric (KeepModel) else 0.0);
-         begin
-            if Split_Training then
-               Monitor.Check
-                 (CorrCoeffTest, CorrCoeff, ID, Counter, Live_Validate_Score,
-                  Best, Best_Client, Percentage);
-            else
-               Monitor.Check
-                 (CorrCoeff, CorrCoeffP, ID, Counter, Live_Validate_Score,
-                  Best, Best_Client, Percentage);
-            end if;
-         end;
-
-         if ID = Best_Client then
-            Counter := 1; -- no use penalizing thread in the lead
-         end if;
-
+         --  BUG FIX (ordering): this accept/reject block used to run
+         --  AFTER "register the results with a monitor" below, so on
+         --  every iteration Live_Validate_Score was computed from
+         --  KeepModel as it stood BEFORE this iteration's own update --
+         --  one full iteration stale. Harmless most of the time (KeepModel
+         --  changes slowly), but catastrophic on the very FIRST iteration
+         --  of a run: KeepModel's own declaration-time initializer is
+         --  `:= Data_Records` (see its declaration), so on iteration 1,
+         --  before any accept has ever happened, Validate_Metric(KeepModel)
+         --  was really comparing (approximately) Data against Data --
+         --  confirmed live via DEBUG_CC (KeepModel's stats in the scored
+         --  region matched Data's variance, not Model's). That spurious
+         --  near-self-correlation (0.99+) then gets reported to Check on
+         --  iteration 1, and because Best_Validate_Live is a running
+         --  MAXIMUM, gets permanently locked in as "the best ever seen"
+         --  before the search has done any real work -- exactly the
+         --  "Validate stuck near 1.0 while training keeps improving"
+         --  symptom. Moved before the monitor registration so KeepModel is
+         --  always this iteration's own freshly-decided state.
          if CorrCoeff > Old_CC then
             Old_CC := CorrCoeff;
+            Ever_Accepted := True;
             Keep := Set;
             KeepModel := Model;
             DKeep := D;
@@ -1638,6 +1684,41 @@ package body GEM.LTE.Primitives.Solution is
                Set := Keep;
                Harms := Harms_Keep;
             end if;
+         end if;
+
+         -- Register the results with a monitor
+         declare
+            --  Live, display-only validate readout of this thread's own
+            --  best-kept candidate (KeepModel, not the live/just-tried
+            --  Model) -- see Monitor.Check's own comment: never fed back
+            --  into Best/Best_Client above, purely for Status's progress
+            --  line. Skipped (kept at 0.0) when VALIDATE is off, to avoid
+            --  the extra Metric call on every iteration for nothing.
+            --
+            --  Also 0.0, not Validate_Metric(KeepModel), whenever this
+            --  thread hasn't accepted anything yet (Ever_Accepted False):
+            --  KeepModel is still literally raw Data at that point (see
+            --  the deadlock guard below), and Validate_Metric would be
+            --  comparing Data against itself -- confirmed live, this
+            --  leaked a spurious V:0.95 onto the display even after
+            --  Report_Final's own copy of this same mistake was fixed.
+            Live_Validate_Score : constant Long_Float :=
+              (if Validate and then Ever_Accepted
+               then Validate_Metric (KeepModel) else 0.0);
+         begin
+            if Split_Training then
+               Monitor.Check
+                 (CorrCoeffTest, CorrCoeff, ID, Counter, Live_Validate_Score,
+                  Best, Best_Client, Percentage);
+            else
+               Monitor.Check
+                 (CorrCoeff, CorrCoeffP, ID, Counter, Live_Validate_Score,
+                  Best, Best_Client, Percentage);
+            end if;
+         end;
+
+         if ID = Best_Client then
+            Counter := 1; -- no use penalizing thread in the lead
          end if;
 
          if Singular or
@@ -1698,6 +1779,43 @@ package body GEM.LTE.Primitives.Solution is
       end loop;
       Monitor.Stop;
 
+      --  DEADLOCK GUARD: KeepModel's/DKeep's own declaration-time
+      --  initializers (`:= Data_Records` / `:= D`) are a plain
+      --  convenience to give them the right bounds/shape before any real
+      --  candidate exists -- never meant to be a standalone fallback
+      --  result. If this thread's search never once accepted a
+      --  candidate (CorrCoeff > Old_CC, starting at 0.0), KeepModel is
+      --  still that exact, untouched copy of the real data -- silently
+      --  saving it would write raw Data into the "Model" column,
+      --  indistinguishable from a suspiciously perfect fit. Confirmed
+      --  live: kN040_E130_1856's lte_results.csv had Model == Data ==
+      --  the raw .dat file, bit for bit, traced to exactly this path.
+      --  A thread that never accepts anything across its whole run is
+      --  deadlocked, not merely unlucky -- most likely because
+      --  Regression_Factors keeps hitting its own Singular fallback
+      --  (e.g. from near-collinear, closely-spaced windings), so no
+      --  perturbation ever scores above the Old_CC=0.0 starting floor.
+      --
+      --  IMPORTANT: this disqualifies only THIS thread's own candidate
+      --  from ever being saved or winning the VALIDATE lockbox below --
+      --  it does NOT halt the process. One thread's regression being
+      --  chronically singular says nothing about the other threads'
+      --  independent random-walk trajectories, which may be finding
+      --  perfectly good candidates; killing the whole run over one
+      --  thread's bad luck would throw those away too. (An earlier
+      --  version of this guard called GNAT.OS_Lib.OS_Exit here,
+      --  unconditionally halting every thread -- corrected per explicit
+      --  feedback: "the fact that a single thread deadlocks doesn't mean
+      --  that other threads can't continue.")
+      if not Ever_Accepted then
+         Text_IO.Put_Line
+           ("WARNING: " & File_Name & " thread" & ID'Img &
+            " never accepted a single candidate (deadlocked -- "
+            & "Regression_Factors likely singular throughout this "
+            & "thread's run). Excluding this thread's candidate from "
+            & "saving/winning; other threads continue normally.");
+      end if;
+
       --  VALIDATE lockbox: every thread reports its own best-kept
       --  candidate (DKeep/KeepModel, never the live/possibly-just-
       --  rejected D/Model) and that candidate's score on the held-out
@@ -1707,7 +1825,6 @@ package body GEM.LTE.Primitives.Solution is
       --  today's exact Best_Client-based decision, untouched.
       declare
          Save_Now : Boolean;
-         Final_Validate_Score : Long_Float := 0.0;
       begin
          if Validate and not Test_Only then
             declare
@@ -1716,7 +1833,18 @@ package body GEM.LTE.Primitives.Solution is
                Monitor.Report_Final
                  (D => DKeep, Model => KeepModel, M => M, MAP => MAP,
                   Trend => Secular_Trend, Accel => Accel,
-                  Validate_Score => Validate_Metric (KeepModel),
+                  --  A deadlocked thread's own KeepModel is untouched raw
+                  --  Data (see the guard above) -- Validate_Metric on
+                  --  Data-vs-itself can score deceptively HIGH, exactly
+                  --  the failure this whole investigation started from.
+                  --  Report the same "can never win" sentinel Winner
+                  --  itself starts from, so this thread's candidate is
+                  --  never selected unless literally every thread in the
+                  --  run is equally deadlocked (in which case there is no
+                  --  real candidate to prefer anyway).
+                  Validate_Score =>
+                    (if Ever_Accepted then Validate_Metric (KeepModel)
+                     else Long_Float'First),
                   Am_I_Last => Am_I_Last);
                if Am_I_Last then
                   Monitor.Winner
@@ -1734,7 +1862,11 @@ package body GEM.LTE.Primitives.Solution is
                Save_Now := Am_I_Last;
             end;
          else
-            Save_Now := Test_Only or Best_Client = ID;
+            --  Same disqualification for the VALIDATE=FALSE/legacy path:
+            --  a deadlocked thread's own KeepModel is untouched raw Data,
+            --  so it must never be the one saved even if (in some
+            --  Ratio-weighted edge case) it still ended up as Best_Client.
+            Save_Now := Ever_Accepted and then (Test_Only or Best_Client = ID);
          end if;
 
       if Save_Now then
@@ -1777,16 +1909,23 @@ package body GEM.LTE.Primitives.Solution is
          GEM.LTE.Primitives.Shared.Save (DKeep);
          Save (KeepModel, Data_Records, Forcing, IR => D.B.IR);    -- saves to file
 
-         --  Final, once-only report of the score that actually decided
-         --  what got saved above -- computed fresh from KeepModel (the
-         --  saved candidate itself) rather than reused from the loop, so
-         --  it is correct regardless of Split_Training/Enclosing/plain
-         --  branch below. 0.0 and unused when VALIDATE is off.
-         Final_Validate_Score :=
-           (if Validate then Validate_Metric (KeepModel) else 0.0);
-
-         if Split_Training then
-            Put_CC (CorrCoeff, CorrCoeffTest, Counter, ID, Final_Validate_Score);
+         if Validate then
+            --  VALIDATE=TRUE: print exactly the same three numbers the
+            --  live Status display last showed (Best_Metric/Best_OOB/
+            --  Best_Validate_Live, via the same non-blocking Monitor.
+            --  Current peek Status itself reads) -- i.e. a copy of the
+            --  running display, for the leader -- rather than freshly
+            --  recomputing train/test from Model/KeepModel with mode-
+            --  specific swap logic that can (and did) drift out of sync
+            --  with what was actually shown throughout the run.
+            declare
+               Final_Train, Final_Test, Final_Validate : Long_Float;
+            begin
+               Monitor.Current (Final_Train, Final_Test, Final_Validate);
+               Put_CC (Final_Train, Final_Test, Counter, ID, Final_Validate);
+            end;
+         elsif Split_Training then
+            Put_CC (CorrCoeff, CorrCoeffTest, Counter, ID);
          elsif Enclosing then
             -- Mirror the per-iteration ENCLOSING branch above: report
             -- whichever region(s) drove accept/reject (per ENCLOSED_
@@ -1805,25 +1944,20 @@ package body GEM.LTE.Primitives.Solution is
               Metric
                 (Model (First .. Last), Data_Records (First .. Last),
                  Forcing (First .. Last));
-            Put_CC (CorrCoeff, CorrCoeffP, Counter, ID, Final_Validate_Score);
+            Put_CC (CorrCoeff, CorrCoeffP, Counter, ID);
          else
-            --  REVERTED (2026-09-24): a prior edit made this conditional
-            --  on Exclude, to mirror the per-iteration loop's own swap
-            --  above -- but that broke the VALIDATE=FALSE final report's
-            --  own long-standing contract, which every other mode
-            --  (Split_Training/Enclosing above, and every other caller
-            --  of Exclude_Metric) also honors: CorrCoeffP in the final
-            --  report is UNCONDITIONALLY the concatenation AROUND the
-            --  excluded [First,Last] area (Exclude_Metric) -- a fixed,
-            --  portable "what does the fit look like outside the
-            --  interval" reading regardless of which region the search
-            --  itself trained on. Restored to the original definition.
+            --  VALIDATE=FALSE (default): original, long-standing,
+            --  Exclude-oblivious definition, unchanged from before this
+            --  session -- CorrCoeffP is UNCONDITIONALLY the concatenation
+            --  AROUND the excluded [First,Last] area (Exclude_Metric),
+            --  CorrCoeff is UNCONDITIONALLY the [First,Last] window
+            --  itself, regardless of the Exclude flag.
             CorrCoeffP := Exclude_Metric;
             CorrCoeff :=
               Metric
                 (Model (First .. Last), Data_Records (First .. Last),
                  Forcing (First .. Last));
-            Put_CC (CorrCoeff, CorrCoeffP, Counter, ID, Final_Validate_Score);
+            Put_CC (CorrCoeff, CorrCoeffP, Counter, ID);
          end if;
 
          CorrCoeff :=

@@ -129,6 +129,7 @@ def plot_series(
     second_path: Path,
     column: int,
     correlation: float,
+    secondary: bool = False,
 ) -> None:
     try:
         import matplotlib.pyplot as pyplot
@@ -137,13 +138,27 @@ def plot_series(
 
     first_finite = [(time, value) for time, value in first if math.isfinite(value)]
     second_finite = [(time, value) for time, value in second if math.isfinite(value)]
-    pyplot.plot(*zip(*first_finite), label=str(first_path))
-    pyplot.plot(*zip(*second_finite), label=str(second_path))
-    pyplot.xlabel("Time")
-    pyplot.ylabel(COLUMN_NAMES[column])
-    pyplot.title(f"{COLUMN_NAMES[column]} Pearson correlation: {correlation:.6g}")
-    pyplot.legend()
-    pyplot.tight_layout()
+
+    fig, ax1 = pyplot.subplots()
+    line1, = ax1.plot(*zip(*first_finite), color="tab:blue", label=str(first_path))
+    if secondary:
+        # Independent y-scales, so the two series' SHAPES can be compared
+        # even when their absolute magnitudes aren't directly comparable
+        # (e.g. comparing across two different indices/units).
+        ax2 = ax1.twinx()
+        line2, = ax2.plot(*zip(*second_finite), color="tab:red", label=str(second_path))
+        ax1.set_ylabel(f"{COLUMN_NAMES[column]} ({first_path})", color="tab:blue")
+        ax2.set_ylabel(f"{COLUMN_NAMES[column]} ({second_path})", color="tab:red")
+        ax1.tick_params(axis="y", labelcolor="tab:blue")
+        ax2.tick_params(axis="y", labelcolor="tab:red")
+        ax1.legend(handles=[line1, line2])
+    else:
+        ax1.plot(*zip(*second_finite), color="tab:red", label=str(second_path))
+        ax1.set_ylabel(COLUMN_NAMES[column])
+        ax1.legend()
+    ax1.set_xlabel("Time")
+    ax1.set_title(f"{COLUMN_NAMES[column]} Pearson correlation: {correlation:.6g}")
+    fig.tight_layout()
     pyplot.show()
 
 
@@ -156,6 +171,13 @@ def main() -> int:
     parser.add_argument("second_file", type=Path)
     parser.add_argument("column", type=parse_column)
     parser.add_argument("--plot", action="store_true", help="display both time series")
+    parser.add_argument(
+        "--secondary",
+        action="store_true",
+        help="plot the second file's series on an independent secondary "
+             "y-axis instead of sharing the first's scale (only used with "
+             "--plot)",
+    )
     parser.add_argument(
         "--time-tolerance",
         type=float,
@@ -188,6 +210,7 @@ def main() -> int:
                 args.second_file,
                 args.column,
                 correlation,
+                args.secondary,
             )
         except RuntimeError as exc:
             print(f"error: {exc}", file=sys.stderr)

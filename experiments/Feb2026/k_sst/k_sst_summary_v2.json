@@ -1,0 +1,10368 @@
+[
+ {
+  "name": "kS060_W070",
+  "lat": -60.0,
+  "lon": -70.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.91,
+    "peak_bits": 3.13,
+    "fwhm_M": 0.14,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 4.73,
+    "peak_bits": 2.77,
+    "fwhm_M": 0.17,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 2.81,
+    "peak_bits": 2.66,
+    "fwhm_M": 0.19,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 4.48,
+    "peak_bits": 2.55,
+    "fwhm_M": 0.19,
+    "continuity": 0.81,
+    "pass": false
+   },
+   {
+    "M": 2.16,
+    "peak_bits": 2.54,
+    "fwhm_M": 0.06,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 3.32,
+    "peak_bits": 2.42,
+    "fwhm_M": 0.15,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 4.15,
+    "peak_bits": 2.32,
+    "fwhm_M": 0.19,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 3.59,
+    "peak_bits": 2.21,
+    "fwhm_M": 0.14,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 3.73,
+    "peak_bits": 2.0,
+    "fwhm_M": 0.2,
+    "continuity": 0.32,
+    "pass": false
+   }
+  ],
+  "train_r": 0.5982290792142065,
+  "val_r": 0.4801715135925431
+ },
+ {
+  "name": "kS060_W050",
+  "lat": -60.0,
+  "lon": -50.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.65,
+    "peak_bits": 3.93,
+    "fwhm_M": 0.04,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 4.46,
+    "peak_bits": 3.4,
+    "fwhm_M": 0.13,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 3.37,
+    "peak_bits": 3.07,
+    "fwhm_M": 0.22,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 2.89,
+    "peak_bits": 2.82,
+    "fwhm_M": 0.22,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 3.01,
+    "peak_bits": 2.64,
+    "fwhm_M": 0.23,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 4.9,
+    "peak_bits": 2.58,
+    "fwhm_M": 0.21,
+    "continuity": 0.65,
+    "pass": false
+   },
+   {
+    "M": 4.27,
+    "peak_bits": 2.39,
+    "fwhm_M": 0.2,
+    "continuity": 0.65,
+    "pass": false
+   },
+   {
+    "M": 2.7,
+    "peak_bits": 2.12,
+    "fwhm_M": 0.18,
+    "continuity": 0.61,
+    "pass": false
+   },
+   {
+    "M": 3.5,
+    "peak_bits": 2.1,
+    "fwhm_M": 0.17,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 4.77,
+    "peak_bits": 2.07,
+    "fwhm_M": 0.23,
+    "continuity": 0.35,
+    "pass": false
+   }
+  ],
+  "train_r": 0.4241649721592922,
+  "val_r": 0.6648970498471661
+ },
+ {
+  "name": "kS040_E010",
+  "lat": -40.0,
+  "lon": 10.0,
+  "n_passing": 1,
+  "top_M": [
+   3.96
+  ],
+  "all_ridges": [
+   {
+    "M": 4.14,
+    "peak_bits": 4.22,
+    "fwhm_M": 0.07,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 2.39,
+    "peak_bits": 3.76,
+    "fwhm_M": 0.18,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 4.78,
+    "peak_bits": 3.72,
+    "fwhm_M": 0.22,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 1.2,
+    "peak_bits": 3.5,
+    "fwhm_M": 0.12,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 1.78,
+    "peak_bits": 3.36,
+    "fwhm_M": 0.23,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 4.37,
+    "peak_bits": 3.34,
+    "fwhm_M": 0.09,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 1.99,
+    "peak_bits": 3.14,
+    "fwhm_M": 0.09,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 3.72,
+    "peak_bits": 3.13,
+    "fwhm_M": 0.16,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 2.16,
+    "peak_bits": 3.08,
+    "fwhm_M": 0.13,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.56,
+    "peak_bits": 3.07,
+    "fwhm_M": 0.05,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 3.54,
+    "peak_bits": 2.88,
+    "fwhm_M": 0.16,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 3.16,
+    "peak_bits": 2.74,
+    "fwhm_M": 0.13,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 3.29,
+    "peak_bits": 2.68,
+    "fwhm_M": 0.22,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 4.64,
+    "peak_bits": 2.62,
+    "fwhm_M": 0.14,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 1.59,
+    "peak_bits": 2.54,
+    "fwhm_M": 0.15,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 3.96,
+    "peak_bits": 2.46,
+    "fwhm_M": 0.11,
+    "continuity": 0.74,
+    "pass": true
+   },
+   {
+    "M": 2.75,
+    "peak_bits": 2.45,
+    "fwhm_M": 0.13,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 3.41,
+    "peak_bits": 2.43,
+    "fwhm_M": 0.22,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 2.98,
+    "peak_bits": 2.41,
+    "fwhm_M": 0.14,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 0.41,
+    "peak_bits": 2.39,
+    "fwhm_M": 0.08,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 0.54,
+    "peak_bits": 2.17,
+    "fwhm_M": 0.14,
+    "continuity": 0.06,
+    "pass": false
+   }
+  ],
+  "train_r": 0.5564758547905495,
+  "val_r": -0.07180439399844328
+ },
+ {
+  "name": "kS040_E030",
+  "lat": -40.0,
+  "lon": 30.0,
+  "n_passing": 1,
+  "top_M": [
+   4.48
+  ],
+  "all_ridges": [
+   {
+    "M": 1.8,
+    "peak_bits": 3.81,
+    "fwhm_M": 0.18,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 4.48,
+    "peak_bits": 3.55,
+    "fwhm_M": 0.08,
+    "continuity": 0.81,
+    "pass": true
+   },
+   {
+    "M": 3.85,
+    "peak_bits": 3.28,
+    "fwhm_M": 0.22,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 2.39,
+    "peak_bits": 3.26,
+    "fwhm_M": 0.22,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 3.73,
+    "peak_bits": 3.2,
+    "fwhm_M": 0.18,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 3.43,
+    "peak_bits": 3.15,
+    "fwhm_M": 0.11,
+    "continuity": 0.68,
+    "pass": false
+   },
+   {
+    "M": 4.14,
+    "peak_bits": 3.05,
+    "fwhm_M": 0.19,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 3.21,
+    "peak_bits": 3.0,
+    "fwhm_M": 0.2,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 4.79,
+    "peak_bits": 3.0,
+    "fwhm_M": 0.14,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 4.26,
+    "peak_bits": 3.0,
+    "fwhm_M": 0.22,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 2.22,
+    "peak_bits": 2.98,
+    "fwhm_M": 0.14,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 4.92,
+    "peak_bits": 2.85,
+    "fwhm_M": 0.08,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 2.57,
+    "peak_bits": 2.83,
+    "fwhm_M": 0.14,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 1.97,
+    "peak_bits": 2.79,
+    "fwhm_M": 0.14,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 2.9,
+    "peak_bits": 2.78,
+    "fwhm_M": 0.14,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 0.19,
+    "peak_bits": 2.59,
+    "fwhm_M": 0.1,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 0.59,
+    "peak_bits": 2.48,
+    "fwhm_M": 0.24,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 3.61,
+    "peak_bits": 2.35,
+    "fwhm_M": 0.23,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 3.08,
+    "peak_bits": 2.34,
+    "fwhm_M": 0.22,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 0.84,
+    "peak_bits": 2.08,
+    "fwhm_M": 0.24,
+    "continuity": 0.13,
+    "pass": false
+   }
+  ],
+  "train_r": 0.5043018482645867,
+  "val_r": 0.40215050886436693
+ },
+ {
+  "name": "kS040_E050",
+  "lat": -40.0,
+  "lon": 50.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.46,
+    "peak_bits": 3.49,
+    "fwhm_M": 0.22,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 4.77,
+    "peak_bits": 2.92,
+    "fwhm_M": 0.13,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 2.29,
+    "peak_bits": 2.82,
+    "fwhm_M": 0.21,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 3.31,
+    "peak_bits": 2.79,
+    "fwhm_M": 0.09,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 4.13,
+    "peak_bits": 2.73,
+    "fwhm_M": 0.21,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 3.72,
+    "peak_bits": 2.71,
+    "fwhm_M": 0.17,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 2.71,
+    "peak_bits": 2.69,
+    "fwhm_M": 0.22,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 1.16,
+    "peak_bits": 2.28,
+    "fwhm_M": 0.05,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 4.97,
+    "peak_bits": 2.25,
+    "fwhm_M": 0.15,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 2.9,
+    "peak_bits": 2.23,
+    "fwhm_M": 0.1,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 3.12,
+    "peak_bits": 2.1,
+    "fwhm_M": 0.15,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 1.97,
+    "peak_bits": 2.03,
+    "fwhm_M": 0.2,
+    "continuity": 0.19,
+    "pass": false
+   }
+  ],
+  "train_r": 0.41278887164380723,
+  "val_r": 0.2987328707010001
+ },
+ {
+  "name": "kS040_E070",
+  "lat": -40.0,
+  "lon": 70.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 3.3,
+    "peak_bits": 3.45,
+    "fwhm_M": 0.08,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 3.13,
+    "peak_bits": 3.18,
+    "fwhm_M": 0.06,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 3.95,
+    "peak_bits": 3.16,
+    "fwhm_M": 0.14,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 4.55,
+    "peak_bits": 3.13,
+    "fwhm_M": 0.16,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 4.13,
+    "peak_bits": 3.1,
+    "fwhm_M": 0.21,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.26,
+    "peak_bits": 2.96,
+    "fwhm_M": 0.14,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 3.72,
+    "peak_bits": 2.88,
+    "fwhm_M": 0.06,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 2.71,
+    "peak_bits": 2.77,
+    "fwhm_M": 0.22,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 1.62,
+    "peak_bits": 2.43,
+    "fwhm_M": 0.2,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 1.15,
+    "peak_bits": 2.37,
+    "fwhm_M": 0.23,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 0.97,
+    "peak_bits": 2.34,
+    "fwhm_M": 0.19,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 0.42,
+    "peak_bits": 2.33,
+    "fwhm_M": 0.22,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.08,
+    "peak_bits": 2.12,
+    "fwhm_M": 0.2,
+    "continuity": 0.23,
+    "pass": false
+   }
+  ],
+  "train_r": 0.4924151760110495,
+  "val_r": 0.5653143627590047
+ },
+ {
+  "name": "kS040_E090",
+  "lat": -40.0,
+  "lon": 90.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 3.14,
+    "peak_bits": 3.52,
+    "fwhm_M": 0.06,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 1.61,
+    "peak_bits": 2.91,
+    "fwhm_M": 0.23,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 4.13,
+    "peak_bits": 2.88,
+    "fwhm_M": 0.09,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 3.56,
+    "peak_bits": 2.84,
+    "fwhm_M": 0.13,
+    "continuity": 0.71,
+    "pass": false
+   },
+   {
+    "M": 2.26,
+    "peak_bits": 2.78,
+    "fwhm_M": 0.16,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 3.29,
+    "peak_bits": 2.57,
+    "fwhm_M": 0.21,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 0.42,
+    "peak_bits": 2.5,
+    "fwhm_M": 0.12,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 1.26,
+    "peak_bits": 2.32,
+    "fwhm_M": 0.23,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 3.41,
+    "peak_bits": 2.12,
+    "fwhm_M": 0.06,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 1.74,
+    "peak_bits": 2.1,
+    "fwhm_M": 0.06,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 2.89,
+    "peak_bits": 2.09,
+    "fwhm_M": 0.16,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 3.7,
+    "peak_bits": 2.07,
+    "fwhm_M": 0.22,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 1.98,
+    "peak_bits": 2.06,
+    "fwhm_M": 0.23,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 4.55,
+    "peak_bits": 2.05,
+    "fwhm_M": 0.21,
+    "continuity": 0.13,
+    "pass": false
+   }
+  ],
+  "train_r": 0.6016252082967735,
+  "val_r": 0.1696895586975787
+ },
+ {
+  "name": "kS040_E110",
+  "lat": -40.0,
+  "lon": 110.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 2.2,
+    "peak_bits": 3.0,
+    "fwhm_M": 0.09,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 1.8,
+    "peak_bits": 2.7,
+    "fwhm_M": 0.23,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 2.91,
+    "peak_bits": 2.65,
+    "fwhm_M": 0.15,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 2.79,
+    "peak_bits": 2.4,
+    "fwhm_M": 0.16,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 0.42,
+    "peak_bits": 2.32,
+    "fwhm_M": 0.23,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 3.59,
+    "peak_bits": 2.31,
+    "fwhm_M": 0.23,
+    "continuity": 0.61,
+    "pass": false
+   },
+   {
+    "M": 1.63,
+    "peak_bits": 2.11,
+    "fwhm_M": 0.06,
+    "continuity": 0.35,
+    "pass": false
+   }
+  ],
+  "train_r": 0.6016281096359444,
+  "val_r": 0.01772178759909264
+ },
+ {
+  "name": "kS040_E130",
+  "lat": -40.0,
+  "lon": 130.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.87,
+    "peak_bits": 3.83,
+    "fwhm_M": 0.08,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 2.21,
+    "peak_bits": 3.71,
+    "fwhm_M": 0.09,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 3.11,
+    "peak_bits": 3.45,
+    "fwhm_M": 0.18,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 2.8,
+    "peak_bits": 3.0,
+    "fwhm_M": 0.05,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 0.42,
+    "peak_bits": 2.96,
+    "fwhm_M": 0.08,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 1.56,
+    "peak_bits": 2.92,
+    "fwhm_M": 0.19,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 2.39,
+    "peak_bits": 2.88,
+    "fwhm_M": 0.18,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 0.0,
+    "peak_bits": 2.34,
+    "fwhm_M": 0.03,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 0.96,
+    "peak_bits": 2.32,
+    "fwhm_M": 0.23,
+    "continuity": 0.13,
+    "pass": false
+   }
+  ],
+  "train_r": 0.6850429236570701,
+  "val_r": 0.15025426898161634
+ },
+ {
+  "name": "kS040_E150",
+  "lat": -40.0,
+  "lon": 150.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 3.28,
+    "peak_bits": 4.23,
+    "fwhm_M": 0.2,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 3.11,
+    "peak_bits": 4.09,
+    "fwhm_M": 0.18,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 2.71,
+    "peak_bits": 3.6,
+    "fwhm_M": 0.22,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 2.98,
+    "peak_bits": 3.42,
+    "fwhm_M": 0.21,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 0.42,
+    "peak_bits": 3.21,
+    "fwhm_M": 0.07,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 1.71,
+    "peak_bits": 2.67,
+    "fwhm_M": 0.16,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 3.48,
+    "peak_bits": 2.64,
+    "fwhm_M": 0.2,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 2.57,
+    "peak_bits": 2.64,
+    "fwhm_M": 0.23,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 0.66,
+    "peak_bits": 2.63,
+    "fwhm_M": 0.24,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 1.53,
+    "peak_bits": 2.59,
+    "fwhm_M": 0.22,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 0.54,
+    "peak_bits": 2.53,
+    "fwhm_M": 0.23,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 1.97,
+    "peak_bits": 2.51,
+    "fwhm_M": 0.14,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 0.0,
+    "peak_bits": 2.32,
+    "fwhm_M": 0.03,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 2.38,
+    "peak_bits": 2.26,
+    "fwhm_M": 0.23,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 0.12,
+    "peak_bits": 2.25,
+    "fwhm_M": 0.24,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 1.09,
+    "peak_bits": 2.24,
+    "fwhm_M": 0.13,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 1.26,
+    "peak_bits": 2.1,
+    "fwhm_M": 0.1,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 1.41,
+    "peak_bits": 2.01,
+    "fwhm_M": 0.14,
+    "continuity": 0.19,
+    "pass": false
+   }
+  ],
+  "train_r": 0.711952085234607,
+  "val_r": 0.10430343202370757
+ },
+ {
+  "name": "kS040_E170",
+  "lat": -40.0,
+  "lon": 170.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.36,
+    "peak_bits": 3.95,
+    "fwhm_M": 0.08,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 2.71,
+    "peak_bits": 3.77,
+    "fwhm_M": 0.22,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 3.96,
+    "peak_bits": 3.75,
+    "fwhm_M": 0.05,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 4.48,
+    "peak_bits": 3.7,
+    "fwhm_M": 0.22,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 2.57,
+    "peak_bits": 3.6,
+    "fwhm_M": 0.23,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 4.77,
+    "peak_bits": 3.57,
+    "fwhm_M": 0.12,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 3.84,
+    "peak_bits": 3.51,
+    "fwhm_M": 0.2,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 2.44,
+    "peak_bits": 3.47,
+    "fwhm_M": 0.22,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 5.0,
+    "peak_bits": 3.47,
+    "fwhm_M": 0.01,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.05,
+    "peak_bits": 3.11,
+    "fwhm_M": 0.15,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 3.22,
+    "peak_bits": 2.93,
+    "fwhm_M": 0.23,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 3.02,
+    "peak_bits": 2.79,
+    "fwhm_M": 0.14,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 4.15,
+    "peak_bits": 2.74,
+    "fwhm_M": 0.19,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 4.6,
+    "peak_bits": 2.7,
+    "fwhm_M": 0.06,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 1.75,
+    "peak_bits": 2.53,
+    "fwhm_M": 0.15,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 3.49,
+    "peak_bits": 2.46,
+    "fwhm_M": 0.16,
+    "continuity": 0.68,
+    "pass": false
+   },
+   {
+    "M": 3.63,
+    "peak_bits": 2.39,
+    "fwhm_M": 0.23,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 0.77,
+    "peak_bits": 2.34,
+    "fwhm_M": 0.21,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 3.36,
+    "peak_bits": 2.08,
+    "fwhm_M": 0.23,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 1.02,
+    "peak_bits": 2.03,
+    "fwhm_M": 0.16,
+    "continuity": 0.1,
+    "pass": false
+   }
+  ],
+  "train_r": 0.4269957307295969,
+  "val_r": -0.01361683038267159
+ },
+ {
+  "name": "kS040_W170",
+  "lat": -40.0,
+  "lon": -170.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.74,
+    "peak_bits": 4.48,
+    "fwhm_M": 0.17,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 4.35,
+    "peak_bits": 4.4,
+    "fwhm_M": 0.17,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 4.94,
+    "peak_bits": 3.69,
+    "fwhm_M": 0.17,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 3.97,
+    "peak_bits": 3.63,
+    "fwhm_M": 0.15,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.71,
+    "peak_bits": 3.46,
+    "fwhm_M": 0.13,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 3.15,
+    "peak_bits": 3.39,
+    "fwhm_M": 0.16,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 2.56,
+    "peak_bits": 3.35,
+    "fwhm_M": 0.2,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 2.05,
+    "peak_bits": 3.21,
+    "fwhm_M": 0.23,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 4.49,
+    "peak_bits": 3.2,
+    "fwhm_M": 0.22,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 2.44,
+    "peak_bits": 2.98,
+    "fwhm_M": 0.22,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 1.88,
+    "peak_bits": 2.97,
+    "fwhm_M": 0.23,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 3.5,
+    "peak_bits": 2.93,
+    "fwhm_M": 0.15,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 4.22,
+    "peak_bits": 2.83,
+    "fwhm_M": 0.13,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 0.39,
+    "peak_bits": 2.78,
+    "fwhm_M": 0.18,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 0.12,
+    "peak_bits": 2.76,
+    "fwhm_M": 0.09,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 3.83,
+    "peak_bits": 2.73,
+    "fwhm_M": 0.2,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 2.24,
+    "peak_bits": 2.61,
+    "fwhm_M": 0.23,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 3.38,
+    "peak_bits": 2.48,
+    "fwhm_M": 0.23,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 1.76,
+    "peak_bits": 2.4,
+    "fwhm_M": 0.16,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 0.59,
+    "peak_bits": 2.31,
+    "fwhm_M": 0.23,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 1.38,
+    "peak_bits": 2.23,
+    "fwhm_M": 0.18,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 4.1,
+    "peak_bits": 2.22,
+    "fwhm_M": 0.23,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 3.62,
+    "peak_bits": 2.11,
+    "fwhm_M": 0.22,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 1.55,
+    "peak_bits": 2.08,
+    "fwhm_M": 0.23,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 0.0,
+    "peak_bits": 2.05,
+    "fwhm_M": 0.04,
+    "continuity": 0.1,
+    "pass": false
+   }
+  ],
+  "train_r": 0.5723524074927586,
+  "val_r": 0.1763903174100745
+ },
+ {
+  "name": "kS040_W150",
+  "lat": -40.0,
+  "lon": -150.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.36,
+    "peak_bits": 3.85,
+    "fwhm_M": 0.14,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 3.69,
+    "peak_bits": 3.74,
+    "fwhm_M": 0.23,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 4.21,
+    "peak_bits": 3.17,
+    "fwhm_M": 0.22,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 3.81,
+    "peak_bits": 3.16,
+    "fwhm_M": 0.21,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 1.79,
+    "peak_bits": 2.87,
+    "fwhm_M": 0.14,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 4.54,
+    "peak_bits": 2.82,
+    "fwhm_M": 0.2,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 4.87,
+    "peak_bits": 2.76,
+    "fwhm_M": 0.21,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 4.71,
+    "peak_bits": 2.63,
+    "fwhm_M": 0.15,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 1.44,
+    "peak_bits": 2.61,
+    "fwhm_M": 0.23,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 2.98,
+    "peak_bits": 2.6,
+    "fwhm_M": 0.15,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 2.46,
+    "peak_bits": 2.58,
+    "fwhm_M": 0.14,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 3.53,
+    "peak_bits": 2.52,
+    "fwhm_M": 0.06,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 1.91,
+    "peak_bits": 2.49,
+    "fwhm_M": 0.22,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 2.3,
+    "peak_bits": 2.39,
+    "fwhm_M": 0.23,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 1.07,
+    "peak_bits": 2.32,
+    "fwhm_M": 0.18,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 0.12,
+    "peak_bits": 2.31,
+    "fwhm_M": 0.14,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 1.64,
+    "peak_bits": 2.23,
+    "fwhm_M": 0.19,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 3.12,
+    "peak_bits": 2.11,
+    "fwhm_M": 0.22,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 0.79,
+    "peak_bits": 2.05,
+    "fwhm_M": 0.24,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 0.65,
+    "peak_bits": 2.04,
+    "fwhm_M": 0.24,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 1.25,
+    "peak_bits": 2.04,
+    "fwhm_M": 0.23,
+    "continuity": 0.19,
+    "pass": false
+   }
+  ],
+  "train_r": 0.5995857706791763,
+  "val_r": 0.20604535205574265
+ },
+ {
+  "name": "kS040_W130",
+  "lat": -40.0,
+  "lon": -130.0,
+  "n_passing": 1,
+  "top_M": [
+   3.96
+  ],
+  "all_ridges": [
+   {
+    "M": 3.54,
+    "peak_bits": 3.97,
+    "fwhm_M": 0.13,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 3.96,
+    "peak_bits": 3.57,
+    "fwhm_M": 0.05,
+    "continuity": 0.74,
+    "pass": true
+   },
+   {
+    "M": 4.87,
+    "peak_bits": 3.05,
+    "fwhm_M": 0.22,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 4.46,
+    "peak_bits": 2.96,
+    "fwhm_M": 0.22,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 4.68,
+    "peak_bits": 2.62,
+    "fwhm_M": 0.18,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 4.14,
+    "peak_bits": 2.59,
+    "fwhm_M": 0.21,
+    "continuity": 0.61,
+    "pass": false
+   },
+   {
+    "M": 2.9,
+    "peak_bits": 2.58,
+    "fwhm_M": 0.23,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 3.11,
+    "peak_bits": 2.56,
+    "fwhm_M": 0.19,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 4.27,
+    "peak_bits": 2.53,
+    "fwhm_M": 0.23,
+    "continuity": 0.06,
+    "pass": false
+   },
+   {
+    "M": 3.72,
+    "peak_bits": 2.49,
+    "fwhm_M": 0.23,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 3.31,
+    "peak_bits": 2.38,
+    "fwhm_M": 0.2,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 2.3,
+    "peak_bits": 2.27,
+    "fwhm_M": 0.23,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 0.74,
+    "peak_bits": 2.15,
+    "fwhm_M": 0.12,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 1.59,
+    "peak_bits": 2.15,
+    "fwhm_M": 0.14,
+    "continuity": 0.19,
+    "pass": false
+   }
+  ],
+  "train_r": 0.474849072924456,
+  "val_r": 0.45294608200438086
+ },
+ {
+  "name": "kS040_W070",
+  "lat": -40.0,
+  "lon": -70.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.91,
+    "peak_bits": 3.02,
+    "fwhm_M": 0.17,
+    "continuity": 0.84,
+    "pass": false
+   },
+   {
+    "M": 1.93,
+    "peak_bits": 2.79,
+    "fwhm_M": 0.15,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 4.46,
+    "peak_bits": 2.56,
+    "fwhm_M": 0.15,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 3.21,
+    "peak_bits": 2.55,
+    "fwhm_M": 0.22,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 4.78,
+    "peak_bits": 2.49,
+    "fwhm_M": 0.22,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.82,
+    "peak_bits": 2.46,
+    "fwhm_M": 0.13,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.36,
+    "peak_bits": 2.31,
+    "fwhm_M": 0.1,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 3.48,
+    "peak_bits": 2.3,
+    "fwhm_M": 0.22,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 4.26,
+    "peak_bits": 2.23,
+    "fwhm_M": 0.22,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 4.11,
+    "peak_bits": 2.16,
+    "fwhm_M": 0.22,
+    "continuity": 0.61,
+    "pass": false
+   },
+   {
+    "M": 3.9,
+    "peak_bits": 2.12,
+    "fwhm_M": 0.15,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 2.18,
+    "peak_bits": 2.04,
+    "fwhm_M": 0.15,
+    "continuity": 0.52,
+    "pass": false
+   }
+  ],
+  "train_r": 0.2715628158044129,
+  "val_r": 0.30929922214739247
+ },
+ {
+  "name": "kS040_W050",
+  "lat": -40.0,
+  "lon": -50.0,
+  "n_passing": 1,
+  "top_M": [
+   4.91
+  ],
+  "all_ridges": [
+   {
+    "M": 3.28,
+    "peak_bits": 4.02,
+    "fwhm_M": 0.23,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 4.54,
+    "peak_bits": 3.7,
+    "fwhm_M": 0.18,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 4.4,
+    "peak_bits": 3.55,
+    "fwhm_M": 0.13,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 3.71,
+    "peak_bits": 3.32,
+    "fwhm_M": 0.2,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 3.94,
+    "peak_bits": 3.19,
+    "fwhm_M": 0.19,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 4.91,
+    "peak_bits": 3.18,
+    "fwhm_M": 0.08,
+    "continuity": 0.74,
+    "pass": true
+   },
+   {
+    "M": 4.13,
+    "peak_bits": 3.04,
+    "fwhm_M": 0.15,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 4.72,
+    "peak_bits": 2.91,
+    "fwhm_M": 0.23,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 2.39,
+    "peak_bits": 2.8,
+    "fwhm_M": 0.19,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 2.8,
+    "peak_bits": 2.77,
+    "fwhm_M": 0.23,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.95,
+    "peak_bits": 2.55,
+    "fwhm_M": 0.22,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 3.45,
+    "peak_bits": 2.41,
+    "fwhm_M": 0.21,
+    "continuity": 0.68,
+    "pass": false
+   },
+   {
+    "M": 0.42,
+    "peak_bits": 2.38,
+    "fwhm_M": 0.16,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 2.26,
+    "peak_bits": 2.31,
+    "fwhm_M": 0.23,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 0.54,
+    "peak_bits": 2.14,
+    "fwhm_M": 0.23,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 0.66,
+    "peak_bits": 2.06,
+    "fwhm_M": 0.15,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 3.16,
+    "peak_bits": 2.03,
+    "fwhm_M": 0.22,
+    "continuity": 0.26,
+    "pass": false
+   }
+  ],
+  "train_r": 0.6163597341711614,
+  "val_r": 0.1908110572359621
+ },
+ {
+  "name": "kS040_W030",
+  "lat": -40.0,
+  "lon": -30.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.35,
+    "peak_bits": 3.92,
+    "fwhm_M": 0.23,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 4.2,
+    "peak_bits": 3.36,
+    "fwhm_M": 0.22,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 3.95,
+    "peak_bits": 2.74,
+    "fwhm_M": 0.22,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 3.72,
+    "peak_bits": 2.72,
+    "fwhm_M": 0.21,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 0.43,
+    "peak_bits": 2.66,
+    "fwhm_M": 0.09,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 1.06,
+    "peak_bits": 2.42,
+    "fwhm_M": 0.16,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 3.32,
+    "peak_bits": 2.41,
+    "fwhm_M": 0.18,
+    "continuity": 0.0,
+    "pass": false
+   },
+   {
+    "M": 3.11,
+    "peak_bits": 2.38,
+    "fwhm_M": 0.13,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 4.68,
+    "peak_bits": 2.27,
+    "fwhm_M": 0.19,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 0.66,
+    "peak_bits": 2.21,
+    "fwhm_M": 0.08,
+    "continuity": 0.39,
+    "pass": false
+   }
+  ],
+  "train_r": 0.5717403063875444,
+  "val_r": 0.3209880743583551
+ },
+ {
+  "name": "kS040_W010",
+  "lat": -40.0,
+  "lon": -10.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 3.3,
+    "peak_bits": 2.79,
+    "fwhm_M": 0.23,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 3.05,
+    "peak_bits": 2.73,
+    "fwhm_M": 0.15,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 4.12,
+    "peak_bits": 2.71,
+    "fwhm_M": 0.12,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 3.45,
+    "peak_bits": 2.59,
+    "fwhm_M": 0.17,
+    "continuity": 0.84,
+    "pass": false
+   },
+   {
+    "M": 4.69,
+    "peak_bits": 2.59,
+    "fwhm_M": 0.22,
+    "continuity": 0.77,
+    "pass": false
+   },
+   {
+    "M": 4.4,
+    "peak_bits": 2.31,
+    "fwhm_M": 0.2,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 3.94,
+    "peak_bits": 2.21,
+    "fwhm_M": 0.14,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 4.81,
+    "peak_bits": 2.14,
+    "fwhm_M": 0.23,
+    "continuity": 0.45,
+    "pass": false
+   }
+  ],
+  "train_r": 0.3917083209963564,
+  "val_r": 0.21647765864601437
+ },
+ {
+  "name": "kS020_E010",
+  "lat": -20.0,
+  "lon": 10.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.01,
+    "peak_bits": 4.04,
+    "fwhm_M": 0.23,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 4.13,
+    "peak_bits": 3.84,
+    "fwhm_M": 0.22,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 3.27,
+    "peak_bits": 3.82,
+    "fwhm_M": 0.14,
+    "continuity": 0.65,
+    "pass": false
+   },
+   {
+    "M": 2.39,
+    "peak_bits": 3.58,
+    "fwhm_M": 0.1,
+    "continuity": 0.61,
+    "pass": false
+   },
+   {
+    "M": 3.53,
+    "peak_bits": 3.56,
+    "fwhm_M": 0.14,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 4.36,
+    "peak_bits": 3.54,
+    "fwhm_M": 0.13,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 3.41,
+    "peak_bits": 3.49,
+    "fwhm_M": 0.13,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 4.68,
+    "peak_bits": 3.37,
+    "fwhm_M": 0.15,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 0.42,
+    "peak_bits": 3.27,
+    "fwhm_M": 0.07,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 2.14,
+    "peak_bits": 3.19,
+    "fwhm_M": 0.15,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 1.21,
+    "peak_bits": 3.05,
+    "fwhm_M": 0.2,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 2.58,
+    "peak_bits": 2.92,
+    "fwhm_M": 0.18,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 0.84,
+    "peak_bits": 2.9,
+    "fwhm_M": 0.24,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 3.69,
+    "peak_bits": 2.72,
+    "fwhm_M": 0.1,
+    "continuity": 0.68,
+    "pass": false
+   },
+   {
+    "M": 3.11,
+    "peak_bits": 2.69,
+    "fwhm_M": 0.2,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.89,
+    "peak_bits": 2.48,
+    "fwhm_M": 0.2,
+    "continuity": 0.71,
+    "pass": false
+   },
+   {
+    "M": 0.54,
+    "peak_bits": 2.44,
+    "fwhm_M": 0.16,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 2.74,
+    "peak_bits": 2.37,
+    "fwhm_M": 0.14,
+    "continuity": 0.35,
+    "pass": false
+   }
+  ],
+  "train_r": 0.5456992677961218,
+  "val_r": 0.11689721771319492
+ },
+ {
+  "name": "kS020_E030",
+  "lat": -20.0,
+  "lon": 30.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 1.8,
+    "peak_bits": 3.88,
+    "fwhm_M": 0.2,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 3.65,
+    "peak_bits": 3.83,
+    "fwhm_M": 0.23,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 4.49,
+    "peak_bits": 3.54,
+    "fwhm_M": 0.19,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 2.22,
+    "peak_bits": 3.43,
+    "fwhm_M": 0.23,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 2.99,
+    "peak_bits": 3.42,
+    "fwhm_M": 0.14,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.39,
+    "peak_bits": 3.41,
+    "fwhm_M": 0.05,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 2.81,
+    "peak_bits": 3.2,
+    "fwhm_M": 0.06,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 3.89,
+    "peak_bits": 2.93,
+    "fwhm_M": 0.14,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 0.42,
+    "peak_bits": 2.78,
+    "fwhm_M": 0.06,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 1.98,
+    "peak_bits": 2.78,
+    "fwhm_M": 0.2,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 3.4,
+    "peak_bits": 2.68,
+    "fwhm_M": 0.11,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 4.78,
+    "peak_bits": 2.68,
+    "fwhm_M": 0.15,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 4.92,
+    "peak_bits": 2.61,
+    "fwhm_M": 0.18,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 3.13,
+    "peak_bits": 2.57,
+    "fwhm_M": 0.2,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 4.13,
+    "peak_bits": 2.53,
+    "fwhm_M": 0.22,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 2.69,
+    "peak_bits": 2.46,
+    "fwhm_M": 0.22,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 2.56,
+    "peak_bits": 2.38,
+    "fwhm_M": 0.22,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 0.19,
+    "peak_bits": 2.03,
+    "fwhm_M": 0.15,
+    "continuity": 0.13,
+    "pass": false
+   }
+  ],
+  "train_r": 0.6265023277814609,
+  "val_r": 0.29685347867244327
+ },
+ {
+  "name": "kS020_E050",
+  "lat": -20.0,
+  "lon": 50.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 1.79,
+    "peak_bits": 3.83,
+    "fwhm_M": 0.22,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 4.78,
+    "peak_bits": 3.64,
+    "fwhm_M": 0.05,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 0.42,
+    "peak_bits": 3.51,
+    "fwhm_M": 0.05,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 4.96,
+    "peak_bits": 3.51,
+    "fwhm_M": 0.13,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 2.23,
+    "peak_bits": 3.34,
+    "fwhm_M": 0.22,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 1.2,
+    "peak_bits": 2.7,
+    "fwhm_M": 0.23,
+    "continuity": 0.06,
+    "pass": false
+   },
+   {
+    "M": 0.0,
+    "peak_bits": 2.59,
+    "fwhm_M": 0.03,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 0.18,
+    "peak_bits": 2.45,
+    "fwhm_M": 0.15,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 0.66,
+    "peak_bits": 2.4,
+    "fwhm_M": 0.15,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 0.84,
+    "peak_bits": 2.11,
+    "fwhm_M": 0.24,
+    "continuity": 0.13,
+    "pass": false
+   }
+  ],
+  "train_r": 0.7605792119605057,
+  "val_r": 0.5688801166871964
+ },
+ {
+  "name": "kS020_E070",
+  "lat": -20.0,
+  "lon": 70.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 3.7,
+    "peak_bits": 3.4,
+    "fwhm_M": 0.04,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 2.56,
+    "peak_bits": 3.39,
+    "fwhm_M": 0.06,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 0.42,
+    "peak_bits": 3.17,
+    "fwhm_M": 0.06,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 2.74,
+    "peak_bits": 2.81,
+    "fwhm_M": 0.19,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 0.0,
+    "peak_bits": 2.67,
+    "fwhm_M": 0.03,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 1.71,
+    "peak_bits": 2.61,
+    "fwhm_M": 0.15,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 0.3,
+    "peak_bits": 2.29,
+    "fwhm_M": 0.24,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 1.27,
+    "peak_bits": 2.26,
+    "fwhm_M": 0.23,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 0.57,
+    "peak_bits": 2.18,
+    "fwhm_M": 0.15,
+    "continuity": 0.16,
+    "pass": false
+   }
+  ],
+  "train_r": 0.7507786343433802,
+  "val_r": 0.45183346274848607
+ },
+ {
+  "name": "kS020_E090",
+  "lat": -20.0,
+  "lon": 90.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 2.4,
+    "peak_bits": 3.38,
+    "fwhm_M": 0.2,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 3.23,
+    "peak_bits": 3.28,
+    "fwhm_M": 0.11,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 0.42,
+    "peak_bits": 3.02,
+    "fwhm_M": 0.05,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 2.81,
+    "peak_bits": 3.01,
+    "fwhm_M": 0.15,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 1.98,
+    "peak_bits": 2.98,
+    "fwhm_M": 0.19,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 0.3,
+    "peak_bits": 2.84,
+    "fwhm_M": 0.24,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 0.54,
+    "peak_bits": 2.43,
+    "fwhm_M": 0.23,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 2.56,
+    "peak_bits": 2.42,
+    "fwhm_M": 0.17,
+    "continuity": 0.45,
+    "pass": false
+   }
+  ],
+  "train_r": 0.657401990084939,
+  "val_r": -0.20602870096772996
+ },
+ {
+  "name": "kS020_E110",
+  "lat": -20.0,
+  "lon": 110.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 3.46,
+    "peak_bits": 3.36,
+    "fwhm_M": 0.13,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 2.8,
+    "peak_bits": 2.96,
+    "fwhm_M": 0.13,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 3.89,
+    "peak_bits": 2.86,
+    "fwhm_M": 0.07,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 3.2,
+    "peak_bits": 2.83,
+    "fwhm_M": 0.15,
+    "continuity": 0.71,
+    "pass": false
+   },
+   {
+    "M": 0.41,
+    "peak_bits": 2.79,
+    "fwhm_M": 0.23,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 2.4,
+    "peak_bits": 2.47,
+    "fwhm_M": 0.11,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 1.8,
+    "peak_bits": 2.42,
+    "fwhm_M": 0.23,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 0.29,
+    "peak_bits": 2.38,
+    "fwhm_M": 0.23,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 2.22,
+    "peak_bits": 2.08,
+    "fwhm_M": 0.23,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 0.12,
+    "peak_bits": 2.04,
+    "fwhm_M": 0.14,
+    "continuity": 0.23,
+    "pass": false
+   }
+  ],
+  "train_r": 0.5988434242217273,
+  "val_r": 0.25520498449358875
+ },
+ {
+  "name": "kS020_E130",
+  "lat": -20.0,
+  "lon": 130.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.28,
+    "peak_bits": 3.51,
+    "fwhm_M": 0.08,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 3.23,
+    "peak_bits": 3.36,
+    "fwhm_M": 0.22,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 2.37,
+    "peak_bits": 3.25,
+    "fwhm_M": 0.22,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 2.1,
+    "peak_bits": 2.75,
+    "fwhm_M": 0.22,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 3.56,
+    "peak_bits": 2.71,
+    "fwhm_M": 0.22,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 2.64,
+    "peak_bits": 2.66,
+    "fwhm_M": 0.22,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 2.22,
+    "peak_bits": 2.55,
+    "fwhm_M": 0.23,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 3.69,
+    "peak_bits": 2.51,
+    "fwhm_M": 0.15,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 3.81,
+    "peak_bits": 2.2,
+    "fwhm_M": 0.18,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 3.0,
+    "peak_bits": 2.18,
+    "fwhm_M": 0.12,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 1.94,
+    "peak_bits": 2.17,
+    "fwhm_M": 0.2,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 3.99,
+    "peak_bits": 2.13,
+    "fwhm_M": 0.12,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 4.55,
+    "peak_bits": 2.11,
+    "fwhm_M": 0.14,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 0.76,
+    "peak_bits": 2.04,
+    "fwhm_M": 0.15,
+    "continuity": 0.29,
+    "pass": false
+   }
+  ],
+  "train_r": 0.5360181555851645,
+  "val_r": 0.49538701493359555
+ },
+ {
+  "name": "kS020_E150",
+  "lat": -20.0,
+  "lon": 150.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 3.26,
+    "peak_bits": 3.47,
+    "fwhm_M": 0.23,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 3.41,
+    "peak_bits": 2.95,
+    "fwhm_M": 0.18,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 5.0,
+    "peak_bits": 2.83,
+    "fwhm_M": 0.02,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 3.61,
+    "peak_bits": 2.78,
+    "fwhm_M": 0.18,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 2.84,
+    "peak_bits": 2.67,
+    "fwhm_M": 0.23,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 1.86,
+    "peak_bits": 2.46,
+    "fwhm_M": 0.05,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 3.98,
+    "peak_bits": 2.42,
+    "fwhm_M": 0.23,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 2.68,
+    "peak_bits": 2.4,
+    "fwhm_M": 0.12,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 2.05,
+    "peak_bits": 2.31,
+    "fwhm_M": 0.23,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 4.76,
+    "peak_bits": 2.31,
+    "fwhm_M": 0.21,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 2.18,
+    "peak_bits": 2.3,
+    "fwhm_M": 0.17,
+    "continuity": 0.74,
+    "pass": false
+   },
+   {
+    "M": 4.29,
+    "peak_bits": 2.29,
+    "fwhm_M": 0.17,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 4.64,
+    "peak_bits": 2.23,
+    "fwhm_M": 0.23,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 2.32,
+    "peak_bits": 2.19,
+    "fwhm_M": 0.15,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 4.43,
+    "peak_bits": 2.17,
+    "fwhm_M": 0.23,
+    "continuity": 0.06,
+    "pass": false
+   },
+   {
+    "M": 3.01,
+    "peak_bits": 2.16,
+    "fwhm_M": 0.16,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 1.3,
+    "peak_bits": 2.15,
+    "fwhm_M": 0.16,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.51,
+    "peak_bits": 2.08,
+    "fwhm_M": 0.23,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 3.73,
+    "peak_bits": 2.01,
+    "fwhm_M": 0.22,
+    "continuity": 0.48,
+    "pass": false
+   }
+  ],
+  "train_r": 0.4900643652733532,
+  "val_r": 0.5279831465494768
+ },
+ {
+  "name": "kS020_E170",
+  "lat": -20.0,
+  "lon": 170.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 3.98,
+    "peak_bits": 4.04,
+    "fwhm_M": 0.17,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 3.27,
+    "peak_bits": 3.75,
+    "fwhm_M": 0.19,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 3.8,
+    "peak_bits": 3.45,
+    "fwhm_M": 0.2,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 3.4,
+    "peak_bits": 3.27,
+    "fwhm_M": 0.12,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 3.14,
+    "peak_bits": 3.09,
+    "fwhm_M": 0.22,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 2.15,
+    "peak_bits": 3.0,
+    "fwhm_M": 0.16,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 0.41,
+    "peak_bits": 2.33,
+    "fwhm_M": 0.1,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 0.58,
+    "peak_bits": 2.21,
+    "fwhm_M": 0.19,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 2.49,
+    "peak_bits": 2.15,
+    "fwhm_M": 0.23,
+    "continuity": 0.03,
+    "pass": false
+   },
+   {
+    "M": 0.13,
+    "peak_bits": 2.13,
+    "fwhm_M": 0.18,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 2.31,
+    "peak_bits": 2.12,
+    "fwhm_M": 0.22,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 3.55,
+    "peak_bits": 2.11,
+    "fwhm_M": 0.12,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 0.0,
+    "peak_bits": 2.09,
+    "fwhm_M": 0.03,
+    "continuity": 0.13,
+    "pass": false
+   }
+  ],
+  "train_r": 0.6000746388099708,
+  "val_r": -0.13524172541807783
+ },
+ {
+  "name": "kS020_W170",
+  "lat": -20.0,
+  "lon": -170.0,
+  "n_passing": 1,
+  "top_M": [
+   3.15
+  ],
+  "all_ridges": [
+   {
+    "M": 4.94,
+    "peak_bits": 3.79,
+    "fwhm_M": 0.17,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 2.88,
+    "peak_bits": 3.54,
+    "fwhm_M": 0.16,
+    "continuity": 0.74,
+    "pass": false
+   },
+   {
+    "M": 4.54,
+    "peak_bits": 3.44,
+    "fwhm_M": 0.21,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 2.14,
+    "peak_bits": 3.23,
+    "fwhm_M": 0.22,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 3.39,
+    "peak_bits": 3.08,
+    "fwhm_M": 0.22,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 3.27,
+    "peak_bits": 2.9,
+    "fwhm_M": 0.22,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 4.79,
+    "peak_bits": 2.86,
+    "fwhm_M": 0.22,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 3.15,
+    "peak_bits": 2.77,
+    "fwhm_M": 0.07,
+    "continuity": 0.9,
+    "pass": true
+   },
+   {
+    "M": 2.74,
+    "peak_bits": 2.77,
+    "fwhm_M": 0.14,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 1.47,
+    "peak_bits": 2.6,
+    "fwhm_M": 0.23,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 3.88,
+    "peak_bits": 2.57,
+    "fwhm_M": 0.23,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 3.55,
+    "peak_bits": 2.55,
+    "fwhm_M": 0.23,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 0.4,
+    "peak_bits": 2.42,
+    "fwhm_M": 0.12,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 3.75,
+    "peak_bits": 2.15,
+    "fwhm_M": 0.22,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 1.79,
+    "peak_bits": 2.12,
+    "fwhm_M": 0.22,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 1.04,
+    "peak_bits": 2.09,
+    "fwhm_M": 0.24,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 4.12,
+    "peak_bits": 2.06,
+    "fwhm_M": 0.22,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 0.65,
+    "peak_bits": 2.01,
+    "fwhm_M": 0.19,
+    "continuity": 0.35,
+    "pass": false
+   }
+  ],
+  "train_r": 0.533859803041805,
+  "val_r": 0.06143761052216824
+ },
+ {
+  "name": "kS020_W150",
+  "lat": -20.0,
+  "lon": -150.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.78,
+    "peak_bits": 4.54,
+    "fwhm_M": 0.21,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 4.54,
+    "peak_bits": 4.1,
+    "fwhm_M": 0.13,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 2.88,
+    "peak_bits": 3.7,
+    "fwhm_M": 0.23,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 2.39,
+    "peak_bits": 3.6,
+    "fwhm_M": 0.05,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 3.88,
+    "peak_bits": 3.51,
+    "fwhm_M": 0.23,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 3.47,
+    "peak_bits": 3.13,
+    "fwhm_M": 0.23,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 0.41,
+    "peak_bits": 2.94,
+    "fwhm_M": 0.06,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 3.04,
+    "peak_bits": 2.89,
+    "fwhm_M": 0.13,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 0.65,
+    "peak_bits": 2.77,
+    "fwhm_M": 0.24,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 3.64,
+    "peak_bits": 2.76,
+    "fwhm_M": 0.13,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 3.22,
+    "peak_bits": 2.6,
+    "fwhm_M": 0.13,
+    "continuity": 0.68,
+    "pass": false
+   },
+   {
+    "M": 2.13,
+    "peak_bits": 2.49,
+    "fwhm_M": 0.23,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 1.62,
+    "peak_bits": 2.3,
+    "fwhm_M": 0.23,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 0.0,
+    "peak_bits": 2.23,
+    "fwhm_M": 0.03,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 1.09,
+    "peak_bits": 2.15,
+    "fwhm_M": 0.17,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.64,
+    "peak_bits": 2.13,
+    "fwhm_M": 0.14,
+    "continuity": 0.06,
+    "pass": false
+   },
+   {
+    "M": 1.75,
+    "peak_bits": 2.03,
+    "fwhm_M": 0.23,
+    "continuity": 0.03,
+    "pass": false
+   },
+   {
+    "M": 1.5,
+    "peak_bits": 2.02,
+    "fwhm_M": 0.23,
+    "continuity": 0.03,
+    "pass": false
+   }
+  ],
+  "train_r": 0.637569498164498,
+  "val_r": 0.15924049897055215
+ },
+ {
+  "name": "kS020_W130",
+  "lat": -20.0,
+  "lon": -130.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 3.3,
+    "peak_bits": 3.84,
+    "fwhm_M": 0.17,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 0.6,
+    "peak_bits": 3.29,
+    "fwhm_M": 0.14,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 2.45,
+    "peak_bits": 3.2,
+    "fwhm_M": 0.2,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 3.16,
+    "peak_bits": 2.96,
+    "fwhm_M": 0.22,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 2.16,
+    "peak_bits": 2.83,
+    "fwhm_M": 0.22,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 1.21,
+    "peak_bits": 2.54,
+    "fwhm_M": 0.18,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 2.63,
+    "peak_bits": 2.46,
+    "fwhm_M": 0.23,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 1.61,
+    "peak_bits": 2.44,
+    "fwhm_M": 0.23,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 0.41,
+    "peak_bits": 2.43,
+    "fwhm_M": 0.05,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 1.74,
+    "peak_bits": 2.43,
+    "fwhm_M": 0.23,
+    "continuity": 0.0,
+    "pass": false
+   },
+   {
+    "M": 2.03,
+    "peak_bits": 2.26,
+    "fwhm_M": 0.23,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 0.19,
+    "peak_bits": 2.09,
+    "fwhm_M": 0.24,
+    "continuity": 0.13,
+    "pass": false
+   }
+  ],
+  "train_r": 0.6343187293337574,
+  "val_r": -0.08376871001936592
+ },
+ {
+  "name": "kS020_W110",
+  "lat": -20.0,
+  "lon": -110.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 2.39,
+    "peak_bits": 4.21,
+    "fwhm_M": 0.19,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 2.81,
+    "peak_bits": 3.98,
+    "fwhm_M": 0.06,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 1.37,
+    "peak_bits": 3.96,
+    "fwhm_M": 0.14,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.99,
+    "peak_bits": 3.82,
+    "fwhm_M": 0.04,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 4.97,
+    "peak_bits": 3.68,
+    "fwhm_M": 0.06,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 3.72,
+    "peak_bits": 3.65,
+    "fwhm_M": 0.15,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 4.31,
+    "peak_bits": 3.65,
+    "fwhm_M": 0.14,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 0.6,
+    "peak_bits": 3.56,
+    "fwhm_M": 0.05,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 4.78,
+    "peak_bits": 3.47,
+    "fwhm_M": 0.13,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 0.78,
+    "peak_bits": 3.42,
+    "fwhm_M": 0.24,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 1.19,
+    "peak_bits": 3.41,
+    "fwhm_M": 0.15,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 3.9,
+    "peak_bits": 3.37,
+    "fwhm_M": 0.14,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.16,
+    "peak_bits": 3.28,
+    "fwhm_M": 0.15,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 4.13,
+    "peak_bits": 3.21,
+    "fwhm_M": 0.13,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 2.03,
+    "peak_bits": 3.19,
+    "fwhm_M": 0.13,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 0.18,
+    "peak_bits": 3.08,
+    "fwhm_M": 0.22,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 3.17,
+    "peak_bits": 3.0,
+    "fwhm_M": 0.14,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 3.41,
+    "peak_bits": 2.96,
+    "fwhm_M": 0.13,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 0.42,
+    "peak_bits": 2.94,
+    "fwhm_M": 0.06,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 3.59,
+    "peak_bits": 2.87,
+    "fwhm_M": 0.13,
+    "continuity": 0.0,
+    "pass": false
+   },
+   {
+    "M": 1.74,
+    "peak_bits": 2.83,
+    "fwhm_M": 0.11,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 2.63,
+    "peak_bits": 2.82,
+    "fwhm_M": 0.16,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 1.61,
+    "peak_bits": 2.64,
+    "fwhm_M": 0.19,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 0.92,
+    "peak_bits": 2.54,
+    "fwhm_M": 0.24,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 1.86,
+    "peak_bits": 2.41,
+    "fwhm_M": 0.23,
+    "continuity": 0.1,
+    "pass": false
+   }
+  ],
+  "train_r": 0.443711410918885,
+  "val_r": 0.2509034690827991
+ },
+ {
+  "name": "kS020_W090",
+  "lat": -20.0,
+  "lon": -90.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.47,
+    "peak_bits": 4.06,
+    "fwhm_M": 0.23,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 4.88,
+    "peak_bits": 3.81,
+    "fwhm_M": 0.15,
+    "continuity": 0.65,
+    "pass": false
+   },
+   {
+    "M": 1.27,
+    "peak_bits": 3.32,
+    "fwhm_M": 0.06,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 4.3,
+    "peak_bits": 3.32,
+    "fwhm_M": 0.12,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 4.66,
+    "peak_bits": 3.32,
+    "fwhm_M": 0.22,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 3.83,
+    "peak_bits": 3.29,
+    "fwhm_M": 0.21,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 2.03,
+    "peak_bits": 3.14,
+    "fwhm_M": 0.14,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 3.42,
+    "peak_bits": 3.13,
+    "fwhm_M": 0.09,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 3.26,
+    "peak_bits": 2.97,
+    "fwhm_M": 0.23,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 0.05,
+    "peak_bits": 2.8,
+    "fwhm_M": 0.16,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 2.76,
+    "peak_bits": 2.69,
+    "fwhm_M": 0.23,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 1.79,
+    "peak_bits": 2.58,
+    "fwhm_M": 0.22,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 3.0,
+    "peak_bits": 2.46,
+    "fwhm_M": 0.09,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 0.92,
+    "peak_bits": 2.29,
+    "fwhm_M": 0.15,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 1.91,
+    "peak_bits": 2.27,
+    "fwhm_M": 0.22,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 2.22,
+    "peak_bits": 2.17,
+    "fwhm_M": 0.22,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 3.71,
+    "peak_bits": 2.17,
+    "fwhm_M": 0.22,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 0.79,
+    "peak_bits": 2.04,
+    "fwhm_M": 0.24,
+    "continuity": 0.19,
+    "pass": false
+   }
+  ],
+  "train_r": 0.3650746717473551,
+  "val_r": 0.289566332677992
+ },
+ {
+  "name": "kS020_W070",
+  "lat": -20.0,
+  "lon": -70.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 2.22,
+    "peak_bits": 3.74,
+    "fwhm_M": 0.22,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.99,
+    "peak_bits": 3.11,
+    "fwhm_M": 0.23,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 2.8,
+    "peak_bits": 3.09,
+    "fwhm_M": 0.22,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 0.6,
+    "peak_bits": 3.04,
+    "fwhm_M": 0.05,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 4.31,
+    "peak_bits": 3.03,
+    "fwhm_M": 0.18,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 4.12,
+    "peak_bits": 2.99,
+    "fwhm_M": 0.15,
+    "continuity": 0.71,
+    "pass": false
+   },
+   {
+    "M": 3.54,
+    "peak_bits": 2.86,
+    "fwhm_M": 0.22,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 4.47,
+    "peak_bits": 2.83,
+    "fwhm_M": 0.1,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 4.73,
+    "peak_bits": 2.74,
+    "fwhm_M": 0.22,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 1.38,
+    "peak_bits": 2.68,
+    "fwhm_M": 0.17,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 3.17,
+    "peak_bits": 2.68,
+    "fwhm_M": 0.23,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 1.56,
+    "peak_bits": 2.55,
+    "fwhm_M": 0.23,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 1.95,
+    "peak_bits": 2.51,
+    "fwhm_M": 0.24,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 4.92,
+    "peak_bits": 2.47,
+    "fwhm_M": 0.19,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 1.19,
+    "peak_bits": 2.31,
+    "fwhm_M": 0.14,
+    "continuity": 0.03,
+    "pass": false
+   },
+   {
+    "M": 2.64,
+    "peak_bits": 2.23,
+    "fwhm_M": 0.14,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 4.6,
+    "peak_bits": 2.22,
+    "fwhm_M": 0.23,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 1.03,
+    "peak_bits": 2.12,
+    "fwhm_M": 0.23,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 2.47,
+    "peak_bits": 2.09,
+    "fwhm_M": 0.16,
+    "continuity": 0.42,
+    "pass": false
+   }
+  ],
+  "train_r": 0.33339799551062516,
+  "val_r": 0.3714103154415447
+ },
+ {
+  "name": "kS020_W030",
+  "lat": -20.0,
+  "lon": -30.0,
+  "n_passing": 1,
+  "top_M": [
+   3.27
+  ],
+  "all_ridges": [
+   {
+    "M": 0.42,
+    "peak_bits": 3.57,
+    "fwhm_M": 0.09,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 4.77,
+    "peak_bits": 3.48,
+    "fwhm_M": 0.04,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 1.8,
+    "peak_bits": 2.76,
+    "fwhm_M": 0.23,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 2.69,
+    "peak_bits": 2.56,
+    "fwhm_M": 0.18,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 3.27,
+    "peak_bits": 2.4,
+    "fwhm_M": 0.1,
+    "continuity": 0.81,
+    "pass": true
+   },
+   {
+    "M": 1.97,
+    "peak_bits": 2.3,
+    "fwhm_M": 0.24,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 3.05,
+    "peak_bits": 2.28,
+    "fwhm_M": 0.23,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.93,
+    "peak_bits": 2.27,
+    "fwhm_M": 0.22,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 4.17,
+    "peak_bits": 2.21,
+    "fwhm_M": 0.09,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 2.81,
+    "peak_bits": 2.21,
+    "fwhm_M": 0.22,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 2.11,
+    "peak_bits": 2.15,
+    "fwhm_M": 0.23,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 0.0,
+    "peak_bits": 2.14,
+    "fwhm_M": 0.03,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 3.43,
+    "peak_bits": 2.11,
+    "fwhm_M": 0.22,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 3.96,
+    "peak_bits": 2.06,
+    "fwhm_M": 0.22,
+    "continuity": 0.29,
+    "pass": false
+   }
+  ],
+  "train_r": 0.5861351958387547,
+  "val_r": 0.29830048612558296
+ },
+ {
+  "name": "kS020_W010",
+  "lat": -20.0,
+  "lon": -10.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 1.8,
+    "peak_bits": 3.71,
+    "fwhm_M": 0.23,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 4.77,
+    "peak_bits": 3.59,
+    "fwhm_M": 0.18,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 2.39,
+    "peak_bits": 3.56,
+    "fwhm_M": 0.14,
+    "continuity": 0.61,
+    "pass": false
+   },
+   {
+    "M": 3.54,
+    "peak_bits": 3.54,
+    "fwhm_M": 0.13,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 3.42,
+    "peak_bits": 3.27,
+    "fwhm_M": 0.14,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 0.42,
+    "peak_bits": 3.18,
+    "fwhm_M": 0.15,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 3.27,
+    "peak_bits": 3.1,
+    "fwhm_M": 0.17,
+    "continuity": 0.87,
+    "pass": false
+   },
+   {
+    "M": 3.95,
+    "peak_bits": 2.88,
+    "fwhm_M": 0.18,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 4.37,
+    "peak_bits": 2.88,
+    "fwhm_M": 0.19,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 2.97,
+    "peak_bits": 2.85,
+    "fwhm_M": 0.21,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 1.21,
+    "peak_bits": 2.77,
+    "fwhm_M": 0.23,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 4.56,
+    "peak_bits": 2.71,
+    "fwhm_M": 0.23,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 4.14,
+    "peak_bits": 2.66,
+    "fwhm_M": 0.18,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 0.61,
+    "peak_bits": 2.55,
+    "fwhm_M": 0.24,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 4.98,
+    "peak_bits": 2.47,
+    "fwhm_M": 0.06,
+    "continuity": 0.65,
+    "pass": false
+   },
+   {
+    "M": 3.68,
+    "peak_bits": 2.34,
+    "fwhm_M": 0.14,
+    "continuity": 0.65,
+    "pass": false
+   },
+   {
+    "M": 3.11,
+    "peak_bits": 2.24,
+    "fwhm_M": 0.23,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.74,
+    "peak_bits": 2.16,
+    "fwhm_M": 0.23,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 0.84,
+    "peak_bits": 2.15,
+    "fwhm_M": 0.2,
+    "continuity": 0.32,
+    "pass": false
+   }
+  ],
+  "train_r": 0.4966341597581473,
+  "val_r": 0.3034162657716496
+ },
+ {
+  "name": "kN000_E010",
+  "lat": 0.0,
+  "lon": 10.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.01,
+    "peak_bits": 3.42,
+    "fwhm_M": 0.23,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 3.27,
+    "peak_bits": 3.32,
+    "fwhm_M": 0.22,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 4.13,
+    "peak_bits": 3.29,
+    "fwhm_M": 0.22,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 1.79,
+    "peak_bits": 2.97,
+    "fwhm_M": 0.22,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 3.54,
+    "peak_bits": 2.84,
+    "fwhm_M": 0.2,
+    "continuity": 0.65,
+    "pass": false
+   },
+   {
+    "M": 2.73,
+    "peak_bits": 2.59,
+    "fwhm_M": 0.15,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 2.56,
+    "peak_bits": 2.49,
+    "fwhm_M": 0.14,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 2.97,
+    "peak_bits": 2.49,
+    "fwhm_M": 0.18,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 3.68,
+    "peak_bits": 2.45,
+    "fwhm_M": 0.16,
+    "continuity": 0.97,
+    "pass": false
+   },
+   {
+    "M": 1.61,
+    "peak_bits": 2.4,
+    "fwhm_M": 0.14,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.14,
+    "peak_bits": 2.38,
+    "fwhm_M": 0.08,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 0.41,
+    "peak_bits": 2.22,
+    "fwhm_M": 0.06,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 2.38,
+    "peak_bits": 2.22,
+    "fwhm_M": 0.13,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 0.12,
+    "peak_bits": 2.2,
+    "fwhm_M": 0.14,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 0.0,
+    "peak_bits": 2.01,
+    "fwhm_M": 0.03,
+    "continuity": 0.29,
+    "pass": false
+   }
+  ],
+  "train_r": 0.6085881128138529,
+  "val_r": 0.32164583991887474
+ },
+ {
+  "name": "kN000_E050",
+  "lat": 0.0,
+  "lon": 50.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 1.2,
+    "peak_bits": 3.33,
+    "fwhm_M": 0.05,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 0.42,
+    "peak_bits": 3.21,
+    "fwhm_M": 0.06,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 2.39,
+    "peak_bits": 3.2,
+    "fwhm_M": 0.22,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 2.98,
+    "peak_bits": 3.13,
+    "fwhm_M": 0.17,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 4.97,
+    "peak_bits": 3.07,
+    "fwhm_M": 0.06,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 3.1,
+    "peak_bits": 3.04,
+    "fwhm_M": 0.22,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 4.13,
+    "peak_bits": 3.0,
+    "fwhm_M": 0.22,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 3.37,
+    "peak_bits": 2.98,
+    "fwhm_M": 0.22,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 2.55,
+    "peak_bits": 2.92,
+    "fwhm_M": 0.15,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 3.53,
+    "peak_bits": 2.92,
+    "fwhm_M": 0.23,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.23,
+    "peak_bits": 2.84,
+    "fwhm_M": 0.22,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 3.95,
+    "peak_bits": 2.58,
+    "fwhm_M": 0.22,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 4.78,
+    "peak_bits": 2.57,
+    "fwhm_M": 0.15,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 0.58,
+    "peak_bits": 2.46,
+    "fwhm_M": 0.18,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 1.03,
+    "peak_bits": 2.27,
+    "fwhm_M": 0.19,
+    "continuity": 0.06,
+    "pass": false
+   },
+   {
+    "M": 4.56,
+    "peak_bits": 2.24,
+    "fwhm_M": 0.17,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 0.0,
+    "peak_bits": 2.14,
+    "fwhm_M": 0.03,
+    "continuity": 0.23,
+    "pass": false
+   }
+  ],
+  "train_r": 0.5887757828588185,
+  "val_r": 0.1509090391844195
+ },
+ {
+  "name": "kN000_E070",
+  "lat": 0.0,
+  "lon": 70.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 0.42,
+    "peak_bits": 3.87,
+    "fwhm_M": 0.05,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 2.56,
+    "peak_bits": 3.16,
+    "fwhm_M": 0.12,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 0.58,
+    "peak_bits": 3.1,
+    "fwhm_M": 0.18,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 1.2,
+    "peak_bits": 2.96,
+    "fwhm_M": 0.23,
+    "continuity": 0.06,
+    "pass": false
+   },
+   {
+    "M": 0.0,
+    "peak_bits": 2.81,
+    "fwhm_M": 0.03,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 1.03,
+    "peak_bits": 2.7,
+    "fwhm_M": 0.23,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 0.18,
+    "peak_bits": 2.69,
+    "fwhm_M": 0.24,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 0.3,
+    "peak_bits": 2.64,
+    "fwhm_M": 0.18,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 1.56,
+    "peak_bits": 2.53,
+    "fwhm_M": 0.18,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 0.75,
+    "peak_bits": 2.44,
+    "fwhm_M": 0.15,
+    "continuity": 0.52,
+    "pass": false
+   }
+  ],
+  "train_r": 0.7786938747601791,
+  "val_r": 0.047408028407812
+ },
+ {
+  "name": "kN000_E090",
+  "lat": 0.0,
+  "lon": 90.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 2.81,
+    "peak_bits": 4.04,
+    "fwhm_M": 0.15,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 2.4,
+    "peak_bits": 3.97,
+    "fwhm_M": 0.14,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 0.42,
+    "peak_bits": 3.85,
+    "fwhm_M": 0.05,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 0.6,
+    "peak_bits": 3.79,
+    "fwhm_M": 0.23,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 2.99,
+    "peak_bits": 3.66,
+    "fwhm_M": 0.11,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 3.23,
+    "peak_bits": 3.48,
+    "fwhm_M": 0.13,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 1.2,
+    "peak_bits": 3.43,
+    "fwhm_M": 0.14,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 2.56,
+    "peak_bits": 3.28,
+    "fwhm_M": 0.15,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 1.56,
+    "peak_bits": 2.83,
+    "fwhm_M": 0.23,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 0.17,
+    "peak_bits": 2.8,
+    "fwhm_M": 0.23,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 1.03,
+    "peak_bits": 2.79,
+    "fwhm_M": 0.23,
+    "continuity": 0.06,
+    "pass": false
+   },
+   {
+    "M": 0.75,
+    "peak_bits": 2.67,
+    "fwhm_M": 0.07,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 0.0,
+    "peak_bits": 2.62,
+    "fwhm_M": 0.03,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 3.89,
+    "peak_bits": 2.58,
+    "fwhm_M": 0.21,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 0.3,
+    "peak_bits": 2.47,
+    "fwhm_M": 0.19,
+    "continuity": 0.42,
+    "pass": false
+   }
+  ],
+  "train_r": 0.726266379660927,
+  "val_r": 0.3786579444103376
+ },
+ {
+  "name": "kN000_E110",
+  "lat": 0.0,
+  "lon": 110.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 3.22,
+    "peak_bits": 3.43,
+    "fwhm_M": 0.23,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.99,
+    "peak_bits": 3.23,
+    "fwhm_M": 0.14,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 2.49,
+    "peak_bits": 2.72,
+    "fwhm_M": 0.23,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 4.54,
+    "peak_bits": 2.63,
+    "fwhm_M": 0.16,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 0.75,
+    "peak_bits": 2.57,
+    "fwhm_M": 0.16,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 0.6,
+    "peak_bits": 2.49,
+    "fwhm_M": 0.23,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 0.42,
+    "peak_bits": 2.42,
+    "fwhm_M": 0.06,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 0.12,
+    "peak_bits": 2.36,
+    "fwhm_M": 0.14,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 0.3,
+    "peak_bits": 2.34,
+    "fwhm_M": 0.12,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 3.89,
+    "peak_bits": 2.34,
+    "fwhm_M": 0.14,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 0.0,
+    "peak_bits": 2.24,
+    "fwhm_M": 0.03,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 2.14,
+    "peak_bits": 2.03,
+    "fwhm_M": 0.22,
+    "continuity": 0.26,
+    "pass": false
+   }
+  ],
+  "train_r": 0.6967260194186449,
+  "val_r": -0.1997939863678146
+ },
+ {
+  "name": "kN000_E130",
+  "lat": 0.0,
+  "lon": 130.0,
+  "n_passing": 1,
+  "top_M": [
+   3.98
+  ],
+  "all_ridges": [
+   {
+    "M": 3.4,
+    "peak_bits": 3.82,
+    "fwhm_M": 0.22,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 3.23,
+    "peak_bits": 3.71,
+    "fwhm_M": 0.22,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 3.98,
+    "peak_bits": 3.41,
+    "fwhm_M": 0.11,
+    "continuity": 0.77,
+    "pass": true
+   },
+   {
+    "M": 2.38,
+    "peak_bits": 3.36,
+    "fwhm_M": 0.14,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 2.14,
+    "peak_bits": 3.34,
+    "fwhm_M": 0.2,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 2.56,
+    "peak_bits": 3.34,
+    "fwhm_M": 0.22,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 4.55,
+    "peak_bits": 2.96,
+    "fwhm_M": 0.14,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 0.66,
+    "peak_bits": 2.79,
+    "fwhm_M": 0.13,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 0.12,
+    "peak_bits": 2.63,
+    "fwhm_M": 0.17,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 0.41,
+    "peak_bits": 2.48,
+    "fwhm_M": 0.15,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 1.51,
+    "peak_bits": 2.48,
+    "fwhm_M": 0.23,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 0.0,
+    "peak_bits": 2.34,
+    "fwhm_M": 0.03,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 0.53,
+    "peak_bits": 2.28,
+    "fwhm_M": 0.24,
+    "continuity": 0.06,
+    "pass": false
+   },
+   {
+    "M": 2.68,
+    "peak_bits": 2.26,
+    "fwhm_M": 0.2,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.98,
+    "peak_bits": 2.23,
+    "fwhm_M": 0.1,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 1.71,
+    "peak_bits": 2.07,
+    "fwhm_M": 0.23,
+    "continuity": 0.32,
+    "pass": false
+   }
+  ],
+  "train_r": 0.7107546931216165,
+  "val_r": 0.3342311559001078
+ },
+ {
+  "name": "kN000_E150",
+  "lat": 0.0,
+  "lon": 150.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.77,
+    "peak_bits": 3.91,
+    "fwhm_M": 0.14,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 3.11,
+    "peak_bits": 3.43,
+    "fwhm_M": 0.07,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 2.14,
+    "peak_bits": 3.28,
+    "fwhm_M": 0.06,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 2.73,
+    "peak_bits": 3.16,
+    "fwhm_M": 0.22,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 1.64,
+    "peak_bits": 3.01,
+    "fwhm_M": 0.23,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 3.32,
+    "peak_bits": 3.01,
+    "fwhm_M": 0.23,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 3.99,
+    "peak_bits": 2.98,
+    "fwhm_M": 0.17,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 3.58,
+    "peak_bits": 2.97,
+    "fwhm_M": 0.22,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 2.45,
+    "peak_bits": 2.91,
+    "fwhm_M": 0.23,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 0.12,
+    "peak_bits": 2.85,
+    "fwhm_M": 0.08,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 4.43,
+    "peak_bits": 2.83,
+    "fwhm_M": 0.16,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 1.16,
+    "peak_bits": 2.66,
+    "fwhm_M": 0.23,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 0.0,
+    "peak_bits": 2.58,
+    "fwhm_M": 0.03,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 3.7,
+    "peak_bits": 2.51,
+    "fwhm_M": 0.2,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 0.44,
+    "peak_bits": 2.48,
+    "fwhm_M": 0.23,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 0.75,
+    "peak_bits": 2.27,
+    "fwhm_M": 0.24,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 1.52,
+    "peak_bits": 2.17,
+    "fwhm_M": 0.23,
+    "continuity": 0.32,
+    "pass": false
+   }
+  ],
+  "train_r": 0.6857795989841199,
+  "val_r": -0.04506753537182917
+ },
+ {
+  "name": "kN000_E170",
+  "lat": 0.0,
+  "lon": 170.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.58,
+    "peak_bits": 3.95,
+    "fwhm_M": 0.22,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 4.15,
+    "peak_bits": 3.88,
+    "fwhm_M": 0.07,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 3.89,
+    "peak_bits": 3.64,
+    "fwhm_M": 0.23,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 3.74,
+    "peak_bits": 3.4,
+    "fwhm_M": 0.18,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 2.27,
+    "peak_bits": 3.29,
+    "fwhm_M": 0.22,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 3.32,
+    "peak_bits": 2.99,
+    "fwhm_M": 0.16,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 4.46,
+    "peak_bits": 2.97,
+    "fwhm_M": 0.14,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 3.47,
+    "peak_bits": 2.9,
+    "fwhm_M": 0.14,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 3.17,
+    "peak_bits": 2.79,
+    "fwhm_M": 0.23,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 2.09,
+    "peak_bits": 2.72,
+    "fwhm_M": 0.23,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 4.83,
+    "peak_bits": 2.48,
+    "fwhm_M": 0.22,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 1.03,
+    "peak_bits": 2.47,
+    "fwhm_M": 0.15,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 0.6,
+    "peak_bits": 2.38,
+    "fwhm_M": 0.24,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 2.39,
+    "peak_bits": 2.37,
+    "fwhm_M": 0.22,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 1.6,
+    "peak_bits": 2.32,
+    "fwhm_M": 0.09,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 4.32,
+    "peak_bits": 2.29,
+    "fwhm_M": 0.14,
+    "continuity": 0.06,
+    "pass": false
+   },
+   {
+    "M": 0.76,
+    "peak_bits": 2.21,
+    "fwhm_M": 0.15,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 2.75,
+    "peak_bits": 2.09,
+    "fwhm_M": 0.22,
+    "continuity": 0.0,
+    "pass": false
+   },
+   {
+    "M": 0.43,
+    "peak_bits": 2.06,
+    "fwhm_M": 0.14,
+    "continuity": 0.39,
+    "pass": false
+   }
+  ],
+  "train_r": 0.45684531181265187,
+  "val_r": 0.05155506848344463
+ },
+ {
+  "name": "kN000_W170",
+  "lat": 0.0,
+  "lon": -170.0,
+  "n_passing": 1,
+  "top_M": [
+   1.94
+  ],
+  "all_ridges": [
+   {
+    "M": 1.81,
+    "peak_bits": 3.27,
+    "fwhm_M": 0.23,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 4.26,
+    "peak_bits": 2.93,
+    "fwhm_M": 0.05,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 4.97,
+    "peak_bits": 2.85,
+    "fwhm_M": 0.15,
+    "continuity": 0.06,
+    "pass": false
+   },
+   {
+    "M": 4.44,
+    "peak_bits": 2.72,
+    "fwhm_M": 0.19,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 3.53,
+    "peak_bits": 2.69,
+    "fwhm_M": 0.23,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 2.24,
+    "peak_bits": 2.67,
+    "fwhm_M": 0.17,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 4.14,
+    "peak_bits": 2.67,
+    "fwhm_M": 0.23,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 1.94,
+    "peak_bits": 2.63,
+    "fwhm_M": 0.12,
+    "continuity": 0.74,
+    "pass": true
+   },
+   {
+    "M": 0.61,
+    "peak_bits": 2.62,
+    "fwhm_M": 0.19,
+    "continuity": 0.61,
+    "pass": false
+   },
+   {
+    "M": 1.15,
+    "peak_bits": 2.43,
+    "fwhm_M": 0.23,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.1,
+    "peak_bits": 2.43,
+    "fwhm_M": 0.22,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 4.67,
+    "peak_bits": 2.36,
+    "fwhm_M": 0.13,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 0.27,
+    "peak_bits": 2.33,
+    "fwhm_M": 0.22,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 4.83,
+    "peak_bits": 2.33,
+    "fwhm_M": 0.22,
+    "continuity": 0.06,
+    "pass": false
+   },
+   {
+    "M": 0.88,
+    "peak_bits": 2.32,
+    "fwhm_M": 0.11,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 1.03,
+    "peak_bits": 2.22,
+    "fwhm_M": 0.16,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 2.39,
+    "peak_bits": 2.15,
+    "fwhm_M": 0.22,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 3.21,
+    "peak_bits": 2.05,
+    "fwhm_M": 0.17,
+    "continuity": 0.19,
+    "pass": false
+   }
+  ],
+  "train_r": 0.25306338211554535,
+  "val_r": 0.30058381434083864
+ },
+ {
+  "name": "kN000_W150",
+  "lat": 0.0,
+  "lon": -150.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 2.12,
+    "peak_bits": 3.53,
+    "fwhm_M": 0.22,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 4.97,
+    "peak_bits": 3.17,
+    "fwhm_M": 0.15,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 2.24,
+    "peak_bits": 2.91,
+    "fwhm_M": 0.15,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 4.26,
+    "peak_bits": 2.88,
+    "fwhm_M": 0.08,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 3.53,
+    "peak_bits": 2.85,
+    "fwhm_M": 0.07,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 4.44,
+    "peak_bits": 2.85,
+    "fwhm_M": 0.22,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 4.1,
+    "peak_bits": 2.67,
+    "fwhm_M": 0.15,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 4.79,
+    "peak_bits": 2.56,
+    "fwhm_M": 0.13,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 1.94,
+    "peak_bits": 2.5,
+    "fwhm_M": 0.23,
+    "continuity": 0.77,
+    "pass": false
+   },
+   {
+    "M": 1.81,
+    "peak_bits": 2.48,
+    "fwhm_M": 0.23,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 0.75,
+    "peak_bits": 2.44,
+    "fwhm_M": 0.09,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 0.27,
+    "peak_bits": 2.44,
+    "fwhm_M": 0.19,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 2.66,
+    "peak_bits": 2.3,
+    "fwhm_M": 0.17,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 4.67,
+    "peak_bits": 2.29,
+    "fwhm_M": 0.15,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 1.3,
+    "peak_bits": 2.21,
+    "fwhm_M": 0.15,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 0.88,
+    "peak_bits": 2.18,
+    "fwhm_M": 0.17,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 1.03,
+    "peak_bits": 2.06,
+    "fwhm_M": 0.16,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 2.78,
+    "peak_bits": 2.02,
+    "fwhm_M": 0.23,
+    "continuity": 0.42,
+    "pass": false
+   }
+  ],
+  "train_r": 0.1495352187885486,
+  "val_r": 0.20336546662448834
+ },
+ {
+  "name": "kN000_W130",
+  "lat": 0.0,
+  "lon": -130.0,
+  "n_passing": 2,
+  "top_M": [
+   2.24,
+   3.96
+  ],
+  "all_ridges": [
+   {
+    "M": 2.12,
+    "peak_bits": 3.11,
+    "fwhm_M": 0.22,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 4.97,
+    "peak_bits": 2.78,
+    "fwhm_M": 0.15,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 3.53,
+    "peak_bits": 2.7,
+    "fwhm_M": 0.08,
+    "continuity": 0.68,
+    "pass": false
+   },
+   {
+    "M": 4.37,
+    "peak_bits": 2.67,
+    "fwhm_M": 0.13,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 1.81,
+    "peak_bits": 2.63,
+    "fwhm_M": 0.23,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 1.94,
+    "peak_bits": 2.59,
+    "fwhm_M": 0.23,
+    "continuity": 0.77,
+    "pass": false
+   },
+   {
+    "M": 2.24,
+    "peak_bits": 2.54,
+    "fwhm_M": 0.07,
+    "continuity": 0.74,
+    "pass": true
+   },
+   {
+    "M": 3.96,
+    "peak_bits": 2.47,
+    "fwhm_M": 0.07,
+    "continuity": 0.71,
+    "pass": true
+   },
+   {
+    "M": 4.14,
+    "peak_bits": 2.41,
+    "fwhm_M": 0.14,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 4.62,
+    "peak_bits": 2.41,
+    "fwhm_M": 0.22,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 1.28,
+    "peak_bits": 2.32,
+    "fwhm_M": 0.22,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 0.27,
+    "peak_bits": 2.26,
+    "fwhm_M": 0.12,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 0.75,
+    "peak_bits": 2.25,
+    "fwhm_M": 0.15,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 0.91,
+    "peak_bits": 2.18,
+    "fwhm_M": 0.15,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 4.79,
+    "peak_bits": 2.18,
+    "fwhm_M": 0.04,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 0.6,
+    "peak_bits": 2.14,
+    "fwhm_M": 0.23,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 3.71,
+    "peak_bits": 2.08,
+    "fwhm_M": 0.11,
+    "continuity": 0.65,
+    "pass": false
+   }
+  ],
+  "train_r": 0.38568774041898757,
+  "val_r": -0.09599643357344598
+ },
+ {
+  "name": "kN000_W110",
+  "lat": 0.0,
+  "lon": -110.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 3.96,
+    "peak_bits": 3.11,
+    "fwhm_M": 0.07,
+    "continuity": 0.68,
+    "pass": false
+   },
+   {
+    "M": 3.53,
+    "peak_bits": 2.98,
+    "fwhm_M": 0.14,
+    "continuity": 0.71,
+    "pass": false
+   },
+   {
+    "M": 2.24,
+    "peak_bits": 2.82,
+    "fwhm_M": 0.15,
+    "continuity": 0.81,
+    "pass": false
+   },
+   {
+    "M": 4.37,
+    "peak_bits": 2.77,
+    "fwhm_M": 0.1,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 4.61,
+    "peak_bits": 2.67,
+    "fwhm_M": 0.14,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 4.79,
+    "peak_bits": 2.6,
+    "fwhm_M": 0.22,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 4.14,
+    "peak_bits": 2.47,
+    "fwhm_M": 0.14,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 0.06,
+    "peak_bits": 2.44,
+    "fwhm_M": 0.18,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 3.37,
+    "peak_bits": 2.39,
+    "fwhm_M": 0.22,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 0.6,
+    "peak_bits": 2.36,
+    "fwhm_M": 0.24,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 2.77,
+    "peak_bits": 2.28,
+    "fwhm_M": 0.13,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 1.27,
+    "peak_bits": 2.2,
+    "fwhm_M": 0.15,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 2.46,
+    "peak_bits": 2.06,
+    "fwhm_M": 0.22,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 3.71,
+    "peak_bits": 2.04,
+    "fwhm_M": 0.22,
+    "continuity": 0.48,
+    "pass": false
+   }
+  ],
+  "train_r": 0.2364403222689311,
+  "val_r": -0.023452467222567556
+ },
+ {
+  "name": "kN000_W090",
+  "lat": 0.0,
+  "lon": -90.0,
+  "n_passing": 1,
+  "top_M": [
+   2.24
+  ],
+  "all_ridges": [
+   {
+    "M": 3.96,
+    "peak_bits": 2.93,
+    "fwhm_M": 0.13,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 3.53,
+    "peak_bits": 2.9,
+    "fwhm_M": 0.23,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 4.79,
+    "peak_bits": 2.81,
+    "fwhm_M": 0.22,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 4.37,
+    "peak_bits": 2.8,
+    "fwhm_M": 0.22,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 1.27,
+    "peak_bits": 2.73,
+    "fwhm_M": 0.15,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 2.24,
+    "peak_bits": 2.7,
+    "fwhm_M": 0.07,
+    "continuity": 0.71,
+    "pass": true
+   },
+   {
+    "M": 2.99,
+    "peak_bits": 2.67,
+    "fwhm_M": 0.23,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 4.14,
+    "peak_bits": 2.59,
+    "fwhm_M": 0.14,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 0.59,
+    "peak_bits": 2.5,
+    "fwhm_M": 0.24,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.77,
+    "peak_bits": 2.3,
+    "fwhm_M": 0.22,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 4.97,
+    "peak_bits": 2.25,
+    "fwhm_M": 0.15,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 2.58,
+    "peak_bits": 2.24,
+    "fwhm_M": 0.13,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 4.61,
+    "peak_bits": 2.18,
+    "fwhm_M": 0.22,
+    "continuity": 0.35,
+    "pass": false
+   }
+  ],
+  "train_r": 0.3451880812458267,
+  "val_r": 0.0171425255163394
+ },
+ {
+  "name": "kN000_W050",
+  "lat": 0.0,
+  "lon": -50.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.51,
+    "peak_bits": 3.44,
+    "fwhm_M": 0.14,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 2.55,
+    "peak_bits": 3.19,
+    "fwhm_M": 0.14,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 3.8,
+    "peak_bits": 2.93,
+    "fwhm_M": 0.05,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 3.11,
+    "peak_bits": 2.91,
+    "fwhm_M": 0.14,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 3.45,
+    "peak_bits": 2.88,
+    "fwhm_M": 0.21,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 3.28,
+    "peak_bits": 2.46,
+    "fwhm_M": 0.15,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 2.9,
+    "peak_bits": 2.28,
+    "fwhm_M": 0.06,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 0.65,
+    "peak_bits": 2.24,
+    "fwhm_M": 0.24,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 4.7,
+    "peak_bits": 2.24,
+    "fwhm_M": 0.22,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 2.31,
+    "peak_bits": 2.2,
+    "fwhm_M": 0.15,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 1.61,
+    "peak_bits": 2.0,
+    "fwhm_M": 0.17,
+    "continuity": 0.35,
+    "pass": false
+   }
+  ],
+  "train_r": 0.5386306237369665,
+  "val_r": 0.5217524655114333
+ },
+ {
+  "name": "kN000_W030",
+  "lat": 0.0,
+  "lon": -30.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 3.27,
+    "peak_bits": 2.83,
+    "fwhm_M": 0.17,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 2.56,
+    "peak_bits": 2.73,
+    "fwhm_M": 0.06,
+    "continuity": 0.61,
+    "pass": false
+   },
+   {
+    "M": 2.31,
+    "peak_bits": 2.68,
+    "fwhm_M": 0.14,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 3.58,
+    "peak_bits": 2.46,
+    "fwhm_M": 0.13,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 0.19,
+    "peak_bits": 2.45,
+    "fwhm_M": 0.24,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 2.73,
+    "peak_bits": 2.43,
+    "fwhm_M": 0.17,
+    "continuity": 0.61,
+    "pass": false
+   },
+   {
+    "M": 0.74,
+    "peak_bits": 2.28,
+    "fwhm_M": 0.17,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 0.86,
+    "peak_bits": 2.27,
+    "fwhm_M": 0.18,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 2.14,
+    "peak_bits": 2.05,
+    "fwhm_M": 0.22,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 3.7,
+    "peak_bits": 2.03,
+    "fwhm_M": 0.15,
+    "continuity": 0.58,
+    "pass": false
+   }
+  ],
+  "train_r": 0.578747073779708,
+  "val_r": 0.5234091962042164
+ },
+ {
+  "name": "kN000_W010",
+  "lat": 0.0,
+  "lon": -10.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.77,
+    "peak_bits": 4.05,
+    "fwhm_M": 0.23,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 3.54,
+    "peak_bits": 3.98,
+    "fwhm_M": 0.09,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 3.11,
+    "peak_bits": 3.93,
+    "fwhm_M": 0.2,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 4.13,
+    "peak_bits": 3.73,
+    "fwhm_M": 0.22,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 3.3,
+    "peak_bits": 3.47,
+    "fwhm_M": 0.14,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 4.01,
+    "peak_bits": 3.39,
+    "fwhm_M": 0.23,
+    "continuity": 0.61,
+    "pass": false
+   },
+   {
+    "M": 2.38,
+    "peak_bits": 3.17,
+    "fwhm_M": 0.13,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 3.69,
+    "peak_bits": 3.17,
+    "fwhm_M": 0.1,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 3.88,
+    "peak_bits": 2.98,
+    "fwhm_M": 0.23,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 2.73,
+    "peak_bits": 2.7,
+    "fwhm_M": 0.07,
+    "continuity": 0.61,
+    "pass": false
+   },
+   {
+    "M": 1.71,
+    "peak_bits": 2.66,
+    "fwhm_M": 0.15,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 2.57,
+    "peak_bits": 2.55,
+    "fwhm_M": 0.23,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 0.84,
+    "peak_bits": 2.54,
+    "fwhm_M": 0.19,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 1.25,
+    "peak_bits": 2.33,
+    "fwhm_M": 0.23,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 0.0,
+    "peak_bits": 2.24,
+    "fwhm_M": 0.03,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 0.41,
+    "peak_bits": 2.23,
+    "fwhm_M": 0.06,
+    "continuity": 0.19,
+    "pass": false
+   }
+  ],
+  "train_r": 0.6234410491392601,
+  "val_r": 0.43741311882577777
+ },
+ {
+  "name": "kN020_E050",
+  "lat": 20.0,
+  "lon": 50.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 3.11,
+    "peak_bits": 3.43,
+    "fwhm_M": 0.12,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 4.66,
+    "peak_bits": 2.89,
+    "fwhm_M": 0.22,
+    "continuity": 0.71,
+    "pass": false
+   },
+   {
+    "M": 4.48,
+    "peak_bits": 2.85,
+    "fwhm_M": 0.22,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 3.44,
+    "peak_bits": 2.81,
+    "fwhm_M": 0.23,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 4.94,
+    "peak_bits": 2.78,
+    "fwhm_M": 0.16,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 4.78,
+    "peak_bits": 2.74,
+    "fwhm_M": 0.22,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.72,
+    "peak_bits": 2.56,
+    "fwhm_M": 0.23,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 4.36,
+    "peak_bits": 2.44,
+    "fwhm_M": 0.13,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 3.23,
+    "peak_bits": 2.32,
+    "fwhm_M": 0.22,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 3.56,
+    "peak_bits": 2.24,
+    "fwhm_M": 0.22,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 4.21,
+    "peak_bits": 2.22,
+    "fwhm_M": 0.18,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 2.54,
+    "peak_bits": 2.02,
+    "fwhm_M": 0.15,
+    "continuity": 0.74,
+    "pass": false
+   },
+   {
+    "M": 2.32,
+    "peak_bits": 2.02,
+    "fwhm_M": 0.23,
+    "continuity": 0.19,
+    "pass": false
+   }
+  ],
+  "train_r": 0.4826400761535776,
+  "val_r": 0.6150827743681678
+ },
+ {
+  "name": "kN020_E070",
+  "lat": 20.0,
+  "lon": 70.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 3.43,
+    "peak_bits": 2.56,
+    "fwhm_M": 0.22,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 4.27,
+    "peak_bits": 2.41,
+    "fwhm_M": 0.18,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 1.03,
+    "peak_bits": 2.24,
+    "fwhm_M": 0.08,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 4.12,
+    "peak_bits": 2.18,
+    "fwhm_M": 0.22,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 3.94,
+    "peak_bits": 2.06,
+    "fwhm_M": 0.23,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 4.58,
+    "peak_bits": 2.06,
+    "fwhm_M": 0.22,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 4.4,
+    "peak_bits": 2.04,
+    "fwhm_M": 0.14,
+    "continuity": 0.81,
+    "pass": false
+   }
+  ],
+  "train_r": 0.4023776579528574,
+  "val_r": 0.3414289930195653
+ },
+ {
+  "name": "kN020_E090",
+  "lat": 20.0,
+  "lon": 90.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 1.8,
+    "peak_bits": 3.71,
+    "fwhm_M": 0.23,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 4.31,
+    "peak_bits": 3.54,
+    "fwhm_M": 0.15,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 4.06,
+    "peak_bits": 3.39,
+    "fwhm_M": 0.14,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 3.23,
+    "peak_bits": 3.35,
+    "fwhm_M": 0.16,
+    "continuity": 0.77,
+    "pass": false
+   },
+   {
+    "M": 3.89,
+    "peak_bits": 3.04,
+    "fwhm_M": 0.14,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 2.32,
+    "peak_bits": 3.03,
+    "fwhm_M": 0.12,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 2.57,
+    "peak_bits": 2.91,
+    "fwhm_M": 0.09,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 4.5,
+    "peak_bits": 2.91,
+    "fwhm_M": 0.22,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 3.09,
+    "peak_bits": 2.72,
+    "fwhm_M": 0.23,
+    "continuity": 0.84,
+    "pass": false
+   },
+   {
+    "M": 4.71,
+    "peak_bits": 2.68,
+    "fwhm_M": 0.22,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 4.83,
+    "peak_bits": 2.67,
+    "fwhm_M": 0.22,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 4.96,
+    "peak_bits": 2.62,
+    "fwhm_M": 0.15,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 3.58,
+    "peak_bits": 2.55,
+    "fwhm_M": 0.13,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 3.42,
+    "peak_bits": 2.51,
+    "fwhm_M": 0.23,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 1.55,
+    "peak_bits": 2.32,
+    "fwhm_M": 0.23,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 2.73,
+    "peak_bits": 2.32,
+    "fwhm_M": 0.22,
+    "continuity": 0.61,
+    "pass": false
+   },
+   {
+    "M": 0.42,
+    "peak_bits": 2.3,
+    "fwhm_M": 0.05,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 1.97,
+    "peak_bits": 2.17,
+    "fwhm_M": 0.24,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 0.54,
+    "peak_bits": 2.12,
+    "fwhm_M": 0.19,
+    "continuity": 0.1,
+    "pass": false
+   }
+  ],
+  "train_r": 0.562715426068982,
+  "val_r": 0.4361204596386467
+ },
+ {
+  "name": "kN020_E110",
+  "lat": 20.0,
+  "lon": 110.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.51,
+    "peak_bits": 3.66,
+    "fwhm_M": 0.16,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 4.63,
+    "peak_bits": 3.61,
+    "fwhm_M": 0.14,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 3.46,
+    "peak_bits": 3.26,
+    "fwhm_M": 0.22,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 2.3,
+    "peak_bits": 2.71,
+    "fwhm_M": 0.15,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 4.13,
+    "peak_bits": 2.58,
+    "fwhm_M": 0.16,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 3.31,
+    "peak_bits": 2.42,
+    "fwhm_M": 0.22,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 2.75,
+    "peak_bits": 2.02,
+    "fwhm_M": 0.21,
+    "continuity": 0.03,
+    "pass": false
+   }
+  ],
+  "train_r": 0.553083909853628,
+  "val_r": 0.11792399309303261
+ },
+ {
+  "name": "kN020_E130",
+  "lat": 20.0,
+  "lon": 130.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.51,
+    "peak_bits": 3.74,
+    "fwhm_M": 0.15,
+    "continuity": 0.74,
+    "pass": false
+   },
+   {
+    "M": 2.31,
+    "peak_bits": 3.07,
+    "fwhm_M": 0.06,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 2.63,
+    "peak_bits": 3.0,
+    "fwhm_M": 0.16,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 3.88,
+    "peak_bits": 2.93,
+    "fwhm_M": 0.06,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 3.31,
+    "peak_bits": 2.76,
+    "fwhm_M": 0.14,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 2.99,
+    "peak_bits": 2.68,
+    "fwhm_M": 0.14,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 0.41,
+    "peak_bits": 2.54,
+    "fwhm_M": 0.09,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.48,
+    "peak_bits": 2.46,
+    "fwhm_M": 0.22,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 0.66,
+    "peak_bits": 2.2,
+    "fwhm_M": 0.14,
+    "continuity": 0.26,
+    "pass": false
+   }
+  ],
+  "train_r": 0.6097276104219768,
+  "val_r": 0.023756771530766767
+ },
+ {
+  "name": "kN020_E150",
+  "lat": 20.0,
+  "lon": 150.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 3.28,
+    "peak_bits": 3.79,
+    "fwhm_M": 0.23,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 2.44,
+    "peak_bits": 3.61,
+    "fwhm_M": 0.22,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 3.88,
+    "peak_bits": 3.2,
+    "fwhm_M": 0.15,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 2.62,
+    "peak_bits": 3.11,
+    "fwhm_M": 0.18,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 2.32,
+    "peak_bits": 2.77,
+    "fwhm_M": 0.11,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 0.65,
+    "peak_bits": 2.68,
+    "fwhm_M": 0.13,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 0.41,
+    "peak_bits": 2.64,
+    "fwhm_M": 0.19,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 0.12,
+    "peak_bits": 2.55,
+    "fwhm_M": 0.15,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 1.87,
+    "peak_bits": 2.46,
+    "fwhm_M": 0.22,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 0.0,
+    "peak_bits": 2.38,
+    "fwhm_M": 0.03,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 1.37,
+    "peak_bits": 2.18,
+    "fwhm_M": 0.23,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 1.71,
+    "peak_bits": 2.02,
+    "fwhm_M": 0.23,
+    "continuity": 0.23,
+    "pass": false
+   }
+  ],
+  "train_r": 0.6693630338016797,
+  "val_r": -0.06321167668198698
+ },
+ {
+  "name": "kN020_E170",
+  "lat": 20.0,
+  "lon": 170.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.36,
+    "peak_bits": 4.52,
+    "fwhm_M": 0.16,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 3.68,
+    "peak_bits": 4.12,
+    "fwhm_M": 0.22,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 4.61,
+    "peak_bits": 3.84,
+    "fwhm_M": 0.22,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 4.76,
+    "peak_bits": 3.82,
+    "fwhm_M": 0.22,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 4.95,
+    "peak_bits": 3.58,
+    "fwhm_M": 0.09,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 2.87,
+    "peak_bits": 3.44,
+    "fwhm_M": 0.19,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 4.12,
+    "peak_bits": 3.42,
+    "fwhm_M": 0.16,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 3.28,
+    "peak_bits": 3.37,
+    "fwhm_M": 0.2,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 2.72,
+    "peak_bits": 3.36,
+    "fwhm_M": 0.16,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 3.48,
+    "peak_bits": 2.79,
+    "fwhm_M": 0.22,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 2.23,
+    "peak_bits": 2.48,
+    "fwhm_M": 0.22,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 3.86,
+    "peak_bits": 2.47,
+    "fwhm_M": 0.23,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 3.16,
+    "peak_bits": 2.47,
+    "fwhm_M": 0.22,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 2.06,
+    "peak_bits": 2.42,
+    "fwhm_M": 0.22,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 1.88,
+    "peak_bits": 2.42,
+    "fwhm_M": 0.23,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 0.65,
+    "peak_bits": 2.4,
+    "fwhm_M": 0.24,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 0.52,
+    "peak_bits": 2.37,
+    "fwhm_M": 0.24,
+    "continuity": 0.06,
+    "pass": false
+   },
+   {
+    "M": 0.4,
+    "peak_bits": 2.19,
+    "fwhm_M": 0.24,
+    "continuity": 0.06,
+    "pass": false
+   },
+   {
+    "M": 2.54,
+    "peak_bits": 2.14,
+    "fwhm_M": 0.14,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 0.0,
+    "peak_bits": 2.1,
+    "fwhm_M": 0.03,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 4.49,
+    "peak_bits": 2.03,
+    "fwhm_M": 0.16,
+    "continuity": 0.48,
+    "pass": false
+   }
+  ],
+  "train_r": 0.5889218072216899,
+  "val_r": -0.25238148882999933
+ },
+ {
+  "name": "kN020_W170",
+  "lat": 20.0,
+  "lon": -170.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.36,
+    "peak_bits": 5.19,
+    "fwhm_M": 0.09,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 3.93,
+    "peak_bits": 4.28,
+    "fwhm_M": 0.23,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 4.6,
+    "peak_bits": 4.23,
+    "fwhm_M": 0.15,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.87,
+    "peak_bits": 4.19,
+    "fwhm_M": 0.18,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 3.1,
+    "peak_bits": 4.14,
+    "fwhm_M": 0.22,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 3.78,
+    "peak_bits": 3.9,
+    "fwhm_M": 0.23,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 4.11,
+    "peak_bits": 3.73,
+    "fwhm_M": 0.22,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 1.8,
+    "peak_bits": 3.62,
+    "fwhm_M": 0.23,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 2.22,
+    "peak_bits": 3.45,
+    "fwhm_M": 0.13,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 2.46,
+    "peak_bits": 3.37,
+    "fwhm_M": 0.22,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 2.06,
+    "peak_bits": 3.04,
+    "fwhm_M": 0.22,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 0.65,
+    "peak_bits": 2.91,
+    "fwhm_M": 0.16,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 1.25,
+    "peak_bits": 2.82,
+    "fwhm_M": 0.15,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 3.45,
+    "peak_bits": 2.55,
+    "fwhm_M": 0.2,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 0.0,
+    "peak_bits": 2.52,
+    "fwhm_M": 0.03,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 3.58,
+    "peak_bits": 2.48,
+    "fwhm_M": 0.22,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 0.5,
+    "peak_bits": 2.41,
+    "fwhm_M": 0.24,
+    "continuity": 0.0,
+    "pass": false
+   },
+   {
+    "M": 3.22,
+    "peak_bits": 2.4,
+    "fwhm_M": 0.23,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 0.77,
+    "peak_bits": 2.26,
+    "fwhm_M": 0.24,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 0.12,
+    "peak_bits": 2.25,
+    "fwhm_M": 0.24,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.62,
+    "peak_bits": 2.24,
+    "fwhm_M": 0.22,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 0.31,
+    "peak_bits": 2.08,
+    "fwhm_M": 0.24,
+    "continuity": 0.1,
+    "pass": false
+   }
+  ],
+  "train_r": 0.6209293562106615,
+  "val_r": -0.024432659645811768
+ },
+ {
+  "name": "kN020_W150",
+  "lat": 20.0,
+  "lon": -150.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.37,
+    "peak_bits": 4.29,
+    "fwhm_M": 0.09,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 2.87,
+    "peak_bits": 3.63,
+    "fwhm_M": 0.11,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 4.58,
+    "peak_bits": 3.6,
+    "fwhm_M": 0.2,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 3.94,
+    "peak_bits": 3.4,
+    "fwhm_M": 0.21,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 4.84,
+    "peak_bits": 3.3,
+    "fwhm_M": 0.17,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 4.18,
+    "peak_bits": 3.28,
+    "fwhm_M": 0.15,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 1.79,
+    "peak_bits": 3.12,
+    "fwhm_M": 0.22,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 3.05,
+    "peak_bits": 3.02,
+    "fwhm_M": 0.14,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.21,
+    "peak_bits": 3.01,
+    "fwhm_M": 0.22,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 3.32,
+    "peak_bits": 2.92,
+    "fwhm_M": 0.08,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 1.25,
+    "peak_bits": 2.64,
+    "fwhm_M": 0.2,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 3.47,
+    "peak_bits": 2.63,
+    "fwhm_M": 0.19,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 2.38,
+    "peak_bits": 2.47,
+    "fwhm_M": 0.16,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 1.01,
+    "peak_bits": 2.36,
+    "fwhm_M": 0.11,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 4.96,
+    "peak_bits": 2.24,
+    "fwhm_M": 0.15,
+    "continuity": 0.0,
+    "pass": false
+   },
+   {
+    "M": 4.72,
+    "peak_bits": 2.2,
+    "fwhm_M": 0.23,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 1.44,
+    "peak_bits": 2.16,
+    "fwhm_M": 0.23,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 0.43,
+    "peak_bits": 2.09,
+    "fwhm_M": 0.23,
+    "continuity": 0.13,
+    "pass": false
+   }
+  ],
+  "train_r": 0.415034696778589,
+  "val_r": 0.5076679699066123
+ },
+ {
+  "name": "kN020_W130",
+  "lat": 20.0,
+  "lon": -130.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.37,
+    "peak_bits": 4.12,
+    "fwhm_M": 0.15,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 3.12,
+    "peak_bits": 3.75,
+    "fwhm_M": 0.16,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 4.18,
+    "peak_bits": 3.24,
+    "fwhm_M": 0.23,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 3.31,
+    "peak_bits": 3.11,
+    "fwhm_M": 0.16,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 5.0,
+    "peak_bits": 3.08,
+    "fwhm_M": 0.11,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 3.94,
+    "peak_bits": 3.04,
+    "fwhm_M": 0.16,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 4.84,
+    "peak_bits": 2.99,
+    "fwhm_M": 0.14,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 2.38,
+    "peak_bits": 2.88,
+    "fwhm_M": 0.23,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 2.87,
+    "peak_bits": 2.88,
+    "fwhm_M": 0.22,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 3.58,
+    "peak_bits": 2.76,
+    "fwhm_M": 0.13,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 1.01,
+    "peak_bits": 2.67,
+    "fwhm_M": 0.14,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 0.43,
+    "peak_bits": 2.67,
+    "fwhm_M": 0.23,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 4.69,
+    "peak_bits": 2.58,
+    "fwhm_M": 0.22,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 0.61,
+    "peak_bits": 2.55,
+    "fwhm_M": 0.2,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 4.55,
+    "peak_bits": 2.53,
+    "fwhm_M": 0.16,
+    "continuity": 0.0,
+    "pass": false
+   },
+   {
+    "M": 1.96,
+    "peak_bits": 2.52,
+    "fwhm_M": 0.23,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 1.25,
+    "peak_bits": 2.42,
+    "fwhm_M": 0.15,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 1.79,
+    "peak_bits": 2.26,
+    "fwhm_M": 0.22,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 0.75,
+    "peak_bits": 2.21,
+    "fwhm_M": 0.17,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 2.63,
+    "peak_bits": 2.12,
+    "fwhm_M": 0.19,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 3.46,
+    "peak_bits": 2.0,
+    "fwhm_M": 0.17,
+    "continuity": 0.23,
+    "pass": false
+   }
+  ],
+  "train_r": 0.4349686933614387,
+  "val_r": 0.4439889771176323
+ },
+ {
+  "name": "kN020_W110",
+  "lat": 20.0,
+  "lon": -110.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 3.52,
+    "peak_bits": 3.79,
+    "fwhm_M": 0.22,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 4.36,
+    "peak_bits": 3.65,
+    "fwhm_M": 0.14,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 3.12,
+    "peak_bits": 3.38,
+    "fwhm_M": 0.22,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 4.78,
+    "peak_bits": 3.29,
+    "fwhm_M": 0.13,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 3.95,
+    "peak_bits": 3.24,
+    "fwhm_M": 0.14,
+    "continuity": 0.68,
+    "pass": false
+   },
+   {
+    "M": 1.79,
+    "peak_bits": 3.12,
+    "fwhm_M": 0.22,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 2.56,
+    "peak_bits": 2.91,
+    "fwhm_M": 0.14,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 2.38,
+    "peak_bits": 2.89,
+    "fwhm_M": 0.15,
+    "continuity": 0.65,
+    "pass": false
+   },
+   {
+    "M": 3.26,
+    "peak_bits": 2.63,
+    "fwhm_M": 0.14,
+    "continuity": 0.94,
+    "pass": false
+   },
+   {
+    "M": 2.96,
+    "peak_bits": 2.63,
+    "fwhm_M": 0.14,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 1.28,
+    "peak_bits": 2.5,
+    "fwhm_M": 0.11,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 2.68,
+    "peak_bits": 2.45,
+    "fwhm_M": 0.22,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.24,
+    "peak_bits": 2.41,
+    "fwhm_M": 0.19,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 4.66,
+    "peak_bits": 2.33,
+    "fwhm_M": 0.22,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 0.63,
+    "peak_bits": 2.29,
+    "fwhm_M": 0.22,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 1.92,
+    "peak_bits": 2.25,
+    "fwhm_M": 0.23,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 0.23,
+    "peak_bits": 2.16,
+    "fwhm_M": 0.13,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 4.13,
+    "peak_bits": 2.09,
+    "fwhm_M": 0.22,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 0.75,
+    "peak_bits": 2.06,
+    "fwhm_M": 0.16,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 2.81,
+    "peak_bits": 2.05,
+    "fwhm_M": 0.22,
+    "continuity": 0.13,
+    "pass": false
+   }
+  ],
+  "train_r": 0.439389082746721,
+  "val_r": 0.5621649309978303
+ },
+ {
+  "name": "kN020_W090",
+  "lat": 20.0,
+  "lon": -90.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 3.95,
+    "peak_bits": 4.93,
+    "fwhm_M": 0.16,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 4.36,
+    "peak_bits": 4.64,
+    "fwhm_M": 0.22,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 3.54,
+    "peak_bits": 4.31,
+    "fwhm_M": 0.13,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 4.94,
+    "peak_bits": 4.31,
+    "fwhm_M": 0.06,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 4.79,
+    "peak_bits": 4.04,
+    "fwhm_M": 0.14,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 2.71,
+    "peak_bits": 4.03,
+    "fwhm_M": 0.22,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 2.88,
+    "peak_bits": 4.0,
+    "fwhm_M": 0.2,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 2.46,
+    "peak_bits": 3.87,
+    "fwhm_M": 0.07,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 3.7,
+    "peak_bits": 3.81,
+    "fwhm_M": 0.14,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 4.61,
+    "peak_bits": 3.79,
+    "fwhm_M": 0.19,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 2.29,
+    "peak_bits": 3.59,
+    "fwhm_M": 0.22,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 3.21,
+    "peak_bits": 3.45,
+    "fwhm_M": 0.15,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 4.2,
+    "peak_bits": 3.24,
+    "fwhm_M": 0.14,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 0.56,
+    "peak_bits": 3.23,
+    "fwhm_M": 0.23,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 3.05,
+    "peak_bits": 2.86,
+    "fwhm_M": 0.18,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 1.78,
+    "peak_bits": 2.5,
+    "fwhm_M": 0.23,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 0.41,
+    "peak_bits": 2.48,
+    "fwhm_M": 0.15,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 0.25,
+    "peak_bits": 2.46,
+    "fwhm_M": 0.14,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 2.58,
+    "peak_bits": 2.4,
+    "fwhm_M": 0.22,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 0.0,
+    "peak_bits": 2.29,
+    "fwhm_M": 0.03,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 2.09,
+    "peak_bits": 2.28,
+    "fwhm_M": 0.23,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 4.49,
+    "peak_bits": 2.25,
+    "fwhm_M": 0.22,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 0.76,
+    "peak_bits": 2.24,
+    "fwhm_M": 0.24,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 4.07,
+    "peak_bits": 2.13,
+    "fwhm_M": 0.22,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 3.83,
+    "peak_bits": 2.03,
+    "fwhm_M": 0.22,
+    "continuity": 0.23,
+    "pass": false
+   }
+  ],
+  "train_r": 0.5748499931959259,
+  "val_r": 0.3242591739099628
+ },
+ {
+  "name": "kN020_W070",
+  "lat": 20.0,
+  "lon": -70.0,
+  "n_passing": 1,
+  "top_M": [
+   4.36
+  ],
+  "all_ridges": [
+   {
+    "M": 3.95,
+    "peak_bits": 3.89,
+    "fwhm_M": 0.18,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 4.15,
+    "peak_bits": 3.63,
+    "fwhm_M": 0.1,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 3.12,
+    "peak_bits": 3.54,
+    "fwhm_M": 0.14,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 4.36,
+    "peak_bits": 3.51,
+    "fwhm_M": 0.09,
+    "continuity": 0.84,
+    "pass": true
+   },
+   {
+    "M": 4.51,
+    "peak_bits": 3.1,
+    "fwhm_M": 0.22,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 3.72,
+    "peak_bits": 3.01,
+    "fwhm_M": 0.23,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 3.54,
+    "peak_bits": 2.85,
+    "fwhm_M": 0.22,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.54,
+    "peak_bits": 2.77,
+    "fwhm_M": 0.22,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 1.18,
+    "peak_bits": 2.75,
+    "fwhm_M": 0.14,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 3.39,
+    "peak_bits": 2.75,
+    "fwhm_M": 0.22,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 2.69,
+    "peak_bits": 2.71,
+    "fwhm_M": 0.22,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 4.63,
+    "peak_bits": 2.48,
+    "fwhm_M": 0.22,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 3.24,
+    "peak_bits": 2.47,
+    "fwhm_M": 0.23,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 4.85,
+    "peak_bits": 2.32,
+    "fwhm_M": 0.15,
+    "continuity": 0.71,
+    "pass": false
+   },
+   {
+    "M": 0.0,
+    "peak_bits": 2.3,
+    "fwhm_M": 0.03,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 2.39,
+    "peak_bits": 2.24,
+    "fwhm_M": 0.22,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 1.59,
+    "peak_bits": 2.22,
+    "fwhm_M": 0.07,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 0.64,
+    "peak_bits": 2.18,
+    "fwhm_M": 0.16,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 0.12,
+    "peak_bits": 2.09,
+    "fwhm_M": 0.17,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 1.33,
+    "peak_bits": 2.09,
+    "fwhm_M": 0.23,
+    "continuity": 0.13,
+    "pass": false
+   }
+  ],
+  "train_r": 0.5775208974838446,
+  "val_r": 0.29265135256698943
+ },
+ {
+  "name": "kN020_W050",
+  "lat": 20.0,
+  "lon": -50.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.35,
+    "peak_bits": 3.2,
+    "fwhm_M": 0.13,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 3.11,
+    "peak_bits": 3.18,
+    "fwhm_M": 0.08,
+    "continuity": 0.68,
+    "pass": false
+   },
+   {
+    "M": 2.7,
+    "peak_bits": 2.78,
+    "fwhm_M": 0.12,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 1.96,
+    "peak_bits": 2.75,
+    "fwhm_M": 0.15,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 3.69,
+    "peak_bits": 2.42,
+    "fwhm_M": 0.16,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 4.49,
+    "peak_bits": 2.35,
+    "fwhm_M": 0.18,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 2.48,
+    "peak_bits": 2.27,
+    "fwhm_M": 0.16,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 1.38,
+    "peak_bits": 2.01,
+    "fwhm_M": 0.23,
+    "continuity": 0.52,
+    "pass": false
+   }
+  ],
+  "train_r": 0.5587557969822806,
+  "val_r": 0.532857202232834
+ },
+ {
+  "name": "kN020_W030",
+  "lat": 20.0,
+  "lon": -30.0,
+  "n_passing": 1,
+  "top_M": [
+   3.45
+  ],
+  "all_ridges": [
+   {
+    "M": 2.48,
+    "peak_bits": 2.82,
+    "fwhm_M": 0.15,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 3.45,
+    "peak_bits": 2.58,
+    "fwhm_M": 0.11,
+    "continuity": 0.77,
+    "pass": true
+   },
+   {
+    "M": 3.19,
+    "peak_bits": 2.39,
+    "fwhm_M": 0.23,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 1.38,
+    "peak_bits": 2.28,
+    "fwhm_M": 0.08,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 1.11,
+    "peak_bits": 2.11,
+    "fwhm_M": 0.19,
+    "continuity": 0.39,
+    "pass": false
+   }
+  ],
+  "train_r": 0.5914566810840284,
+  "val_r": 0.1419439563519977
+ },
+ {
+  "name": "kN020_W010",
+  "lat": 20.0,
+  "lon": -10.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.13,
+    "peak_bits": 2.73,
+    "fwhm_M": 0.22,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 3.19,
+    "peak_bits": 2.72,
+    "fwhm_M": 0.23,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 3.44,
+    "peak_bits": 2.62,
+    "fwhm_M": 0.09,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 2.78,
+    "peak_bits": 2.62,
+    "fwhm_M": 0.23,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 3.94,
+    "peak_bits": 2.35,
+    "fwhm_M": 0.06,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 3.77,
+    "peak_bits": 2.34,
+    "fwhm_M": 0.22,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 3.63,
+    "peak_bits": 2.26,
+    "fwhm_M": 0.23,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 1.11,
+    "peak_bits": 2.16,
+    "fwhm_M": 0.2,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 1.49,
+    "peak_bits": 2.12,
+    "fwhm_M": 0.07,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 1.28,
+    "peak_bits": 2.07,
+    "fwhm_M": 0.13,
+    "continuity": 0.32,
+    "pass": false
+   }
+  ],
+  "train_r": 0.5207932812454553,
+  "val_r": 0.26239060188055163
+ },
+ {
+  "name": "kN040_E010",
+  "lat": 40.0,
+  "lon": 10.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 3.69,
+    "peak_bits": 4.01,
+    "fwhm_M": 0.19,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 4.89,
+    "peak_bits": 3.18,
+    "fwhm_M": 0.2,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 3.39,
+    "peak_bits": 3.13,
+    "fwhm_M": 0.06,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 4.45,
+    "peak_bits": 3.07,
+    "fwhm_M": 0.14,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 3.95,
+    "peak_bits": 2.85,
+    "fwhm_M": 0.22,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 2.55,
+    "peak_bits": 2.81,
+    "fwhm_M": 0.18,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 4.66,
+    "peak_bits": 2.79,
+    "fwhm_M": 0.19,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 2.69,
+    "peak_bits": 2.75,
+    "fwhm_M": 0.22,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 4.14,
+    "peak_bits": 2.72,
+    "fwhm_M": 0.15,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 3.53,
+    "peak_bits": 2.69,
+    "fwhm_M": 0.14,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 0.55,
+    "peak_bits": 2.45,
+    "fwhm_M": 0.23,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 0.67,
+    "peak_bits": 2.44,
+    "fwhm_M": 0.19,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 3.2,
+    "peak_bits": 2.2,
+    "fwhm_M": 0.15,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 0.0,
+    "peak_bits": 2.09,
+    "fwhm_M": 0.03,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 0.12,
+    "peak_bits": 2.03,
+    "fwhm_M": 0.16,
+    "continuity": 0.23,
+    "pass": false
+   }
+  ],
+  "train_r": 0.638929382027783,
+  "val_r": 0.24086825336379208
+ },
+ {
+  "name": "kN040_E030",
+  "lat": 40.0,
+  "lon": 30.0,
+  "n_passing": 1,
+  "top_M": [
+   4.61
+  ],
+  "all_ridges": [
+   {
+    "M": 4.49,
+    "peak_bits": 3.69,
+    "fwhm_M": 0.06,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 4.36,
+    "peak_bits": 3.3,
+    "fwhm_M": 0.14,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 3.9,
+    "peak_bits": 3.17,
+    "fwhm_M": 0.12,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 4.21,
+    "peak_bits": 2.78,
+    "fwhm_M": 0.12,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 2.57,
+    "peak_bits": 2.61,
+    "fwhm_M": 0.21,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 4.61,
+    "peak_bits": 2.5,
+    "fwhm_M": 0.1,
+    "continuity": 0.71,
+    "pass": true
+   },
+   {
+    "M": 4.78,
+    "peak_bits": 2.41,
+    "fwhm_M": 0.16,
+    "continuity": 0.29,
+    "pass": false
+   }
+  ],
+  "train_r": 0.5499550120039975,
+  "val_r": 0.601672813166995
+ },
+ {
+  "name": "kN040_E130",
+  "lat": 40.0,
+  "lon": 130.0,
+  "n_passing": 2,
+  "top_M": [
+   2.13,
+   3.51
+  ],
+  "all_ridges": [
+   {
+    "M": 4.45,
+    "peak_bits": 3.17,
+    "fwhm_M": 0.18,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 4.77,
+    "peak_bits": 2.9,
+    "fwhm_M": 0.15,
+    "continuity": 0.65,
+    "pass": false
+   },
+   {
+    "M": 2.89,
+    "peak_bits": 2.88,
+    "fwhm_M": 0.13,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 3.81,
+    "peak_bits": 2.78,
+    "fwhm_M": 0.13,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 2.13,
+    "peak_bits": 2.56,
+    "fwhm_M": 0.05,
+    "continuity": 0.71,
+    "pass": true
+   },
+   {
+    "M": 3.69,
+    "peak_bits": 2.56,
+    "fwhm_M": 0.23,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 2.47,
+    "peak_bits": 2.41,
+    "fwhm_M": 0.23,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 4.57,
+    "peak_bits": 2.37,
+    "fwhm_M": 0.22,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 3.38,
+    "peak_bits": 2.36,
+    "fwhm_M": 0.23,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 4.27,
+    "peak_bits": 2.32,
+    "fwhm_M": 0.23,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 3.51,
+    "peak_bits": 2.23,
+    "fwhm_M": 0.08,
+    "continuity": 0.71,
+    "pass": true
+   },
+   {
+    "M": 0.41,
+    "peak_bits": 2.16,
+    "fwhm_M": 0.06,
+    "continuity": 0.06,
+    "pass": false
+   },
+   {
+    "M": 3.19,
+    "peak_bits": 2.14,
+    "fwhm_M": 0.13,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 4.01,
+    "peak_bits": 2.11,
+    "fwhm_M": 0.23,
+    "continuity": 0.61,
+    "pass": false
+   },
+   {
+    "M": 4.13,
+    "peak_bits": 2.08,
+    "fwhm_M": 0.22,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 0.53,
+    "peak_bits": 2.06,
+    "fwhm_M": 0.24,
+    "continuity": 0.06,
+    "pass": false
+   }
+  ],
+  "train_r": 0.5469412770180209,
+  "val_r": 0.31660556435719817
+ },
+ {
+  "name": "kN040_E150",
+  "lat": 40.0,
+  "lon": 150.0,
+  "n_passing": 1,
+  "top_M": [
+   3.45
+  ],
+  "all_ridges": [
+   {
+    "M": 3.8,
+    "peak_bits": 3.45,
+    "fwhm_M": 0.15,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 3.99,
+    "peak_bits": 3.42,
+    "fwhm_M": 0.22,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 3.45,
+    "peak_bits": 3.1,
+    "fwhm_M": 0.05,
+    "continuity": 0.87,
+    "pass": true
+   },
+   {
+    "M": 3.08,
+    "peak_bits": 3.05,
+    "fwhm_M": 0.18,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 0.52,
+    "peak_bits": 3.04,
+    "fwhm_M": 0.24,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 3.2,
+    "peak_bits": 2.94,
+    "fwhm_M": 0.11,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 3.68,
+    "peak_bits": 2.87,
+    "fwhm_M": 0.16,
+    "continuity": 0.84,
+    "pass": false
+   },
+   {
+    "M": 2.13,
+    "peak_bits": 2.76,
+    "fwhm_M": 0.23,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 2.68,
+    "peak_bits": 2.61,
+    "fwhm_M": 0.22,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 0.13,
+    "peak_bits": 2.54,
+    "fwhm_M": 0.23,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 2.48,
+    "peak_bits": 2.52,
+    "fwhm_M": 0.22,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 0.4,
+    "peak_bits": 2.31,
+    "fwhm_M": 0.15,
+    "continuity": 0.06,
+    "pass": false
+   }
+  ],
+  "train_r": 0.6523143215057587,
+  "val_r": 0.3185201718344777
+ },
+ {
+  "name": "kN040_E170",
+  "lat": 40.0,
+  "lon": 170.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.48,
+    "peak_bits": 3.8,
+    "fwhm_M": 0.14,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 4.34,
+    "peak_bits": 3.28,
+    "fwhm_M": 0.22,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 3.44,
+    "peak_bits": 3.07,
+    "fwhm_M": 0.17,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 4.07,
+    "peak_bits": 3.07,
+    "fwhm_M": 0.22,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 2.21,
+    "peak_bits": 2.98,
+    "fwhm_M": 0.19,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 3.24,
+    "peak_bits": 2.92,
+    "fwhm_M": 0.16,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 3.82,
+    "peak_bits": 2.92,
+    "fwhm_M": 0.23,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 3.05,
+    "peak_bits": 2.74,
+    "fwhm_M": 0.16,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 1.8,
+    "peak_bits": 2.7,
+    "fwhm_M": 0.23,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 0.52,
+    "peak_bits": 2.57,
+    "fwhm_M": 0.24,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 3.62,
+    "peak_bits": 2.52,
+    "fwhm_M": 0.17,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 4.6,
+    "peak_bits": 2.4,
+    "fwhm_M": 0.23,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 1.26,
+    "peak_bits": 2.39,
+    "fwhm_M": 0.14,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 3.95,
+    "peak_bits": 2.36,
+    "fwhm_M": 0.22,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 1.68,
+    "peak_bits": 2.33,
+    "fwhm_M": 0.15,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 2.43,
+    "peak_bits": 2.32,
+    "fwhm_M": 0.22,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 4.21,
+    "peak_bits": 2.29,
+    "fwhm_M": 0.22,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 0.97,
+    "peak_bits": 2.13,
+    "fwhm_M": 0.23,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 5.0,
+    "peak_bits": 2.1,
+    "fwhm_M": 0.11,
+    "continuity": 0.13,
+    "pass": false
+   }
+  ],
+  "train_r": 0.5523827181907482,
+  "val_r": 0.5117219596873183
+ },
+ {
+  "name": "kN040_W170",
+  "lat": 40.0,
+  "lon": -170.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.5,
+    "peak_bits": 4.24,
+    "fwhm_M": 0.22,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 4.38,
+    "peak_bits": 4.11,
+    "fwhm_M": 0.22,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 3.74,
+    "peak_bits": 3.63,
+    "fwhm_M": 0.23,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 4.26,
+    "peak_bits": 3.13,
+    "fwhm_M": 0.22,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 2.21,
+    "peak_bits": 2.65,
+    "fwhm_M": 0.22,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 3.62,
+    "peak_bits": 2.65,
+    "fwhm_M": 0.15,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 3.2,
+    "peak_bits": 2.6,
+    "fwhm_M": 0.13,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 4.68,
+    "peak_bits": 2.45,
+    "fwhm_M": 0.23,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 4.95,
+    "peak_bits": 2.38,
+    "fwhm_M": 0.16,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 2.57,
+    "peak_bits": 2.36,
+    "fwhm_M": 0.23,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 0.13,
+    "peak_bits": 2.35,
+    "fwhm_M": 0.23,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 2.88,
+    "peak_bits": 2.25,
+    "fwhm_M": 0.23,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 3.91,
+    "peak_bits": 2.25,
+    "fwhm_M": 0.2,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 4.06,
+    "peak_bits": 2.22,
+    "fwhm_M": 0.14,
+    "continuity": 0.39,
+    "pass": false
+   }
+  ],
+  "train_r": 0.5491115273024998,
+  "val_r": 0.48467231810927713
+ },
+ {
+  "name": "kN040_W150",
+  "lat": 40.0,
+  "lon": -150.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.65,
+    "peak_bits": 3.86,
+    "fwhm_M": 0.22,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 3.83,
+    "peak_bits": 3.78,
+    "fwhm_M": 0.17,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 4.38,
+    "peak_bits": 3.77,
+    "fwhm_M": 0.22,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 4.5,
+    "peak_bits": 3.54,
+    "fwhm_M": 0.22,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 3.47,
+    "peak_bits": 3.03,
+    "fwhm_M": 0.09,
+    "continuity": 0.61,
+    "pass": false
+   },
+   {
+    "M": 2.87,
+    "peak_bits": 2.79,
+    "fwhm_M": 0.22,
+    "continuity": 0.61,
+    "pass": false
+   },
+   {
+    "M": 3.97,
+    "peak_bits": 2.76,
+    "fwhm_M": 0.23,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 0.96,
+    "peak_bits": 2.75,
+    "fwhm_M": 0.15,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 3.08,
+    "peak_bits": 2.75,
+    "fwhm_M": 0.2,
+    "continuity": 0.61,
+    "pass": false
+   },
+   {
+    "M": 1.8,
+    "peak_bits": 2.72,
+    "fwhm_M": 0.1,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 4.8,
+    "peak_bits": 2.65,
+    "fwhm_M": 0.09,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 0.29,
+    "peak_bits": 2.63,
+    "fwhm_M": 0.23,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 0.43,
+    "peak_bits": 2.62,
+    "fwhm_M": 0.23,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 0.55,
+    "peak_bits": 2.52,
+    "fwhm_M": 0.23,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 0.13,
+    "peak_bits": 2.47,
+    "fwhm_M": 0.14,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 0.84,
+    "peak_bits": 2.46,
+    "fwhm_M": 0.24,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 3.66,
+    "peak_bits": 2.2,
+    "fwhm_M": 0.22,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 3.35,
+    "peak_bits": 2.03,
+    "fwhm_M": 0.22,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 2.52,
+    "peak_bits": 2.02,
+    "fwhm_M": 0.14,
+    "continuity": 0.39,
+    "pass": false
+   }
+  ],
+  "train_r": 0.49896446361189584,
+  "val_r": 0.22552977512998126
+ },
+ {
+  "name": "kN040_W130",
+  "lat": 40.0,
+  "lon": -130.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.84,
+    "peak_bits": 3.1,
+    "fwhm_M": 0.11,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 0.62,
+    "peak_bits": 2.68,
+    "fwhm_M": 0.15,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 3.12,
+    "peak_bits": 2.68,
+    "fwhm_M": 0.22,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 3.0,
+    "peak_bits": 2.53,
+    "fwhm_M": 0.15,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 3.65,
+    "peak_bits": 2.43,
+    "fwhm_M": 0.23,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 4.57,
+    "peak_bits": 2.33,
+    "fwhm_M": 0.22,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 4.69,
+    "peak_bits": 2.27,
+    "fwhm_M": 0.1,
+    "continuity": 0.68,
+    "pass": false
+   },
+   {
+    "M": 3.84,
+    "peak_bits": 2.24,
+    "fwhm_M": 0.23,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 5.0,
+    "peak_bits": 2.22,
+    "fwhm_M": 0.11,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 1.26,
+    "peak_bits": 2.14,
+    "fwhm_M": 0.1,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 2.87,
+    "peak_bits": 2.13,
+    "fwhm_M": 0.14,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 3.99,
+    "peak_bits": 2.11,
+    "fwhm_M": 0.2,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 3.36,
+    "peak_bits": 2.06,
+    "fwhm_M": 0.14,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 1.03,
+    "peak_bits": 2.03,
+    "fwhm_M": 0.21,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 1.44,
+    "peak_bits": 2.02,
+    "fwhm_M": 0.23,
+    "continuity": 0.16,
+    "pass": false
+   }
+  ],
+  "train_r": 0.349721361983419,
+  "val_r": 0.3539117892572223
+ },
+ {
+  "name": "kN040_W090",
+  "lat": 40.0,
+  "lon": -90.0,
+  "n_passing": 1,
+  "top_M": [
+   4.61
+  ],
+  "all_ridges": [
+   {
+    "M": 4.77,
+    "peak_bits": 4.11,
+    "fwhm_M": 0.23,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 4.61,
+    "peak_bits": 3.7,
+    "fwhm_M": 0.06,
+    "continuity": 0.74,
+    "pass": true
+   },
+   {
+    "M": 4.49,
+    "peak_bits": 3.49,
+    "fwhm_M": 0.15,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 4.94,
+    "peak_bits": 3.21,
+    "fwhm_M": 0.09,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 2.47,
+    "peak_bits": 3.05,
+    "fwhm_M": 0.05,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 3.2,
+    "peak_bits": 2.83,
+    "fwhm_M": 0.22,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 3.67,
+    "peak_bits": 2.75,
+    "fwhm_M": 0.21,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 3.8,
+    "peak_bits": 2.58,
+    "fwhm_M": 0.23,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 0.16,
+    "peak_bits": 2.49,
+    "fwhm_M": 0.14,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 3.98,
+    "peak_bits": 2.44,
+    "fwhm_M": 0.23,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 4.12,
+    "peak_bits": 2.15,
+    "fwhm_M": 0.22,
+    "continuity": 0.23,
+    "pass": false
+   }
+  ],
+  "train_r": 0.4759339187957606,
+  "val_r": -0.11253537912927018
+ },
+ {
+  "name": "kN040_W070",
+  "lat": 40.0,
+  "lon": -70.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.6,
+    "peak_bits": 4.11,
+    "fwhm_M": 0.15,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 2.55,
+    "peak_bits": 3.93,
+    "fwhm_M": 0.07,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 2.88,
+    "peak_bits": 3.92,
+    "fwhm_M": 0.15,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 3.71,
+    "peak_bits": 3.73,
+    "fwhm_M": 0.16,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 3.21,
+    "peak_bits": 3.7,
+    "fwhm_M": 0.06,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 3.86,
+    "peak_bits": 3.66,
+    "fwhm_M": 0.23,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 0.66,
+    "peak_bits": 3.6,
+    "fwhm_M": 0.24,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 3.98,
+    "peak_bits": 3.42,
+    "fwhm_M": 0.13,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 2.3,
+    "peak_bits": 3.41,
+    "fwhm_M": 0.21,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 3.09,
+    "peak_bits": 2.97,
+    "fwhm_M": 0.19,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 0.54,
+    "peak_bits": 2.91,
+    "fwhm_M": 0.23,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 4.39,
+    "peak_bits": 2.87,
+    "fwhm_M": 0.23,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 0.41,
+    "peak_bits": 2.77,
+    "fwhm_M": 0.06,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 0.0,
+    "peak_bits": 2.76,
+    "fwhm_M": 0.03,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 3.39,
+    "peak_bits": 2.51,
+    "fwhm_M": 0.22,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 2.68,
+    "peak_bits": 2.34,
+    "fwhm_M": 0.22,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 0.15,
+    "peak_bits": 2.18,
+    "fwhm_M": 0.23,
+    "continuity": 0.0,
+    "pass": false
+   }
+  ],
+  "train_r": 0.6903887052423127,
+  "val_r": -0.02614958884676539
+ },
+ {
+  "name": "kN040_W050",
+  "lat": 40.0,
+  "lon": -50.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 0.65,
+    "peak_bits": 2.92,
+    "fwhm_M": 0.23,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 0.53,
+    "peak_bits": 2.85,
+    "fwhm_M": 0.24,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 2.55,
+    "peak_bits": 2.82,
+    "fwhm_M": 0.18,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 4.32,
+    "peak_bits": 2.58,
+    "fwhm_M": 0.21,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 0.0,
+    "peak_bits": 2.24,
+    "fwhm_M": 0.03,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 0.13,
+    "peak_bits": 2.23,
+    "fwhm_M": 0.22,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 3.61,
+    "peak_bits": 2.16,
+    "fwhm_M": 0.15,
+    "continuity": 0.61,
+    "pass": false
+   },
+   {
+    "M": 3.98,
+    "peak_bits": 2.16,
+    "fwhm_M": 0.23,
+    "continuity": 0.61,
+    "pass": false
+   },
+   {
+    "M": 0.41,
+    "peak_bits": 2.11,
+    "fwhm_M": 0.23,
+    "continuity": 0.1,
+    "pass": false
+   }
+  ],
+  "train_r": 0.681260172891432,
+  "val_r": 0.09468917060765888
+ },
+ {
+  "name": "kN040_W030",
+  "lat": 40.0,
+  "lon": -30.0,
+  "n_passing": 1,
+  "top_M": [
+   4.5
+  ],
+  "all_ridges": [
+   {
+    "M": 4.86,
+    "peak_bits": 2.74,
+    "fwhm_M": 0.05,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 3.95,
+    "peak_bits": 2.7,
+    "fwhm_M": 0.22,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 4.32,
+    "peak_bits": 2.69,
+    "fwhm_M": 0.17,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 0.35,
+    "peak_bits": 2.63,
+    "fwhm_M": 0.23,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 3.25,
+    "peak_bits": 2.63,
+    "fwhm_M": 0.22,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 3.82,
+    "peak_bits": 2.53,
+    "fwhm_M": 0.06,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 4.5,
+    "peak_bits": 2.52,
+    "fwhm_M": 0.11,
+    "continuity": 0.97,
+    "pass": true
+   },
+   {
+    "M": 1.2,
+    "peak_bits": 2.39,
+    "fwhm_M": 0.23,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 0.13,
+    "peak_bits": 2.31,
+    "fwhm_M": 0.16,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 4.17,
+    "peak_bits": 2.22,
+    "fwhm_M": 0.22,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 3.13,
+    "peak_bits": 2.09,
+    "fwhm_M": 0.15,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 2.47,
+    "peak_bits": 2.05,
+    "fwhm_M": 0.07,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 2.61,
+    "peak_bits": 2.03,
+    "fwhm_M": 0.08,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 1.96,
+    "peak_bits": 2.01,
+    "fwhm_M": 0.22,
+    "continuity": 0.32,
+    "pass": false
+   }
+  ],
+  "train_r": 0.5305066258846436,
+  "val_r": 0.12225786537541287
+ },
+ {
+  "name": "kN040_W010",
+  "lat": 40.0,
+  "lon": -10.0,
+  "n_passing": 1,
+  "top_M": [
+   2.47
+  ],
+  "all_ridges": [
+   {
+    "M": 3.95,
+    "peak_bits": 4.11,
+    "fwhm_M": 0.05,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 3.68,
+    "peak_bits": 3.61,
+    "fwhm_M": 0.2,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 4.13,
+    "peak_bits": 3.54,
+    "fwhm_M": 0.08,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 3.2,
+    "peak_bits": 3.32,
+    "fwhm_M": 0.14,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 3.8,
+    "peak_bits": 3.19,
+    "fwhm_M": 0.23,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 3.39,
+    "peak_bits": 2.96,
+    "fwhm_M": 0.13,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 3.53,
+    "peak_bits": 2.77,
+    "fwhm_M": 0.14,
+    "continuity": 0.61,
+    "pass": false
+   },
+   {
+    "M": 4.96,
+    "peak_bits": 2.6,
+    "fwhm_M": 0.13,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 2.47,
+    "peak_bits": 2.37,
+    "fwhm_M": 0.1,
+    "continuity": 0.71,
+    "pass": true
+   },
+   {
+    "M": 4.54,
+    "peak_bits": 2.31,
+    "fwhm_M": 0.22,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 0.56,
+    "peak_bits": 2.16,
+    "fwhm_M": 0.21,
+    "continuity": 0.35,
+    "pass": false
+   }
+  ],
+  "train_r": 0.6196051912242354,
+  "val_r": 0.2996268571868623
+ },
+ {
+  "name": "kN060_E010",
+  "lat": 60.0,
+  "lon": 10.0,
+  "n_passing": 1,
+  "top_M": [
+   3.95
+  ],
+  "all_ridges": [
+   {
+    "M": 4.77,
+    "peak_bits": 4.66,
+    "fwhm_M": 0.04,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 3.95,
+    "peak_bits": 4.03,
+    "fwhm_M": 0.04,
+    "continuity": 0.71,
+    "pass": true
+   },
+   {
+    "M": 3.63,
+    "peak_bits": 3.32,
+    "fwhm_M": 0.13,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 0.67,
+    "peak_bits": 3.0,
+    "fwhm_M": 0.24,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 1.79,
+    "peak_bits": 2.99,
+    "fwhm_M": 0.17,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 2.55,
+    "peak_bits": 2.83,
+    "fwhm_M": 0.15,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 0.55,
+    "peak_bits": 2.75,
+    "fwhm_M": 0.23,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 3.21,
+    "peak_bits": 2.64,
+    "fwhm_M": 0.22,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 3.04,
+    "peak_bits": 2.62,
+    "fwhm_M": 0.12,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 2.68,
+    "peak_bits": 2.6,
+    "fwhm_M": 0.22,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 0.0,
+    "peak_bits": 2.58,
+    "fwhm_M": 0.03,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 1.25,
+    "peak_bits": 2.56,
+    "fwhm_M": 0.12,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 2.39,
+    "peak_bits": 2.52,
+    "fwhm_M": 0.13,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 0.42,
+    "peak_bits": 2.47,
+    "fwhm_M": 0.14,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 4.14,
+    "peak_bits": 2.47,
+    "fwhm_M": 0.08,
+    "continuity": 0.65,
+    "pass": false
+   },
+   {
+    "M": 2.81,
+    "peak_bits": 2.43,
+    "fwhm_M": 0.22,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 1.55,
+    "peak_bits": 2.14,
+    "fwhm_M": 0.19,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 2.11,
+    "peak_bits": 2.08,
+    "fwhm_M": 0.23,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 1.06,
+    "peak_bits": 2.04,
+    "fwhm_M": 0.22,
+    "continuity": 0.26,
+    "pass": false
+   }
+  ],
+  "train_r": 0.6999625852651397,
+  "val_r": 0.25449977119923706
+ },
+ {
+  "name": "kN060_E170",
+  "lat": 60.0,
+  "lon": 170.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.35,
+    "peak_bits": 4.6,
+    "fwhm_M": 0.17,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 4.78,
+    "peak_bits": 3.6,
+    "fwhm_M": 0.2,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 3.12,
+    "peak_bits": 3.42,
+    "fwhm_M": 0.16,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 2.44,
+    "peak_bits": 3.15,
+    "fwhm_M": 0.22,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 3.69,
+    "peak_bits": 3.04,
+    "fwhm_M": 0.23,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 2.89,
+    "peak_bits": 2.86,
+    "fwhm_M": 0.22,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 1.25,
+    "peak_bits": 2.82,
+    "fwhm_M": 0.2,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 3.84,
+    "peak_bits": 2.81,
+    "fwhm_M": 0.23,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 3.31,
+    "peak_bits": 2.64,
+    "fwhm_M": 0.22,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 2.14,
+    "peak_bits": 2.6,
+    "fwhm_M": 0.22,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 0.12,
+    "peak_bits": 2.56,
+    "fwhm_M": 0.17,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 3.55,
+    "peak_bits": 2.53,
+    "fwhm_M": 0.23,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 0.0,
+    "peak_bits": 2.43,
+    "fwhm_M": 0.03,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 0.55,
+    "peak_bits": 2.41,
+    "fwhm_M": 0.23,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 0.67,
+    "peak_bits": 2.33,
+    "fwhm_M": 0.15,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 0.31,
+    "peak_bits": 2.27,
+    "fwhm_M": 0.15,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 2.73,
+    "peak_bits": 2.19,
+    "fwhm_M": 0.22,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 1.88,
+    "peak_bits": 2.16,
+    "fwhm_M": 0.16,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 0.43,
+    "peak_bits": 2.12,
+    "fwhm_M": 0.08,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 0.82,
+    "peak_bits": 2.12,
+    "fwhm_M": 0.24,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 2.59,
+    "peak_bits": 2.09,
+    "fwhm_M": 0.23,
+    "continuity": 0.06,
+    "pass": false
+   },
+   {
+    "M": 3.43,
+    "peak_bits": 2.09,
+    "fwhm_M": 0.22,
+    "continuity": 0.23,
+    "pass": false
+   }
+  ],
+  "train_r": 0.6704759989030925,
+  "val_r": 0.43584871021134547
+ },
+ {
+  "name": "kN060_W170",
+  "lat": 60.0,
+  "lon": -170.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 3.12,
+    "peak_bits": 4.27,
+    "fwhm_M": 0.18,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 4.61,
+    "peak_bits": 4.27,
+    "fwhm_M": 0.18,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 4.76,
+    "peak_bits": 4.26,
+    "fwhm_M": 0.15,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 3.57,
+    "peak_bits": 4.12,
+    "fwhm_M": 0.22,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 2.47,
+    "peak_bits": 3.92,
+    "fwhm_M": 0.07,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 4.15,
+    "peak_bits": 3.92,
+    "fwhm_M": 0.2,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 4.32,
+    "peak_bits": 3.9,
+    "fwhm_M": 0.12,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 2.9,
+    "peak_bits": 3.81,
+    "fwhm_M": 0.18,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 4.89,
+    "peak_bits": 3.77,
+    "fwhm_M": 0.18,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 2.72,
+    "peak_bits": 3.74,
+    "fwhm_M": 0.22,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 2.07,
+    "peak_bits": 2.95,
+    "fwhm_M": 0.2,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 3.97,
+    "peak_bits": 2.95,
+    "fwhm_M": 0.23,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 1.25,
+    "peak_bits": 2.94,
+    "fwhm_M": 0.08,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 2.6,
+    "peak_bits": 2.88,
+    "fwhm_M": 0.17,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 3.84,
+    "peak_bits": 2.86,
+    "fwhm_M": 0.23,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 4.49,
+    "peak_bits": 2.66,
+    "fwhm_M": 0.16,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 0.68,
+    "peak_bits": 2.37,
+    "fwhm_M": 0.15,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 1.41,
+    "peak_bits": 2.37,
+    "fwhm_M": 0.14,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 3.25,
+    "peak_bits": 2.27,
+    "fwhm_M": 0.22,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 1.72,
+    "peak_bits": 2.18,
+    "fwhm_M": 0.23,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 0.56,
+    "peak_bits": 2.14,
+    "fwhm_M": 0.23,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 0.84,
+    "peak_bits": 2.05,
+    "fwhm_M": 0.14,
+    "continuity": 0.1,
+    "pass": false
+   }
+  ],
+  "train_r": 0.4754308568217978,
+  "val_r": 0.5930132183561021
+ },
+ {
+  "name": "kN060_W150",
+  "lat": 60.0,
+  "lon": -150.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.6,
+    "peak_bits": 4.35,
+    "fwhm_M": 0.19,
+    "continuity": 0.52,
+    "pass": false
+   },
+   {
+    "M": 4.34,
+    "peak_bits": 4.15,
+    "fwhm_M": 0.12,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 4.76,
+    "peak_bits": 4.09,
+    "fwhm_M": 0.22,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 2.71,
+    "peak_bits": 3.96,
+    "fwhm_M": 0.22,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 5.0,
+    "peak_bits": 3.88,
+    "fwhm_M": 0.11,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 3.93,
+    "peak_bits": 3.82,
+    "fwhm_M": 0.2,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 3.12,
+    "peak_bits": 3.76,
+    "fwhm_M": 0.14,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 3.56,
+    "peak_bits": 3.74,
+    "fwhm_M": 0.2,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.89,
+    "peak_bits": 3.63,
+    "fwhm_M": 0.22,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 4.88,
+    "peak_bits": 3.58,
+    "fwhm_M": 0.22,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 2.47,
+    "peak_bits": 3.43,
+    "fwhm_M": 0.16,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 4.19,
+    "peak_bits": 3.11,
+    "fwhm_M": 0.17,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 1.42,
+    "peak_bits": 2.84,
+    "fwhm_M": 0.15,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 0.33,
+    "peak_bits": 2.71,
+    "fwhm_M": 0.17,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 1.03,
+    "peak_bits": 2.6,
+    "fwhm_M": 0.22,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 2.24,
+    "peak_bits": 2.55,
+    "fwhm_M": 0.16,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.05,
+    "peak_bits": 2.51,
+    "fwhm_M": 0.15,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 1.25,
+    "peak_bits": 2.45,
+    "fwhm_M": 0.1,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 4.48,
+    "peak_bits": 2.28,
+    "fwhm_M": 0.22,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 3.37,
+    "peak_bits": 2.25,
+    "fwhm_M": 0.22,
+    "continuity": 0.32,
+    "pass": false
+   }
+  ],
+  "train_r": 0.3896122840485963,
+  "val_r": 0.30239759365882685
+ },
+ {
+  "name": "kN060_W130",
+  "lat": 60.0,
+  "lon": -130.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 4.6,
+    "peak_bits": 3.69,
+    "fwhm_M": 0.23,
+    "continuity": 0.68,
+    "pass": false
+   },
+   {
+    "M": 4.73,
+    "peak_bits": 3.59,
+    "fwhm_M": 0.22,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 4.35,
+    "peak_bits": 3.49,
+    "fwhm_M": 0.18,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 3.56,
+    "peak_bits": 3.08,
+    "fwhm_M": 0.14,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 2.88,
+    "peak_bits": 3.03,
+    "fwhm_M": 0.15,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 3.13,
+    "peak_bits": 2.9,
+    "fwhm_M": 0.14,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 1.43,
+    "peak_bits": 2.69,
+    "fwhm_M": 0.14,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 3.93,
+    "peak_bits": 2.59,
+    "fwhm_M": 0.23,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 2.26,
+    "peak_bits": 2.57,
+    "fwhm_M": 0.17,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.48,
+    "peak_bits": 2.44,
+    "fwhm_M": 0.16,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 1.88,
+    "peak_bits": 2.25,
+    "fwhm_M": 0.18,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 1.3,
+    "peak_bits": 2.25,
+    "fwhm_M": 0.23,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 3.37,
+    "peak_bits": 2.24,
+    "fwhm_M": 0.22,
+    "continuity": 0.68,
+    "pass": false
+   },
+   {
+    "M": 4.22,
+    "peak_bits": 2.24,
+    "fwhm_M": 0.14,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 1.16,
+    "peak_bits": 2.23,
+    "fwhm_M": 0.16,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 3.79,
+    "peak_bits": 2.17,
+    "fwhm_M": 0.22,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 1.03,
+    "peak_bits": 2.04,
+    "fwhm_M": 0.15,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 3.0,
+    "peak_bits": 2.04,
+    "fwhm_M": 0.22,
+    "continuity": 0.13,
+    "pass": false
+   }
+  ],
+  "train_r": 0.392361608243872,
+  "val_r": 0.3262883507965446
+ },
+ {
+  "name": "kN060_W050",
+  "lat": 60.0,
+  "lon": -50.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 3.46,
+    "peak_bits": 2.95,
+    "fwhm_M": 0.22,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 4.94,
+    "peak_bits": 2.3,
+    "fwhm_M": 0.17,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 3.66,
+    "peak_bits": 2.22,
+    "fwhm_M": 0.15,
+    "continuity": 0.61,
+    "pass": false
+   },
+   {
+    "M": 3.07,
+    "peak_bits": 2.22,
+    "fwhm_M": 0.23,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 4.32,
+    "peak_bits": 2.21,
+    "fwhm_M": 0.22,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 4.59,
+    "peak_bits": 2.08,
+    "fwhm_M": 0.22,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 2.12,
+    "peak_bits": 2.0,
+    "fwhm_M": 0.17,
+    "continuity": 0.39,
+    "pass": false
+   }
+  ],
+  "train_r": 0.44097487299815336,
+  "val_r": 0.5090689468608567
+ },
+ {
+  "name": "kN060_W030",
+  "lat": 60.0,
+  "lon": -30.0,
+  "n_passing": 1,
+  "top_M": [
+   3.45
+  ],
+  "all_ridges": [
+   {
+    "M": 4.25,
+    "peak_bits": 3.35,
+    "fwhm_M": 0.19,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 0.41,
+    "peak_bits": 3.18,
+    "fwhm_M": 0.15,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 2.8,
+    "peak_bits": 3.17,
+    "fwhm_M": 0.2,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 2.39,
+    "peak_bits": 2.89,
+    "fwhm_M": 0.22,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 4.49,
+    "peak_bits": 2.79,
+    "fwhm_M": 0.22,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 4.37,
+    "peak_bits": 2.69,
+    "fwhm_M": 0.22,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 4.76,
+    "peak_bits": 2.67,
+    "fwhm_M": 0.22,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 0.65,
+    "peak_bits": 2.61,
+    "fwhm_M": 0.15,
+    "continuity": 0.23,
+    "pass": false
+   },
+   {
+    "M": 3.7,
+    "peak_bits": 2.57,
+    "fwhm_M": 0.22,
+    "continuity": 0.32,
+    "pass": false
+   },
+   {
+    "M": 3.45,
+    "peak_bits": 2.54,
+    "fwhm_M": 0.09,
+    "continuity": 0.71,
+    "pass": true
+   },
+   {
+    "M": 4.61,
+    "peak_bits": 2.54,
+    "fwhm_M": 0.22,
+    "continuity": 0.0,
+    "pass": false
+   },
+   {
+    "M": 0.0,
+    "peak_bits": 2.44,
+    "fwhm_M": 0.04,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 3.93,
+    "peak_bits": 2.42,
+    "fwhm_M": 0.23,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 2.19,
+    "peak_bits": 2.17,
+    "fwhm_M": 0.21,
+    "continuity": 0.45,
+    "pass": false
+   }
+  ],
+  "train_r": 0.60479487452082,
+  "val_r": 0.46441160073474236
+ },
+ {
+  "name": "kN060_W010",
+  "lat": 60.0,
+  "lon": -10.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 3.95,
+    "peak_bits": 3.96,
+    "fwhm_M": 0.22,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 2.7,
+    "peak_bits": 3.53,
+    "fwhm_M": 0.15,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 4.58,
+    "peak_bits": 3.38,
+    "fwhm_M": 0.17,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 4.14,
+    "peak_bits": 3.03,
+    "fwhm_M": 0.23,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 2.48,
+    "peak_bits": 2.91,
+    "fwhm_M": 0.15,
+    "continuity": 0.61,
+    "pass": false
+   },
+   {
+    "M": 2.9,
+    "peak_bits": 2.84,
+    "fwhm_M": 0.06,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 4.46,
+    "peak_bits": 2.81,
+    "fwhm_M": 0.13,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 3.73,
+    "peak_bits": 2.79,
+    "fwhm_M": 0.16,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 3.39,
+    "peak_bits": 2.73,
+    "fwhm_M": 0.14,
+    "continuity": 0.58,
+    "pass": false
+   },
+   {
+    "M": 3.53,
+    "peak_bits": 2.68,
+    "fwhm_M": 0.11,
+    "continuity": 0.55,
+    "pass": false
+   },
+   {
+    "M": 3.05,
+    "peak_bits": 2.67,
+    "fwhm_M": 0.23,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 4.84,
+    "peak_bits": 2.58,
+    "fwhm_M": 0.15,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 3.21,
+    "peak_bits": 2.58,
+    "fwhm_M": 0.22,
+    "continuity": 0.29,
+    "pass": false
+   },
+   {
+    "M": 4.26,
+    "peak_bits": 2.47,
+    "fwhm_M": 0.22,
+    "continuity": 0.48,
+    "pass": false
+   },
+   {
+    "M": 4.96,
+    "peak_bits": 2.41,
+    "fwhm_M": 0.08,
+    "continuity": 0.61,
+    "pass": false
+   }
+  ],
+  "train_r": 0.5128629879881635,
+  "val_r": 0.20040594186686678
+ },
+ {
+  "name": "kN080_E010",
+  "lat": 80.0,
+  "lon": 10.0,
+  "n_passing": 0,
+  "top_M": [],
+  "all_ridges": [
+   {
+    "M": 3.96,
+    "peak_bits": 4.44,
+    "fwhm_M": 0.09,
+    "continuity": 0.42,
+    "pass": false
+   },
+   {
+    "M": 4.77,
+    "peak_bits": 4.28,
+    "fwhm_M": 0.23,
+    "continuity": 0.35,
+    "pass": false
+   },
+   {
+    "M": 3.69,
+    "peak_bits": 4.13,
+    "fwhm_M": 0.08,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 4.93,
+    "peak_bits": 3.6,
+    "fwhm_M": 0.19,
+    "continuity": 0.45,
+    "pass": false
+   },
+   {
+    "M": 2.96,
+    "peak_bits": 3.57,
+    "fwhm_M": 0.14,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 3.53,
+    "peak_bits": 3.55,
+    "fwhm_M": 0.23,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 3.81,
+    "peak_bits": 3.52,
+    "fwhm_M": 0.18,
+    "continuity": 0.65,
+    "pass": false
+   },
+   {
+    "M": 2.45,
+    "peak_bits": 3.47,
+    "fwhm_M": 0.15,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 4.11,
+    "peak_bits": 3.34,
+    "fwhm_M": 0.18,
+    "continuity": 0.26,
+    "pass": false
+   },
+   {
+    "M": 2.73,
+    "peak_bits": 2.77,
+    "fwhm_M": 0.18,
+    "continuity": 0.39,
+    "pass": false
+   },
+   {
+    "M": 4.47,
+    "peak_bits": 2.76,
+    "fwhm_M": 0.23,
+    "continuity": 0.61,
+    "pass": false
+   },
+   {
+    "M": 1.72,
+    "peak_bits": 2.7,
+    "fwhm_M": 0.23,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 3.4,
+    "peak_bits": 2.7,
+    "fwhm_M": 0.15,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 1.24,
+    "peak_bits": 2.52,
+    "fwhm_M": 0.13,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 1.91,
+    "peak_bits": 2.46,
+    "fwhm_M": 0.22,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 0.0,
+    "peak_bits": 2.39,
+    "fwhm_M": 0.03,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 0.68,
+    "peak_bits": 2.31,
+    "fwhm_M": 0.23,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 0.56,
+    "peak_bits": 2.28,
+    "fwhm_M": 0.08,
+    "continuity": 0.19,
+    "pass": false
+   },
+   {
+    "M": 0.84,
+    "peak_bits": 2.17,
+    "fwhm_M": 0.24,
+    "continuity": 0.1,
+    "pass": false
+   },
+   {
+    "M": 1.42,
+    "peak_bits": 2.14,
+    "fwhm_M": 0.15,
+    "continuity": 0.13,
+    "pass": false
+   },
+   {
+    "M": 0.41,
+    "peak_bits": 2.09,
+    "fwhm_M": 0.23,
+    "continuity": 0.16,
+    "pass": false
+   },
+   {
+    "M": 2.61,
+    "peak_bits": 2.03,
+    "fwhm_M": 0.23,
+    "continuity": 0.19,
+    "pass": false
+   }
+  ],
+  "train_r": 0.7097604750535399,
+  "val_r": 0.5631857922689149
+ }
+]

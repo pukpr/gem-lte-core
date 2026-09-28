@@ -1,0 +1,714 @@
+[
+ {
+  "region": "kN000_E010",
+  "seed": "kN000_E050",
+  "train_r": 0.6906360794367505,
+  "holdout_r": 0.3037912803987691,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN000_E050",
+  "seed": "kN000_W030",
+  "train_r": 0.6438121233220135,
+  "holdout_r": -0.04475039930328888,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN000_E070",
+  "seed": "kN000_E050",
+  "train_r": 0.7954315079374216,
+  "holdout_r": 0.06627183745393855,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN000_E090",
+  "seed": "kS020_E090",
+  "train_r": 0.7841555757986505,
+  "holdout_r": -0.39054667363990525,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN000_E110",
+  "seed": "kN000_E090",
+  "train_r": 0.7373386456009605,
+  "holdout_r": -0.1975299454841501,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN000_E130",
+  "seed": "kS020_E110",
+  "train_r": 0.6865308197608935,
+  "holdout_r": 0.0903489089974724,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN000_E150",
+  "seed": "kN000_E130",
+  "train_r": 0.7420160172760389,
+  "holdout_r": -0.2744590213177242,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN000_E170",
+  "seed": "kN000_W170",
+  "train_r": 0.6698948792817047,
+  "holdout_r": 0.11236283116749385,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN000_W010",
+  "seed": "kN000_W090",
+  "train_r": 0.6816953880475212,
+  "holdout_r": 0.34847299608678084,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN000_W030",
+  "seed": "kN000_W010",
+  "train_r": 0.6911273112217571,
+  "holdout_r": -0.0034459706527734447,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN000_W050",
+  "seed": "kN000_W030",
+  "train_r": 0.6378231757811684,
+  "holdout_r": 0.3794718806791875,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN000_W090",
+  "seed": "kN000_W110",
+  "train_r": 0.6729505496029294,
+  "holdout_r": 0.5089508946217718,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN000_W110",
+  "seed": "kN000_W130",
+  "train_r": 0.5519905382402823,
+  "holdout_r": 0.21789493137043875,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN000_W130",
+  "seed": "kN000_W150",
+  "train_r": 0.5621625045490899,
+  "holdout_r": 0.5009959006722876,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN000_W150",
+  "seed": "kN020_W150",
+  "train_r": 0.5437379510577528,
+  "holdout_r": -0.3452076378538159,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN000_W170",
+  "seed": "kN000_W130",
+  "train_r": 0.4350705721482338,
+  "holdout_r": 0.12486858721184177,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN020_E050",
+  "seed": "kN000_E050",
+  "train_r": 0.5010938641935403,
+  "holdout_r": -0.15301616943457558,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN020_E070",
+  "seed": "kN020_W010",
+  "train_r": 0.5733776153354567,
+  "holdout_r": -0.04016055029956494,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN020_E090",
+  "seed": "kN000_E090",
+  "train_r": 0.6302192342370819,
+  "holdout_r": -0.15718678253761098,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN020_E110",
+  "seed": "kN020_E090",
+  "train_r": 0.590013244672581,
+  "holdout_r": -0.34545486069781806,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN020_E130",
+  "seed": "kN020_E110",
+  "train_r": 0.6393778314308939,
+  "holdout_r": 0.12048481080813218,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN020_E150",
+  "seed": "kN020_E130",
+  "train_r": 0.6453367242497966,
+  "holdout_r": -0.1801108566507997,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN020_E170",
+  "seed": "kN020_W170",
+  "train_r": 0.6254858742147689,
+  "holdout_r": -0.028816989392013576,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN020_W010",
+  "seed": "kN020_W030",
+  "train_r": 0.6016155306450715,
+  "holdout_r": 0.2680492667650362,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN020_W030",
+  "seed": "kN000_W150",
+  "train_r": 0.7255245666539908,
+  "holdout_r": -0.13331860707527263,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN020_W050",
+  "seed": "kN020_W030",
+  "train_r": 0.6929302504665393,
+  "holdout_r": 0.07801661496157207,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN020_W070",
+  "seed": "kN020_W030",
+  "train_r": 0.6987812597342651,
+  "holdout_r": 0.2660765833950913,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN020_W090",
+  "seed": "kN020_W110",
+  "train_r": 0.5917110955785768,
+  "holdout_r": 0.21568007839133596,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN020_W110",
+  "seed": "kN000_W150",
+  "train_r": 0.6991968566855873,
+  "holdout_r": 0.2354992844766819,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN020_W130",
+  "seed": "kN020_W150",
+  "train_r": 0.6947247133027133,
+  "holdout_r": -0.19082450005582194,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN020_W150",
+  "seed": "kN020_W170",
+  "train_r": 0.6480538641031537,
+  "holdout_r": -0.12898518685737484,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN020_W170",
+  "seed": "PDO",
+  "train_r": 0.7232041579446635,
+  "holdout_r": 0.4629782634594815,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN040_E010",
+  "seed": "kN000_E010",
+  "train_r": 0.5886493857662259,
+  "holdout_r": 0.10722535531444775,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN040_E030",
+  "seed": "AMO (manual, user-run)",
+  "train_r": 0.7165419406111647,
+  "holdout_r": 0.4755625917987452,
+  "timestamp": "2026-09-20T23:36:51",
+  "note": "UPDATED by user manual run (AMO seed, ~10s CC, direct in-place run at 23:23). train_r/holdout_r computed post-hoc on a 2000-2005 split for ledger consistency with other entries; also checked 1950-1955 split (train=0.713, holdout=0.459), consistent. VALIDATION STATUS UNCONFIRMED: lt.exe.resp had TRAIN_START/TRAIN_END/EXCLUDE stripped before this run (removed at 23:05, run completed 23:23) -- unless set via env var instead, this may have been a full-record fit with no genuine holdout, making these numbers in-sample rather than true generalization. Needs confirmation."
+ },
+ {
+  "region": "kN040_E130",
+  "seed": "kN040_E150",
+  "train_r": 0.5577610340969091,
+  "holdout_r": 0.2821784103889339,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN040_E150",
+  "seed": "kN040_E170",
+  "train_r": 0.6333694325346435,
+  "holdout_r": -0.3874645674074208,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN040_E170",
+  "seed": "kN040_W170",
+  "train_r": 0.5988003243809306,
+  "holdout_r": 0.04854003922828879,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN040_W010",
+  "seed": "kN020_W170",
+  "train_r": 0.6995772550250717,
+  "holdout_r": 0.4057684934504804,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN040_W030",
+  "seed": "AMO",
+  "train_r": 0.669926710496144,
+  "holdout_r": 0.6652075107888554,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN040_W050",
+  "seed": "kN040_W030",
+  "train_r": 0.6907898756146568,
+  "holdout_r": 0.23135896598448696,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN040_W070",
+  "seed": "kN040_W090 (manual, user-improved)",
+  "train_r": 0.8082679788937567,
+  "holdout_r": 0.1404889609253957,
+  "timestamp": "2026-09-21T01:07:45",
+  "note": "UPDATED: user manually improved this fit (no F9 filtering, rich 8-term harmonic set spanning orders 2-11, all showing persistent scalogram power across the full 1955-2010 record). 2000-2005 holdout only modestly positive (+0.140), but multi-window test is much stronger and consistent: holdout_r 0.41-0.75 across 7 of 9 different 5yr windows tested (1950-2020). M=0.449 matches nino4 dominant term almost exactly; shared-forcing-corrected check shows near-perfect anti-phase (cos=-0.981, fit_r=0.302) -- consistent with real ENSO atmospheric-bridge teleconnection to the US East Coast."
+ },
+ {
+  "region": "kN040_W090",
+  "seed": "kN040_W150",
+  "train_r": 0.5570678574924457,
+  "holdout_r": -0.23983904268096898,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN040_W130",
+  "seed": "kN040_W150",
+  "train_r": 0.648808576480225,
+  "holdout_r": 0.09211248442664698,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN040_W150",
+  "seed": "kN020_W170",
+  "train_r": 0.5804436452707656,
+  "holdout_r": -0.222942665667635,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN040_W170",
+  "seed": "kN020_W170",
+  "train_r": 0.6784216705853147,
+  "holdout_r": -0.2190580829810817,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN060_E010",
+  "seed": "kN040_W030",
+  "train_r": 0.7181519078041867,
+  "holdout_r": -0.22711164612313656,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN060_E170",
+  "seed": "kN040_E170",
+  "train_r": 0.6155362551949913,
+  "holdout_r": 0.35622255427717003,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN060_W010",
+  "seed": "kN040_W030",
+  "train_r": 0.625812334313679,
+  "holdout_r": -0.0789983880207198,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN060_W030",
+  "seed": "kN060_W010",
+  "train_r": 0.6480286188383966,
+  "holdout_r": 0.3419086455607659,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN060_W050",
+  "seed": "kN060_W030",
+  "train_r": 0.5295756093251374,
+  "holdout_r": -0.1727062673748812,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN060_W130",
+  "seed": "kN040_W130",
+  "train_r": 0.6282087976576909,
+  "holdout_r": 0.09171161213733081,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN060_W150",
+  "seed": "kN040_W170",
+  "train_r": 0.6451085881685749,
+  "holdout_r": 0.28584407159538416,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN060_W170",
+  "seed": "kN040_W170",
+  "train_r": 0.5805295885096798,
+  "holdout_r": -0.09821068218706808,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kN080_E010",
+  "seed": "kN060_E010",
+  "train_r": 0.6159393186062728,
+  "holdout_r": 0.23944614045530438,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS020_E010",
+  "seed": "kS020_E050",
+  "train_r": 0.617115834305072,
+  "holdout_r": -0.20172324728358412,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS020_E030",
+  "seed": "kS020_E050",
+  "train_r": 0.6294889048010954,
+  "holdout_r": -0.10443106562878039,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS020_E050",
+  "seed": "kS020_E070",
+  "train_r": 0.7405663786676285,
+  "holdout_r": -0.22468138031598675,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS020_E070",
+  "seed": "iode",
+  "train_r": 0.7431417597542975,
+  "holdout_r": 0.26495162780962733,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS020_E090",
+  "seed": "kS020_E070",
+  "train_r": 0.7243554904381373,
+  "holdout_r": 0.09734071275497493,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS020_E110",
+  "seed": "kS020_E090",
+  "train_r": 0.6705869199951034,
+  "holdout_r": -0.5055236612441522,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS020_E130",
+  "seed": "kS020_E110",
+  "train_r": 0.5703900212241861,
+  "holdout_r": 0.3928537859487781,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS020_E150",
+  "seed": "kS020_E130",
+  "train_r": 0.5427616078441214,
+  "holdout_r": -0.0759349427842152,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS020_E170",
+  "seed": "kS020_E150",
+  "train_r": 0.6182046517695662,
+  "holdout_r": -0.1689305976932143,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS020_W010",
+  "seed": "kS020_W030",
+  "train_r": 0.5597358504766509,
+  "holdout_r": 0.22763766890461884,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS020_W030",
+  "seed": "kN040_W030",
+  "train_r": 0.6732881621652264,
+  "holdout_r": 0.040823274670529666,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS020_W070",
+  "seed": "kS020_W030",
+  "train_r": 0.5609766956856611,
+  "holdout_r": 0.06306502043661352,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS020_W090",
+  "seed": "kS020_W070",
+  "train_r": 0.5409098342543743,
+  "holdout_r": -0.047467881770487386,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS020_W110",
+  "seed": "kS020_W090",
+  "train_r": 0.660565376365559,
+  "holdout_r": -0.026095886358445675,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS020_W130",
+  "seed": "kS020_W110",
+  "train_r": 0.7514769317520461,
+  "holdout_r": -0.12518166257109992,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS020_W150",
+  "seed": "kS020_W130",
+  "train_r": 0.6536212178081126,
+  "holdout_r": 0.13313236954562,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS020_W170",
+  "seed": "kS020_E170",
+  "train_r": 0.5007665934243877,
+  "holdout_r": 0.04271135237645929,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS040_E010",
+  "seed": "kS040_E050",
+  "train_r": 0.6192814889852787,
+  "holdout_r": 0.2704376693550925,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS040_E030",
+  "seed": "kS040_E050",
+  "train_r": 0.5423045197791522,
+  "holdout_r": 0.06480959595019872,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS040_E050",
+  "seed": "iode",
+  "train_r": 0.5215039843885958,
+  "holdout_r": -0.305994982220803,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS040_E070",
+  "seed": "kS040_E050",
+  "train_r": 0.6015161601705056,
+  "holdout_r": -0.2988433740628061,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS040_E090",
+  "seed": "kS040_E070",
+  "train_r": 0.6489756251208406,
+  "holdout_r": -0.039338153553132055,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS040_E110",
+  "seed": "kS020_E110",
+  "train_r": 0.6433627840841638,
+  "holdout_r": 0.05526368322326307,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS040_E130",
+  "seed": "kS040_E110",
+  "train_r": 0.7056492728049677,
+  "holdout_r": 0.31010599115336857,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS040_E150",
+  "seed": "kS040_E130",
+  "train_r": 0.7177781109660818,
+  "holdout_r": -0.0906917827294644,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS040_E170",
+  "seed": "kS040_E150",
+  "train_r": 0.5396701037647406,
+  "holdout_r": -0.19910809451256323,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS040_W010",
+  "seed": "kS040_W030",
+  "train_r": 0.4794317777372428,
+  "holdout_r": 0.11941565976714415,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS040_W030",
+  "seed": "kS020_W030",
+  "train_r": 0.5749148612501185,
+  "holdout_r": 0.26466757909178723,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS040_W050",
+  "seed": "kS020_W030",
+  "train_r": 0.5975315439921168,
+  "holdout_r": -0.039781171949322826,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS040_W070",
+  "seed": "kS040_W130",
+  "train_r": 0.48369395567579615,
+  "holdout_r": 0.054709194619896005,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS040_W130",
+  "seed": "kS020_W110",
+  "train_r": 0.5152948681332485,
+  "holdout_r": -0.5828236205252774,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS040_W150",
+  "seed": "kS040_W130",
+  "train_r": 0.570695835133947,
+  "holdout_r": -0.06736227402211642,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS040_W170",
+  "seed": "kS040_W150",
+  "train_r": 0.5991294411885222,
+  "holdout_r": -0.24263023439485606,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS060_W050",
+  "seed": "kS040_W050",
+  "train_r": 0.40951550344441195,
+  "holdout_r": -0.280478492982827,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ },
+ {
+  "region": "kS060_W070",
+  "seed": "kS040_W070",
+  "train_r": 0.6069110052612177,
+  "holdout_r": -0.425648144345951,
+  "timestamp": "2026-09-20T22:44:32",
+  "note": "CORRECTED: earlier ledger entry was fit against nino4.dat due to a CLIMATE_INDEX invocation bug, not this region's own data"
+ }
+]

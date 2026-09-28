@@ -1,0 +1,413 @@
+[
+ {
+  "name": "kN_baltic",
+  "n_candidates": 0,
+  "candidates": [],
+  "core_n_windings": 1,
+  "core_M": [
+   0.207494401448758
+  ],
+  "core_train_r": 0.12561160130553795,
+  "core_val_r": 0.08499280809757219,
+  "stretch_n_windings": 1,
+  "stretch_M": [
+   0.207494401448758
+  ],
+  "stretch_train_r": 0.12561160130553795,
+  "stretch_val_r": 0.08499280809757219
+ },
+ {
+  "name": "kN_northsea",
+  "n_candidates": 1,
+  "candidates": [
+   2.85
+  ],
+  "core_n_windings": 2,
+  "core_M": [
+   0.207494401448758,
+   2.85
+  ],
+  "core_train_r": 0.11756442782316301,
+  "core_val_r": 0.030872359133015607,
+  "stretch_n_windings": 2,
+  "stretch_M": [
+   0.207494401448758,
+   2.85
+  ],
+  "stretch_train_r": 0.11756442782316301,
+  "stretch_val_r": 0.030872359133015607
+ },
+ {
+  "name": "kN_brest",
+  "n_candidates": 0,
+  "candidates": [],
+  "core_n_windings": 1,
+  "core_M": [
+   0.207494401448758
+  ],
+  "core_train_r": 0.039787443355582354,
+  "core_val_r": 0.021713646869678648,
+  "stretch_n_windings": 1,
+  "stretch_M": [
+   0.207494401448758
+  ],
+  "stretch_train_r": 0.039787443355582354,
+  "stretch_val_r": 0.021713646869678648
+ },
+ {
+  "name": "kN040_E030",
+  "n_candidates": 1,
+  "candidates": [
+   4.79
+  ],
+  "core_n_windings": 2,
+  "core_M": [
+   0.207494401448758,
+   4.79
+  ],
+  "core_train_r": 0.10544387635041713,
+  "core_val_r": -0.10263593812983739,
+  "stretch_n_windings": 2,
+  "stretch_M": [
+   0.207494401448758,
+   4.79
+  ],
+  "stretch_train_r": 0.10544387635041713,
+  "stretch_val_r": -0.10263593812983739
+ },
+ {
+  "name": "kN040_E130",
+  "n_candidates": 0,
+  "candidates": [],
+  "core_n_windings": 1,
+  "core_M": [
+   0.207494401448758
+  ],
+  "core_train_r": 0.1135937356548849,
+  "core_val_r": -0.18827138718792247,
+  "stretch_n_windings": 1,
+  "stretch_M": [
+   0.207494401448758
+  ],
+  "stretch_train_r": 0.1135937356548849,
+  "stretch_val_r": -0.18827138718792247
+ },
+ {
+  "name": "kS040_E130",
+  "n_candidates": 0,
+  "candidates": [],
+  "core_n_windings": 1,
+  "core_M": [
+   0.207494401448758
+  ],
+  "core_train_r": 0.05232202664039317,
+  "core_val_r": 0.012118513507169568,
+  "stretch_n_windings": 1,
+  "stretch_M": [
+   0.207494401448758
+  ],
+  "stretch_train_r": 0.05232202664039317,
+  "stretch_val_r": 0.012118513507169568
+ },
+ {
+  "name": "kN_indostraits",
+  "n_candidates": 0,
+  "candidates": [],
+  "core_n_windings": 1,
+  "core_M": [
+   0.207494401448758
+  ],
+  "core_train_r": 0.03863339868044149,
+  "core_val_r": -0.03862735516397361,
+  "stretch_n_windings": 1,
+  "stretch_M": [
+   0.207494401448758
+  ],
+  "stretch_train_r": 0.03863339868044149,
+  "stretch_val_r": -0.03862735516397361
+ },
+ {
+  "name": "kN_okhotsk",
+  "n_candidates": 1,
+  "candidates": [
+   4.74
+  ],
+  "core_n_windings": 2,
+  "core_M": [
+   0.207494401448758,
+   4.74
+  ],
+  "core_train_r": 0.08881238742039689,
+  "core_val_r": 0.10390306435204842,
+  "stretch_n_windings": 2,
+  "stretch_M": [
+   0.207494401448758,
+   4.74
+  ],
+  "stretch_train_r": 0.08881238742039689,
+  "stretch_val_r": 0.10390306435204842
+ },
+ {
+  "name": "kS060_W050",
+  "n_candidates": 0,
+  "candidates": [],
+  "core_n_windings": 1,
+  "core_M": [
+   0.207494401448758
+  ],
+  "core_train_r": 0.0774075577313838,
+  "core_val_r": -0.08033714915907053,
+  "stretch_n_windings": 1,
+  "stretch_M": [
+   0.207494401448758
+  ],
+  "stretch_train_r": 0.0774075577313838,
+  "stretch_val_r": -0.08033714915907053
+ },
+ {
+  "name": "kN020_E050",
+  "n_candidates": 0,
+  "candidates": [],
+  "core_n_windings": 1,
+  "core_M": [
+   0.207494401448758
+  ],
+  "core_train_r": 0.06752585762430476,
+  "core_val_r": 0.12560979243415768,
+  "stretch_n_windings": 1,
+  "stretch_M": [
+   0.207494401448758
+  ],
+  "stretch_train_r": 0.06752585762430476,
+  "stretch_val_r": 0.12560979243415768
+ },
+ {
+  "name": "kN040_E030",
+  "n_candidates": 0,
+  "candidates": [],
+  "core_n_windings": 1,
+  "core_M": [
+   0.207494401448758
+  ],
+  "core_train_r": 0.09019779936830184,
+  "core_val_r": 0.0980514514741293,
+  "stretch_n_windings": 1,
+  "stretch_M": [
+   0.207494401448758
+  ],
+  "stretch_train_r": 0.09019779936830184,
+  "stretch_val_r": 0.0980514514741293
+ },
+ {
+  "name": "kN060_W170",
+  "n_candidates": 0,
+  "candidates": [],
+  "core_n_windings": 1,
+  "core_M": [
+   0.207494401448758
+  ],
+  "core_train_r": 0.1532533184320296,
+  "core_val_r": 0.0347865286920625,
+  "stretch_n_windings": 1,
+  "stretch_M": [
+   0.207494401448758
+  ],
+  "stretch_train_r": 0.1532533184320296,
+  "stretch_val_r": 0.0347865286920625
+ },
+ {
+  "name": "kS020_E050",
+  "n_candidates": 0,
+  "candidates": [],
+  "core_n_windings": 1,
+  "core_M": [
+   0.207494401448758
+  ],
+  "core_train_r": 0.10872771634727899,
+  "core_val_r": 0.15857573191743946,
+  "stretch_n_windings": 1,
+  "stretch_M": [
+   0.207494401448758
+  ],
+  "stretch_train_r": 0.10872771634727899,
+  "stretch_val_r": 0.15857573191743946
+ },
+ {
+  "name": "kS040_E070",
+  "n_candidates": 0,
+  "candidates": [],
+  "core_n_windings": 1,
+  "core_M": [
+   0.207494401448758
+  ],
+  "core_train_r": 0.11241100822126568,
+  "core_val_r": -0.10662171792457145,
+  "stretch_n_windings": 1,
+  "stretch_M": [
+   0.207494401448758
+  ],
+  "stretch_train_r": 0.11241100822126568,
+  "stretch_val_r": -0.10662171792457145
+ },
+ {
+  "name": "kN080_E010",
+  "n_candidates": 0,
+  "candidates": [],
+  "core_n_windings": 1,
+  "core_M": [
+   0.207494401448758
+  ],
+  "core_train_r": 0.10705608092621932,
+  "core_val_r": 0.13468333871534807,
+  "stretch_n_windings": 1,
+  "stretch_M": [
+   0.207494401448758
+  ],
+  "stretch_train_r": 0.10705608092621932,
+  "stretch_val_r": 0.13468333871534807
+ },
+ {
+  "name": "kN020_W110",
+  "n_candidates": 0,
+  "candidates": [],
+  "core_n_windings": 1,
+  "core_M": [
+   0.207494401448758
+  ],
+  "core_train_r": 0.03308587393899417,
+  "core_val_r": 0.1744352824347198,
+  "stretch_n_windings": 1,
+  "stretch_M": [
+   0.207494401448758
+  ],
+  "stretch_train_r": 0.03308587393899417,
+  "stretch_val_r": 0.1744352824347198
+ },
+ {
+  "name": "kN020_W050",
+  "n_candidates": 1,
+  "candidates": [
+   4.75
+  ],
+  "core_n_windings": 2,
+  "core_M": [
+   0.207494401448758,
+   4.75
+  ],
+  "core_train_r": 0.2540515265127427,
+  "core_val_r": 0.09428014063757574,
+  "stretch_n_windings": 2,
+  "stretch_M": [
+   0.207494401448758,
+   4.75
+  ],
+  "stretch_train_r": 0.2540515265127427,
+  "stretch_val_r": 0.09428014063757574
+ },
+ {
+  "name": "kS020_E150",
+  "n_candidates": 0,
+  "candidates": [],
+  "core_n_windings": 1,
+  "core_M": [
+   0.207494401448758
+  ],
+  "core_train_r": 0.18839156109926622,
+  "core_val_r": 0.21306395279958776,
+  "stretch_n_windings": 1,
+  "stretch_M": [
+   0.207494401448758
+  ],
+  "stretch_train_r": 0.18839156109926622,
+  "stretch_val_r": 0.21306395279958776
+ },
+ {
+  "name": "kN000_W030",
+  "n_candidates": 0,
+  "candidates": [],
+  "core_n_windings": 1,
+  "core_M": [
+   0.207494401448758
+  ],
+  "core_train_r": 0.04948896852320392,
+  "core_val_r": 0.28082979820525605,
+  "stretch_n_windings": 1,
+  "stretch_M": [
+   0.207494401448758
+  ],
+  "stretch_train_r": 0.04948896852320392,
+  "stretch_val_r": 0.28082979820525605
+ },
+ {
+  "name": "kN000_W050",
+  "n_candidates": 0,
+  "candidates": [],
+  "core_n_windings": 1,
+  "core_M": [
+   0.207494401448758
+  ],
+  "core_train_r": 0.13230823142313328,
+  "core_val_r": 0.3146607354956751,
+  "stretch_n_windings": 1,
+  "stretch_M": [
+   0.207494401448758
+  ],
+  "stretch_train_r": 0.13230823142313328,
+  "stretch_val_r": 0.3146607354956751
+ },
+ {
+  "name": "kN040_E170",
+  "n_candidates": 0,
+  "candidates": [],
+  "core_n_windings": 1,
+  "core_M": [
+   0.207494401448758
+  ],
+  "core_train_r": 0.165590751240507,
+  "core_val_r": 0.045132672907605656,
+  "stretch_n_windings": 1,
+  "stretch_M": [
+   0.207494401448758
+  ],
+  "stretch_train_r": 0.165590751240507,
+  "stretch_val_r": 0.045132672907605656
+ },
+ {
+  "name": "kN060_W050",
+  "n_candidates": 0,
+  "candidates": [],
+  "core_n_windings": 1,
+  "core_M": [
+   0.207494401448758
+  ],
+  "core_train_r": 0.14086299248604262,
+  "core_val_r": 0.23959509615875502,
+  "stretch_n_windings": 1,
+  "stretch_M": [
+   0.207494401448758
+  ],
+  "stretch_train_r": 0.14086299248604262,
+  "stretch_val_r": 0.23959509615875502
+ },
+ {
+  "name": "kN020_W150",
+  "n_candidates": 1,
+  "candidates": [
+   4.58
+  ],
+  "core_n_windings": 2,
+  "core_M": [
+   0.207494401448758,
+   4.58
+  ],
+  "core_train_r": 0.2793834021462653,
+  "core_val_r": -0.2195611336463629,
+  "stretch_n_windings": 2,
+  "stretch_M": [
+   0.207494401448758,
+   4.58
+  ],
+  "stretch_train_r": 0.2793834021462653,
+  "stretch_val_r": -0.2195611336463629
+ }
+]

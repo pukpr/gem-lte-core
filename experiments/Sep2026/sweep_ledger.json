@@ -1,0 +1,4140 @@
+[
+  {
+    "cell": "kN060_E010",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.91979541125
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.91978662296
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.91985387116
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.91984263719
+      }
+    ],
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Feb2026/baltic",
+    "timestamp": "2026-09-26T22:36:24.677409+00:00",
+    "elapsed_s": 510.0
+  },
+  {
+    "cell": "kN040_W170",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6100765379,
+      "validate": 0.6688050443,
+      "test": 0.5211048537
+    },
+    "dlod": 0.99596858612,
+    "n_attempts": 1,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Feb2026/pdo",
+    "timestamp": "2026-09-26T22:38:32.110013+00:00",
+    "elapsed_s": 127.4
+  },
+  {
+    "cell": "kN060_W170",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.9660734974
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.9660734973
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.96607349725
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.96607349713
+      }
+    ],
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Feb2026/pna",
+    "timestamp": "2026-09-26T22:47:06.487386+00:00",
+    "elapsed_s": 514.4
+  },
+  {
+    "cell": "kN040_W150",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.94866970293
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.94866970293
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.94866970293
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.94866970293
+      }
+    ],
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Feb2026/pna",
+    "timestamp": "2026-09-26T22:55:40.452744+00:00",
+    "elapsed_s": 514.0
+  },
+  {
+    "cell": "kN060_W010",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.5897784995,
+      "validate": 0.6741724318,
+      "test": 0.5210549159
+    },
+    "dlod": 0.99632833199,
+    "n_attempts": 1,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Feb2026/baltic",
+    "timestamp": "2026-09-26T22:57:47.785874+00:00",
+    "elapsed_s": 127.3
+  },
+  {
+    "cell": "kN060_W050",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6250750173,
+      "validate": 0.6650208707,
+      "test": 0.6173786058
+    },
+    "dlod": 0.99632807071,
+    "n_attempts": 1,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kN060_W010",
+    "timestamp": "2026-09-26T22:59:55.164717+00:00",
+    "elapsed_s": 127.4
+  },
+  {
+    "cell": "kN020_W030",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7449539508,
+      "validate": 0.8509560697,
+      "test": 0.8052443563
+    },
+    "dlod": 0.99890653472,
+    "n_attempts": 1,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Feb2026/amo",
+    "timestamp": "2026-09-26T23:02:02.727949+00:00",
+    "elapsed_s": 127.6
+  },
+  {
+    "cell": "kN020_E170",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.5992796739,
+      "validate": 0.7548640585,
+      "test": 0.7820811391
+    },
+    "dlod": 0.99597023742,
+    "n_attempts": 1,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Feb2026/pdo",
+    "timestamp": "2026-09-26T23:04:10.662852+00:00",
+    "elapsed_s": 127.9
+  },
+  {
+    "cell": "kN040_E150",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6858866577,
+      "validate": 0.8315851681,
+      "test": 0.7102651204
+    },
+    "dlod": 0.99597950464,
+    "n_attempts": 1,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Feb2026/pdo",
+    "timestamp": "2026-09-26T23:06:18.090581+00:00",
+    "elapsed_s": 127.4
+  },
+  {
+    "cell": "kS060_W050",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6024881966,
+      "validate": 0.6108594199,
+      "test": 0.6181018828
+    },
+    "dlod": 0.99881916588,
+    "n_attempts": 1,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Feb2026/sam",
+    "timestamp": "2026-09-26T23:08:25.510250+00:00",
+    "elapsed_s": 127.4
+  },
+  {
+    "cell": "kN040_W030",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.5470668572,
+      "validate": 0.462390922,
+      "test": 0.425577632
+    },
+    "dlod": 0.99910362407,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Feb2026/amo",
+    "timestamp": "2026-09-26T18:33:58",
+    "elapsed_s": 127.8
+  },
+  {
+    "cell": "kN040_W050",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7413560278,
+      "validate": 0.8643533238,
+      "test": 0.6835302629
+    },
+    "dlod": 0.99909996693,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Feb2026/amo",
+    "timestamp": "2026-09-26T18:36:05",
+    "elapsed_s": 127.4
+  },
+  {
+    "cell": "kN060_W030",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7540894468,
+      "validate": 0.7453752929,
+      "test": 0.4276243901
+    },
+    "dlod": 0.99913584366,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Feb2026/amo",
+    "timestamp": "2026-09-26T18:38:12",
+    "elapsed_s": 127.3
+  },
+  {
+    "cell": "kN020_W050",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7290580853,
+      "validate": 0.8728570129,
+      "test": 0.7714962236
+    },
+    "dlod": 0.99767755609,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Feb2026/amo",
+    "timestamp": "2026-09-26T18:40:21",
+    "elapsed_s": 128.0
+  },
+  {
+    "cell": "kN040_W010",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7340692079,
+      "validate": 0.8630304199,
+      "test": 0.8163056053
+    },
+    "dlod": 0.99912797647,
+    "n_attempts": 1,
+    "retry_index": 1,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Feb2026/amo",
+    "timestamp": "2026-09-26T18:50:58",
+    "elapsed_s": 637.8
+  },
+  {
+    "cell": "kN040_W070",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.86940575914
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.8694057571
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.86940575512
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.86940575348
+      }
+    ],
+    "retry_index": 1,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Feb2026/amo",
+    "timestamp": "2026-09-26T19:07:58",
+    "elapsed_s": 1020.1
+  },
+  {
+    "cell": "kN060_W170",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.88399924834
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.88399925091
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.88399924824
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.88399924749
+      }
+    ],
+    "retry_index": 1,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kN040_W170",
+    "timestamp": "2026-09-26T19:27:51",
+    "elapsed_s": 1022.2
+  },
+  {
+    "cell": "kN040_W150",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.5768138742,
+      "validate": 0.6429238774,
+      "test": 0.4514672427
+    },
+    "dlod": 0.99589508632,
+    "n_attempts": 1,
+    "retry_index": 1,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kN040_W170",
+    "timestamp": "2026-09-26T19:38:30",
+    "elapsed_s": 639.3
+  },
+  {
+    "cell": "kN060_E010",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.5929644494,
+      "validate": 0.646733131,
+      "test": 0.6450875151
+    },
+    "dlod": 0.99632260643,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Feb2026/baltic",
+    "timestamp": "2026-09-26T19:40:37",
+    "elapsed_s": 127.4
+  },
+  {
+    "cell": "kS060_W070",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.692554522,
+      "validate": 0.6907812163,
+      "test": 0.83391731
+    },
+    "dlod": 0.99773895149,
+    "n_attempts": 1,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kS060_W050",
+    "timestamp": "2026-09-27T03:38:09.770309+00:00",
+    "elapsed_s": 129.5
+  },
+  {
+    "cell": "kN020_E150",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.92012563204
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.92012894991
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.91818311846
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.91818607958
+      }
+    ],
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kN020_E170",
+    "timestamp": "2026-09-27T03:46:46.555813+00:00",
+    "elapsed_s": 516.8
+  },
+  {
+    "cell": "kN000_W030",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7378698096,
+      "validate": 0.8678226902,
+      "test": 0.8638682123
+    },
+    "dlod": 0.99890654585,
+    "n_attempts": 1,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kN020_W030",
+    "timestamp": "2026-09-27T03:48:56.276458+00:00",
+    "elapsed_s": 129.7
+  },
+  {
+    "cell": "kN020_W150",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.556796061,
+      "validate": 0.5959644812,
+      "test": 0.4835481551
+    },
+    "dlod": 0.99589508766,
+    "n_attempts": 1,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kN040_W150",
+    "timestamp": "2026-09-27T03:51:04.237226+00:00",
+    "elapsed_s": 128.0
+  },
+  {
+    "cell": "kN020_W130",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6181802938,
+      "validate": 0.6590869436,
+      "test": 0.5763508498
+    },
+    "dlod": 0.99589508766,
+    "n_attempts": 1,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kN020_W150",
+    "timestamp": "2026-09-27T03:53:11.862634+00:00",
+    "elapsed_s": 127.6
+  },
+  {
+    "cell": "kS040_W050",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.695268661,
+      "validate": 0.8161300858,
+      "test": 0.7364504786
+    },
+    "dlod": 0.99475762051,
+    "n_attempts": 1,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kS060_W050",
+    "timestamp": "2026-09-27T03:55:19.145854+00:00",
+    "elapsed_s": 127.3
+  },
+  {
+    "cell": "kN000_W150",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.8924308697
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.89243653804
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.89244507034
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.8924535507
+      }
+    ],
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kN020_W150",
+    "timestamp": "2026-09-27T04:03:51.296527+00:00",
+    "elapsed_s": 512.1
+  },
+  {
+    "cell": "kS020_E170",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.91367345422
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.91367345422
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.91367345331
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.91367345331
+      }
+    ],
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Feb2026/nino4",
+    "timestamp": "2026-09-27T04:12:28.913961+00:00",
+    "elapsed_s": 517.6
+  },
+  {
+    "cell": "kN000_E090",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7391078819,
+      "validate": 0.8074062877,
+      "test": 0.8913218454
+    },
+    "dlod": 0.9947870885,
+    "n_attempts": 1,
+    "retry_index": 1,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Feb2026/iode",
+    "timestamp": "2026-09-27T00:35:05",
+    "elapsed_s": 639.6
+  },
+  {
+    "cell": "kN000_E110",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7181755017,
+      "validate": 0.812708317,
+      "test": 0.8256254033
+    },
+    "dlod": 0.99510042348,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Feb2026/iode",
+    "timestamp": "2026-09-27T00:37:12",
+    "elapsed_s": 127.4
+  },
+  {
+    "cell": "kN000_E050",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.9899519682
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.98965956919
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.98929381392
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.98929128435
+      }
+    ],
+    "retry_index": 1,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Feb2026/iodw",
+    "timestamp": "2026-09-27T00:54:21",
+    "elapsed_s": 1028.2
+  },
+  {
+    "cell": "kS020_E050",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.98522797568
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.98522792537
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.98522689474
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.98522566526
+      }
+    ],
+    "retry_index": 1,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Feb2026/iodw",
+    "timestamp": "2026-09-27T01:11:25",
+    "elapsed_s": 1024.8
+  },
+  {
+    "cell": "kS020_E110",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7516460197,
+      "validate": 0.8578279457,
+      "test": 0.6904073971
+    },
+    "dlod": 0.99479335926,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Feb2026/iode",
+    "timestamp": "2026-09-27T01:13:36",
+    "elapsed_s": 130.4
+  },
+  {
+    "cell": "kN020_E090",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6683447566,
+      "validate": 0.7904611115,
+      "test": 0.8022936073
+    },
+    "dlod": 0.99478707163,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kN000_E090",
+    "timestamp": "2026-09-27T01:15:44",
+    "elapsed_s": 128.6
+  },
+  {
+    "cell": "kN020_E070",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6070834637,
+      "validate": 0.6755819893,
+      "test": 0.646579495
+    },
+    "dlod": 0.99478707268,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kN020_E090",
+    "timestamp": "2026-09-27T01:17:52",
+    "elapsed_s": 127.3
+  },
+  {
+    "cell": "kN020_E050",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.4689368177,
+      "validate": 0.4240103053,
+      "test": 0.3202388897
+    },
+    "dlod": 0.99475972382,
+    "n_attempts": 1,
+    "retry_index": 1,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kN020_E070",
+    "timestamp": "2026-09-27T01:28:35",
+    "elapsed_s": 642.8
+  },
+  {
+    "cell": "kN020_E110",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6103312519,
+      "validate": 0.6917810964,
+      "test": 0.6746422452
+    },
+    "dlod": 0.99478707266,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kN020_E090",
+    "timestamp": "2026-09-27T01:30:42",
+    "elapsed_s": 127.6
+  },
+  {
+    "cell": "kS020_W130",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7614943067,
+      "validate": 0.8580489835,
+      "test": 0.785479708
+    },
+    "dlod": 0.99863595505,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Feb2026/nino34",
+    "timestamp": "2026-09-27T01:32:50",
+    "elapsed_s": 127.4
+  },
+  {
+    "cell": "kS020_W110",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.518368928,
+      "validate": 0.2980737575,
+      "test": 0.8441152488
+    },
+    "dlod": 0.9952921037,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kS020_W130",
+    "timestamp": "2026-09-27T01:35:00",
+    "elapsed_s": 130.2
+  },
+  {
+    "cell": "kS020_W090",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.2362360144,
+      "validate": 0.0,
+      "test": -1.8718701432
+    },
+    "dlod": 0.99528952229,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kS020_W110",
+    "timestamp": "2026-09-27T01:37:07",
+    "elapsed_s": 127.3
+  },
+  {
+    "cell": "kS040_W130",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6463386683,
+      "validate": 0.7898741239,
+      "test": 0.5712472609
+    },
+    "dlod": 0.99814978455,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kS020_W130",
+    "timestamp": "2026-09-27T01:39:15",
+    "elapsed_s": 127.5
+  },
+  {
+    "cell": "kS040_W150",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6645065583,
+      "validate": 0.8301731493,
+      "test": 0.6926770261
+    },
+    "dlod": 0.99813990544,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kS040_W130",
+    "timestamp": "2026-09-27T01:41:23",
+    "elapsed_s": 128.8
+  },
+  {
+    "cell": "kS040_W170",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.5756916603,
+      "validate": 0.6812980696,
+      "test": 0.4660363033
+    },
+    "dlod": 0.99814196508,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kS040_W150",
+    "timestamp": "2026-09-27T01:43:31",
+    "elapsed_s": 127.6
+  },
+  {
+    "cell": "kS040_E170",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.513835294,
+      "validate": 0.5197231434,
+      "test": 0.3949364959
+    },
+    "dlod": 0.99813454931,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kS040_W170",
+    "timestamp": "2026-09-27T01:45:38",
+    "elapsed_s": 127.3
+  },
+  {
+    "cell": "kS040_E150",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7494057818,
+      "validate": 0.8800692162,
+      "test": 0.818768601
+    },
+    "dlod": 0.99813456551,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kS040_E170",
+    "timestamp": "2026-09-27T01:47:46",
+    "elapsed_s": 127.6
+  },
+  {
+    "cell": "kS020_E150",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6171295735,
+      "validate": 0.719367703,
+      "test": 0.6449989579
+    },
+    "dlod": 0.99813456418,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kS040_E150",
+    "timestamp": "2026-09-27T01:49:53",
+    "elapsed_s": 127.4
+  },
+  {
+    "cell": "kN000_E150",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7397322008,
+      "validate": 0.8930022815,
+      "test": 0.8578872974
+    },
+    "dlod": 0.99813456564,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kS020_E150",
+    "timestamp": "2026-09-27T01:52:01",
+    "elapsed_s": 127.5
+  },
+  {
+    "cell": "kS040_E090",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6991686008,
+      "validate": 0.7943326545,
+      "test": 0.62188478
+    },
+    "dlod": 0.99475760347,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kS020_E110",
+    "timestamp": "2026-09-27T01:54:09",
+    "elapsed_s": 128.1
+  },
+  {
+    "cell": "kS040_E070",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7141859034,
+      "validate": 0.8161048969,
+      "test": 0.7343063623
+    },
+    "dlod": 0.99475757792,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kS040_E090",
+    "timestamp": "2026-09-27T01:56:18",
+    "elapsed_s": 128.7
+  },
+  {
+    "cell": "kS040_E050",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6331640495,
+      "validate": 0.7020346873,
+      "test": 0.6339078551
+    },
+    "dlod": 0.99475759726,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kS040_E070",
+    "timestamp": "2026-09-27T01:58:25",
+    "elapsed_s": 127.5
+  },
+  {
+    "cell": "kS020_E030",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7535922102,
+      "validate": 0.8889643815,
+      "test": 0.8437640667
+    },
+    "dlod": 0.99475756163,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kS040_E050",
+    "timestamp": "2026-09-27T02:00:33",
+    "elapsed_s": 127.5
+  },
+  {
+    "cell": "kS020_E010",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.5844475437,
+      "validate": 0.5584881297,
+      "test": 0.7151816397
+    },
+    "dlod": 0.99475755225,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kS020_E030",
+    "timestamp": "2026-09-27T02:02:40",
+    "elapsed_s": 127.3
+  },
+  {
+    "cell": "kN040_W090",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.98005764865
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.98005764853
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.98005765256
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.98005765365
+      }
+    ],
+    "retry_index": 1,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kN040_W050",
+    "timestamp": "2026-09-27T02:19:42",
+    "elapsed_s": 1022.1
+  },
+  {
+    "cell": "kN060_W170",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.4844486899,
+      "validate": 0.5253850945,
+      "test": 0.3845541244
+    },
+    "dlod": 0.99890213894,
+    "n_attempts": 1,
+    "triangulated_from": [
+      "pna",
+      "kN040_W170",
+      "pdo"
+    ],
+    "retry_index": 0,
+    "timestamp": "2026-09-27T05:11:34",
+    "elapsed_s": 127.4,
+    "seed_from_path": "triangulated:pna,kN040_W170,pdo"
+  },
+  {
+    "cell": "kN040_W070",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.89667716945
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.89667717117
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.89667717164
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.89667717192
+      }
+    ],
+    "triangulated_from": [
+      "kN040_W050",
+      "amo",
+      "kN060_W050"
+    ],
+    "retry_index": 1,
+    "timestamp": "2026-09-27T05:28:39",
+    "elapsed_s": 1025.0,
+    "seed_from_path": "triangulated:kN040_W050,amo,kN060_W050"
+  },
+  {
+    "cell": "kN020_E150",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6295621912,
+      "validate": 0.8288184359,
+      "test": 0.8328905547
+    },
+    "dlod": 0.99830882172,
+    "n_attempts": 1,
+    "triangulated_from": [
+      "kN020_E170",
+      "kN040_E150",
+      "kN000_E150"
+    ],
+    "retry_index": 0,
+    "timestamp": "2026-09-27T05:30:47",
+    "elapsed_s": 127.3,
+    "seed_from_path": "triangulated:kN020_E170,kN040_E150,kN000_E150"
+  },
+  {
+    "cell": "kN000_W150",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.5596389393,
+      "validate": 0.5009467642,
+      "test": 0.5324655693
+    },
+    "dlod": 0.99922014871,
+    "n_attempts": 1,
+    "triangulated_from": [
+      "nino34",
+      "kN020_W150",
+      "nino4"
+    ],
+    "retry_index": 0,
+    "timestamp": "2026-09-27T05:32:54",
+    "elapsed_s": 127.3,
+    "seed_from_path": "triangulated:nino34,kN020_W150,nino4"
+  },
+  {
+    "cell": "kS020_E170",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.3679151044,
+      "validate": 0.3475667956,
+      "test": 0.2397463359
+    },
+    "dlod": 0.99547366965,
+    "n_attempts": 1,
+    "triangulated_from": [
+      "kS020_E150",
+      "kS040_E170",
+      "nino4"
+    ],
+    "retry_index": 0,
+    "timestamp": "2026-09-27T05:35:03",
+    "elapsed_s": 128.8,
+    "seed_from_path": "triangulated:kS020_E150,kS040_E170,nino4"
+  },
+  {
+    "cell": "kN000_E050",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.99271660616
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.99271660507
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.99271660469
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.87707319147
+      }
+    ],
+    "triangulated_from": [
+      "iodw",
+      "kN020_E050",
+      "kN020_E070"
+    ],
+    "retry_index": 1,
+    "timestamp": "2026-09-27T05:52:06",
+    "elapsed_s": 1023.7,
+    "seed_from_path": "triangulated:iodw,kN020_E050,kN020_E070"
+  },
+  {
+    "cell": "kS020_E050",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.99328574307
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.99328559669
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.99328485949
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.99328338247
+      }
+    ],
+    "triangulated_from": [
+      "iodw",
+      "kS020_E030",
+      "kS040_E050"
+    ],
+    "retry_index": 1,
+    "timestamp": "2026-09-27T06:09:10",
+    "elapsed_s": 1023.7,
+    "seed_from_path": "triangulated:iodw,kS020_E030,kS040_E050"
+  },
+  {
+    "cell": "kN040_W090",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.5757083025,
+      "validate": 0.6931476947,
+      "test": 0.5834566499
+    },
+    "dlod": 0.99885237111,
+    "n_attempts": 1,
+    "triangulated_from": [
+      "kN040_W050",
+      "kN060_W050",
+      "amo"
+    ],
+    "retry_index": 0,
+    "timestamp": "2026-09-27T06:11:18",
+    "elapsed_s": 127.4,
+    "seed_from_path": "triangulated:kN040_W050,kN060_W050,amo"
+  },
+  {
+    "cell": "kS020_W090",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.1971736011,
+      "validate": 0.0,
+      "test": -1.8067460117
+    },
+    "dlod": 0.99683364956,
+    "n_attempts": 1,
+    "triangulated_from": [
+      "kS020_W110",
+      "kS020_W130",
+      "kS040_W050"
+    ],
+    "retry_index": 0,
+    "timestamp": "2026-09-27T06:13:25",
+    "elapsed_s": 127.4,
+    "seed_from_path": "triangulated:kS020_W110,kS020_W130,kS040_W050"
+  },
+  {
+    "cell": "kN040_W170",
+    "accepted": false,
+    "reason": "invalidated-bad-backbone",
+    "timestamp": "2026-09-27T10:14:34",
+    "seed_from_path": "invalidation"
+  },
+  {
+    "cell": "kN060_W170",
+    "accepted": false,
+    "reason": "invalidated-bad-backbone",
+    "timestamp": "2026-09-27T10:14:34",
+    "seed_from_path": "invalidation"
+  },
+  {
+    "cell": "kN040_W150",
+    "accepted": false,
+    "reason": "invalidated-bad-backbone",
+    "timestamp": "2026-09-27T10:14:34",
+    "seed_from_path": "invalidation"
+  },
+  {
+    "cell": "kN060_W050",
+    "accepted": false,
+    "reason": "invalidated-bad-backbone",
+    "timestamp": "2026-09-27T10:14:34",
+    "seed_from_path": "invalidation"
+  },
+  {
+    "cell": "kN020_W030",
+    "accepted": false,
+    "reason": "invalidated-bad-backbone",
+    "timestamp": "2026-09-27T10:14:34",
+    "seed_from_path": "invalidation"
+  },
+  {
+    "cell": "kN020_E170",
+    "accepted": false,
+    "reason": "invalidated-bad-backbone",
+    "timestamp": "2026-09-27T10:14:34",
+    "seed_from_path": "invalidation"
+  },
+  {
+    "cell": "kN020_W050",
+    "accepted": false,
+    "reason": "invalidated-bad-backbone",
+    "timestamp": "2026-09-27T10:14:34",
+    "seed_from_path": "invalidation"
+  },
+  {
+    "cell": "kN040_W010",
+    "accepted": false,
+    "reason": "invalidated-bad-backbone",
+    "timestamp": "2026-09-27T10:14:34",
+    "seed_from_path": "invalidation"
+  },
+  {
+    "cell": "kN000_W030",
+    "accepted": false,
+    "reason": "invalidated-bad-backbone",
+    "timestamp": "2026-09-27T10:14:34",
+    "seed_from_path": "invalidation"
+  },
+  {
+    "cell": "kN020_W150",
+    "accepted": false,
+    "reason": "invalidated-bad-backbone",
+    "timestamp": "2026-09-27T10:14:34",
+    "seed_from_path": "invalidation"
+  },
+  {
+    "cell": "kN020_W130",
+    "accepted": false,
+    "reason": "invalidated-bad-backbone",
+    "timestamp": "2026-09-27T10:14:34",
+    "seed_from_path": "invalidation"
+  },
+  {
+    "cell": "kS020_E170",
+    "accepted": false,
+    "reason": "invalidated-bad-backbone",
+    "timestamp": "2026-09-27T10:14:34",
+    "seed_from_path": "invalidation"
+  },
+  {
+    "cell": "kN020_E090",
+    "accepted": false,
+    "reason": "invalidated-bad-backbone",
+    "timestamp": "2026-09-27T10:14:34",
+    "seed_from_path": "invalidation"
+  },
+  {
+    "cell": "kN020_E070",
+    "accepted": false,
+    "reason": "invalidated-bad-backbone",
+    "timestamp": "2026-09-27T10:14:34",
+    "seed_from_path": "invalidation"
+  },
+  {
+    "cell": "kN020_E110",
+    "accepted": false,
+    "reason": "invalidated-bad-backbone",
+    "timestamp": "2026-09-27T10:14:34",
+    "seed_from_path": "invalidation"
+  },
+  {
+    "cell": "kS040_E170",
+    "accepted": false,
+    "reason": "invalidated-bad-backbone",
+    "timestamp": "2026-09-27T10:14:34",
+    "seed_from_path": "invalidation"
+  },
+  {
+    "cell": "kS040_E150",
+    "accepted": false,
+    "reason": "invalidated-bad-backbone",
+    "timestamp": "2026-09-27T10:14:34",
+    "seed_from_path": "invalidation"
+  },
+  {
+    "cell": "kS020_E150",
+    "accepted": false,
+    "reason": "invalidated-bad-backbone",
+    "timestamp": "2026-09-27T10:14:34",
+    "seed_from_path": "invalidation"
+  },
+  {
+    "cell": "kN000_E150",
+    "accepted": false,
+    "reason": "invalidated-bad-backbone",
+    "timestamp": "2026-09-27T10:14:34",
+    "seed_from_path": "invalidation"
+  },
+  {
+    "cell": "kS040_E070",
+    "accepted": false,
+    "reason": "invalidated-bad-backbone",
+    "timestamp": "2026-09-27T10:14:34",
+    "seed_from_path": "invalidation"
+  },
+  {
+    "cell": "kS040_E050",
+    "accepted": false,
+    "reason": "invalidated-bad-backbone",
+    "timestamp": "2026-09-27T10:14:34",
+    "seed_from_path": "invalidation"
+  },
+  {
+    "cell": "kS020_E030",
+    "accepted": false,
+    "reason": "invalidated-bad-backbone",
+    "timestamp": "2026-09-27T10:14:34",
+    "seed_from_path": "invalidation"
+  },
+  {
+    "cell": "kS020_E010",
+    "accepted": false,
+    "reason": "invalidated-bad-backbone",
+    "timestamp": "2026-09-27T10:14:34",
+    "seed_from_path": "invalidation"
+  },
+  {
+    "cell": "kN040_W090",
+    "accepted": false,
+    "reason": "invalidated-bad-backbone",
+    "timestamp": "2026-09-27T10:14:34",
+    "seed_from_path": "invalidation"
+  },
+  {
+    "cell": "kN040_W170",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.99834965193
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.99834965192
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.99834965193
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.99834965193
+      }
+    ],
+    "triangulated_from": [
+      "pdo",
+      "pna",
+      "kN040_E150"
+    ],
+    "retry_index": 1,
+    "seed_from_path": "triangulated:pdo,pna,kN040_E150",
+    "timestamp": "2026-09-27T10:48:48",
+    "elapsed_s": 2054.2
+  },
+  {
+    "cell": "kN020_W030",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.88088808586
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.88088808608
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.88088807879
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.88088808068
+      }
+    ],
+    "triangulated_from": [
+      "tna",
+      "kN040_W030",
+      "amo"
+    ],
+    "retry_index": 1,
+    "seed_from_path": "triangulated:tna,kN040_W030,amo",
+    "timestamp": "2026-09-27T11:24:01",
+    "elapsed_s": 2112.8
+  },
+  {
+    "cell": "kN060_W050",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.99889226861
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.9988922686
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.99889226861
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.9988922686
+      }
+    ],
+    "triangulated_from": [
+      "kN060_W030",
+      "nao",
+      "kN060_W010"
+    ],
+    "retry_index": 1,
+    "seed_from_path": "triangulated:kN060_W030,nao,kN060_W010",
+    "timestamp": "2026-09-27T11:57:59",
+    "elapsed_s": 2037.9
+  },
+  {
+    "cell": "kN060_W170",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.99903410368
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.99903410423
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.99858532719
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.99858532964
+      }
+    ],
+    "triangulated_from": [
+      "pna",
+      "pdo",
+      "kN040_E150"
+    ],
+    "retry_index": 1,
+    "seed_from_path": "triangulated:pna,pdo,kN040_E150",
+    "timestamp": "2026-09-27T12:32:05",
+    "elapsed_s": 2045.9
+  },
+  {
+    "cell": "kN000_W030",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.89506580176
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.89506580232
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.89506580402
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.8950658038
+      }
+    ],
+    "triangulated_from": [
+      "tna",
+      "kN040_W030",
+      "amo"
+    ],
+    "retry_index": 1,
+    "seed_from_path": "triangulated:tna,kN040_W030,amo",
+    "timestamp": "2026-09-27T13:07:26",
+    "elapsed_s": 2120.8
+  },
+  {
+    "cell": "kN040_W150",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.99911030562
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.99911030559
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.99911030559
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.99911030559
+      }
+    ],
+    "triangulated_from": [
+      "pna",
+      "pdo",
+      "kN000_W150"
+    ],
+    "retry_index": 1,
+    "seed_from_path": "triangulated:pna,pdo,kN000_W150",
+    "timestamp": "2026-09-27T13:42:03",
+    "elapsed_s": 2077.1
+  },
+  {
+    "cell": "kS040_E170",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.99814183027
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.99814183019
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.99814183207
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.99814183366
+      }
+    ],
+    "triangulated_from": [
+      "kS040_W170",
+      "kS040_W150",
+      "nino4"
+    ],
+    "retry_index": 1,
+    "seed_from_path": "triangulated:kS040_W170,kS040_W150,nino4",
+    "timestamp": "2026-09-27T14:16:52",
+    "elapsed_s": 2089.0
+  },
+  {
+    "cell": "kN000_E050",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.5915676805,
+      "validate": 0.7492663797,
+      "test": 0.5980468246
+    },
+    "dlod": 0.99512562011,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Feb2026/kS020_E050",
+    "timestamp": "2026-09-27T14:33:41",
+    "elapsed_s": 130.2
+  },
+  {
+    "cell": "kN040_W010",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.99819680442
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.99819680512
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.99819680986
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.9981968099
+      }
+    ],
+    "triangulated_from": [
+      "kN040_W030",
+      "nao",
+      "kN060_W010"
+    ],
+    "retry_index": 1,
+    "seed_from_path": "triangulated:kN040_W030,nao,kN060_W010",
+    "timestamp": "2026-09-27T14:51:10",
+    "elapsed_s": 2058.4
+  },
+  {
+    "cell": "kS040_E070",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.99423054311
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.99423054408
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.99423054034
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.99423054317
+      }
+    ],
+    "triangulated_from": [
+      "kS040_E090",
+      "iodw",
+      "kS020_E110"
+    ],
+    "retry_index": 1,
+    "seed_from_path": "triangulated:kS040_E090,iodw,kS020_E110",
+    "timestamp": "2026-09-27T15:25:28",
+    "elapsed_s": 2057.5
+  },
+  {
+    "cell": "kS020_E030",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.9950991041
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.99509910349
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.99509910641
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.99509910754
+      }
+    ],
+    "retry_index": 1,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Feb2026/kS020_E050",
+    "timestamp": "2026-09-27T15:30:13",
+    "elapsed_s": 1021.0
+  },
+  {
+    "cell": "kS020_E050",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": true,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "train": 0.8436550319,
+      "validate": 0.7080016864,
+      "test": 0.6546152292
+    },
+    "dlod": 0.99513308738,
+    "backbone": 0.207223526192672,
+    "n_attempts": null,
+    "seed_from_path": "manual (user-optimized in Feb2026, independently verified via TEST_ONLY through watch_run.exp)",
+    "timestamp": "2026-09-27T15:43:20",
+    "note": "Lives in Feb2026/<cell>/, not Sep2026/<cell>/ -- not a sweep.py donor-seeded result. Recorded here purely so latest_entry_per_cell() reflects reality."
+  },
+  {
+    "cell": "kN040_W070",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": true,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "train": 0.8242095423,
+      "validate": 0.8028789562,
+      "test": 0.2046527983
+    },
+    "dlod": 0.99588640722,
+    "backbone": 0.206613636418492,
+    "n_attempts": null,
+    "seed_from_path": "manual (user-optimized in Feb2026, independently verified via TEST_ONLY through watch_run.exp)",
+    "timestamp": "2026-09-27T15:43:20",
+    "note": "Lives in Feb2026/<cell>/, not Sep2026/<cell>/ -- not a sweep.py donor-seeded result. Recorded here purely so latest_entry_per_cell() reflects reality."
+  },
+  {
+    "cell": "kN040_W170",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.99834953436
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.99834953436
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.99834953435
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.99834953435
+      }
+    ],
+    "triangulated_from": [
+      "pdo",
+      "pna",
+      "kN040_E150"
+    ],
+    "retry_index": 1,
+    "seed_from_path": "triangulated:pdo,pna,kN040_E150",
+    "timestamp": "2026-09-27T16:31:22",
+    "elapsed_s": 2064.6
+  },
+  {
+    "cell": "kN020_W030",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.88194262886
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.88194263138
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.88194263107
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.88194263122
+      }
+    ],
+    "triangulated_from": [
+      "tna",
+      "kN040_W030",
+      "amo"
+    ],
+    "retry_index": 1,
+    "seed_from_path": "triangulated:tna,kN040_W030,amo",
+    "timestamp": "2026-09-27T17:06:16",
+    "elapsed_s": 2093.8
+  },
+  {
+    "cell": "kN040_W170",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": true,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "train": 0.7840066134,
+      "validate": 0.8017116214,
+      "test": 0.5332362887
+    },
+    "dlod": 0.99442832392,
+    "backbone": 0.207275591005228,
+    "n_attempts": null,
+    "seed_from_path": "manual (user-optimized in Feb2026, independently verified via TEST_ONLY through watch_run.exp)",
+    "timestamp": "2026-09-27T17:20:56",
+    "note": "Lives in Feb2026/<cell>/, not Sep2026/<cell>/ -- not a sweep.py donor-seeded result. Recorded here purely so latest_entry_per_cell() reflects reality. Supersedes the earlier automated STILL BAD (unsolved-needs-review) entry from the backbone-refix run -- that automated search had driven this cell into a stiff/spurious high-frequency state before the user manually re-fit it."
+  },
+  {
+    "cell": "kN060_W050",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.99889279036
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.99889279034
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.99889279033
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.99889279029
+      }
+    ],
+    "triangulated_from": [
+      "kN060_W030",
+      "nao",
+      "kN060_W010"
+    ],
+    "retry_index": 1,
+    "seed_from_path": "triangulated:kN060_W030,nao,kN060_W010",
+    "timestamp": "2026-09-27T17:40:22",
+    "elapsed_s": 2046.8
+  },
+  {
+    "cell": "kN000_W170",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": true,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "train": 0.7115502775,
+      "validate": 0.7957736365,
+      "test": 0.5787345039
+    },
+    "dlod": 0.99474564398,
+    "backbone": 0.207277507531205,
+    "n_attempts": null,
+    "seed_from_path": "manual (user-optimized in Feb2026, independently verified via TEST_ONLY through watch_run.exp)",
+    "timestamp": "2026-09-27T17:47:16",
+    "note": "Never previously touched by sweep.py (no prior ledger entry). User notes this cell is very close to NINO4 in behavior. Sep2026/kN000_W170/ already synced to match (backbone identical)."
+  },
+  {
+    "cell": "kN020_W170",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": true,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "train": 0.8350450856,
+      "validate": 0.8074572002,
+      "test": 0.2800095452
+    },
+    "dlod": 0.99423696025,
+    "backbone": 0.207275014523926,
+    "n_attempts": null,
+    "seed_from_path": "manual (user-optimized in Feb2026, independently verified via TEST_ONLY through watch_run.exp)",
+    "timestamp": "2026-09-27T17:47:16",
+    "note": "Never previously touched by sweep.py (no prior ledger entry). test=0.28 notably weaker than train/validate (same caveat pattern as kN040_W070 test=0.205) -- not disqualifying. Sep2026/kN020_W170/ already synced to match (backbone identical)."
+  },
+  {
+    "cell": "kN060_W170",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.99882290548
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.99882290562
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.99882290869
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.99882291144
+      }
+    ],
+    "triangulated_from": [
+      "pna",
+      "kN040_W170",
+      "pdo"
+    ],
+    "retry_index": 1,
+    "seed_from_path": "triangulated:pna,kN040_W170,pdo",
+    "timestamp": "2026-09-27T18:14:21",
+    "elapsed_s": 2039.1
+  },
+  {
+    "cell": "kN000_W030",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.89502948383
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.89502948449
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.89502948625
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.89502948311
+      }
+    ],
+    "triangulated_from": [
+      "tna",
+      "kN040_W030",
+      "amo"
+    ],
+    "retry_index": 1,
+    "seed_from_path": "triangulated:tna,kN040_W030,amo",
+    "timestamp": "2026-09-27T18:48:25",
+    "elapsed_s": 2043.3
+  },
+  {
+    "cell": "kN000_W030",
+    "accepted": true,
+    "attempt_tag": "manual-user-update",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.3077892927,
+        0.8081331731
+      ]
+    },
+    "dlod": 0.99607605873,
+    "backbone": 0.20721908393926,
+    "n_attempts": null,
+    "seed_from_path": "manual (user-updated in Feb2026, independently verified via TEST_ONLY through watch_run.exp)",
+    "timestamp": "2026-09-27T19:24:48",
+    "note": "Supersedes the earlier automated unsolved-needs-review entry (which is why this needed recording -- resume_refix.py still had this cell in its backlog and would have overwritten the manual fix in Sep2026/kN000_W030 otherwise). VALIDATE=FALSE (resp has no VALIDATE key), so lt.exe reports a train/test PAIR not a triplet -- unclear which of the two pair values (0.308, 0.808) is train vs test, unlike the triplet-reporting gold standards. Passes dLOD floor (0.996) and backbone_ok (0.2072) cleanly. User flagged the raw data 1950-1965 window as suspiciously quiet -- investigated and confirmed genuine (no flat-lined/interpolated values, all 180 points distinct) but real ~40% lower variance than 1965-2000, consistent with known Kaplan SST early-record ship-track sparsity/over-smoothing -- likely an upstream data-quality feature, not a pipeline bug."
+  },
+  {
+    "cell": "kN000_W030",
+    "accepted": true,
+    "attempt_tag": "manual-user-update",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.2593425955,
+        0.8171387862
+      ]
+    },
+    "dlod": 0.99604790501,
+    "backbone": 0.207218152850405,
+    "n_attempts": null,
+    "seed_from_path": "manual (user-updated in Feb2026, then also synced to Sep2026/kN000_W030 by the user directly, independently verified via TEST_ONLY through watch_run.exp)",
+    "timestamp": "2026-09-27T19:46:23",
+    "note": "Supersedes the prior manual-user-update entry -- user made a further small tweak (backbone 0.2072191->0.2072182, pair values shifted) after that entry was recorded, then synced Feb2026 and Sep2026 copies to match (both confirmed identical). Same VALIDATE=FALSE pair-not-triplet caveat and Kaplan-SST-sparsity data-quality note as before still apply."
+  },
+  {
+    "cell": "kN020_W030",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.8817032974
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.8817032977
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.88170329503
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.88170329209
+      }
+    ],
+    "triangulated_from": [
+      "tna",
+      "kN040_W030",
+      "kN000_W030"
+    ],
+    "retry_index": 1,
+    "seed_from_path": "triangulated:tna,kN040_W030,kN000_W030",
+    "timestamp": "2026-09-27T19:59:43",
+    "elapsed_s": 2054.9
+  },
+  {
+    "cell": "kN060_E170",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": false,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "pair": [
+        0.7010998113,
+        0.648137326
+      ]
+    },
+    "dlod": 0.99541541138,
+    "backbone": 0.206944100239763,
+    "n_attempts": null,
+    "seed_from_path": "manual (user-optimized in Feb2026, independently verified via TEST_ONLY through watch_run.exp)",
+    "timestamp": "2026-09-27T20:01:53",
+    "note": "Never previously touched by sweep.py (no Sep2026/ dir, no prior ledger entry). Created Sep2026/kN060_E170/ and copied lt.exe.p/lt.exe.resp/lte_run.sh/kN060_E170.dat/lte_results.csv/dlod_ref.dat from Feb2026 so donor lookups (setup_cell_dir needs donor_dir/{cell}.dat, lt.exe.p, lte_results.csv) resolve correctly if this cell gets picked as a donor -- it is not a FLAGSHIPS entry so donor_dir_for() would otherwise resolve to the (previously nonexistent) Sep2026 copy. VALIDATE not set (defaults to pair not triplet), same as kN000_W030/kN060_E170 pattern."
+  },
+  {
+    "cell": "kN020_W030",
+    "accepted": true,
+    "attempt_tag": "manual-user-update",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.0167605675,
+        0.7912074076
+      ]
+    },
+    "dlod": 0.996232947,
+    "backbone": 0.207309806004052,
+    "n_attempts": null,
+    "seed_from_path": "manual (user-updated in Feb2026, already synced to Sep2026/kN020_W030, independently verified via TEST_ONLY through watch_run.exp)",
+    "timestamp": "2026-09-27T20:19:53",
+    "note": "CAVEAT: pair is (0.017, 0.791) -- one of the two values is very weak, unlike the other manual-fix cells this session. Passes dLOD floor and backbone_ok cleanly (would have cleared solve_cells own gate_ok automated-acceptance criteria too, which only checks dLOD floor + presence of a pair/triplet, not the actual correlation magnitude), but this is a weaker result than kN000_W030/kN060_E170/the gold-standard column. Recorded as accepted anyway per user instruction (manual fix takes precedence over automated search) and to keep it out of the resume_refix.py backlog, but flagged for possible further attention."
+  },
+  {
+    "cell": "kN060_W170",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6904474035,
+      "validate": 0.804771385,
+      "test": 0.4121480308
+    },
+    "dlod": 0.99545028397,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kN060_E170",
+    "timestamp": "2026-09-27T20:22:36",
+    "elapsed_s": 127.0
+  },
+  {
+    "cell": "kN060_W050",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.98259399009
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.98259399012
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.98259399017
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.98259399019
+      }
+    ],
+    "triangulated_from": [
+      "kN060_W030",
+      "nao",
+      "kN060_W010"
+    ],
+    "retry_index": 1,
+    "seed_from_path": "triangulated:kN060_W030,nao,kN060_W010",
+    "timestamp": "2026-09-27T20:56:30",
+    "elapsed_s": 2034.0
+  },
+  {
+    "cell": "kN060_W050",
+    "accepted": true,
+    "attempt_tag": "manual-user-update",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.2346541306,
+        0.8236904639
+      ]
+    },
+    "dlod": 0.99609513601,
+    "backbone": 0.208041023986877,
+    "n_attempts": null,
+    "seed_from_path": "manual (user-updated in Feb2026, already synced to Sep2026/kN060_W050, independently verified via TEST_ONLY through watch_run.exp)",
+    "timestamp": "2026-09-27T21:09:55",
+    "note": "Supersedes the automated unsolved-needs-review entries (both pre- and post-checkpoint-bug-fix attempts). Passes dLOD floor and backbone_ok cleanly, pair (0.235, 0.824) is a solid result, no caveats like kN020_W030s weak pair."
+  },
+  {
+    "cell": "kS040_E170",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.99811755451
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.99811755454
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.99811755657
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.99811755621
+      }
+    ],
+    "triangulated_from": [
+      "kS040_W170",
+      "kS040_W150",
+      "nino4"
+    ],
+    "retry_index": 1,
+    "seed_from_path": "triangulated:kS040_W170,kS040_W150,nino4",
+    "timestamp": "2026-09-27T21:30:24",
+    "elapsed_s": 2034.4
+  },
+  {
+    "cell": "kS040_E070",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.99362005223
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.99362010157
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.99362011511
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.99362010882
+      }
+    ],
+    "triangulated_from": [
+      "kS040_E090",
+      "kS020_E050",
+      "iodw"
+    ],
+    "retry_index": 1,
+    "seed_from_path": "triangulated:kS040_E090,kS020_E050,iodw",
+    "timestamp": "2026-09-27T22:04:21",
+    "elapsed_s": 2036.3
+  },
+  {
+    "cell": "kN040_W010",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.92144687092
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.92137672902
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.92137670606
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.92137670824
+      }
+    ],
+    "triangulated_from": [
+      "kN040_W030",
+      "nao",
+      "kN060_W010"
+    ],
+    "retry_index": 1,
+    "seed_from_path": "triangulated:kN040_W030,nao,kN060_W010",
+    "timestamp": "2026-09-27T22:38:45",
+    "elapsed_s": 2064.2
+  },
+  {
+    "cell": "kN040_W150",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6735791978,
+      "validate": 0.7719350024,
+      "test": 0.6071203957
+    },
+    "dlod": 0.99434639504,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kN040_W170",
+    "timestamp": "2026-09-27T22:40:55",
+    "elapsed_s": 129.8
+  },
+  {
+    "cell": "kN040_W090",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.4587308934,
+      "validate": 0.516752935,
+      "test": 0.1814153353
+    },
+    "dlod": 0.99586897837,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kN040_W070",
+    "timestamp": "2026-09-27T22:43:02",
+    "elapsed_s": 127.1
+  },
+  {
+    "cell": "kN020_E170",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7265649447,
+      "validate": 0.8532339142,
+      "test": 0.5642739433
+    },
+    "dlod": 0.99420477426,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kN020_W170",
+    "timestamp": "2026-09-27T22:45:10",
+    "elapsed_s": 128.2
+  },
+  {
+    "cell": "kS020_E030",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7761268527,
+      "validate": 0.9029573259,
+      "test": 0.8493172136
+    },
+    "dlod": 0.99513253143,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kS020_E050",
+    "timestamp": "2026-09-27T22:47:17",
+    "elapsed_s": 127.0
+  },
+  {
+    "cell": "kS020_E070",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": true,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "train": 0.8492173146,
+      "validate": 0.7356329465,
+      "test": 0.2042759558
+    },
+    "dlod": 0.99488789414,
+    "backbone": 0.207222589090915,
+    "n_attempts": null,
+    "seed_from_path": "manual (user-optimized in Feb2026, seeded originally from the Madagascar kS020_E050 gold standard, independently verified via TEST_ONLY through watch_run.exp)",
+    "timestamp": "2026-09-27T23:08:00",
+    "note": "Never previously touched by sweep.py (no Sep2026/ dir, no prior ledger entry). Created Sep2026/kS020_E070/ and synced files from Feb2026 (same reason as kN060_E170: donor lookups need donor_dir/{cell}.dat, lt.exe.p, lte_results.csv). test=0.204 weak (same pattern as kN040_W070 0.205, kS040_E070 0.264 below). dLOD=0.99489 passes floor with very little margin (~0.0009). This cell then itself seeded kS040_E070 (a real donor chain: kS020_E050 -> kS020_E070 -> kS040_E070, per user)."
+  },
+  {
+    "cell": "kS040_E070",
+    "accepted": true,
+    "attempt_tag": "manual-user-update",
+    "validate_mode": true,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "train": 0.7395859814,
+      "validate": 0.7468978606,
+      "test": 0.2644400929
+    },
+    "dlod": 0.99493952958,
+    "backbone": 0.207215931297426,
+    "n_attempts": null,
+    "seed_from_path": "manual (user-updated in Feb2026 by seeding from kS020_E070, already synced to Sep2026/kS040_E070, independently verified via TEST_ONLY through watch_run.exp)",
+    "timestamp": "2026-09-27T23:08:00",
+    "note": "Supersedes the automated unsolved-needs-review entry (both pre- and post-checkpoint-bugfix triangulated attempts, which had used kS040_E090/kS020_E050/iodw, not kS020_E070). test=0.264 weak, dLOD=0.99494 passes floor with very little margin. Part of a real donor chain per user: kS020_E050 (Madagascar gold standard) -> kS020_E070 -> kS040_E070."
+  },
+  {
+    "cell": "kS040_E050",
+    "accepted": true,
+    "attempt_tag": "manual-user-update",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7006152286,
+      "validate": 0.7969459171,
+      "test": 0.7924514373
+    },
+    "dlod": 0.99476585571,
+    "backbone": 0.207138495718187,
+    "n_attempts": null,
+    "seed_from_path": "manual (user-updated in Feb2026 by seeding from kS040_E070, already synced to Sep2026/kS040_E050, independently verified via TEST_ONLY through watch_run.exp)",
+    "timestamp": "2026-09-27T23:14:33",
+    "note": "Third link in the manual donor chain per the user: kS020_E050 (Madagascar gold standard) -> kS020_E070 -> kS040_E070 -> kS040_E050. Strong result, no weak-test caveat unlike the previous two links. Supersedes the automated backlogs unsolved-needs-review entry."
+  },
+  {
+    "cell": "kS040_E170",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.99605497626
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.99605497723
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.99605498682
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.99605498722
+      }
+    ],
+    "triangulated_from": [
+      "kS040_W170",
+      "kS040_W150",
+      "nino4"
+    ],
+    "retry_index": 1,
+    "seed_from_path": "triangulated:kS040_W170,kS040_W150,nino4",
+    "timestamp": "2026-09-27T23:48:59",
+    "elapsed_s": 2037.3
+  },
+  {
+    "cell": "kS040_E170",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": true,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "train": 0.8043770418,
+      "validate": 0.7813749406,
+      "test": 0.1642062103
+    },
+    "dlod": 0.99510689371,
+    "backbone": 0.207159808912623,
+    "n_attempts": null,
+    "seed_from_path": "manual (user-optimized in Feb2026, already synced to Sep2026/kS040_E170, independently verified via TEST_ONLY through watch_run.exp)",
+    "timestamp": "2026-09-28T00:10:04",
+    "note": "User notes very strong, continuous winding structure here and draws a direct physical parallel to the Madagascar/kS020_E050 gold standard: this cell (near New Zealand, S040/E170) sits between two coastlines with a strong tidal-current DIFFERENTIAL on both sides of NZ, same shelf/channel-resonance mechanism as the Mozambique Channel -- another data point for the shelf/channel hypothesis in HANDOFF.md. test=0.164 weak (same recurring caveat pattern), train/validate both strong. Supersedes the automated backlogs unsolved-needs-review entry (failed both pre- and post-checkpoint-bugfix attempts -- genuinely needed the manual fit)."
+  },
+  {
+    "cell": "kN040_W010",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.99733739034
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.99733740049
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.99733740174
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.99733740247
+      }
+    ],
+    "triangulated_from": [
+      "kN040_W030",
+      "nao",
+      "kN060_W010"
+    ],
+    "retry_index": 1,
+    "seed_from_path": "triangulated:kN040_W030,nao,kN060_W010",
+    "timestamp": "2026-09-28T00:23:18",
+    "elapsed_s": 2059.5
+  },
+  {
+    "cell": "kN040_W010",
+    "accepted": true,
+    "attempt_tag": "manual-user-update",
+    "validate_mode": true,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "train": 0.8327445284,
+      "validate": 0.6836327356,
+      "test": -0.1995026605
+    },
+    "dlod": 0.99590900046,
+    "backbone": 0.207317618850387,
+    "n_attempts": null,
+    "seed_from_path": "manual (user-updated in Feb2026 TWICE this session -- first at ~00:22 which I failed to record in time, so the automated backlog re-attempted and failed on it again at 00:23-00:26 using its own kN040_W030 donor seed, unrelated to the users fix; then updated again at ~00:36. I just synced this final 00:36 state to Sep2026/kN040_W010, overwriting the automated attempts own leftover state.)",
+    "timestamp": "2026-09-28T00:45:07",
+    "note": "CAVEAT -- WORSE than the usual weak-test pattern: test=-0.1995 is NEGATIVE (anti-correlated on the held-out window), not just weak. train=0.833 and validate=0.684 are both solid. dLOD=0.99591 and backbone=0.2073 both pass cleanly. Recorded as accepted per user instruction (manual fix supersedes automated search) but this is the weakest of the manual fixes recorded this session and may be worth a closer look."
+  },
+  {
+    "cell": "kS040_E150",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.99666476659
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.99666476409
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.99666476522
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.9966647626
+      }
+    ],
+    "triangulated_from": [
+      "kS040_E170",
+      "kS040_W170",
+      "kS020_E110"
+    ],
+    "retry_index": 1,
+    "seed_from_path": "triangulated:kS040_E170,kS040_W170,kS020_E110",
+    "timestamp": "2026-09-28T00:58:23",
+    "elapsed_s": 2104.7
+  },
+  {
+    "cell": "kN020_W050",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7630798932,
+      "validate": 0.8898321244,
+      "test": 0.7561210406
+    },
+    "dlod": 0.99617893756,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kN020_W030",
+    "timestamp": "2026-09-28T01:00:32",
+    "elapsed_s": 128.9
+  },
+  {
+    "cell": "kS020_E010",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7734135195,
+      "validate": 0.8695662631,
+      "test": 0.7650338895
+    },
+    "dlod": 0.99512987302,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kS020_E030",
+    "timestamp": "2026-09-28T01:02:39",
+    "elapsed_s": 126.9
+  },
+  {
+    "cell": "kN020_W150",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7205100425,
+      "validate": 0.7724199047,
+      "test": 0.371644108
+    },
+    "dlod": 0.99400110115,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kN020_W170",
+    "timestamp": "2026-09-28T01:04:47",
+    "elapsed_s": 127.8
+  },
+  {
+    "cell": "kN020_E070",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.99470962328
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.99470961983
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.99470961809
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.99470961527
+      }
+    ],
+    "triangulated_from": [
+      "kN020_E050",
+      "kN000_E090",
+      "kN000_E050"
+    ],
+    "retry_index": 1,
+    "seed_from_path": "triangulated:kN020_E050,kN000_E090,kN000_E050",
+    "timestamp": "2026-09-28T01:38:42",
+    "elapsed_s": 2035.6
+  },
+  {
+    "cell": "kN020_W130",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7466823702,
+      "validate": 0.7804938834,
+      "test": 0.6538727784
+    },
+    "dlod": 0.99787982899,
+    "n_attempts": 1,
+    "triangulated_from": [
+      "kN020_W150",
+      "nino34",
+      "kN040_W150"
+    ],
+    "retry_index": 0,
+    "seed_from_path": "triangulated:kN020_W150,nino34,kN040_W150",
+    "timestamp": "2026-09-28T01:57:49",
+    "elapsed_s": 1146.8
+  },
+  {
+    "cell": "kS020_E170",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.8968586898
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.89685868981
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.8968586898
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.89685868979
+      }
+    ],
+    "triangulated_from": [
+      "kS040_E170",
+      "nino4",
+      "kS040_W170"
+    ],
+    "retry_index": 1,
+    "seed_from_path": "triangulated:kS040_E170,nino4,kS040_W170",
+    "timestamp": "2026-09-28T02:31:54",
+    "elapsed_s": 2044.5
+  },
+  {
+    "cell": "kN000_E150",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.99622047115
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.99622045
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.99622043541
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.99622041739
+      }
+    ],
+    "triangulated_from": [
+      "kN020_E150",
+      "kN020_E170",
+      "nino4"
+    ],
+    "retry_index": 1,
+    "seed_from_path": "triangulated:kN020_E150,kN020_E170,nino4",
+    "timestamp": "2026-09-28T03:05:51",
+    "elapsed_s": 2037.2
+  },
+  {
+    "cell": "kN020_E110",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.99508036982
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.99508036984
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.9950803706
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.99508037062
+      }
+    ],
+    "triangulated_from": [
+      "kN000_E110",
+      "iode",
+      "kN000_E090"
+    ],
+    "retry_index": 1,
+    "seed_from_path": "triangulated:kN000_E110,iode,kN000_E090",
+    "timestamp": "2026-09-28T03:39:58",
+    "elapsed_s": 2047.4
+  },
+  {
+    "cell": "kN020_E090",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.99500955649
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.99500955371
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.9950095471
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.99500954579
+      }
+    ],
+    "triangulated_from": [
+      "kN000_E090",
+      "iode",
+      "kN000_E110"
+    ],
+    "retry_index": 1,
+    "seed_from_path": "triangulated:kN000_E090,iode,kN000_E110",
+    "timestamp": "2026-09-28T04:14:01",
+    "elapsed_s": 2042.9
+  },
+  {
+    "cell": "kS020_E150",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6766768797,
+      "validate": 0.7614976612,
+      "test": 0.6708782039
+    },
+    "dlod": 0.99504632807,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kS040_E170",
+    "timestamp": "2026-09-28T04:16:08",
+    "elapsed_s": 126.9
+  },
+  {
+    "cell": "kN020_E070",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": false,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "pair": [
+        0.7251151168,
+        0.6926072323
+      ]
+    },
+    "dlod": 0.99607669079,
+    "backbone": 0.207286932801389,
+    "n_attempts": null,
+    "seed_from_path": "manual (started from the automated flood-fill seed this session had already produced, then user identified a strong continuous ridge at M=1.15 via winding_scalogram.py and set it as ltep[0] -- BEFORE the backbone slot ltep[NM-1], correctly preserving the 0.2073 shared tidal backbone there. Already synced to Sep2026/kN020_E070, independently verified via TEST_ONLY through watch_run.exp.)",
+    "timestamp": "2026-09-28T08:28:30",
+    "note": "One of the original 6 cells still bad after the checkpoint-bugfix backlog run completed (eastern Indian Ocean/Maritime Continent cluster). Solid result, no caveat: pair=(0.725, 0.693). ltep=[1.150, 0.231, 0.207] (NM=3) -- the 1.15 winding is a real physically-identified ridge candidate, not an artifact; the backbone check (ltep[NM-1]) correctly still reads the shared 0.2073 value."
+  },
+  {
+    "cell": "kS020_E170",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": false,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "pair": [
+        0.7584045528,
+        0.7868559546
+      ]
+    },
+    "dlod": 0.99469434131,
+    "backbone": 0.207242433134627,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cells OWN prior Feb2026 parameter set (predates this sweep session, Sep 26) instead of a nearby-quad donor -- per user instruction to try both and keep whichever wins. This beat every donor-seeded automated attempt this session (which never exceeded dLOD~0.995 and were all rejected). Just TEST_ONLY-verified, no further search needed; synced to Sep2026/kS020_E170 (which had been holding a corrupted backbone=200.0 leftover from an old automated attempt).",
+    "timestamp": "2026-09-28T08:35:07",
+    "note": "One of the 6 (now going to 4) cells still bad after the backlog run. Solid clean result, no caveat."
+  },
+  {
+    "cell": "kN020_E090",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": false,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "pair": [
+        0.7414800025,
+        0.6983879761
+      ]
+    },
+    "dlod": 0.99497142651,
+    "backbone": 0.207235977143138,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cells OWN prior Feb2026 parameter set (Sep 20, predates this sweep session) instead of a nearby-quad donor. No lte_run.sh existed for this cell at all -- constructed one matching the standard template. Tried both DTW (0.741,0.698) and CC (0.198,0.698); DTW clearly wins. Synced to Sep2026/kN020_E090, which had been holding the exact 18.68216048 corrupted-alias backbone documented earlier this session.",
+    "timestamp": "2026-09-28T08:54:29",
+    "note": "One of the 6 (now going to 3) cells still bad after the backlog run. Solid clean result, no caveat."
+  },
+  {
+    "cell": "kN020_E110",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": false,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "pair": [
+        0.8249466912,
+        0.805003051
+      ]
+    },
+    "dlod": 0.99489724038,
+    "backbone": 0.207225508120472,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cells OWN prior Feb2026 parameter set (Sep 23, predates this sweep session) instead of a nearby-quad donor. No lte_run.sh existed -- constructed one. Tried DTW (0.825,0.805) vs CC (0.213,0.818); DTW clearly wins. Synced to Sep2026/kN020_E110, which had been holding a corrupted backbone=150.0 leftover.",
+    "timestamp": "2026-09-28T09:05:06",
+    "note": "One of the 6 (now going to 2) cells still bad after the backlog run. Strong clean result, no caveat -- one of the best pair scores recorded all session."
+  },
+  {
+    "cell": "kS040_E150",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.8125249176,
+      "validate": 0.9047719332,
+      "test": 0.8530445567
+    },
+    "dlod": 0.99467333688,
+    "backbone": 0.207092184753939,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cells OWN prior Feb2026 parameter set (Sep 25, predates this sweep session) instead of a nearby-quad donor. No lte_run.sh existed -- constructed one; resp already had VALIDATE=TRUE (triplet). Tried DTW (0.813,0.905,0.853) vs CC (0.838,0.785,0.302); DTW wins decisively on validate/test. Synced to Sep2026/kS040_E150, which had been holding a corrupted backbone=10.0 leftover.",
+    "timestamp": "2026-09-28T09:17:49",
+    "note": "One of the 6 (now going to 1) cells still bad after the backlog run. Outstanding result -- one of the best full triplets recorded all session."
+  },
+  {
+    "cell": "kN000_E150",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.8284774444,
+      "validate": 0.9143452311,
+      "test": 0.8675595218
+    },
+    "dlod": 0.99464909661,
+    "backbone": 0.20727199237913,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cells OWN prior Feb2026 parameter set (Sep 25/26, predates this sweep session) instead of a nearby-quad donor. No lte_run.sh existed -- constructed one; resp already had VALIDATE=TRUE. Tried DTW (0.828,0.914,0.868) vs CC (0.847,0.821,0.182); DTW wins decisively on validate/test. Synced to Sep2026/kN000_E150, which had been holding a corrupted backbone=9.996 leftover.",
+    "timestamp": "2026-09-28T09:24:38",
+    "note": "Last of the 6 cells still bad after the backlog run -- ALL 6 NOW SOLVED. Outstanding result -- one of the best full triplets recorded all session."
+  },
+  {
+    "cell": "kN000_E010",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7774717963,
+      "validate": 0.9056124997,
+      "test": 0.8013368894
+    },
+    "dlod": 0.99916527586,
+    "backbone": 0.229413230070668,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; DTW won (quality=[0.7774717963, 0.8281403951333334]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kN000_E070",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.8554349775,
+      "validate": 0.930213711,
+      "test": 0.8567502441
+    },
+    "dlod": 0.99916754593,
+    "backbone": 0.229374636595795,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; DTW won (quality=[0.8554349775, 0.8807996442]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kN000_E130",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7933397295,
+      "validate": 0.8980802107,
+      "test": 0.8325706328
+    },
+    "dlod": 0.99489325642,
+    "backbone": 0.207277506543696,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; DTW won (quality=[0.7933397295, 0.841330191]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kN000_E170",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.8008616249,
+      "validate": 0.8800976617,
+      "test": 0.6750336685
+    },
+    "dlod": 0.99448813199,
+    "backbone": 0.207290573762346,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; DTW won (quality=[0.6750336685, 0.7853309850333333]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kN000_W010",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7874105832,
+      "validate": 0.9169927669,
+      "test": 0.7533549153
+    },
+    "dlod": 0.99902771792,
+    "backbone": 0.229413716846234,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; DTW won (quality=[0.7533549153, 0.8192527551333333]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kN000_W050",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.4835428974,
+        0.177420885
+      ]
+    },
+    "dlod": 0.99607918284,
+    "backbone": 0.207700590624249,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; CC won (quality=[0.177420885, 0.3304818912]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kN000_W090",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": true,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "train": 0.8085423061,
+      "validate": 0.7866474408,
+      "test": 0.2367768203
+    },
+    "dlod": 0.99571193089,
+    "backbone": 0.20727531801657,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; CC won (quality=[0.2367768203, 0.6106555224]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kN000_W110",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7372381858,
+      "validate": 0.7408487424,
+      "test": 0.3446843222
+    },
+    "dlod": 0.99570257861,
+    "backbone": 0.207275657901703,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; DTW won (quality=[0.3446843222, 0.6075904168]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kN000_W130",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": false,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "pair": [
+        0.6861806363,
+        0.6157062243
+      ]
+    },
+    "dlod": 0.99612633952,
+    "backbone": 0.207204946203428,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; DTW won (quality=[0.6157062243, 0.6509434303]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kN020_E130",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7582246543,
+      "validate": 0.8760534585,
+      "test": 0.8382497925
+    },
+    "dlod": 0.99493109373,
+    "backbone": 0.204578760782202,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; DTW won (quality=[0.7582246543, 0.8241759684333333]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kN020_W010",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": false,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "pair": [
+        0.8416285718,
+        0.7152444028
+      ]
+    },
+    "dlod": 0.99620304468,
+    "backbone": 0.207282587641285,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; DTW won (quality=[0.7152444028, 0.7784364873]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kN020_W070",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": false,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "pair": [
+        0.4572693778,
+        0.524293091
+      ]
+    },
+    "dlod": 0.99617429333,
+    "backbone": 0.20731307829307,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; DTW won (quality=[0.4572693778, 0.4907812344]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kN020_W090",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.3963026146,
+        0.0138183166
+      ]
+    },
+    "dlod": 0.9960579891,
+    "backbone": 0.207247958186969,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; CC won (quality=[0.0138183166, 0.2050604656]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kN020_W110",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.8057930663,
+      "validate": 0.865745668,
+      "test": 0.5864672504
+    },
+    "dlod": 0.99434745661,
+    "backbone": 0.207304399390605,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; DTW won (quality=[0.5864672504, 0.7526686615666667]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kN040_E010",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7380598002,
+      "validate": 0.8690488077,
+      "test": 0.7379504074
+    },
+    "dlod": 0.99892286104,
+    "backbone": 0.229413290901156,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; DTW won (quality=[0.7379504074, 0.7816863384333333]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kN040_E030",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7472149762,
+      "validate": 0.8010316755,
+      "test": 0.3869762702
+    },
+    "dlod": 0.99892628089,
+    "backbone": 0.22942950064305,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; DTW won (quality=[0.3869762702, 0.6450743072999999]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kN040_E130",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7284869635,
+      "validate": 0.8302605411,
+      "test": 0.8047083777
+    },
+    "dlod": 0.9986381235,
+    "backbone": 0.229414823973134,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; DTW won (quality=[0.7284869635, 0.7878186274333334]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kN040_E170",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7743648718,
+      "validate": 0.7973887137,
+      "test": 0.597440821
+    },
+    "dlod": 0.99455691479,
+    "backbone": 0.207282998600494,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; DTW won (quality=[0.597440821, 0.7230648021666667]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kN040_W130",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7583324052,
+      "validate": 0.8255253275,
+      "test": 0.7069135622
+    },
+    "dlod": 0.99462911892,
+    "backbone": 0.207312672243068,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; DTW won (quality=[0.7069135622, 0.7635904316333333]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kN060_W130",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.1347853014,
+        0.4244416659
+      ]
+    },
+    "dlod": 0.99608132734,
+    "backbone": 0.207315650206893,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; CC won (quality=[0.1347853014, 0.27961348365]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kS020_E090",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7705661186,
+      "validate": 0.8583695342,
+      "test": 0.8418936759
+    },
+    "dlod": 0.99479495574,
+    "backbone": 0.207248401851871,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; DTW won (quality=[0.7705661186, 0.8236097762333333]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kS020_E130",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7680853497,
+      "validate": 0.8701027144,
+      "test": 0.8226118305
+    },
+    "dlod": 0.99435545254,
+    "backbone": 0.207274995460214,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; DTW won (quality=[0.7680853497, 0.8202666315333333]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kS020_W010",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.280384663,
+        0.5496658043
+      ]
+    },
+    "dlod": 0.99604977644,
+    "backbone": 0.207494401448758,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; CC won (quality=[0.280384663, 0.41502523365]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kS020_W030",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": false,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "pair": [
+        0.7230510697,
+        0.6921105976
+      ]
+    },
+    "dlod": 0.99614652084,
+    "backbone": 0.207494401448758,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; DTW won (quality=[0.6921105976, 0.70758083365]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kS020_W070",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": false,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "pair": [
+        0.6519919247,
+        0.6977351395
+      ]
+    },
+    "dlod": 0.9953692522,
+    "backbone": 0.207495156937732,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; DTW won (quality=[0.6519919247, 0.6748635321]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kS020_W150",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7584994546,
+      "validate": 0.8809535494,
+      "test": 0.8566980435
+    },
+    "dlod": 0.99974182088,
+    "backbone": 0.207526824726858,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; DTW won (quality=[0.7584994546, 0.8320503491666668]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kS020_W170",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7347275252,
+      "validate": 0.8428322561,
+      "test": 0.606042977
+    },
+    "dlod": 0.99480901104,
+    "backbone": 0.192672626169585,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; DTW won (quality=[0.606042977, 0.7278675861]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kS040_E010",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": false,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "pair": [
+        0.7976204723,
+        0.7321311367
+      ]
+    },
+    "dlod": 0.99513287625,
+    "backbone": 0.207276223557568,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; DTW won (quality=[0.7321311367, 0.7648758044999999]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kS040_E030",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.4796661698,
+        0.5238384141
+      ]
+    },
+    "dlod": 0.9959322243,
+    "backbone": 0.207275415190983,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; CC won (quality=[0.4796661698, 0.5017522919499999]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kS040_E110",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": false,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "pair": [
+        0.7423073674,
+        0.6122718434
+      ]
+    },
+    "dlod": 0.99495354952,
+    "backbone": 0.207221315033144,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; DTW won (quality=[0.6122718434, 0.6772896053999999]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kS040_E130",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": false,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "pair": [
+        0.7549281772,
+        0.6957739199
+      ]
+    },
+    "dlod": 0.99515322955,
+    "backbone": 1.0415511063207,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; DTW won (quality=[0.6957739199, 0.7253510485500001]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kS040_W010",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.0427814664,
+        0.4201043249
+      ]
+    },
+    "dlod": 0.99637096703,
+    "backbone": 0.20749610381394,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; CC won (quality=[0.0427814664, 0.23144289565]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kS040_W030",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": false,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "pair": [
+        0.5269981963,
+        0.6289409417
+      ]
+    },
+    "dlod": 0.99607604189,
+    "backbone": 0.210023589241319,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; DTW won (quality=[0.5269981963, 0.577969569]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kS040_W070",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.0723270383,
+        0.4290638036
+      ]
+    },
+    "dlod": 0.99631900245,
+    "backbone": 0.207493638899117,
+    "n_attempts": null,
+    "seed_from_path": "manual: reused this cell's OWN prior Feb2026 parameter set (never touched by sweep.py before, no ledger entry existed) per user instruction (2026-09-28) to try prior work before donor-seeding. Batch-verified DTW vs CC via verify_untouched_36.py; CC won (quality=[0.0723270383, 0.25069542095]).",
+    "timestamp": "2026-09-28T10:09:35",
+    "note": "Part of the 34/36 batch that succeeded from prior work alone, no search needed."
+  },
+  {
+    "cell": "kN060_W150",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.685807278,
+      "validate": 0.8407313113,
+      "test": 0.3619070499
+    },
+    "dlod": 0.99543173411,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kN060_W170",
+    "timestamp": "2026-09-28T10:11:54"
+  },
+  {
+    "cell": "kN080_E010",
+    "accepted": false,
+    "reason": "unsolved-needs-review",
+    "attempts": [
+      {
+        "tag": "validate_true_dtw",
+        "deadlocked": false,
+        "dlod": 0.93563500609
+      },
+      {
+        "tag": "validate_false_dtw",
+        "deadlocked": false,
+        "dlod": 0.93563500619
+      },
+      {
+        "tag": "validate_true_cc",
+        "deadlocked": false,
+        "dlod": 0.93563500603
+      },
+      {
+        "tag": "validate_false_cc",
+        "deadlocked": false,
+        "dlod": 0.935635006
+      }
+    ],
+    "retry_index": 1,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kN060_E010",
+    "timestamp": "2026-09-28T10:29:02"
+  },
+  {
+    "cell": "kN080_E010",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": true,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "train": 0.784475153,
+      "validate": 0.7619132914,
+      "test": 0.6528593705
+    },
+    "dlod": 0.99609444436,
+    "backbone": 0.207533762420132,
+    "n_attempts": null,
+    "seed_from_path": "manual: user identified this cell (80N/10E, Svalbard/Arctic) as physically unique -- a strong annual component that comes and goes (intermittent/amplitude-modulated seasonal cycle, plausible for Arctic sea-ice-covariant SST) -- and fixed it accordingly. Both automated approaches had failed to clear the dLOD floor: the cells own prior Feb2026 fit reused as-is got dLOD=0.978, and donor-seeding from kN060_E010 got stuck at dLOD=0.936 across all 4 cascade attempts + retry. The manual fix clears the floor cleanly.",
+    "timestamp": "2026-09-28T10:43:07",
+    "note": "Last of the 89 quads -- ALL NOW SOLVED (89/89)."
+  },
+  {
+    "cell": "kS020_E150",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6338233534,
+      "validate": 0.7450584702,
+      "test": 0.659390259
+    },
+    "dlod": 0.99471730383,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kS020_E170",
+    "timestamp": "2026-09-28T11:19:32",
+    "note": "Refit to fix manifold-coherence outlier status (detrended correlation to ensemble improved 0.044 -> 0.487). Superseded previous entry: validate_true_dtw scores={'metric': 'DTW', 'train': 0.6766768797, 'validate': 0.7614976612, 'test': 0.6708782039}."
+  },
+  {
+    "cell": "kS020_E010",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7450104922,
+      "validate": 0.8494310246,
+      "test": 0.7679994635
+    },
+    "dlod": 0.99508883429,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kS020_E030",
+    "timestamp": "2026-09-28T11:55:41",
+    "note": "Refit to fix manifold-coherence outlier status (detrended correlation to ensemble improved 0.173 -> 0.499). Superseded previous entry: validate_true_dtw scores={'metric': 'DTW', 'train': 0.7734135195, 'validate': 0.8695662631, 'test': 0.7650338895}."
+  },
+  {
+    "cell": "kN020_E150",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.1624510889,
+      "validate": 0.1312389513,
+      "test": 0.0842762008
+    },
+    "dlod": 0.99420594549,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kN020_E170",
+    "timestamp": "2026-09-28T11:57:48",
+    "note": "Refit to fix manifold-coherence outlier status (detrended correlation to ensemble improved 0.147 -> 0.591). Superseded previous entry: validate_true_dtw scores={'metric': 'DTW', 'train': 0.6295621912, 'validate': 0.8288184359, 'test': 0.8328905547}."
+  },
+  {
+    "cell": "kN020_E150",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.416309199,
+      "validate": 0.4203994785,
+      "test": 0.414745258
+    },
+    "dlod": 0.99501000168,
+    "n_attempts": null,
+    "retry_index": 1,
+    "triangulated_from": [
+      "kN020_E170",
+      "kN020_E130",
+      "kN040_E150"
+    ],
+    "seed_from_path": "triangulated:kN020_E170,kN020_E130,kN040_E150 (exclude=kN020_E150 -- CORRECTED after finding solve_cell_triangulated_with_retry had no self-exclusion, so my prior refit attempt had silently used kN020_E150 as one of its own 3 donors and produced a near-degenerate fit train=0.16/val=0.13/test=0.08 despite good-looking coherence. Fixed the bug in sweep.py, this is the corrected result.)",
+    "timestamp": "2026-09-28T12:12:41",
+    "note": "Manifold coherence 0.649 (up from original 0.147), fit is moderate but balanced (0.42 across train/validate/test) and genuine/non-degenerate, unlike the superseded 0.16/0.13/0.08 result. Tradeoff vs the ORIGINAL pre-refit entry (train=0.630, validate=0.829, test=0.833, coherence=0.147): weaker local fit, much better ensemble coherence. Kept per user judgment that these 6 outliers should be refit toward ensemble consistency."
+  },
+  {
+    "cell": "kS040_W030",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": false,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "pair": [
+        0.7429447059,
+        0.6514046958
+      ]
+    },
+    "dlod": 0.99603770742,
+    "backbone": 0.229555308004087,
+    "n_attempts": null,
+    "seed_from_path": "manual: user update directly in Sep2026/kS040_W030 to try to fix its manifold-coherence outlier status. Independently verified via TEST_ONLY.",
+    "timestamp": "2026-09-28T12:28:20",
+    "note": "Local fit improved (pair 0.527/0.629 -> 0.743/0.651) but manifold coherence to the ensemble did NOT improve (0.009 -> 0.017, still essentially uncorrelated). This is now the strongest remaining case for genuinely-different local physics rather than a fit artifact -- automated donor-seeding AND manual expert tuning both failed to bring its manifold into alignment while still fitting its own local data well."
+  },
+  {
+    "cell": "kN040_E150",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6823148106,
+      "validate": 0.7807230377,
+      "test": 0.7510746762
+    },
+    "dlod": 0.99436548115,
+    "backbone": 0.20727802496639,
+    "n_attempts": null,
+    "seed_from_path": "manual: user update directly in Sep2026/kN040_E150 to fix its manifold-coherence outlier status. Independently verified via TEST_ONLY.",
+    "timestamp": "2026-09-28T12:28:20",
+    "note": "Dramatic success: manifold coherence to the ensemble improved from 0.066 to 0.925, alongside a solid local fit. Outlier status fully resolved."
+  },
+  {
+    "cell": "kN000_W150",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.4588568158,
+        0.7507033973
+      ]
+    },
+    "dlod": 0.99613336823,
+    "backbone": 0.207257778153711,
+    "n_attempts": null,
+    "seed_from_path": "manual: user update directly in Sep2026/kN000_W150 to fix its manifold-coherence outlier status. Independently verified via TEST_ONLY.",
+    "timestamp": "2026-09-28T12:28:20",
+    "note": "Dramatic success: manifold coherence to the ensemble improved from 0.105 to 0.927, alongside a decent local fit. Outlier status fully resolved."
+  },
+  {
+    "cell": "kS040_W030",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": false,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "pair": [
+        0.7072613988,
+        0.6611695784
+      ]
+    },
+    "dlod": 0.99625581089,
+    "backbone": 0.207460675993866,
+    "n_attempts": null,
+    "seed_from_path": "manual: user update seeding from kS020_W030 (directly north), independently verified via TEST_ONLY.",
+    "timestamp": "2026-09-28T12:45:07",
+    "note": "Third independent attempt to fix this cells manifold-coherence outlier status (automated donor-seed, first manual fix from a different starting point, now this kS020_W030-seeded fix) -- all three find a genuinely good LOCAL fit (dLOD/pair scores all solid) with a sane but DIFFERENT backbone each time (0.2296 previously, now 0.2075), yet coherence to the ensemble stays pinned near zero (0.009 -> 0.017 -> 0.014). This convergent pattern is now the strongest evidence in the whole 6-outlier investigation that kS040_W030 may have genuinely different local manifold dynamics, not a fit-artifact/wrong-branch issue -- unlike kN040_E150 and kN000_W150, which both resolved cleanly with a single manual pass."
+  },
+  {
+    "cell": "kS040_W030",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": false,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "pair": [
+        0.5318045448,
+        0.536108164
+      ]
+    },
+    "dlod": 0.99547223763,
+    "backbone": 0.207502044552307,
+    "n_attempts": null,
+    "seed_from_path": "RECOVERED from GUI backup lt.exe.p.09-28-2026-2-2000-2005 after my own verification process corrupted the users fresh kS020_W030-seeded update -- see note.",
+    "timestamp": "2026-09-28T12:48:56",
+    "note": "INCIDENT: my TEST_ONLY verification of the users kS020_W030-seeded update did not clear the stale lt.exe.kS040_W030.dat.p per-index checkpoint first (the exact bug class documented earlier this session), and the 2-thread run wrote back a stale/wrong state, clobbering the fresh update in BOTH Sep2026 and (via my own sync) Feb2026 before I could record its true scores. Recovered via the GUI-generated backup snapshot lt.exe.p.09-28-2026-2-2000-2005 (backbone 0.2075, very close to but not byte-identical to the lost true final state, whose scores were 0.707/0.661 vs this recovered ones 0.532/0.536). Coherence to ensemble after recovery: -0.015 -- essentially unchanged from every prior attempt (0.009, 0.017, 0.014). FOURTH independent attempt (automated donor-seed + 2 manual fixes + this recovery) all landing near-zero coherence with otherwise-solid local fits -- strongest evidence in this whole investigation that kS040_W030 may have genuinely different local manifold dynamics rather than a fixable fit artifact."
+  },
+  {
+    "cell": "kS040_W030",
+    "accepted": true,
+    "attempt_tag": "manual-gold-standard",
+    "validate_mode": true,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "train": 0.7800837092,
+      "validate": 0.5360985191,
+      "test": 0.4411617262
+    },
+    "dlod": 0.99604695477,
+    "backbone": 0.207465573498073,
+    "n_attempts": null,
+    "seed_from_path": "manual: user update targeting a genuinely stable condition after diagnosing the cell as metastable (4 prior attempts all landed near-zero manifold coherence despite solid local fits -- this one is qualitatively different). Stale per-index checkpoint cleared BEFORE verification this time (lesson from the prior incident), confirmed no corruption (ltep identical before/after the TEST_ONLY run).",
+    "timestamp": "2026-09-28T13:09:27",
+    "note": "BREAKTHROUGH: manifold coherence to ensemble jumped from -0.015 to 0.798 -- the 5th attempt and the first genuine success. Confirms the metastability diagnosis: this cell has multiple valid local optima with very different manifold character, and this update found the stable/coherent one. Outlier status fully resolved."
+  },
+  {
+    "cell": "kS040_W130",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6463386683,
+      "validate": 0.7898741239,
+      "test": 0.5712472609
+    },
+    "dlod": 0.99814978455,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kS020_W130",
+    "timestamp": "2026-09-28T13:29:59",
+    "elapsed_s": 127.5,
+    "flag": "needs-re-evaluation",
+    "note": "FLAGGED 2026-09-28: part of a 3-cell donor chain (kS040_W130->kS040_W150->kS040_W170) all showing an anomalous shared dip at year 2020.0 (~4 std below ensemble mean) in the manifold comparison -- user has better results pending in Feb2026, mark for re-evaluation once available."
+  },
+  {
+    "cell": "kS040_W150",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6645065583,
+      "validate": 0.8301731493,
+      "test": 0.6926770261
+    },
+    "dlod": 0.99813990544,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kS040_W130",
+    "timestamp": "2026-09-28T13:29:59",
+    "elapsed_s": 128.8,
+    "flag": "needs-re-evaluation",
+    "note": "FLAGGED 2026-09-28: part of a 3-cell donor chain (kS040_W130->kS040_W150->kS040_W170) all showing an anomalous shared dip at year 2020.0 (~4 std below ensemble mean) in the manifold comparison -- user has better results pending in Feb2026, mark for re-evaluation once available."
+  },
+  {
+    "cell": "kS040_W170",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.5756916603,
+      "validate": 0.6812980696,
+      "test": 0.4660363033
+    },
+    "dlod": 0.99814196508,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kS040_W150",
+    "timestamp": "2026-09-28T13:29:59",
+    "elapsed_s": 127.6,
+    "flag": "needs-re-evaluation",
+    "note": "FLAGGED 2026-09-28: part of a 3-cell donor chain (kS040_W130->kS040_W150->kS040_W170) all showing an anomalous shared dip at year 2020.0 (~4 std below ensemble mean) in the manifold comparison -- user has better results pending in Feb2026, mark for re-evaluation once available."
+  }
+]

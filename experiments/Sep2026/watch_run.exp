@@ -1,0 +1,74 @@
+#!/usr/bin/expect -f
+# Reusable stdout watcher for a single lte_run.sh invocation.
+#
+# Ada's Text_IO fully block-buffers when stdout isn't a TTY, so a plain
+# `subprocess.PIPE` in the orchestrator would see nothing incrementally --
+# just a burst at exit. Expect allocates a real PTY for the spawned
+# process, which keeps it line-buffered, so we can watch it live and
+# still enforce our own timeout independent of whatever TIMEOUT env var
+# the run itself was given.
+#
+# Usage: expect watch_run.exp <run_dir> <timeout_seconds>
+#
+# Emits one tagged line per event of interest to ITS OWN stdout, which the
+# Python orchestrator captures and parses -- all decision logic (which
+# attempt branch to take next) stays in Python; this script's only job is
+# reliable, incremental, timeout-bounded capture.
+#
+# Tags:
+#   MATCHED_TRIPLET: <line>   -- VALIDATE=TRUE final line ("<METRIC> train V: validate test  tid ctr")
+#   MATCHED_PAIR: <line>      -- VALIDATE=FALSE final line ("<METRIC> val1 val2  tid ctr")
+#   MATCHED_DEADLOCK: <line>  -- Ever_Accepted guard warning (thread never accepted a candidate)
+#   MATCHED_DLOD: <line>      -- the once-per-thread "<r>:dLOD:  <yr>:Yr: <file>" report line
+#   TIMEOUT_EXPIRED           -- our own timeout hit before eof
+#   EOF_REACHED               -- the child process exited
+
+set run_dir   [lindex $argv 0]
+set timeout_s [lindex $argv 1]
+
+if {$run_dir eq "" || $timeout_s eq ""} {
+    puts "USAGE_ERROR: expect watch_run.exp <run_dir> <timeout_seconds>"
+    exit 2
+}
+
+cd $run_dir
+log_user 0
+set timeout $timeout_s
+
+spawn ./lte_run.sh
+
+# Loop rather than a single expect call: multiple worker threads interleave
+# their own final lines, and we want every one we can see, not just the
+# first match -- confirmed necessary by direct observation this session.
+while {1} {
+    expect {
+        -re {(CC|DTW) +[-0-9.]+ +V: +[-0-9.]+ +[-0-9.]+ +[0-9]+ +[0-9]+} {
+            puts "MATCHED_TRIPLET: $expect_out(0,string)"
+            exp_continue
+        }
+        -re {(CC|DTW) +[-0-9.]+ +[-0-9.]+ +[0-9]+ +[0-9]+} {
+            puts "MATCHED_PAIR: $expect_out(0,string)"
+            exp_continue
+        }
+        -re {WARNING:[^\n]*deadlocked[^\n]*} {
+            puts "MATCHED_DEADLOCK: $expect_out(0,string)"
+            exp_continue
+        }
+        -re {[-0-9.]+:dLOD: +[-0-9.]+:Yr:[^\n]*} {
+            puts "MATCHED_DLOD: $expect_out(0,string)"
+            exp_continue
+        }
+        timeout {
+            puts "TIMEOUT_EXPIRED"
+            catch {exec kill -TERM [exp_pid]}
+            break
+        }
+        eof {
+            puts "EOF_REACHED"
+            break
+        }
+    }
+}
+
+catch {wait}
+exit 0
