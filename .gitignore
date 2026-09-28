@@ -8,6 +8,10 @@ b~*.adb
 .#*
 \#*#
 lt.exe
+enso_opt
+iir_invariant_test
+node_modules/
+obj/
 lt.exe.par
 lt.exe.parms
 lt.exe.*.par

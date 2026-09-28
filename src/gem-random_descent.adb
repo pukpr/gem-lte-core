@@ -241,6 +241,26 @@ package body GEM.Random_Descent is
       return Last + (Long_Float (FR.Random (G)) - 0.5) / 1_000.0;
    end Small_Random;
 
+   function Nearest_In_Set
+     (Value : in Long_Float; Candidates : in LF_Array) return Long_Float
+   is
+      Best : Long_Float := Value;
+      Best_Dist : Long_Float := Long_Float'Last;
+      Dist : Long_Float;
+   begin
+      if Candidates'Length = 0 then
+         return Value;
+      end if;
+      for I in Candidates'Range loop
+         Dist := abs (Value - Candidates (I));
+         if Dist < Best_Dist then
+            Best_Dist := Dist;
+            Best := Candidates (I);
+         end if;
+      end loop;
+      return Best;
+   end Nearest_In_Set;
+
 begin
    --  Initialize random number generators
    if Seed_Value /= 0 then

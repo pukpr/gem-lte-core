@@ -44,4 +44,13 @@ package GEM.Random_Descent is
 
    function Small_Random (Last : in Long_Float) return Long_Float;
 
+   --  Snap Value to whichever entry of Candidates it is closest to. Used
+   --  to constrain a specific slice of the search (e.g. the ltep/winding
+   --  entries) to a caller-supplied canonical set -- backbone harmonics
+   --  and subharmonics -- WITHOUT changing Markov itself (which stays
+   --  generic/unconstrained for every other parameter). Candidates must
+   --  be non-empty; Value is returned unchanged if it is.
+   function Nearest_In_Set
+     (Value : in Long_Float; Candidates : in LF_Array) return Long_Float;
+
 end GEM.Random_Descent;

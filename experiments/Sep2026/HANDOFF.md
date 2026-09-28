@@ -1,5 +1,78 @@
 # GEM-LTE grid-cell sweep — handoff notes (2026-09-27, updated 2026-09-28)
 
+## NEW: canonical-backbone winding lock (`LOCKW`) added to lt.exe (2026-09-28 ~15:30)
+
+Real Ada engineering, not a Python workaround. Goal (per the user): support
+"more sweeps" whose search is biased toward a canonical fundamental
+backbone with harmonics/subharmonics, for parsimony and easy
+parameterization -- following up on the MLR investigation that found the
+shared 20-winding harmonic set explains ~94% of manifold variance per
+quad (see below).
+
+**What it does**: constrains the `ltep` (winding/backbone) slice of the
+random-descent search's parameter vector to snap to the nearest value in
+a caller-supplied canonical set (backbone x harmonics/subharmonics),
+every time Markov perturbs one of those slots -- without touching the
+generic `Markov` procedure (which stays fully unconstrained for every
+other parameter) and without changing default behavior at all (opt-in,
+off by default).
+
+**Checked first**: the old `~/refactor/gem-lte-core` branch's
+`Phase_Lock`/`Enhanced_Nonlinear_Structure` (flagged in
+`REFACTOR_RECOVERY_PLAN.md` as unwired/never call-sited) looked
+superficially related but isn't -- it's a fixed seasonal amplitude
+modulation and a quadratic overtide term, neither of which touches which
+winding *frequencies* the search explores. Not reusable for this; built
+fresh instead.
+
+**New env vars** (all opt-in, default off/matching the pre-existing
+canonical set from the MLR work):
+- `LOCKW` (default False) -- enable the lock.
+- `CANON_BACKBONE` (default 0.207) -- the fundamental.
+- `CANON_HARMONICS` (default `"1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 18 19 23 27"`,
+  space-separated like the existing `NH` convention) -- integer
+  multiples of the backbone to allow.
+- `CANON_SUBHARMONIC` (default 11) -- adds `backbone/N` as one more
+  candidate (this default matches the confirmed ~0.0188 slow "120/60yr
+  rectification" subharmonic).
+
+**Implementation** (`src/gem-random_descent.ads/.adb`,
+`src/gem-lte-primitives-solution.adb`): new `Nearest_In_Set` utility
+function in `GEM.Random_Descent` (unit-tested standalone, confirmed
+correct incl. sign handling). `ltep` occupies exactly the last `NM`
+entries of the search's `Set` array (`Size_Shared - NM + 1 ..
+Size_Shared`, matches `Param_B_Overlay.First_LT_Index`). Since `Markov`
+perturbs one parameter per call without telling its caller which index
+changed, the snap is applied by the CALLER (the model-specific search
+loop) right after each `Walker.Markov (Set, Keep, Spread, Set0)` call: it
+scans the `ltep` index range for whichever entry differs from `Keep`
+(the pre-perturbation backup) and snaps just that one. Compiles clean
+(`gprbuild -p -P lte.gpr`, only 2 pre-existing unrelated warnings).
+
+**Validated behavior** (see full test writeup in this session's
+conversation, not reproduced here): works correctly as a **drift-
+prevention guardrail on an already-reasonable (e.g. donor-seeded from a
+near-canonical neighbor) starting point** -- touched slots snap to exact
+canonical values, fit quality holds. Does **NOT** reliably pull an
+arbitrary/uncorrelated cold-start seed onto canonical values within
+practical run times (confirmed at 30s/240s/1000s, all landing at the
+same off-canonical local optimum) -- physically expected, since winding
+frequency error integrates into large phase drift over a ~73-year
+record, and single-parameter hill-climbing can't jointly re-adapt the
+correlated scalars (impA/impB/delA/delB/asym/etc.) fast enough to escape
+a well-adapted off-canonical optimum. **Recommended usage pattern for
+the next round of sweeps**: donor-seed from an already-canonical
+neighbor (there are many now -- 0.207-backbone gold standards are the
+majority of the 89 solved quads) as usual, then run with `LOCKW=TRUE` to
+prevent the kind of alias-drift that caused this whole session's
+backbone-invalidation problem in the first place, rather than expecting
+it to fix a cell that's never been close to canonical before.
+
+**Also fixed in passing**: `.gitignore` now excludes `enso_opt` (the
+actual file `lt.exe` symlinks to -- confirmed by rebuild; was previously
+untracked-but-not-ignored, a gap since `lt.exe` itself has always been
+gitignored), `iir_invariant_test`, `node_modules/`, and `obj/`.
+
 ## FLAGGED FOR RE-EVALUATION: kS040_W130, kS040_W150, kS040_W170 (2026-09-28 ~13:15)
 
 After the manifold-outlier fixes, re-running `manifold_comparison_all_quads.py`

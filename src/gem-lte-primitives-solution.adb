@@ -634,6 +634,21 @@ package body GEM.LTE.Primitives.Solution is
       Local_Max : constant Boolean := GEM.Getenv ("LOCAL", False);
       Lock_Tidal : constant Boolean := GEM.Getenv ("LOCKT", False);
       Lock_T_Amp : constant Boolean := GEM.Getenv ("LOCKA", False);
+      --  Constrains ltep (the "winding"/LT modulation period) entries to
+      --  snap to the nearest value in a caller-supplied canonical set
+      --  (backbone harmonics/subharmonics) after each Markov step that
+      --  touches one, rather than letting them drift freely -- unlike
+      --  LOCKT/LOCKA above, which freeze the LPAP tidal-constituent
+      --  array, this is specific to ltep and leaves everything else
+      --  (including which candidate is picked, and every scalar/LPAP
+      --  parameter) fully free. See Canon_Candidates below and its
+      --  population just after this procedure's own `begin`.
+      Lock_Winding : constant Boolean := GEM.Getenv ("LOCKW", False);
+      Canon_Backbone : constant Long_Float := GEM.Getenv ("CANON_BACKBONE", 0.207);
+      Canon_Harmonics : constant Ns :=
+        S_to_I (GEM.Getenv ("CANON_HARMONICS",
+                "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 18 19 23 27"));
+      Canon_Subharmonic : constant Integer := GEM.Getenv ("CANON_SUBHARMONIC", 11);
       Impulse_Only  : constant Boolean := GEM.Getenv ("IMPULSE", True);
       Has_Friction : constant Boolean := GEM.Getenv ("FRICTION", False);
       Jerk : constant Long_Float := GEM.Getenv ("JERK", 0.0);
@@ -1134,7 +1149,22 @@ package body GEM.LTE.Primitives.Solution is
          Harmonic_Range => Max_Harmonics);
 
       Set, Keep, Set0 : Walker.LF_Array (1 .. Size_Shared);
-      
+
+      --  ltep occupies exactly the last NM entries of Set (matches
+      --  Param_B_Overlay.First_LT_Index (D.B.NLP) = 19 + NLP*2 =
+      --  Size_Shared - NM + 1, confirmed against that package). Only
+      --  used when Lock_Winding is set -- see the population loop right
+      --  after this procedure's `begin` and the snap call after each
+      --  Markov step in the search loop below.
+      LT_Lo : constant Positive := Size_Shared - NM + 1;
+      LT_Hi : constant Positive := Size_Shared;
+      --  Both signs of backbone*harmonic and backbone/subharmonic, since
+      --  ltep can be negative (a phase-convention flip, confirmed seen
+      --  in real fits this session) and Nearest_In_Set has no notion of
+      --  sign-preserving comparison on its own.
+      Canon_N : constant Positive := Canon_Harmonics'Length + 1;
+      Canon_Candidates : Walker.LF_Array (1 .. 2 * Canon_N);
+
       --  Suppress overlay address clause warning (intentional unsafe operation)
       pragma Warnings (Off, "overlay changes scalar storage order");
       for Set'Address use D.B.Offset'Address;
@@ -1308,6 +1338,19 @@ package body GEM.LTE.Primitives.Solution is
          Text_IO.Put_Line (File_Name & " empty or not found");
          GNAT.OS_Lib.OS_Exit (0);
       end if;
+
+      --  Populate the canonical winding candidate set (harmless to build
+      --  even when Lock_Winding is False -- only ever read when it's
+      --  True). Both signs of each backbone*harmonic, plus both signs of
+      --  the backbone/subharmonic term.
+      for I in Canon_Harmonics'Range loop
+         Canon_Candidates (2 * I - 1) :=
+           Canon_Backbone * Long_Float (Canon_Harmonics (I));
+         Canon_Candidates (2 * I) := -Canon_Candidates (2 * I - 1);
+      end loop;
+      Canon_Candidates (2 * Canon_N - 1) :=
+        Canon_Backbone / Long_Float (Canon_Subharmonic);
+      Canon_Candidates (2 * Canon_N) := -Canon_Candidates (2 * Canon_N - 1);
 
       for I in First .. Last loop
          RMS_Data :=
@@ -1769,6 +1812,22 @@ package body GEM.LTE.Primitives.Solution is
                end;
             else
                Walker.Markov (Set, Keep, Spread, Set0);
+            end if;
+            if Lock_Winding then
+               --  Markov perturbs exactly one Set index per call; this
+               --  finds whichever one changed (if any) within the ltep
+               --  slice and snaps it to the nearest canonical harmonic/
+               --  subharmonic, so the search can only choose AMONG the
+               --  canonical set for its winding value(s), never drift to
+               --  an arbitrary alias -- amplitude/phase expression of
+               --  whichever candidate gets picked is still fully free,
+               --  via the ordinary optimization of every other
+               --  parameter (impA/impB/delA/delB/asym/etc.).
+               for I in LT_Lo .. LT_Hi loop
+                  if Set (I) /= Keep (I) then
+                     Set (I) := Walker.Nearest_In_Set (Set (I), Canon_Candidates);
+                  end if;
+               end loop;
             end if;
             Walker.Random_Harmonic (Harms, Harms_Keep);
             if not Modulations_Are_Valid then
