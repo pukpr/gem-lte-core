@@ -69,6 +69,10 @@ Example with a different metric and timeout:
 python3 lte_run.py nino4 --timeout 3600 --metric DTW
 ```
 
+Use `--metric` to select the fitness metric for a run; `CC` is the default.
+See [`METRICS.md`](METRICS.md) for metric descriptions and guidance on choosing
+one for a particular comparison.
+
 ### Deterministic forward reproduction
 
 `lte_forward.py` runs the forward model only, without the Ada random-descent
@@ -98,6 +102,11 @@ python3 lte_sweep.py amo --target 0.9 --timeout 300
 - `experiments/Feb2026/` — primary research workspace, index datasets, GUI, and
   analysis helpers
 - `experiments/rr/` — round-robin / pared-down helper workspace
+
+## Future work
+
+See the [refactor recovery plan](REFACTOR_RECOVERY_PLAN.md) for proposed future
+work and the criteria for safely recovering refactor changes.
 
 ## See also
 
