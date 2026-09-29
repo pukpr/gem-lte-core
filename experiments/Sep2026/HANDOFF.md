@@ -1066,6 +1066,24 @@ investigation should be needed, this looks like ordinary remaining
 cross-thread-lockbox cases the fix already handles correctly, just not
 yet re-run.
 
+**All 11 re-swept 2026-09-29 (user going to bed, ran unattended):** 10 of
+11 committed clean (rel ~1e-10, corr=1.0 on every one):
+`kN040_W030, kN020_W130, kS060_W050, kS020_E010, kN040_W090, kN020_W090,
+kN060_W130, kN020_E170, kN000_W170, kN040_W170`. One,
+`kN060_E010`, failed its full 4-attempt cascade (1628s, deadlock/no
+gate pass) and was rolled back to its pre-batch state unchanged --
+still SUSPECT (corr=0.998, mild) but not regressed.
+
+**Final full 67-cell audit (`audit_v4.log`): 66 OK, 1 SUSPECT
+(`kN060_E010` only).** Started this investigation at 30 OK/37 SUSPECT.
+All three Ada bugs (KeepForcing, DKeep.C/harm, and the
+Report_Final/Winner cross-thread Forcing gap) plus all four
+`lte_forward.py` bugs are confirmed fixed project-wide. `kN060_E010` is
+the only remaining open item -- try a longer TIMEOUT or a donor-seeded
+reset (`solve_cell_with_retry`, discarding its own possibly-poisoned
+starting state entirely) rather than another in-place resume next time,
+since in-place resume has now failed for it once already.
+
 ## Suggested order of operations for a fresh session
 
 1. Read this file, then skim `sweep.py` itself (well-commented, ~700 lines).

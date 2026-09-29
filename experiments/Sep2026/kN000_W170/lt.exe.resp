@@ -19,5 +19,5 @@ PART                           FALSE
 FILTER                         0.0
 JERK                           0.0
 -CAL_LOD                        -0.0002
-VALIDATE                       TRUE
 INIT_DATE                      1950.0
+VALIDATE                       TRUE

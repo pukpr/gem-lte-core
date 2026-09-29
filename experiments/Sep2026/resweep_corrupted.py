@@ -27,15 +27,16 @@ import time
 sys.path.insert(0, "/home/paul/eval/gem-lte-core/experiments/Sep2026")
 import sweep
 
-# kN000_E150, kN040_W050, kS020_E150, and kS040_E170 already re-swept and
-# committed (2026-09-29). kS020_E150 needed a THIRD pass after a deeper
-# Ada bug was found: Forcing was missing entirely from
-# Monitor.Report_Final/Winner (the VALIDATE=TRUE cross-thread lockbox),
-# so the earlier KeepForcing fix only resynced within a single thread,
-# not across threads -- now fixed and verified (kS020_E150 audit
-# rel=9.3e-10, corr=1.0). These 4 are the remaining cells from the
-# original "severe 8" not yet re-swept with the fully-fixed binary.
-TARGET_CELLS = ['kS040_E070', 'kS040_E050', 'kN020_E150', 'kS040_E150']
+# All 8 originally-flagged SEVERE cells are done (2026-09-29) -- all
+# audit-clean with the fully-fixed binary (Forcing threaded through
+# Monitor.Report_Final/Winner's cross-thread lockbox, plus the earlier
+# KeepForcing/DKeep.C same-thread fixes). These 11 are the remaining
+# MILDER SUSPECT cells from the final full 67-cell audit (56 OK / 11
+# SUSPECT, none severe -- worst corr=0.994) -- same re-sweep-in-place
+# treatment, no further Ada investigation expected to be needed.
+TARGET_CELLS = ['kN040_W030', 'kN060_E010', 'kN020_W130', 'kS060_W050',
+                 'kS020_E010', 'kN040_W090', 'kN020_W090', 'kN060_W130',
+                 'kN020_E170', 'kN000_W170', 'kN040_W170']
 
 TIMEOUT = 400
 

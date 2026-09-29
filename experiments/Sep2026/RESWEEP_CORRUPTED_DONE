@@ -1,5 +1,12 @@
-2026-09-29T02:00:04
-kS040_E070: {'action': 'committed', 'old_min': 0.2644400929, 'new_min': 0.7423776141, 'backbone': 0.207218642093452, 'post_fix_audit': {'cell': 'kS040_E070', 'max_abs': 3.3735716442606645e-09, 'rel': 7.597303721122061e-11, 'corr': 1.0}}
-kS040_E050: {'action': 'committed', 'old_min': 0.7006152286, 'new_min': 0.7381047001, 'backbone': 0.207132737737508, 'post_fix_audit': {'cell': 'kS040_E050', 'max_abs': 2.448551583711378e-09, 'rel': 5.542237824173757e-11, 'corr': 0.9999999999999998}}
-kN020_E150: {'action': 'committed', 'old_min': 0.414745258, 'new_min': 0.7116761765, 'backbone': 0.207259495251847, 'post_fix_audit': {'cell': 'kN020_E150', 'max_abs': 3.6909995060341316e-09, 'rel': 8.521558772357081e-11, 'corr': 1.0}}
-kS040_E150: {'action': 'committed', 'old_min': 0.8125249176, 'new_min': 0.8282157043, 'backbone': 0.207092253271006, 'post_fix_audit': {'cell': 'kS040_E150', 'max_abs': 5.707718742087309e-09, 'rel': 1.2384792844982258e-10, 'corr': 1.0}}
+2026-09-29T03:40:14
+kN040_W030: {'action': 'committed', 'old_min': 0.425577632, 'new_min': 0.6601752597, 'backbone': 0.229349958123966, 'post_fix_audit': {'cell': 'kN040_W030', 'max_abs': 3.957104866003647e-09, 'rel': 8.518475627640501e-11, 'corr': 1.0}}
+kN060_E010: {'action': 'rolled_back_cascade_failed', 'old_min': 0.5929644494}
+kN020_W130: {'action': 'committed', 'old_min': 0.6538727784, 'new_min': 0.4697348712, 'backbone': 0.207062385374623, 'post_fix_audit': {'cell': 'kN020_W130', 'max_abs': 9.01528096619586e-09, 'rel': 2.427971644885016e-10, 'corr': 0.999999999999999}}
+kS060_W050: {'action': 'committed', 'old_min': 0.6024881966, 'new_min': 0.5223729169, 'backbone': 0.229561064411113, 'post_fix_audit': {'cell': 'kS060_W050', 'max_abs': 4.225668703838892e-09, 'rel': 9.573851716600438e-11, 'corr': 1.0}}
+kS020_E010: {'action': 'committed', 'old_min': 0.7450104922, 'new_min': 0.7724354901, 'backbone': 0.207256518787466, 'post_fix_audit': {'cell': 'kS020_E010', 'max_abs': 8.82886297404184e-09, 'rel': 1.938854101610371e-10, 'corr': 1.0}}
+kN040_W090: {'action': 'committed', 'old_min': 0.1814153353, 'new_min': 0.479783629, 'backbone': 0.448702425621261, 'post_fix_audit': {'cell': 'kN040_W090', 'max_abs': 1.2045575203956105e-08, 'rel': 2.694370371553085e-10, 'corr': 1.0}}
+kN020_W090: {'action': 'committed', 'old_min': 0.6943506304, 'new_min': 0.7123448201, 'backbone': 0.207309816796487, 'post_fix_audit': {'cell': 'kN020_W090', 'max_abs': 2.724279912769134e-09, 'rel': 6.335532304668116e-11, 'corr': 0.9999999999999996}}
+kN060_W130: {'action': 'committed', 'old_min': 0.243583565, 'new_min': 0.3113436265, 'backbone': 0.20693116127213, 'post_fix_audit': {'cell': 'kN060_W130', 'max_abs': 4.024155231263649e-09, 'rel': 9.242253611861917e-11, 'corr': 0.9999999999999998}}
+kN020_E170: {'action': 'committed', 'old_min': 0.5642739433, 'new_min': 0.6099019853, 'backbone': 0.207276107436662, 'post_fix_audit': {'cell': 'kN020_E170', 'max_abs': 7.96504284750199e-09, 'rel': 1.830384070673301e-10, 'corr': 1.0}}
+kN000_W170: {'action': 'committed', 'old_min': 0.5787345039, 'new_min': 0.6609485407, 'backbone': 0.207273093651714, 'post_fix_audit': {'cell': 'kN000_W170', 'max_abs': 5.689630544480906e-09, 'rel': 1.1236190972941898e-10, 'corr': 1.0}}
+kN040_W170: {'action': 'committed', 'old_min': 0.5332362887, 'new_min': 0.6168101193, 'backbone': 0.207276145073884, 'post_fix_audit': {'cell': 'kN040_W170', 'max_abs': 3.6987151119660666e-09, 'rel': 8.535812519335694e-11, 'corr': 0.9999999999999998}}
