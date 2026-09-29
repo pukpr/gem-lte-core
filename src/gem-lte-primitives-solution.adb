@@ -49,6 +49,7 @@ with Ada.Exceptions;
 with GNAT.Traceback.Symbolic;
 with Ada.IO_Exceptions;
 with GNAT.OS_Lib;
+with Ada.Directories;
 
 package body GEM.LTE.Primitives.Solution is
 
@@ -746,52 +747,110 @@ package body GEM.LTE.Primitives.Solution is
         GEM.Getenv ("STRICT_IDATE", False) or else Init_Date_Explicit;
       RMS_Data : Long_Float := 0.0;
 
+      --  Quadrature-flip regularizer (2026-09-29, per user request): the
+      --  lowest-value winding (~0.01-0.02, BACKBONE/11 subharmonic family)
+      --  has its amplitude AND phase decided purely by OLS regression --
+      --  its period rivals the record length, so sin/cos are nearly
+      --  collinear and the regression can land on either quadrature with
+      --  no algebraic way to choose (documented at length in HANDOFF.md,
+      --  "subharmonic quadrature metastability"). MANIFOLD points at a
+      --  reference manifold file (a mean/median manifold across the
+      --  collective, written by a sweep script, NOT read/written by this
+      --  program) sampled on the SAME date grid as this cell's own
+      --  Data_Records -- every Metric call's own Z argument is always
+      --  some slice of Forcing (the manifold, lte_results.csv column 4)
+      --  taken from that same array's own bounds, so Manifold_Ref can be
+      --  indexed by Z'First..Z'Last directly with no separate date-
+      --  matching step. Off (no behavior change) whenever MANIFOLD is
+      --  unset or the file doesn't exist -- deliberately checked with
+      --  Ada.Directories.Exists BEFORE ever calling Make_Data, since
+      --  Make_Data's own failure path is GNAT.OS_Lib.OS_Exit(0) (silent
+      --  process termination, not a catchable exception) for a missing
+      --  file, which would be far too destructive for what's meant to be
+      --  an optional regularizer.
+      Manifold_Ref_File : constant String := GEM.Getenv ("MANIFOLD", "");
+      Manifold_Regularize : constant Boolean :=
+        Manifold_Ref_File'Length > 0
+        and then Ada.Directories.Exists (Manifold_Ref_File);
+      Manifold_Ref : constant Data_Pairs :=
+        (if Manifold_Regularize then Make_Data (Manifold_Ref_File)
+         else Empty_Data);
+
       function Metric (X, Y, Z : in Data_Pairs) return Long_Float is
+         Raw_Score : Long_Float;
       begin
          if RMS_Metric then
-            return RMS (X, Y, RMS_Data, 0.0);
+            Raw_Score := RMS (X, Y, RMS_Data, 0.0);
             --  TODO: Can remove - Experimental hybrid metric combining RMS and CC
             --  was tested but never adopted. Simple RMS alone was sufficient.
-            -- return (RMS(X,Y,RMS_Data, 0.0) + CC(X,Y))/2.0;
+            -- Raw_Score := (RMS(X,Y,RMS_Data, 0.0) + CC(X,Y))/2.0;
          elsif CID_Metric then
-            return CC (X, Y) * CID (X, Y);
+            Raw_Score := CC (X, Y) * CID (X, Y);
          elsif ZC_Metric then
-            return Xing (X, Y);
+            Raw_Score := Xing (X, Y);
          elsif DER_Metric then
-            return DER_CC (X, Y);
+            Raw_Score := DER_CC (X, Y);
          elsif FT_Metric then
-            return FT_CC (X, Y, Z);
+            Raw_Score := FT_CC (X, Y, Z);
          elsif Winding_Metric then
-            return (Winding_Agreement (X, Y, Z) + CC(X,Y))/2.0;
+            Raw_Score := (Winding_Agreement (X, Y, Z) + CC(X,Y))/2.0;
          elsif DTW_Metric then
-            return DTW_Distance (X, Y, DTW_Window);
+            Raw_Score := DTW_Distance (X, Y, DTW_Window);
          elsif EMD_Metric then
-            return EMD (X, Y);
+            Raw_Score := EMD (X, Y);
          elsif Hoy_Metric then
-            return -- Ada.Numerics.Long_Elementary_Functions.Sqrt ()
+            Raw_Score := -- Ada.Numerics.Long_Elementary_Functions.Sqrt ()
                    (Hoyer_Spectral_Peak (X, Y, Z) + CC (X, Y)) * 0.5;
          elsif DTW_CC then
-            return
+            Raw_Score :=
               Ada.Numerics.Long_Elementary_Functions.Sqrt
                 (DTW_Distance (X, Y, DTW_Window) * CC (X, Y));
          elsif CTW_Metric then
-            return
+            Raw_Score :=
               Ada.Numerics.Long_Elementary_Functions.Sqrt
                 (Long_Float'Max (DTW_Distance (X, Y, DTW_Window), 0.0) *
                  CID (X, Y));
          elsif EMD_CC then
-            return (EMD (X, Y) + CC (X, Y)) * 0.5;
+            Raw_Score := (EMD (X, Y) + CC (X, Y)) * 0.5;
          elsif EMD_DER then
-            return (EMD (X, Y, Derivative => True) + CC (X, Y)) * 0.5;
+            Raw_Score := (EMD (X, Y, Derivative => True) + CC (X, Y)) * 0.5;
          elsif SEM_Metric then
-            return Scaled_Error_Metric (X, Y);  -- Y should be data
+            Raw_Score := Scaled_Error_Metric (X, Y);  -- Y should be data
          elsif MLR_On then
-            return CC (X, Y) * Min_Entropy_Power_Spectrum (Z, Y);
+            Raw_Score := CC (X, Y) * Min_Entropy_Power_Spectrum (Z, Y);
          elsif Is_Minimum_Entropy then
-            return Min_Entropy_Power_Spectrum (X, Y); -- or X = Z
+            Raw_Score := Min_Entropy_Power_Spectrum (X, Y); -- or X = Z
          else
-            return CC (X, Y);
+            Raw_Score := CC (X, Y);
          end if;
+
+         --  Multiplicative penalty: Manifold_CC~1.0 (this run's own
+         --  manifold slice agrees with the collective reference) leaves
+         --  Raw_Score untouched; Manifold_CC~0.0 (orthogonal, i.e. the
+         --  classic quadrature-swap signature) or negative (anti-
+         --  correlated) crushes it toward/through zero, so a thread's own
+         --  accept/reject (Old_CC, Monitor.Check, all downstream of this
+         --  single choke point every Metric caller already goes through)
+         --  naturally steers away from the wrong quadrature without
+         --  needing a second, separate search objective.
+         if Manifold_Regularize then
+            begin
+               declare
+                  Manifold_CC : constant Long_Float :=
+                    CC (Z, Manifold_Ref (Z'First .. Z'Last));
+               begin
+                  Raw_Score := Raw_Score * Long_Float'Max (0.0, Manifold_CC);
+               end;
+            exception
+               when Constraint_Error =>
+                  --  Manifold_Ref doesn't cover this particular Z slice
+                  --  (e.g. a shorter/misaligned reference file) -- no
+                  --  reference available for this range, so no penalty.
+                  null;
+            end;
+         end if;
+
+         return Raw_Score;
       end Metric;
 
       function Impulse_Delta (Time : Long_Float) return Long_Float is

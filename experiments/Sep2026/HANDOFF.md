@@ -1,4 +1,71 @@
-# GEM-LTE grid-cell sweep — handoff notes (2026-09-27, updated 2026-09-28)
+# GEM-LTE grid-cell sweep — handoff notes (2026-09-27, updated 2026-09-29)
+
+## NEW: MANIFOLD quadrature-flip regularizer added at the Ada source (2026-09-29)
+
+Direct answer to the subharmonic quadrature metastability finding
+documented below ("Subharmonic quadrature metastability -- a real,
+unresolved structural degeneracy"): the user's own proposed fix --
+"regularize the metric via a correlation coefficient that compares to a
+mean or median manifold ... If CC~1.0, no penalty, but if CC~0, large
+penalty" -- is now implemented in `GEM.LTE.Primitives.Solution`'s local
+`Metric` function (`src/gem-lte-primitives-solution.adb`), the single
+choke point every accept/reject decision in the search already routes
+through (CorrCoeff, CorrCoeffP, CorrCoeffTest, Exclude_Metric,
+Validate_Metric all call it).
+
+**New env var `MANIFOLD`** (default unset = feature off, zero behavior
+change): points at a reference manifold `.dat` file (same two-column
+`date value` format as any other `.dat` file this project reads, on the
+SAME date grid as the cell's own data -- meant to be a mean/median
+manifold across the 89-quad collective, written by a sweep script, never
+by `lt.exe` itself). When set and the file exists, every `Metric(X,Y,Z)`
+call now also computes `Manifold_CC := CC(Z, Manifold_Ref(Z'First ..
+Z'Last))` (Z is always some slice of Forcing/the manifold already, so no
+separate date-alignment step is needed) and multiplies the raw score by
+`Long_Float'Max(0.0, Manifold_CC)` -- CC~1.0 (this run's own manifold
+slice agrees with the collective reference) leaves the score untouched;
+CC~0.0 (the classic quadrature-swap signature -- sin/cos orthogonality,
+not a sign flip) or negative (anti-correlated) crushes it toward/through
+zero, steering the search away from the wrong quadrature without a
+second, separate search objective.
+
+**Safety note (important if reusing this pattern elsewhere)**:
+`Make_Data`'s own failure path for a missing/bad file is
+`GNAT.OS_Lib.OS_Exit(0)` -- silent process termination, NOT a catchable
+exception -- so `MANIFOLD` is deliberately checked with
+`Ada.Directories.Exists` BEFORE ever calling `Make_Data`, rather than
+wrapping the call in a handler. Confirmed live: a `MANIFOLD` pointing at
+a nonexistent file produces byte-identical output to not setting it at
+all, no crash.
+
+**Verified via a new standalone self-test**
+(`src/manifold_regularizer_test.adb`, built via `gprbuild -P lte.gpr
+manifold_regularizer_test`, same pattern as the existing
+`iir_invariant_test.adb`) rather than the full threaded search harness
+(background/non-PTY runs of the real binary hit an unrelated,
+pre-existing environment flake -- `STORAGE_ERROR` from GNAT's interrupt
+manager, reproduced identically with AND without `MANIFOLD` set,
+confirming it's not caused by this change, just not a usable test
+signal here). The self-test confirms all 5 properties the real penalty
+logic depends on: self-vs-self CC=+1.0 (no penalty), self-vs-negated
+CC=-1.0 (multiplier clamps to 0.0), both clamp values exactly, and --
+the one genuinely subtle point -- that a misaligned/too-short reference
+correctly raises (and is caught as) `Constraint_Error` rather than
+propagating uncaught. That last check caught a real Ada semantics trap
+during development: an exception raised while ELABORATING a block's own
+declarative part is NOT caught by that same block's own handler in Ada,
+only by an ENCLOSING one -- the production code already had the correct
+double-nested `begin declare ... begin ... end; exception ... end;`
+shape, but the test's first draft didn't and crashed uncaught until
+fixed to match.
+
+**Not yet done**: no sweep script writes a `MANIFOLD` file yet (per the
+user's own framing, "the contents of the MANIFOLD file will be set by
+the sweep script and stored at this level" -- i.e. one shared file at
+the Sep2026 experiment root, likely the mean or median of all 89
+cells' own current manifolds). No cell's `.resp` sets `MANIFOLD` yet
+either, so this is purely a capability landing, not yet exercised
+against a real mean-manifold file or a real ambiguous cell.
 
 ## NEW GOVERNING PRINCIPLE: judge every future change by the COLLECTIVE measure, not per-cell scores (2026-09-28 ~21:30)
 
