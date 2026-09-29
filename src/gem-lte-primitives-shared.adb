@@ -51,8 +51,6 @@ with Ada.Directories;
 
 package body GEM.LTE.Primitives.Shared is
 
-   CI : constant String := GEM.Getenv (Name => "CLIMATE_INDEX", Default => "");
-
    --  Access type required for protected object storage
    --  (cannot directly store discriminated record in protected object)
    type Param_P is access all Param_S;
@@ -207,10 +205,7 @@ package body GEM.LTE.Primitives.Shared is
       use GNATCOLL.JSON;
       FN : constant String :=
         Ada.Directories.Simple_Name (Ada.Command_Line.Command_Name) & ".p";
-      FN2 : constant String :=
-        Ada.Directories.Simple_Name (Ada.Command_Line.Command_Name) & "." &
-        CI & ".p";
-      
+
       -- Use NH/NM from environment (.resp file takes precedence)
       NM : constant Integer := GEM.Getenv ("NM", D.B.LT'Length);
       Harms : constant Ns := Parse_NH (GEM.Getenv ("NH", ""));
@@ -291,8 +286,14 @@ package body GEM.LTE.Primitives.Shared is
       end Write_To_File;
       
    begin
-      Write_To_File (FN, Include_LPAP => True);   -- Primary file with LPAP
-      Write_To_File (FN2, Include_LPAP => False); -- Secondary file without LPAP
+      --  The per-CLIMATE_INDEX secondary file (FN2, "<exe>.<index>.p") used
+      --  to also be written here -- removed alongside the matching read in
+      --  Read (D) above: it duplicated every field except lpap, and its
+      --  read side silently overwrote the primary's scalars/ltep/harm with
+      --  whatever it happened to hold, which could go stale relative to
+      --  lt.exe.p (confirmed live on "pdo", 2026-09-29). lt.exe.p alone is
+      --  sufficient -- see that comment for the full explanation.
+      Write_To_File (FN, Include_LPAP => True);
    end Write_JSON;
 
    --  =========================================================================
@@ -706,7 +707,6 @@ package body GEM.LTE.Primitives.Shared is
            Exec (Exec'First .. Exec'Last - 1)
          else Exec);
       FN_JSON : constant String := Base & ".p";
-      FN2_JSON : constant String := Base & "." & CI & ".p";
       FT : Ada.Text_IO.File_Type;
    begin
       -- Initialize D.A.LP with canonical Doodson-calculated periods BEFORE any JSON reading
@@ -715,23 +715,30 @@ package body GEM.LTE.Primitives.Shared is
       end loop;
       
       -- Detect NM/NH from JSON to override defaults with actual JSON array sizes
-      Detect_NM_NH_From_JSON (FN2_JSON);  -- Try secondary file first (more specific)
-      Detect_NM_NH_From_JSON (FN_JSON);   -- Then primary file (may override if present)
-      
+      Detect_NM_NH_From_JSON (FN_JSON);
+
          Ada.Text_IO.Put_Line ("*** JSON-ONLY MODE ***");
          Ada.Text_IO.Put_Line ("Reading primary file: " & FN_JSON);
          if not Read_JSON (FN_JSON, D, True) then
             raise Ada.Text_IO.Name_Error with "JSON file not found: " & FN_JSON;
          end if;
          Ada.Text_IO.Put_Line ("Successfully loaded: " & FN_JSON);
-         
-         Ada.Text_IO.Put_Line ("Reading secondary file: " & FN2_JSON);
-         if not Read_JSON (FN2_JSON, D, False) then
-            raise Ada.Text_IO.Name_Error with "JSON file not found: " & FN2_JSON;
-         end if;
-         Ada.Text_IO.Put_Line ("Successfully loaded: " & FN2_JSON);
-         Ada.Text_IO.Put_Line ("*** JSON FILES LOADED SUCCESSFULLY ***");
-      
+         --  The per-CLIMATE_INDEX secondary file (FN2_JSON, "<exe>.<index>.p")
+         --  used to be read here too, AFTER the primary -- but Read_JSON's
+         --  Include_LPAP flag only ever gates whether LPAP gets parsed; every
+         --  scalar, ltep, AND harm field gets applied unconditionally
+         --  regardless of that flag, and the secondary file never contains
+         --  an "lpap" key at all. So this second read did nothing but
+         --  silently OVERWRITE the just-loaded primary's scalars/ltep/harm
+         --  with the secondary file's OWN (frequently stale -- e.g. copied
+         --  in from a different run, or simply never refreshed alongside a
+         --  later primary-only update) values -- confirmed directly this
+         --  session on a live cell (pdo): the secondary file held an older
+         --  fit than lt.exe.p, and re-running silently regressed the loaded
+         --  state to it (2026-09-29). Removed entirely per the user's own
+         --  diagnosis -- lt.exe.p already contains everything needed.
+         Ada.Text_IO.Put_Line ("*** JSON FILE LOADED SUCCESSFULLY ***");
+
 
    exception
       when others =>

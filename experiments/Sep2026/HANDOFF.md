@@ -1234,6 +1234,58 @@ known, real, structural degeneracy for whenever it's picked back up;
 `check_subharmonic_coherence.py` remains in the repo as a (currently
 inconclusive) starting point, not a working diagnostic.
 
+## Real state-recovery bug found and fixed at the source: stale per-CLIMATE_INDEX secondary checkpoint (2026-09-29)
+
+User report: for `VALIDATE=FALSE`, re-running a cell didn't recover the
+previously-saved optimal state -- e.g. `pdo`'s "last training CC=0.6398"
+became "starts at CC=0.62731" on rerun, a real regression, not a display
+artifact ("usually works reliably" -- this was new). Initial hypothesis
+(that `Monitor.Check`'s cross-thread `Best_Client` selection uses each
+iteration's live, possibly-rejected trial score rather than each
+thread's own kept/accepted best) was plausible and independently
+verified against the numbers (`lte_forward.py`, no Ada involved,
+reproduced 0.6287 for the then-current saved state -- matching the
+user's "0.62731" almost exactly) -- but the user pointed at the REAL,
+simpler root cause instead: `lt.exe.<CLIMATE_INDEX>.p`, a secondary
+per-index checkpoint file, still existed from this project's much
+longer history (a "known use at one time" per the user) and had gone
+stale relative to `lt.exe.p`.
+
+Root cause, confirmed by reading `GEM.LTE.Primitives.Shared.Read`/
+`Write_JSON` directly: `Read(D)` loads the PRIMARY file first (full
+state, including `lpap`), then unconditionally loads the SECONDARY file
+`lt.exe.<CLIMATE_INDEX>.p` INTO THE SAME `D` -- and `Read_JSON`'s
+`Include_LPAP` flag (`False` for the secondary read) only ever gates
+whether `lpap` gets parsed; every scalar, `ltep`, AND `harm` field gets
+applied regardless of that flag. The secondary file never even contains
+an `lpap` key. So the secondary read did nothing but silently OVERWRITE
+the just-loaded primary's scalars/`ltep`/`harm` with the secondary
+file's own (frequently stale) values whenever the two diverged -- and
+`Write_JSON` writes both files together on every save, so they only
+stay in sync as long as NOTHING external ever touches `lt.exe.p` alone
+(e.g. this session's own Feb2026-import copying, `pick_best_of_feb_sep.py`,
+never touched the secondary file for any of the 43 imported cells --
+a real, live risk that existed until this fix).
+
+**Fixed by removing the secondary file entirely** (both the read in
+`Read` and the write in `Write_JSON`, `src/gem-lte-primitives-shared.adb`)
+-- per the user's own diagnosis, `lt.exe.p` already contains everything
+needed. Rebuilt clean (no warnings after also removing the now-dead
+`FN2_JSON`/`FN2`/`CI` declarations). Verified directly on `pdo`: deleted
+its stale `lt.exe.pdo.dat.p`, reran, confirmed the file is no longer
+recreated and the recovered/saved state no longer reverts.
+
+**Project-wide cleanup**: deleted all matching `lt.exe.*.dat.p` files
+(the precise pattern Ada builds via `Base & "." & CI & ".p"` where CI
+includes `.dat`, NOT the broader `lt.exe.*.p` glob, which also matches
+unrelated files like the user's own `lt.exe.pysr.*.p` symbolic-
+regression artifacts and numerous `lt.exe.p.<label>` dated snapshots --
+careful with the exact pattern if repeating this) -- 89 in Sep2026, 139
+in Feb2026, all now removed (gitignored already, so no tracked diff).
+These files are also now fully inert even if any reappear (e.g. from an
+old un-rebuilt binary, or copied in from elsewhere) -- the current
+`enso_opt` no longer reads or writes them at all.
+
 ## Suggested order of operations for a fresh session
 
 1. Read this file, then skim `sweep.py` itself (well-commented, ~700 lines).
