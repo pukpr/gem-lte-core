@@ -510,13 +510,18 @@ def forward(cfg: Config, params: dict):
         ap[:, 1] += np.arctan2(w_der, w_norm)
 
     # 3-5) tide sum -> impulse comb -> IIR integrator  (Calc_Forcing)
-    # STRICT_IDATE (or an explicit, non-negative INIT_DATE, which implies
-    # it) integrates from IDATE over a backward-extended template, seeding
-    # the IIR at IDATE - 0.1/sampling (so Start_Index lands one sample
-    # EARLIER than the plain path below whenever IDATE coincides exactly
-    # with dates[0], as it commonly does) -- see Calc_Forcing's Strict_IDate
-    # branch. The non-strict path seeds at dates[0] (the record's own first
-    # date), NOT at IDATE -- IDATE only matters when Strict_IDate is set.
+    # Both paths seed the IIR at IDATE itself (Initial_Conditions_Date) --
+    # NOT at dates[0] (an earlier misreading here confused Impulse_Amplify's
+    # own separate, numerically-irrelevant-since-Offset=Ramp=0 "Start"
+    # argument with the IIR seed). STRICT_IDATE (or an explicit, non-
+    # negative INIT_DATE, which implies it) additionally extends the
+    # template backward first and seeds at IDATE - 0.1/sampling (one
+    # sample earlier than plain IDATE, mattering only when IDATE truly
+    # precedes dates[0]); the non-strict path passes plain IDATE straight
+    # into IIR's own Start_Index search, which naturally clamps to
+    # dates[0] whenever IDATE precedes the record (the common case) --
+    # this clamping, not a separate dates[0] seed, is why non-strict often
+    # behaves as if seeded at dates[0].
     init_date_raw = cfg.get("INIT_DATE", -1.0)
     strict_idate = cfg.get("STRICT_IDATE", False) or init_date_raw >= 0.0
     if strict_idate:
@@ -537,7 +542,7 @@ def forward(cfg: Config, params: dict):
         forcing = iir(tf * impulse_delta(dates, B["delA"], B["delB"], B["asym"],
                                          sampling),
                       lag_a=1.0 - B["ma"], lag_c=B["mp"], init=B["init"],
-                      start_date=dates[0], dates=dates)
+                      start_date=idate, dates=dates)
 
     # 6) Bessel modulation of the forcing manifold (NM>1, no Lock_Freq).
     # This is the exact argument mapping in Dipole_Model: the final LTE

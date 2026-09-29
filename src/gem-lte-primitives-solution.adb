@@ -233,6 +233,7 @@ package body GEM.LTE.Primitives.Solution is
       procedure Report_Final
         (D : in GEM.LTE.Primitives.Shared.Param_S;
          Model : in Data_Pairs;
+         Forcing : in Data_Pairs;
          M : in Modulations;
          MAP : in Modulations_Amp_Phase;
          Trend, Accel : in Long_Float;
@@ -241,6 +242,7 @@ package body GEM.LTE.Primitives.Solution is
       procedure Winner
         (D : out GEM.LTE.Primitives.Shared.Param_S;
          Model : out Data_Pairs;
+         Forcing : out Data_Pairs;
          M : out Modulations;
          MAP : out Modulations_Amp_Phase;
          Trend, Accel : out Long_Float);
@@ -281,6 +283,22 @@ package body GEM.LTE.Primitives.Solution is
       Best_Validate_Score : Long_Float := Long_Float'First;
       Best_Validate_D : Final_Param_P := null;
       Best_Validate_Model : Final_Model_P := null;
+      --  Forcing was missing from this lockbox entirely (found 2026-09-29
+      --  while cross-checking experiments/Feb2026/lte_forward.py's
+      --  reimplementation against the live Ada pipeline): Winner swaps
+      --  D/Model/M/MAP with whichever THREAD actually had the best
+      --  Validate_Score, which need not be the reporting thread itself --
+      --  but the reporting thread's own local KeepForcing was never part
+      --  of that exchange, so Forcing := KeepForcing (added earlier the
+      --  same day, see Dipole_Model) still only resynced within a single
+      --  thread's own accept history, not across the cross-thread swap
+      --  Winner performs. Confirmed directly: a fresh, single-threaded,
+      --  zero-perturbation replay of a saved lt.exe.p reproduced the
+      --  live Ada Calc_Forcing/Bessel output exactly (to 1e-13), yet
+      --  still disagreed with that same run's own saved lte_results.csv
+      --  Forcing column by up to ~80% relative on cells where the
+      --  reporting thread and the true Validate winner differed.
+      Best_Validate_Forcing : Final_Model_P := null;
       Best_Validate_M : Final_M_P := null;
       Best_Validate_MAP : Final_MAP_P := null;
       Best_Validate_Trend : Long_Float := 0.0;
@@ -390,6 +408,7 @@ package body GEM.LTE.Primitives.Solution is
          Best_Validate_Score := Long_Float'First;
          Best_Validate_D := null;
          Best_Validate_Model := null;
+         Best_Validate_Forcing := null;
          Best_Validate_M := null;
          Best_Validate_MAP := null;
          Best_Validate_Trend := 0.0;
@@ -399,6 +418,7 @@ package body GEM.LTE.Primitives.Solution is
       procedure Report_Final
         (D : in GEM.LTE.Primitives.Shared.Param_S;
          Model : in Data_Pairs;
+         Forcing : in Data_Pairs;
          M : in Modulations;
          MAP : in Modulations_Amp_Phase;
          Trend, Accel : in Long_Float;
@@ -415,6 +435,7 @@ package body GEM.LTE.Primitives.Solution is
             Best_Validate_Score := Validate_Score;
             Best_Validate_D := new GEM.LTE.Primitives.Shared.Param_S'(D);
             Best_Validate_Model := new Data_Pairs'(Model);
+            Best_Validate_Forcing := new Data_Pairs'(Forcing);
             Best_Validate_M := new Modulations'(M);
             Best_Validate_MAP := new Modulations_Amp_Phase'(MAP);
             Best_Validate_Trend := Trend;
@@ -427,6 +448,7 @@ package body GEM.LTE.Primitives.Solution is
       procedure Winner
         (D : out GEM.LTE.Primitives.Shared.Param_S;
          Model : out Data_Pairs;
+         Forcing : out Data_Pairs;
          M : out Modulations;
          MAP : out Modulations_Amp_Phase;
          Trend, Accel : out Long_Float)
@@ -434,6 +456,7 @@ package body GEM.LTE.Primitives.Solution is
       begin
          D := Best_Validate_D.all;
          Model := Best_Validate_Model.all;
+         Forcing := Best_Validate_Forcing.all;
          M := Best_Validate_M.all;
          MAP := Best_Validate_MAP.all;
          Trend := Best_Validate_Trend;
@@ -1895,7 +1918,8 @@ package body GEM.LTE.Primitives.Solution is
                Am_I_Last : Boolean;
             begin
                Monitor.Report_Final
-                 (D => DKeep, Model => KeepModel, M => M, MAP => MAP,
+                 (D => DKeep, Model => KeepModel, Forcing => KeepForcing,
+                  M => M, MAP => MAP,
                   Trend => Secular_Trend, Accel => Accel,
                   --  A deadlocked thread's own KeepModel is untouched raw
                   --  Data (see the guard above) -- Validate_Metric on
@@ -1912,14 +1936,21 @@ package body GEM.LTE.Primitives.Solution is
                   Am_I_Last => Am_I_Last);
                if Am_I_Last then
                   Monitor.Winner
-                    (D => DKeep, Model => KeepModel, M => M, MAP => MAP,
+                    (D => DKeep, Model => KeepModel, Forcing => KeepForcing,
+                     M => M, MAP => MAP,
                      Trend => Secular_Trend, Accel => Accel);
                   --  Keep D.A/D.B AND the live Model in sync w/ the
                   --  winning DKeep/KeepModel: the reporting below (CorrCoeff/
                   --  CorrCoeffP, Exclude_Metric) reads Model directly, so
                   --  without this it would print numbers from this thread's
                   --  OWN last-tried candidate instead of the one actually
-                  --  being saved.
+                  --  being saved. KeepForcing is now part of the same
+                  --  cross-thread swap (2026-09-29 fix) -- Winner may hand
+                  --  back a DIFFERENT thread's D/Model/M/MAP than this
+                  --  thread's own, and Forcing must come from that SAME
+                  --  winning thread's own accept-time snapshot, not this
+                  --  thread's local KeepForcing left over from before the
+                  --  swap.
                   D := DKeep;
                   Model := KeepModel;
                end if;
@@ -2099,7 +2130,8 @@ package body GEM.LTE.Primitives.Solution is
                   Dummy_Last : Boolean;
                begin
                   Monitor.Report_Final
-                    (D => DKeep, Model => KeepModel, M => M, MAP => MAP,
+                    (D => DKeep, Model => KeepModel, Forcing => KeepForcing,
+                     M => M, MAP => MAP,
                      Trend => Secular_Trend, Accel => Accel,
                      Validate_Score => Long_Float'First,
                      Am_I_Last => Dummy_Last);

@@ -924,6 +924,148 @@ the LTE response and before the IR delay-differential, in
 doesn't implement at all. Per the user's explicit ordering instruction,
 this was deferred until the manifold match above was confirmed.
 
+## Post-fix audit: how many cells were actually hit (2026-09-29)
+
+Per the user's own recollection ("a VALIDATE=TRUE was stopped at a TEST CC
+of 0.6 but when rerun only started at 0.3... that never happened with
+VALIDATE=FALSE") — exactly the symptom the Forcing/harm resync bug above
+would produce — wrote `audit_validate_bug.py`: for every cell whose resp
+sets `VALIDATE=TRUE` (67 of 91; falls back to the Feb2026 companion dir
+when a Sep2026 cell has no own `lt.exe.p`/`lte_results.csv` yet), replays
+its CURRENTLY SAVED `lt.exe.p` through `lte_forward.py`'s `forward()`
+directly (no `lt.exe` launch) and compares the resulting Forcing against
+that cell's own saved `lte_results.csv` column 4.
+
+First pass (`audit_validate_bug_results.json`, before a 4th `lte_forward.py`
+bug below was found): **30 OK**, **37 SUSPECT** — of which 8 looked severe
+(corr 0.82 down to -0.25): `kN000_E150, kN040_W050, kS020_E150,
+kS040_E170, kS040_E070, kS040_E050, kN020_E150, kS040_E150`.
+
+**A 4th `lte_forward.py` bug was found mid-re-sweep**, inflating that
+first-pass SUSPECT count: `Calc_Forcing`'s non-strict branch actually
+seeds `IIR` at `Start => Initial_Conditions_Date` (IDATE) directly, not at
+`dates[0]` as the earlier fix wrongly assumed -- a misreading that
+confused `Impulse_Amplify`'s own, separate, numerically-irrelevant (since
+Offset=Ramp=0 always here) `Start` argument for the IIR seed. This was
+silently correct only for cells where IDATE happens to equal `dates[0]`
+(true for `amo`, false for e.g. `kN000_E150`, whose `IDATE=1880` but data
+starts `1950`) -- so cells with IDATE genuinely predating their own
+record were misdiagnosed as SUSPECT by this Python bug, not real Ada
+corruption. Fixed by seeding at plain `idate` in the non-strict path too
+(the natural `Start_Index` clamping when IDATE precedes the record, not a
+separate `dates[0]` seed, is what makes non-strict often *behave* as if
+seeded at `dates[0]`). Caught by first running `resweep_corrupted.py`
+against the original 8 (2 succeeded and were committed --
+`kN000_E150`/`kN040_W050` -- before the residual pattern on
+`kN000_E150`'s post-fix audit, ~1e-3 instead of ~1e-13, prompted digging
+further), then re-verified against `amo` (still matched, 1.7e-10, once
+compared to a FRESH Ada regen rather than the repo's still-pre-fix
+`amo/lte_results.csv` snapshot) and `kN000_E150` (now 6e-11) directly.
+
+Re-running the full audit with this fix: **SUSPECT dropped from 37 to
+17** -- confirms most of the original "mild" 29-cell tier was this
+Python bug's own false positives, not genuinely corrupted Ada saves. Of
+the original "severe 8", 6 remain genuinely SUSPECT after the fix:
+`kS020_E150, kS040_E170, kS040_E070, kS040_E050, kN020_E150,
+kS040_E150` -- these are the real, confirmed casualties of the Ada
+Forcing/harm resync bug. `kN040_W050` (IDATE already equalled `dates[0]`,
+so immune to the Python bug) was genuinely Ada-corrupted and is now fixed
+by its re-sweep; `kN000_E150`'s status is more ambiguous (may have been a
+pure Python-bug false positive, or a mix) but its re-sweep produced a
+valid, self-consistent, good-scoring result regardless.
+
+**Session lesson:** `pkill -f resweep_corrupted.py` (to abort a batch
+mid-run) only kills the Python driver, not the `expect`/`lt.exe`
+descendants `subprocess.run` spawned -- found one orphaned `lt.exe -j`
+still running under `kS020_E150/` afterward (harmless here, hadn't
+written anything yet, killed directly by PID). Kill the process group
+(or find and kill descendants explicitly) next time, not just the
+driver's own name.
+
+`resweep_corrupted.py`'s `TARGET_CELLS` now holds the 6 confirmed-real
+cells (`kN000_E150`/`kN040_W050` removed, already committed). Re-sweep
+of the 11 remaining milder SUSPECT cells is the natural follow-up after
+these 6 finish.
+
+## Third, more fundamental Ada bug: Forcing missing from the cross-thread lockbox entirely (2026-09-29)
+
+Running the 6-cell re-sweep surfaced a THIRD Ada bug, deeper than the
+first two. `kS040_E170` came out of its re-sweep perfectly clean
+(post-fix audit rel=2.6e-10, corr=1.0) but `kS020_E150` did not
+(rel=0.81, corr=0.77) -- **even though both were re-swept with the
+already-`KeepForcing`-fixed binary**. Confirmed this was not
+`lte_forward.py` imprecision by re-instrumenting the real Ada binary
+(temporary `DUMP_FORCING` hooks, same technique as before) and running a
+completely fresh, single-threaded (`NUMBER_OF_PROCESSORS=1`), zero-
+perturbation (`Counter=0`) replay of `kS020_E150`'s exact saved
+`lt.exe.p`: the pre-Bessel forcing matched `lte_forward.py`'s own
+computation to 7e-10 (so both Ada's live replay and the Python port
+agree, and are self-consistent) -- but that SAME correct Ada output,
+run through the SAME live Ada `Bessel` step with the SAME `lt.exe.p`
+parameters, still did not match the file that same overall process had
+saved as `lte_results.csv`. Pure Ada vs. its own saved output, zero
+Python involved -- proof the bug was still on the Ada side.
+
+Root cause: `Dipole_Model`'s local variables (`D`, `Set`, `M`,
+`KeepForcing`, etc.) ARE genuinely task-local (each `Thread` task calls
+`Dipole_Model` with its own independent call frame -- not a data race).
+But `Monitor.Report_Final`/`Monitor.Winner` (the protected-object
+lockbox VALIDATE=TRUE uses to pick the actual best candidate ACROSS all
+threads, not just within one) never included `Forcing` in the
+handshake at all -- only `D`, `Model`, `M`, `MAP`, `Trend`, `Accel`. So
+when `Winner` hands the reporting thread a DIFFERENT thread's winning
+`D`/`Model`/`M`/`MAP` (the common case whenever the reporting thread --
+whichever happens to call last -- isn't also the actual best thread),
+the `Forcing := KeepForcing` fix from earlier in the day still only
+resynced within-thread (this thread's OWN last accept), never picking up
+the ACTUAL WINNING thread's own `Forcing`. This explains the earlier
+"kN040_W050 mild (9.8e-4), kS020_E150 catastrophic (0.81)" split
+directly: it depends on whether the reporting thread happened to also be
+the true winner (no swap needed, first fix already sufficient) or not
+(swap needed, first fix insufficient).
+
+Fixed properly this time: added `Forcing` as an `in`/`out` parameter to
+`Monitor.Report_Final`/`Monitor.Winner`, added a
+`Best_Validate_Forcing : Final_Model_P` field to the protected object's
+private lockbox state (reallocated in `Report_Final` alongside
+`Best_Validate_Model`, nulled in `Reset`, returned in `Winner`), and
+updated both call sites (the normal per-thread report, and the
+exception-handler safety-net report) to pass `Forcing => KeepForcing`.
+
+**Verified 2026-09-29** (after a mid-session Bash-classifier outage
+blocked the rebuild for a while -- resolved by switching to manual
+approval mode): rebuilt cleanly, re-swept `kS020_E150` a third time
+(`sweep._run_cascade`, 408s, `validate_true_dtw`, train/validate/test =
+0.646/0.757/0.678) and re-audited -- **rel=9.3e-10, corr=1.0** (was
+rel=0.81, corr=0.77 after the first two fixes alone). Appended a new
+ledger entry noting it supersedes the earlier, still-inconsistent commit
+for this cell. Removed the temporary `DUMP_FORCING` debug hooks
+afterward and rebuilt clean again (both hooks were gated behind an env
+var and inert for every real sweep run in the meantime, so no real runs
+were affected by their presence).
+
+**All 4 remaining cells re-swept and verified 2026-09-29**
+(`kS040_E070, kS040_E050, kN020_E150, kS040_E150`), all clean
+(rel 5.5e-11 to 1.2e-10, corr=1.0 on every one). All 8 of the original
+"severe 8" cells are now fully fixed and self-consistent.
+
+**Final full 67-cell audit** (`audit_v3.log`) with all three Ada fixes
+in place: **56 OK** (up from 30), **11 SUSPECT** (down from 37, then
+17) -- and critically, none of the remaining 11 are severe: worst is
+`kN040_W030` at corr=0.994, the rest are corr>=0.997, six of them
+corr>=0.9999. This confirms the hypothesis noted above -- the earlier
+17-cell count WAS partly inflated by the cross-thread gap (9 of those 17
+are now clean) -- and shows the three fixes together account for the
+overwhelming majority of real corruption. Remaining 11:
+`kN040_W030, kN060_E010, kN020_W130, kS060_W050, kS020_E010,
+kN040_W090, kN020_W090, kN060_W130, kN020_E170, kN000_W170, kN040_W170`.
+None were in the original "severe 8"; re-sweeping them is a natural,
+lower-urgency follow-up (same `resweep_corrupted.py` pattern, new
+`TARGET_CELLS` list) whenever picked back up -- no further Ada-side
+investigation should be needed, this looks like ordinary remaining
+cross-thread-lockbox cases the fix already handles correctly, just not
+yet re-run.
+
 ## Suggested order of operations for a fresh session
 
 1. Read this file, then skim `sweep.py` itself (well-commented, ~700 lines).

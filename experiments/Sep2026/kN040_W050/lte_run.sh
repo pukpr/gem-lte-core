@@ -11,10 +11,10 @@ export LOCKT=FALSE
 export METRIC=DTW
 export NUMBER_OF_PROCESSORS=2
 export TEST_ONLY=false
-export TIMEOUT=120
+export TIMEOUT=400
 export TRAIN_END=2005
 export TRAIN_START=2000
 export TREND=true
 export ZONE=FALSE
-ulimit -s unlimited
+ulimit -s 65536
 ../lt.exe -j

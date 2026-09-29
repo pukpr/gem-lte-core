@@ -4251,5 +4251,159 @@
     "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kS040_E010",
     "timestamp": "2026-09-28T23:19:00",
     "note": "LOCKW retry with CANON_HARMONICS restricted to 1 only (after diagnosing the prior LOCKW-batch result had snapped to 2x canonical due to an NM mismatch silently truncating the donors real backbone term -- fixed by syncing target resp NM=3 to match the donor). Backbone now correctly at exactly 0.207. Comparable local fit to the 2x attempt (min=0.386 vs 0.384). Checked geo-smooth collective coherence for all 3 candidates (original/2x/1x): -0.119 / 0.032 / 0.034 respectively -- this cell has been poorly explained by the shared 20-harmonic model in EVERY version, including its original pre-session state, so the earlier claim that the LOCKW batch introduced new collective incoherence for this cell was wrong (conflated with a different metric). Kept as best-available: correct canonical structure, comparable local fit, no worse collectively than any alternative."
+  },
+  {
+    "cell": "kN000_E150",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.8559269018,
+      "validate": 0.9323668326,
+      "test": 0.8700071982
+    },
+    "dlod": 0.9945885119,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T00:53:09",
+    "note": "Re-swept in place after fixing the Ada Forcing/harm cross-thread resync bug (audit_validate_bug.py flagged this cell as severely corrupted, corr=None). Old (untrustworthy) ledger min=0.828, new min=0.856. backbone=0.207276019038954. Committed regardless of the old/new score comparison since the old score is exactly the bug's own fabricated one, not a real baseline to protect."
+  },
+  {
+    "cell": "kN040_W050",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7799013535,
+      "validate": 0.8840223451,
+      "test": 0.8157581848
+    },
+    "dlod": 0.99907106029,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T00:59:56",
+    "note": "Re-swept in place after fixing the Ada Forcing/harm cross-thread resync bug (audit_validate_bug.py flagged this cell as severely corrupted, corr=None). Old (untrustworthy) ledger min=0.684, new min=0.780. backbone=0.229425934562242. Committed regardless of the old/new score comparison since the old score is exactly the bug's own fabricated one, not a real baseline to protect."
+  },
+  {
+    "cell": "kS020_E150",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6637026083,
+      "validate": 0.7524725675,
+      "test": 0.6508066703
+    },
+    "dlod": 0.99472889624,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T01:10:21",
+    "note": "Re-swept in place after fixing the Ada Forcing/harm cross-thread resync bug (audit_validate_bug.py flagged this cell as severely corrupted, corr=None). Old (untrustworthy) ledger min=0.634, new min=0.651. backbone=-0.448607424511405. Committed regardless of the old/new score comparison since the old score is exactly the bug's own fabricated one, not a real baseline to protect."
+  },
+  {
+    "cell": "kS040_E170",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7585349871,
+      "validate": 0.8099165042,
+      "test": 0.5680720445
+    },
+    "dlod": 0.99511834274,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T01:17:09",
+    "note": "Re-swept in place after fixing the Ada Forcing/harm cross-thread resync bug (audit_validate_bug.py flagged this cell as severely corrupted, corr=None). Old (untrustworthy) ledger min=0.164, new min=0.568. backbone=0.207159593631002. Committed regardless of the old/new score comparison since the old score is exactly the bug's own fabricated one, not a real baseline to protect."
+  },
+  {
+    "cell": "kS020_E150",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6459180841,
+      "validate": 0.7568644283,
+      "test": 0.6776341477
+    },
+    "dlod": null,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T01:31:11",
+    "backbone": -0.448595087998962,
+    "note": "Re-swept a THIRD time after fixing the deeper Ada bug: Forcing was missing entirely from Monitor.Report_Final/Winner (the VALIDATE=TRUE cross-thread lockbox), so the earlier KeepForcing fix only resynced within a single thread, not across the cross-thread swap Winner performs. This cell specifically exposed it (reporting thread != true winner). Post-fix audit now rel=9.3e-10, corr=1.0 (was rel=0.81, corr=0.77 after the first two fixes alone). Supersedes the previous entry for this cell, which was committed before this third fix and was NOT actually self-consistent despite passing gate_ok/backbone_ok."
+  },
+  {
+    "cell": "kS040_E070",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7869589427,
+      "validate": 0.870982412,
+      "test": 0.7423776141
+    },
+    "dlod": 0.99488564854,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T01:39:42",
+    "note": "Re-swept in place after fixing the Ada Forcing/harm cross-thread resync bug (audit_validate_bug.py flagged this cell as severely corrupted, corr=None). Old (untrustworthy) ledger min=0.264, new min=0.742. backbone=0.207218642093452. Committed regardless of the old/new score comparison since the old score is exactly the bug's own fabricated one, not a real baseline to protect."
+  },
+  {
+    "cell": "kS040_E050",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7381047001,
+      "validate": 0.8115200673,
+      "test": 0.803699322
+    },
+    "dlod": 0.99482896776,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T01:46:30",
+    "note": "Re-swept in place after fixing the Ada Forcing/harm cross-thread resync bug (audit_validate_bug.py flagged this cell as severely corrupted, corr=None). Old (untrustworthy) ledger min=0.701, new min=0.738. backbone=0.207132737737508. Committed regardless of the old/new score comparison since the old score is exactly the bug's own fabricated one, not a real baseline to protect."
+  },
+  {
+    "cell": "kN020_E150",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.798613715,
+      "validate": 0.8984732802,
+      "test": 0.7116761765
+    },
+    "dlod": 0.9944407558,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T01:53:17",
+    "note": "Re-swept in place after fixing the Ada Forcing/harm cross-thread resync bug (audit_validate_bug.py flagged this cell as severely corrupted, corr=None). Old (untrustworthy) ledger min=0.415, new min=0.712. backbone=0.207259495251847. Committed regardless of the old/new score comparison since the old score is exactly the bug's own fabricated one, not a real baseline to protect."
+  },
+  {
+    "cell": "kS040_E150",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.8282157043,
+      "validate": 0.9177088157,
+      "test": 0.8713706757
+    },
+    "dlod": 0.99466459579,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T02:00:04",
+    "note": "Re-swept in place after fixing the Ada Forcing/harm cross-thread resync bug (audit_validate_bug.py flagged this cell as severely corrupted, corr=None). Old (untrustworthy) ledger min=0.813, new min=0.828. backbone=0.207092253271006. Committed regardless of the old/new score comparison since the old score is exactly the bug's own fabricated one, not a real baseline to protect."
   }
 ]
