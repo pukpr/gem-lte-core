@@ -31,7 +31,12 @@ import sweep
 
 SEED_VALUE = 0.01
 IMPC_RE = re.compile(r'("impC"\s*:\s*)([^,\n]+)(,?)')
-TIMEOUT = 400
+# Short runs, per the user's direction (2026-09-29): now that the stale
+# per-CLIMATE_INDEX checkpoint bug is fixed at the Ada source, progress
+# genuinely persists run-to-run, so short bursts compound instead of
+# risking a regression to a worse state -- no need for a long single
+# search per cell.
+TIMEOUT = 90
 
 
 def seed_impc(cell_dir) -> tuple[float, bool]:
@@ -74,15 +79,22 @@ def restore(cell_dir, saved: dict) -> None:
 
 
 def main() -> None:
-    # Already piloted and committed (pilot_impc.py, 2026-09-29): all three
-    # improved (kN040_W010 already-unstuck impC -0.200->0.817,
-    # kN060_W050 0.235->0.666, kN000_E110 0.718->0.796) -- skip re-running
-    # them here to save ~20-80 minutes; re-visit only if this full sweep's
-    # results suggest further refinement is worthwhile.
-    already_piloted = {"kN040_W010", "kN060_W050", "kN000_E110"}
-    names = sorted(p.name for p in sweep.HERE.iterdir()
-                    if p.is_dir() and sweep.parse_grid_name(p.name)
-                    and p.name not in already_piloted)
+    # Only target cells whose impC is STILL exactly 0.0 -- everything else
+    # has already been seeded/explored (the 3 pilot cells, plus whatever
+    # escaped 0.0 organically, plus the Feb2026-vs-Sep2026 import pass
+    # incidentally seeding a bunch more). Computed dynamically rather than
+    # a hardcoded exclusion list, since that set has grown since this
+    # script was first written.
+    all_cells = sorted(p.name for p in sweep.HERE.iterdir()
+                        if p.is_dir() and sweep.parse_grid_name(p.name))
+    names = []
+    for c in all_cells:
+        p_path = sweep.HERE / c / "lt.exe.p"
+        if not p_path.is_file():
+            continue
+        if json.loads(p_path.read_text()).get("impC", 0.0) == 0.0:
+            names.append(c)
+    print(f"{len(names)} cells still have impC==0.0, targeting those", flush=True)
     by_cell = sweep.latest_entry_per_cell(sweep.load_sweep_ledger())
     results = {}
 

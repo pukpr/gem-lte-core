@@ -5558,5 +5558,600 @@
     "timestamp": "2026-09-29T09:05:23",
     "backbone": 0.20748896728907,
     "note": "Imported Feb2026 result over Sep2026 (CC 0.502 -> 0.689), no search -- passed manifold (0.207). dLOD (0.9964) sourced from cc_refit.log (last accepted state, 2026-09-20), NOT from a fresh TEST_ONLY check -- found that TEST_ONLY can silently redraw colliding harmonics via Force_Harmonic BEFORE its own exit check fires (gem-lte-primitives-solution.adb ~line 1440 runs before line 1820's Test_Only exit), so it is not actually a passive/no-mutation read -- two earlier re-verification attempts for this cell produced inconsistent, non-reproducible windings and were reverted rather than trusted."
+  },
+  {
+    "cell": "kN000_E130",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.8102220379,
+      "validate": 0.9082512652,
+      "test": 0.8493118329
+    },
+    "dlod": 0.99490837829,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T13:15:04",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.798 -> 0.810, impC 0.01 -> 0.0100080775533135."
+  },
+  {
+    "cell": "kN000_E150",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.8623130553,
+      "validate": 0.9336159546,
+      "test": 0.867161993
+    },
+    "dlod": 0.99457851764,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T13:16:41",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.856 -> 0.862, impC 0.01 -> 0.0108689012086933."
+  },
+  {
+    "cell": "kN000_W050",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6758776118,
+      "validate": 0.6915413478,
+      "test": 0.4398119169
+    },
+    "dlod": 0.99605057471,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T13:19:57",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.167 -> 0.440, impC 0.01 -> 0.00988276860718126."
+  },
+  {
+    "cell": "kN000_W130",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6933183323,
+      "validate": 0.7162966787,
+      "test": 0.6816205912
+    },
+    "dlod": 0.99614037967,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T13:24:49",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.535 -> 0.682, impC 0.01 -> 0.0100181419013795."
+  },
+  {
+    "cell": "kN000_W150",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.763454016,
+      "validate": 0.7408607907,
+      "test": 0.4801955901
+    },
+    "dlod": 0.99613234722,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T13:26:26",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.459 -> 0.480, impC 0.01 -> 0.00996343858908178."
+  },
+  {
+    "cell": "kN000_W170",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.8018697789,
+      "validate": 0.8170056411,
+      "test": 0.6759165898
+    },
+    "dlod": 0.99470767761,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T13:28:03",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.661 -> 0.676, impC 0.01 -> 0.0099976124283158."
+  },
+  {
+    "cell": "kN020_E090",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7481892363,
+      "validate": 0.850688828,
+      "test": 0.7555238479
+    },
+    "dlod": 0.99492122678,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T13:29:40",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.698 -> 0.748, impC 0.01 -> 0.00994509534951135."
+  },
+  {
+    "cell": "kN020_E130",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7729038352,
+      "validate": 0.8870137425,
+      "test": 0.821225222
+    },
+    "dlod": 0.9949332462,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T13:31:18",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.773 -> 0.773, impC 0.01 -> 0.0100369283939925."
+  },
+  {
+    "cell": "kN020_E150",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7989966936,
+      "validate": 0.8988226737,
+      "test": 0.7161495802
+    },
+    "dlod": 0.99443845278,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T13:32:55",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.712 -> 0.716, impC 0.01 -> 0.000583963841140479."
+  },
+  {
+    "cell": "kN020_W010",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7316001567,
+      "validate": 0.8398111966,
+      "test": 0.8505939404
+    },
+    "dlod": 0.99622159854,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T13:36:11",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.673 -> 0.732, impC 0.01 -> 0.00995602200424162."
+  },
+  {
+    "cell": "kN020_W170",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.810446553,
+      "validate": 0.9051516511,
+      "test": 0.6589689235
+    },
+    "dlod": 0.99420164221,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T13:45:56",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.280 -> 0.659, impC 0.01 -> 0.00991341441420727."
+  },
+  {
+    "cell": "kN040_E150",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7460456343,
+      "validate": 0.8540930163,
+      "test": 0.7684270839
+    },
+    "dlod": 0.99436286292,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T13:47:33",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.682 -> 0.746, impC 0.01 -> -0.0100790136681611."
+  },
+  {
+    "cell": "kN060_E170",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7305650812,
+      "validate": 0.8731941799,
+      "test": 0.7563013458
+    },
+    "dlod": 0.99548147946,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T13:54:03",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.648 -> 0.731, impC 0.01 -> 0.0100146871294451."
+  },
+  {
+    "cell": "kN060_W010",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6924002961,
+      "validate": 0.7970687872,
+      "test": 0.7045713844
+    },
+    "dlod": 0.99631560402,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T13:55:39",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.612 -> 0.692, impC 0.01 -> 0.0101153983095941."
+  },
+  {
+    "cell": "kN060_W130",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7534989965,
+      "validate": 0.8679539454,
+      "test": 0.3296912363
+    },
+    "dlod": 0.99539982505,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T13:58:55",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.311 -> 0.330, impC 0.01 -> 0.0100293886597575."
+  },
+  {
+    "cell": "kN060_W150",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7019605655,
+      "validate": 0.8511538665,
+      "test": 0.374286494
+    },
+    "dlod": 0.99542186285,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T14:00:32",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.362 -> 0.374, impC 0.01 -> 0.00995961535566138."
+  },
+  {
+    "cell": "kN060_W170",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6971102972,
+      "validate": 0.8079438562,
+      "test": 0.4220123892
+    },
+    "dlod": 0.99543811362,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T14:02:09",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.412 -> 0.422, impC 0.01 -> 0.00998451257466752."
+  },
+  {
+    "cell": "kS020_E010",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7758700569,
+      "validate": 0.8654202918,
+      "test": 0.847892736
+    },
+    "dlod": 0.99506328849,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T14:03:46",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.772 -> 0.776, impC 0.01 -> 0.0114459942014928."
+  },
+  {
+    "cell": "kS020_E050",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.8555921712,
+      "validate": 0.9351974156,
+      "test": 0.9267756926
+    },
+    "dlod": 0.99513586275,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T14:05:23",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.655 -> 0.856, impC 0.01 -> 0.0100613371970389."
+  },
+  {
+    "cell": "kS020_E110",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7906280422,
+      "validate": 0.8813761527,
+      "test": 0.700273944
+    },
+    "dlod": 0.99476700065,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T14:07:01",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.690 -> 0.700, impC 0.01 -> 0.00997655946907593."
+  },
+  {
+    "cell": "kS020_W010",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6908892775,
+      "validate": 0.7895233658,
+      "test": 0.6586583456
+    },
+    "dlod": 0.99600262152,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T14:11:54",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.550 -> 0.659, impC 0.01 -> 0.0100855785209432."
+  },
+  {
+    "cell": "kS020_W030",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7684563067,
+      "validate": 0.8259404238,
+      "test": 0.7302506827
+    },
+    "dlod": 0.99612671533,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T14:13:31",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.685 -> 0.730, impC 0.01 -> 0.0103981820788501."
+  },
+  {
+    "cell": "kS020_W070",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.735049312,
+      "validate": 0.7886870708,
+      "test": 0.7218020782
+    },
+    "dlod": 0.99538056332,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T14:15:07",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.580 -> 0.722, impC 0.01 -> 0.0100805609024577."
+  },
+  {
+    "cell": "kS020_W110",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7226928805,
+      "validate": 0.7342222153,
+      "test": 0.7674326364
+    },
+    "dlod": 0.99609653244,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T14:18:24",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.651 -> 0.723, impC 0.01 -> 0.0099782153476731."
+  },
+  {
+    "cell": "kS020_W130",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.824736086,
+      "validate": 0.8997191596,
+      "test": 0.8184272266
+    },
+    "dlod": 0.99623013391,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T14:20:03",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.744 -> 0.818, impC 0.01 -> 0.0100168367213739."
+  },
+  {
+    "cell": "kS020_W150",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7760443973,
+      "validate": 0.9032076986,
+      "test": 0.8725478205
+    },
+    "dlod": 0.99973695553,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T14:21:40",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.760 -> 0.776, impC 0.01 -> 0.0102163793257466."
+  },
+  {
+    "cell": "kS040_E010",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7465544043,
+      "validate": 0.8665627679,
+      "test": 0.7822839496
+    },
+    "dlod": 0.99512650085,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T14:24:55",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.685 -> 0.747, impC 0.01 -> 0.0100713642122629."
+  },
+  {
+    "cell": "kS040_E110",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7798776772,
+      "validate": 0.8838580048,
+      "test": 0.7091518497
+    },
+    "dlod": 0.9964366838,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T14:33:04",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.464 -> 0.709, impC 0.01 -> 0.0099805638466134."
+  },
+  {
+    "cell": "kS040_E130",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7813941139,
+      "validate": 0.8828967492,
+      "test": 0.8315942407
+    },
+    "dlod": 0.99513624295,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T14:34:41",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.731 -> 0.781, impC 0.01 -> 0.349613293339555."
+  },
+  {
+    "cell": "kS040_E150",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.8285262097,
+      "validate": 0.9189428763,
+      "test": 0.8609114073
+    },
+    "dlod": 0.99466601476,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T14:36:20",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.828 -> 0.829, impC 0.01 -> 0.0453825020327645."
+  },
+  {
+    "cell": "kS040_W010",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.5847975191,
+      "validate": 0.6628955265,
+      "test": 0.4499280694
+    },
+    "dlod": 0.99591130253,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T14:37:57",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.386 -> 0.450, impC 0.01 -> 0.0100339899589469."
+  },
+  {
+    "cell": "kS040_W030",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.748115846,
+      "validate": 0.8255043655,
+      "test": 0.7490994653
+    },
+    "dlod": 0.99604019282,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T14:39:33",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.441 -> 0.748, impC 0.01 -> 0.0100654465052649."
+  },
+  {
+    "cell": "kS040_W130",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6822046529,
+      "validate": 0.8200819338,
+      "test": 0.6205685113
+    },
+    "dlod": 0.99811972648,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T14:41:13",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.571 -> 0.621, impC 0.01 -> 0.0103056477505198."
+  },
+  {
+    "cell": "kS040_W150",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7096610038,
+      "validate": 0.8600674544,
+      "test": 0.6894307099
+    },
+    "dlod": 0.99809209245,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T14:42:49",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.665 -> 0.689, impC 0.01 -> 0.0101477176686988."
+  },
+  {
+    "cell": "kS040_W170",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6910912127,
+      "validate": 0.8199532999,
+      "test": 0.7470084015
+    },
+    "dlod": 0.995540412,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T14:44:29",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.689 -> 0.691, impC 0.01 -> 0.0100663810067732."
   }
 ]

@@ -22,3 +22,4 @@ JERK                           0.0
 TRAIN_START                    2000.0
 TRAIN_END                      2005.0
 EXCLUDE                        TRUE
+VALIDATE                       TRUE
