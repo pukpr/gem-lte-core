@@ -1084,6 +1084,87 @@ reset (`solve_cell_with_retry`, discarding its own possibly-poisoned
 starting state entirely) rather than another in-place resume next time,
 since in-place resume has now failed for it once already.
 
+## ImpC pilot + cheap Feb2026-vs-Sep2026 best-of pass (2026-09-29)
+
+Per user direction ("what I want to see is progress... spend only a
+minute on each"), pivoted away from expensive re-optimization sweeps
+toward two cheap, mostly-search-free improvements:
+
+1. **`lte_forward.py` gained the missing Annual_Impulse (ImpC) term**
+   (added directly to Model, not Forcing, right after the LTE response).
+   Confirmed via `gem-random_descent.adb` that ImpC has been stuck at
+   0.0 in every prior fit project-wide: `Markov`'s `Set(I)=0.0` branch
+   never perturbs a parameter sitting at exactly zero (recurses to pick
+   a different one instead, unless `FLIP<0.0`, which no resp sets) -- a
+   structural dead zone, not evidence the term is useless. Piloted
+   seeding `impC=0.01` (`seed_impc.py`, `pilot_impc.py`) on 3 diverse
+   cells: all three improved, with `impC` growing meaningfully away
+   from the seed on the biggest gainer (`kN060_W050`: 0.235->0.666,
+   impC 0.01->0.061) -- real signal. A full 86-cell seeding sweep was
+   started then explicitly stopped per user redirect toward the faster
+   approach below; re-seeding is still available as a lower-priority
+   follow-up (`sweep_impc_full.py`, TARGET_CELLS already excludes the
+   3 piloted cells).
+   - Also found/fixed: the first seeding attempt wrote compact single-
+     line JSON via `json.dumps`, which Ada's JSON reader rejected
+     ("2:9: comma expected"), corrupting two cells' checkpoints
+     (recovered via `git checkout`). Fixed by editing the file as text
+     (single targeted regex substitution), preserving Ada's own
+     multi-line pretty-printed format exactly.
+   - Also found/fixed a real, unrelated gap while running the sweep: 29
+     Sep2026 cells had a checkpoint but no local `.dat` file at all
+     (silently missing, inherited from Feb2026 companion dirs) --
+     copied from Feb2026.
+
+2. **`pick_best_of_feb_sep.py`**: a genuinely cheap, no-search pass --
+   for every one of the 89 cells, compares Feb2026 vs Sep2026
+   `lte_results.csv` directly (Pearson CC between Model and Data
+   columns, zero Ada invocations), and where Feb2026 is meaningfully
+   better, gates the import on manifold/backbone range (instant) and a
+   dLOD reading via Ada's native `TEST_ONLY=TRUE` mode (evaluate the
+   loaded parameters exactly once, no search, ~4s). Result: 43
+   imported, 44 kept Sep2026, 2 initially rejected on the dLOD gate.
+   Status map: 77 good/11 warning/1 serious -> 85 good/4 warning/0
+   serious/0 critical.
+
+   **Important bug found in `TEST_ONLY` itself, not just this script**:
+   `TEST_ONLY=TRUE` is NOT a pure passive "evaluate as-loaded, don't
+   mutate anything" mode, contrary to what its use here assumed. The
+   harmonic-collision-avoidance code (`Walker.Force_Harmonic`,
+   gem-lte-primitives-solution.adb ~line 1440) runs BEFORE the
+   `if Test_Only then exit;` check (~line 1820), in the same (only)
+   iteration -- so if the loaded harmonics happen to collide, Force_
+   Harmonic silently redraws a NEW RANDOM harmonic value before saving,
+   even under TEST_ONLY. Found by re-investigating a user report that
+   `kN060_E010` "was never optimized earlier in Feb2026" (the user was
+   concurrently, manually re-fitting it in Feb2026 -- 6 snapshot saves
+   08:42-08:54 -- while this pass ran, initially causing a race); a
+   direct re-check showed the SAVED `lt.exe.p`'s windings (`ltep`,
+   `harm`) had changed between two successive `TEST_ONLY` calls on the
+   identical loaded state, non-reproducibly. Cross-checked the other 41
+   originally-"imported" cells' current `lte_results.csv` CC against
+   the CC recorded at import time: **9 of 43 had drifted**, some
+   severely (`kN020_E050` 0.726->0.304, `kN060_W010` 0.612->0.156) --
+   real corruption from this same mechanism, not noise.
+
+   `dLOD` itself is unaffected (computed from `Forcing`, via
+   `Calc_Forcing`, BEFORE the harmonic-collision code runs each
+   iteration) -- so the dLOD readings already gated on remain valid.
+   Fixed by re-copying `lt.exe.p`/`lte_results.csv`/`lt.exe.windings.json`
+   fresh from Feb2026 for all 43 imported cells (no further Ada
+   invocation), restoring exact consistency; verified all 43 now match
+   their recorded import-time CC exactly. `kN060_E010` and
+   `kS040_W170` (the 2 originally dLOD-rejected cells) were re-added
+   using dLOD sourced from their own real (non-TEST_ONLY) historical
+   fit logs (`cc_refit.log`) instead of a fresh `TEST_ONLY` re-check.
+
+   **Do not reuse `TEST_ONLY` for a "peek without touching anything"
+   check without also gating on whether the loaded harmonics might
+   collide** -- it is a check-and-possibly-mutate operation, not a pure
+   read. A real fix would move the `Test_Only` exit check before the
+   collision-avoidance block, or add a `Test_Only`-aware guard around
+   `Force_Harmonic`'s call inside it; not done this session.
+
 ## Suggested order of operations for a fresh session
 
 1. Read this file, then skim `sweep.py` itself (well-commented, ~700 lines).

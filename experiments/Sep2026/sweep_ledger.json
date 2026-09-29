@@ -5520,5 +5520,43 @@
     "timestamp": "2026-09-29T08:36:03",
     "backbone": 1.0415511063207,
     "note": "Imported Feb2026's result over Sep2026's (CC none -> 0.731), no search -- passed manifold (1.042) and dLOD (0.9952) gates."
+  },
+  {
+    "cell": "kN060_E010",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.8384559958174698,
+        0.8384559958174698
+      ]
+    },
+    "dlod": 0.99570867442,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T09:05:23",
+    "backbone": 0.20751786428439,
+    "note": "Imported Feb2026 result over Sep2026 (CC 0.397 -> 0.838), no search -- passed manifold (0.208). dLOD (0.9957) sourced from cc_refit.log (users own fresh manual refit, 2026-09-29 08:54), NOT from a fresh TEST_ONLY check -- found that TEST_ONLY can silently redraw colliding harmonics via Force_Harmonic BEFORE its own exit check fires (gem-lte-primitives-solution.adb ~line 1440 runs before line 1820's Test_Only exit), so it is not actually a passive/no-mutation read -- two earlier re-verification attempts for this cell produced inconsistent, non-reproducible windings and were reverted rather than trusted."
+  },
+  {
+    "cell": "kS040_W170",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.6887795215352768,
+        0.6887795215352768
+      ]
+    },
+    "dlod": 0.99637493792,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T09:05:23",
+    "backbone": 0.20748896728907,
+    "note": "Imported Feb2026 result over Sep2026 (CC 0.502 -> 0.689), no search -- passed manifold (0.207). dLOD (0.9964) sourced from cc_refit.log (last accepted state, 2026-09-20), NOT from a fresh TEST_ONLY check -- found that TEST_ONLY can silently redraw colliding harmonics via Force_Harmonic BEFORE its own exit check fires (gem-lte-primitives-solution.adb ~line 1440 runs before line 1820's Test_Only exit), so it is not actually a passive/no-mutation read -- two earlier re-verification attempts for this cell produced inconsistent, non-reproducible windings and were reverted rather than trusted."
   }
 ]
