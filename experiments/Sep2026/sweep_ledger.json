@@ -4575,5 +4575,950 @@
     "n_attempts": 1,
     "timestamp": "2026-09-29T03:40:14",
     "note": "Re-swept in place after fixing the Ada Forcing/harm cross-thread resync bug (audit_validate_bug.py flagged this cell as severely corrupted, corr=None). Old (untrustworthy) ledger min=0.533, new min=0.617. backbone=0.207276145073884. Committed regardless of the old/new score comparison since the old score is exactly the bug's own fabricated one, not a real baseline to protect."
+  },
+  {
+    "cell": "kN040_W010",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.8168436849,
+      "validate": 0.8913411755,
+      "test": 0.8197428756
+    },
+    "dlod": 0.99588125468,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T07:08:55",
+    "impC": -0.012789060335008,
+    "note": "ImpC=0.01 seeding pilot (2026-09-29): min score -0.200 -> 0.817, impC -0.0134334006594424 -> -0.012789060335008."
+  },
+  {
+    "cell": "kN060_W050",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7779371207,
+      "validate": 0.7768739095,
+      "test": 0.665738301
+    },
+    "dlod": 0.99608582279,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T07:18:22",
+    "impC": 0.0607041895995305,
+    "note": "ImpC=0.01 seeding pilot (2026-09-29): min score 0.235 -> 0.666, impC 0.01 -> 0.0607041895995305."
+  },
+  {
+    "cell": "kN000_E110",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7964478304,
+      "validate": 0.8995839148,
+      "test": 0.9023900812
+    },
+    "dlod": 0.99500206233,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T07:25:09",
+    "impC": 0.0108733946263482,
+    "note": "ImpC=0.01 seeding pilot (2026-09-29): min score 0.718 -> 0.796, impC 0.01 -> 0.0108733946263482."
+  },
+  {
+    "cell": "kN000_E010",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7889811697,
+      "validate": 0.9150872774,
+      "test": 0.7989918818
+    },
+    "dlod": 0.99918210315,
+    "n_attempts": 1,
+    "timestamp": "2026-09-29T08:02:40",
+    "note": "ImpC=0.01 exploration sweep (2026-09-29): min score 0.777 -> 0.789, impC 0.518939230297579 -> 0.508682778546475."
+  },
+  {
+    "cell": "kN000_E050",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.7065080027545486,
+        0.7065080027545486
+      ]
+    },
+    "dlod": 0.99478337717,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:32:14",
+    "backbone": 0.207240034028188,
+    "note": "Imported Feb2026's result over Sep2026's (CC 0.639 -> 0.707), no search -- passed manifold (0.207) and dLOD (0.9948) gates."
+  },
+  {
+    "cell": "kN000_E090",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.8615375408820138,
+        0.8615375408820138
+      ]
+    },
+    "dlod": 0.99889079348,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:32:18",
+    "backbone": 0.22941827096287,
+    "note": "Imported Feb2026's result over Sep2026's (CC 0.755 -> 0.862), no search -- passed manifold (0.229) and dLOD (0.9989) gates."
+  },
+  {
+    "cell": "kN000_E110",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.8233129737298416,
+        0.8233129737298416
+      ]
+    },
+    "dlod": 0.99897916714,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:32:22",
+    "backbone": 0.229421589041891,
+    "note": "Imported Feb2026's result over Sep2026's (CC 0.783 -> 0.823), no search -- passed manifold (0.229) and dLOD (0.9990) gates."
+  },
+  {
+    "cell": "kN000_E070",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.8613035379931266,
+        0.8613035379931266
+      ]
+    },
+    "dlod": 0.99916754593,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:32:58",
+    "backbone": 0.229374636595795,
+    "note": "Imported Feb2026's result over Sep2026's (CC none -> 0.861), no search -- passed manifold (0.229) and dLOD (0.9992) gates."
+  },
+  {
+    "cell": "kN000_E130",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.7977642450219173,
+        0.7977642450219173
+      ]
+    },
+    "dlod": 0.99489325642,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:33:03",
+    "backbone": 0.207277506543696,
+    "note": "Imported Feb2026's result over Sep2026's (CC none -> 0.798), no search -- passed manifold (0.207) and dLOD (0.9949) gates."
+  },
+  {
+    "cell": "kN000_E170",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.7915791661715226,
+        0.7915791661715226
+      ]
+    },
+    "dlod": 0.99448813199,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:33:07",
+    "backbone": 0.207290573762346,
+    "note": "Imported Feb2026's result over Sep2026's (CC none -> 0.792), no search -- passed manifold (0.207) and dLOD (0.9945) gates."
+  },
+  {
+    "cell": "kN000_W010",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.7574788991574402,
+        0.7574788991574402
+      ]
+    },
+    "dlod": 0.99902771792,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:33:11",
+    "backbone": 0.229413716846234,
+    "note": "Imported Feb2026's result over Sep2026's (CC none -> 0.757), no search -- passed manifold (0.229) and dLOD (0.9990) gates."
+  },
+  {
+    "cell": "kN000_W030",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.7998057175283935,
+        0.7998057175283935
+      ]
+    },
+    "dlod": 0.99604790501,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:33:16",
+    "backbone": 0.207218152850405,
+    "note": "Imported Feb2026's result over Sep2026's (CC 0.749 -> 0.800), no search -- passed manifold (0.207) and dLOD (0.9960) gates."
+  },
+  {
+    "cell": "kN000_W050",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.1665468979000122,
+        0.1665468979000122
+      ]
+    },
+    "dlod": 0.99607918284,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:33:20",
+    "backbone": 0.207700590624249,
+    "note": "Imported Feb2026's result over Sep2026's (CC none -> 0.167), no search -- passed manifold (0.208) and dLOD (0.9961) gates."
+  },
+  {
+    "cell": "kN000_W090",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.7616815897467604,
+        0.7616815897467604
+      ]
+    },
+    "dlod": 0.99571193089,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:33:24",
+    "backbone": 0.20727531801657,
+    "note": "Imported Feb2026's result over Sep2026's (CC none -> 0.762), no search -- passed manifold (0.207) and dLOD (0.9957) gates."
+  },
+  {
+    "cell": "kN000_W110",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.7326895516055371,
+        0.7326895516055371
+      ]
+    },
+    "dlod": 0.99570257861,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:33:29",
+    "backbone": 0.207275657901703,
+    "note": "Imported Feb2026's result over Sep2026's (CC none -> 0.733), no search -- passed manifold (0.207) and dLOD (0.9957) gates."
+  },
+  {
+    "cell": "kN000_W130",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.5345869699145328,
+        0.5345869699145328
+      ]
+    },
+    "dlod": 0.99612633952,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:33:33",
+    "backbone": 0.207204946203428,
+    "note": "Imported Feb2026's result over Sep2026's (CC none -> 0.535), no search -- passed manifold (0.207) and dLOD (0.9961) gates."
+  },
+  {
+    "cell": "kN020_E050",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.726045913217716,
+        0.726045913217716
+      ]
+    },
+    "dlod": 0.99626474797,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:33:38",
+    "backbone": 0.207501268991356,
+    "note": "Imported Feb2026's result over Sep2026's (CC 0.191 -> 0.726), no search -- passed manifold (0.208) and dLOD (0.9963) gates."
+  },
+  {
+    "cell": "kN020_E110",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.8012942092640314,
+        0.8012942092640314
+      ]
+    },
+    "dlod": 0.99489724038,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:33:42",
+    "backbone": 0.207225508120472,
+    "note": "Imported Feb2026's result over Sep2026's (CC 0.731 -> 0.801), no search -- passed manifold (0.207) and dLOD (0.9949) gates."
+  },
+  {
+    "cell": "kN020_E130",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.7727981610645565,
+        0.7727981610645565
+      ]
+    },
+    "dlod": 0.99493109373,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:33:46",
+    "backbone": 0.204578760782202,
+    "note": "Imported Feb2026's result over Sep2026's (CC none -> 0.773), no search -- passed manifold (0.205) and dLOD (0.9949) gates."
+  },
+  {
+    "cell": "kN020_W010",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.6728700758226646,
+        0.6728700758226646
+      ]
+    },
+    "dlod": 0.99620304468,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:33:50",
+    "backbone": 0.207282587641285,
+    "note": "Imported Feb2026's result over Sep2026's (CC none -> 0.673), no search -- passed manifold (0.207) and dLOD (0.9962) gates."
+  },
+  {
+    "cell": "kN020_W030",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.7723738002469488,
+        0.7723738002469488
+      ]
+    },
+    "dlod": 0.996232947,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:33:54",
+    "backbone": 0.207309806004052,
+    "note": "Imported Feb2026's result over Sep2026's (CC 0.735 -> 0.772), no search -- passed manifold (0.207) and dLOD (0.9962) gates."
+  },
+  {
+    "cell": "kN020_W070",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.6476621021875102,
+        0.6476621021875102
+      ]
+    },
+    "dlod": 0.99617429333,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:33:58",
+    "backbone": 0.20731307829307,
+    "note": "Imported Feb2026's result over Sep2026's (CC none -> 0.648), no search -- passed manifold (0.207) and dLOD (0.9962) gates."
+  },
+  {
+    "cell": "kN020_W110",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.8142116498680543,
+        0.8142116498680543
+      ]
+    },
+    "dlod": 0.99434745661,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:34:03",
+    "backbone": 0.207304399390605,
+    "note": "Imported Feb2026's result over Sep2026's (CC none -> 0.814), no search -- passed manifold (0.207) and dLOD (0.9943) gates."
+  },
+  {
+    "cell": "kN020_W150",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.730146081277141,
+        0.730146081277141
+      ]
+    },
+    "dlod": 0.99464988972,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:34:08",
+    "backbone": 0.207322375808089,
+    "note": "Imported Feb2026's result over Sep2026's (CC 0.653 -> 0.730), no search -- passed manifold (0.207) and dLOD (0.9946) gates."
+  },
+  {
+    "cell": "kN040_E010",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.745485262731211,
+        0.745485262731211
+      ]
+    },
+    "dlod": 0.99892286104,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:34:12",
+    "backbone": 0.229413290901156,
+    "note": "Imported Feb2026's result over Sep2026's (CC none -> 0.745), no search -- passed manifold (0.229) and dLOD (0.9989) gates."
+  },
+  {
+    "cell": "kN040_E030",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.7582430860481979,
+        0.7582430860481979
+      ]
+    },
+    "dlod": 0.99892628089,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:34:16",
+    "backbone": 0.22942950064305,
+    "note": "Imported Feb2026's result over Sep2026's (CC none -> 0.758), no search -- passed manifold (0.229) and dLOD (0.9989) gates."
+  },
+  {
+    "cell": "kN040_E130",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.6888911652734018,
+        0.6888911652734018
+      ]
+    },
+    "dlod": 0.9986381235,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:34:21",
+    "backbone": 0.229414823973134,
+    "note": "Imported Feb2026's result over Sep2026's (CC none -> 0.689), no search -- passed manifold (0.229) and dLOD (0.9986) gates."
+  },
+  {
+    "cell": "kN040_E170",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.8067637055970739,
+        0.8067637055970739
+      ]
+    },
+    "dlod": 0.99455691479,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:34:25",
+    "backbone": 0.207282998600494,
+    "note": "Imported Feb2026's result over Sep2026's (CC none -> 0.807), no search -- passed manifold (0.207) and dLOD (0.9946) gates."
+  },
+  {
+    "cell": "kN040_W070",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.8094902696872195,
+        0.8094902696872195
+      ]
+    },
+    "dlod": 0.99588640722,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:34:29",
+    "backbone": 0.206613636418492,
+    "note": "Imported Feb2026's result over Sep2026's (CC 0.788 -> 0.809), no search -- passed manifold (0.207) and dLOD (0.9959) gates."
+  },
+  {
+    "cell": "kN040_W130",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.7758911440298926,
+        0.7758911440298926
+      ]
+    },
+    "dlod": 0.99462911892,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:34:34",
+    "backbone": 0.207312672243068,
+    "note": "Imported Feb2026's result over Sep2026's (CC none -> 0.776), no search -- passed manifold (0.207) and dLOD (0.9946) gates."
+  },
+  {
+    "cell": "kN040_W150",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.7591661262988215,
+        0.7591661262988215
+      ]
+    },
+    "dlod": 0.99444379232,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:34:38",
+    "backbone": 0.207317600469522,
+    "note": "Imported Feb2026's result over Sep2026's (CC 0.677 -> 0.759), no search -- passed manifold (0.207) and dLOD (0.9944) gates."
+  },
+  {
+    "cell": "kN060_W010",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.611587404239899,
+        0.611587404239899
+      ]
+    },
+    "dlod": 0.99636254134,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:34:45",
+    "backbone": 0.207875620206776,
+    "note": "Imported Feb2026's result over Sep2026's (CC 0.456 -> 0.612), no search -- passed manifold (0.208) and dLOD (0.9964) gates."
+  },
+  {
+    "cell": "kN060_W030",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.762215329552595,
+        0.762215329552595
+      ]
+    },
+    "dlod": 0.99618647539,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:34:50",
+    "backbone": 0.20750633047017,
+    "note": "Imported Feb2026's result over Sep2026's (CC 0.716 -> 0.762), no search -- passed manifold (0.208) and dLOD (0.9962) gates."
+  },
+  {
+    "cell": "kS020_E030",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.7595214332949096,
+        0.7595214332949096
+      ]
+    },
+    "dlod": 0.99493828897,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:34:54",
+    "backbone": 0.207213539543342,
+    "note": "Imported Feb2026's result over Sep2026's (CC 0.706 -> 0.760), no search -- passed manifold (0.207) and dLOD (0.9949) gates."
+  },
+  {
+    "cell": "kS020_E090",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.7373663070683167,
+        0.7373663070683167
+      ]
+    },
+    "dlod": 0.99479495574,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:34:58",
+    "backbone": 0.207248401851871,
+    "note": "Imported Feb2026's result over Sep2026's (CC none -> 0.737), no search -- passed manifold (0.207) and dLOD (0.9948) gates."
+  },
+  {
+    "cell": "kS020_E130",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.7537486958080973,
+        0.7537486958080973
+      ]
+    },
+    "dlod": 0.99435545254,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:35:02",
+    "backbone": 0.207274995460214,
+    "note": "Imported Feb2026's result over Sep2026's (CC none -> 0.754), no search -- passed manifold (0.207) and dLOD (0.9944) gates."
+  },
+  {
+    "cell": "kS020_E150",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.7185903640394744,
+        0.7185903640394744
+      ]
+    },
+    "dlod": 0.99500148884,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:35:06",
+    "backbone": 0.207224786268017,
+    "note": "Imported Feb2026's result over Sep2026's (CC 0.567 -> 0.719), no search -- passed manifold (0.207) and dLOD (0.9950) gates."
+  },
+  {
+    "cell": "kS020_E170",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.7726379851054944,
+        0.7726379851054944
+      ]
+    },
+    "dlod": 0.99469434131,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:35:11",
+    "backbone": 0.207242433134627,
+    "note": "Imported Feb2026's result over Sep2026's (CC 0.742 -> 0.773), no search -- passed manifold (0.207) and dLOD (0.9947) gates."
+  },
+  {
+    "cell": "kS020_W010",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.5496705888482352,
+        0.5496705888482352
+      ]
+    },
+    "dlod": 0.99604977644,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:35:15",
+    "backbone": 0.207494401448758,
+    "note": "Imported Feb2026's result over Sep2026's (CC none -> 0.550), no search -- passed manifold (0.207) and dLOD (0.9960) gates."
+  },
+  {
+    "cell": "kS020_W030",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.6854254927363325,
+        0.6854254927363325
+      ]
+    },
+    "dlod": 0.99614652084,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:35:20",
+    "backbone": 0.207494401448758,
+    "note": "Imported Feb2026's result over Sep2026's (CC none -> 0.685), no search -- passed manifold (0.207) and dLOD (0.9961) gates."
+  },
+  {
+    "cell": "kS020_W070",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.5799466385361223,
+        0.5799466385361223
+      ]
+    },
+    "dlod": 0.9953692522,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:35:24",
+    "backbone": 0.207495156937732,
+    "note": "Imported Feb2026's result over Sep2026's (CC none -> 0.580), no search -- passed manifold (0.207) and dLOD (0.9954) gates."
+  },
+  {
+    "cell": "kS020_W110",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.6507893489716897,
+        0.6507893489716897
+      ]
+    },
+    "dlod": 0.99610848282,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:35:28",
+    "backbone": 0.205224688173846,
+    "note": "Imported Feb2026's result over Sep2026's (CC 0.531 -> 0.651), no search -- passed manifold (0.205) and dLOD (0.9961) gates."
+  },
+  {
+    "cell": "kS020_W130",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.7435667810591174,
+        0.7435667810591174
+      ]
+    },
+    "dlod": 0.9962394473,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:35:33",
+    "backbone": 0.207482061963183,
+    "note": "Imported Feb2026's result over Sep2026's (CC 0.711 -> 0.744), no search -- passed manifold (0.207) and dLOD (0.9962) gates."
+  },
+  {
+    "cell": "kS020_W150",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.7600312431128541,
+        0.7600312431128541
+      ]
+    },
+    "dlod": 0.99974182088,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:35:37",
+    "backbone": 0.207526824726858,
+    "note": "Imported Feb2026's result over Sep2026's (CC none -> 0.760), no search -- passed manifold (0.208) and dLOD (0.9997) gates."
+  },
+  {
+    "cell": "kS020_W170",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.7511857846238683,
+        0.7511857846238683
+      ]
+    },
+    "dlod": 0.99480901104,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:35:41",
+    "backbone": 0.192672626169585,
+    "note": "Imported Feb2026's result over Sep2026's (CC none -> 0.751), no search -- passed manifold (0.193) and dLOD (0.9948) gates."
+  },
+  {
+    "cell": "kS040_E010",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.6854841076992355,
+        0.6854841076992355
+      ]
+    },
+    "dlod": 0.99513287625,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:35:46",
+    "backbone": 0.207276223557568,
+    "note": "Imported Feb2026's result over Sep2026's (CC none -> 0.685), no search -- passed manifold (0.207) and dLOD (0.9951) gates."
+  },
+  {
+    "cell": "kS040_E030",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.5396882892472596,
+        0.5396882892472596
+      ]
+    },
+    "dlod": 0.9959322243,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:35:50",
+    "backbone": 0.207275415190983,
+    "note": "Imported Feb2026's result over Sep2026's (CC none -> 0.540), no search -- passed manifold (0.207) and dLOD (0.9959) gates."
+  },
+  {
+    "cell": "kS040_E090",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.7441258752133839,
+        0.7441258752133839
+      ]
+    },
+    "dlod": 0.99904668916,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:35:54",
+    "backbone": 0.229422916840777,
+    "note": "Imported Feb2026's result over Sep2026's (CC 0.624 -> 0.744), no search -- passed manifold (0.229) and dLOD (0.9990) gates."
+  },
+  {
+    "cell": "kS040_E110",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.4643438358306313,
+        0.4643438358306313
+      ]
+    },
+    "dlod": 0.99495354952,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:35:59",
+    "backbone": 0.207221315033144,
+    "note": "Imported Feb2026's result over Sep2026's (CC none -> 0.464), no search -- passed manifold (0.207) and dLOD (0.9950) gates."
+  },
+  {
+    "cell": "kS040_E130",
+    "accepted": true,
+    "attempt_tag": "feb2026_import",
+    "validate_mode": false,
+    "metric": "CC",
+    "scores": {
+      "metric": "CC",
+      "pair": [
+        0.7311364973633129,
+        0.7311364973633129
+      ]
+    },
+    "dlod": 0.99515322955,
+    "n_attempts": 0,
+    "timestamp": "2026-09-29T08:36:03",
+    "backbone": 1.0415511063207,
+    "note": "Imported Feb2026's result over Sep2026's (CC none -> 0.731), no search -- passed manifold (1.042) and dLOD (0.9952) gates."
   }
 ]

@@ -185,6 +185,22 @@ def impulse_delta(dates, del_a, del_b, asym, sampling):
     return v
 
 
+def annual_impulse(dates, imp_c, del_b, sampling):
+    """Annual_Impulse: a genuine once-a-year DELTA added directly to Model
+    (not Forcing) -- a sharp annual kick independent of the smooth Ann1/
+    Ann2/Sem1/Sem2 seasonal harmonics, coincident with Impulse_Delta's own
+    DPos month-of-year slot (reuses DelB, not a separately-fitted phase).
+    Inert by construction when imp_c == 0.0 -- true of every fit until the
+    2026-09-29 ImpC=0.01 seeding experiment, since gem-random_descent.adb's
+    Markov procedure never perturbs a parameter sitting at exactly 0.0
+    (it recurses to pick a different parameter instead unless FLIP<0)."""
+    trunc = np.rint((dates - np.floor(dates)) * sampling).astype(int)
+    dpos = int(round(abs(del_b) * sampling)) % sampling
+    v = np.zeros_like(dates)
+    v[trunc == dpos] = imp_c
+    return v
+
+
 def iir(raw, lag_a, lag_c, init, start_date, dates):
     """IIR integrator:  y[i] = x[i] + Mem*y[i-1] - copysign(lag_c, y[i-1]),
     seeded with `init` at the first sample with Date > start_date, then a
@@ -568,6 +584,8 @@ def forward(cfg: Config, params: dict):
                          trend, accel, nonlin, annual)
     if cfg.get("SECULAR", True):
         trend, accel = abs(trend), abs(accel)
+    if B["impC"] != 0.0:
+        model = model + annual_impulse(dates, B["impC"], B["delB"], sampling)
     if B["IR"] != 0.0:
         model = model.copy()
         for i in range(n - 1, 11, -1):

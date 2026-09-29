@@ -146,7 +146,7 @@ def main() -> None:
         f"GEM-LTE k_sst grid-quad fit status ({len(names)} quads, "
         f"{counts['good']+counts['warning']+counts['serious']} solved, "
         f"{counts['critical']} unsolved, {counts['unattempted']} untouched) "
-        "— 2026-09-28",
+        "— 2026-09-29",
         fontsize=20, pad=14)
     plt.tight_layout()
     out = sweep.HERE / "quad_status_map.png"

@@ -1,0 +1,90 @@
+2026-09-29T08:36:05
+kN000_E010: {'action': 'kept_sep', 'sep_cc': 0.7180867381373992, 'feb_cc': 0.7066663606983382}
+kN000_E050: {'action': 'kept_sep', 'sep_cc': 0.743219511547938, 'feb_cc': 0.7065080027545486}
+kN000_E070: {'action': 'imported', 'sep_cc': None, 'feb_cc': 0.8613035379931266, 'backbone': 0.229374636595795, 'dlod': 0.99916754593}
+kN000_E090: {'action': 'kept_sep', 'sep_cc': 0.8615375408820354, 'feb_cc': 0.8615375408820138}
+kN000_E110: {'action': 'kept_sep', 'sep_cc': 0.8233129737297863, 'feb_cc': 0.8233129737298416}
+kN000_E130: {'action': 'imported', 'sep_cc': None, 'feb_cc': 0.7977642450219173, 'backbone': 0.207277506543696, 'dlod': 0.99489325642}
+kN000_E150: {'action': 'kept_sep', 'sep_cc': 0.8527353508426694, 'feb_cc': 0.8412952910056584}
+kN000_E170: {'action': 'imported', 'sep_cc': None, 'feb_cc': 0.7915791661715226, 'backbone': 0.207290573762346, 'dlod': 0.99448813199}
+kN000_W010: {'action': 'imported', 'sep_cc': None, 'feb_cc': 0.7574788991574402, 'backbone': 0.229413716846234, 'dlod': 0.99902771792}
+kN000_W030: {'action': 'imported', 'sep_cc': 0.7490748124422361, 'feb_cc': 0.7998057175283935, 'backbone': 0.207218152850405, 'dlod': 0.99604790501}
+kN000_W050: {'action': 'imported', 'sep_cc': None, 'feb_cc': 0.1665468979000122, 'backbone': 0.207700590624249, 'dlod': 0.99607918284}
+kN000_W090: {'action': 'imported', 'sep_cc': None, 'feb_cc': 0.7616815897467604, 'backbone': 0.20727531801657, 'dlod': 0.99571193089}
+kN000_W110: {'action': 'imported', 'sep_cc': None, 'feb_cc': 0.7326895516055371, 'backbone': 0.207275657901703, 'dlod': 0.99570257861}
+kN000_W130: {'action': 'imported', 'sep_cc': None, 'feb_cc': 0.5345869699145328, 'backbone': 0.207204946203428, 'dlod': 0.99612633952}
+kN000_W150: {'action': 'kept_sep', 'sep_cc': 0.7049335707797728, 'feb_cc': 0.7049335707814087}
+kN000_W170: {'action': 'kept_sep', 'sep_cc': 0.7534814857510146, 'feb_cc': 0.7023690143967927}
+kN020_E050: {'action': 'imported', 'sep_cc': 0.19115173840956468, 'feb_cc': 0.726045913217716, 'backbone': 0.207501268991356, 'dlod': 0.99626474797}
+kN020_E070: {'action': 'kept_sep', 'sep_cc': 0.6607483662033529, 'feb_cc': 0.6540412917355785}
+kN020_E090: {'action': 'kept_sep', 'sep_cc': 0.7144430284461298, 'feb_cc': 0.6903533800629412}
+kN020_E110: {'action': 'imported', 'sep_cc': 0.7311636907557622, 'feb_cc': 0.8012942092640314, 'backbone': 0.207225508120472, 'dlod': 0.99489724038}
+kN020_E130: {'action': 'imported', 'sep_cc': None, 'feb_cc': 0.7727981610645565, 'backbone': 0.204578760782202, 'dlod': 0.99493109373}
+kN020_E150: {'action': 'kept_sep', 'sep_cc': 0.7935041334542504, 'feb_cc': 0.7905554162282447}
+kN020_E170: {'action': 'kept_sep', 'sep_cc': 0.7401770725521484, 'feb_cc': 0.7140939824278184}
+kN020_W010: {'action': 'imported', 'sep_cc': None, 'feb_cc': 0.6728700758226646, 'backbone': 0.207282587641285, 'dlod': 0.99620304468}
+kN020_W030: {'action': 'imported', 'sep_cc': 0.735277069475081, 'feb_cc': 0.7723738002469488, 'backbone': 0.207309806004052, 'dlod': 0.996232947}
+kN020_W050: {'action': 'kept_sep', 'sep_cc': 0.7424408372422683, 'feb_cc': 0.6648860514350617}
+kN020_W070: {'action': 'imported', 'sep_cc': None, 'feb_cc': 0.6476621021875102, 'backbone': 0.20731307829307, 'dlod': 0.99617429333}
+kN020_W090: {'action': 'kept_sep', 'sep_cc': 0.7308603019030598, 'feb_cc': 0.00308754424530492}
+kN020_W110: {'action': 'imported', 'sep_cc': None, 'feb_cc': 0.8142116498680543, 'backbone': 0.207304399390605, 'dlod': 0.99434745661}
+kN020_W130: {'action': 'kept_sep', 'sep_cc': 0.7475607652787899, 'feb_cc': 0.7659683508843724}
+kN020_W150: {'action': 'imported', 'sep_cc': 0.6525574518486581, 'feb_cc': 0.730146081277141, 'backbone': 0.207322375808089, 'dlod': 0.99464988972}
+kN020_W170: {'action': 'kept_sep', 'sep_cc': 0.8084697616057845, 'feb_cc': 0.8059722550891822}
+kN040_E010: {'action': 'imported', 'sep_cc': None, 'feb_cc': 0.745485262731211, 'backbone': 0.229413290901156, 'dlod': 0.99892286104}
+kN040_E030: {'action': 'imported', 'sep_cc': None, 'feb_cc': 0.7582430860481979, 'backbone': 0.22942950064305, 'dlod': 0.99892628089}
+kN040_E130: {'action': 'imported', 'sep_cc': None, 'feb_cc': 0.6888911652734018, 'backbone': 0.229414823973134, 'dlod': 0.9986381235}
+kN040_E150: {'action': 'kept_sep', 'sep_cc': 0.6895713903269457, 'feb_cc': 0.6895713903265767}
+kN040_E170: {'action': 'imported', 'sep_cc': None, 'feb_cc': 0.8067637055970739, 'backbone': 0.207282998600494, 'dlod': 0.99455691479}
+kN040_W010: {'action': 'kept_sep', 'sep_cc': 0.8075164602044668, 'feb_cc': 0.8115420001712688}
+kN040_W030: {'action': 'kept_sep', 'sep_cc': 0.6952629349117304, 'feb_cc': 0.6748080931419937}
+kN040_W050: {'action': 'kept_sep', 'sep_cc': 0.7747368805080366, 'feb_cc': 0.6833598721913681}
+kN040_W070: {'action': 'imported', 'sep_cc': 0.7876946941439836, 'feb_cc': 0.8094902696872195, 'backbone': 0.206613636418492, 'dlod': 0.99588640722}
+kN040_W090: {'action': 'kept_sep', 'sep_cc': 0.5123574506699455, 'feb_cc': 0.5280283633996289}
+kN040_W130: {'action': 'imported', 'sep_cc': None, 'feb_cc': 0.7758911440298926, 'backbone': 0.207312672243068, 'dlod': 0.99462911892}
+kN040_W150: {'action': 'imported', 'sep_cc': 0.6774231389519387, 'feb_cc': 0.7591661262988215, 'backbone': 0.207317600469522, 'dlod': 0.99444379232}
+kN040_W170: {'action': 'kept_sep', 'sep_cc': 0.7815905765674622, 'feb_cc': 0.7639077878285913}
+kN060_E010: {'action': 'rejected_dlod', 'sep_cc': 0.397268785673905, 'feb_cc': 0.706311837456486, 'backbone': 0.207461187843473, 'dlod': None}
+kN060_E170: {'action': 'kept_sep', 'sep_cc': 0.6553908764468314, 'feb_cc': 0.6553908764468314}
+kN060_W010: {'action': 'imported', 'sep_cc': 0.45612707618626613, 'feb_cc': 0.611587404239899, 'backbone': 0.207875620206776, 'dlod': 0.99636254134}
+kN060_W030: {'action': 'imported', 'sep_cc': 0.7161723410176172, 'feb_cc': 0.762215329552595, 'backbone': 0.20750633047017, 'dlod': 0.99618647539}
+kN060_W050: {'action': 'kept_sep', 'sep_cc': 0.8051232818338896, 'feb_cc': 0.8019554397582944}
+kN060_W130: {'action': 'kept_sep', 'sep_cc': 0.681060130882807, 'feb_cc': 0.38431973871833264}
+kN060_W150: {'action': 'kept_sep', 'sep_cc': 0.5910328304774486, 'feb_cc': 0.54369908308096}
+kN060_W170: {'action': 'kept_sep', 'sep_cc': 0.6026079670092046, 'feb_cc': 0.5483697358062063}
+kN080_E010: {'action': 'kept_sep', 'sep_cc': 0.7826595455403393, 'feb_cc': 0.7810961666725601}
+kS020_E010: {'action': 'kept_sep', 'sep_cc': 0.7089250452068265, 'feb_cc': 0.6057508794594547}
+kS020_E030: {'action': 'imported', 'sep_cc': 0.7059270308009128, 'feb_cc': 0.7595214332949096, 'backbone': 0.207213539543342, 'dlod': 0.99493828897}
+kS020_E050: {'action': 'kept_sep', 'sep_cc': 0.8432447768820854, 'feb_cc': 0.84641274306084}
+kS020_E070: {'action': 'kept_sep', 'sep_cc': 0.8408829781934909, 'feb_cc': 0.8408829781934909}
+kS020_E090: {'action': 'imported', 'sep_cc': None, 'feb_cc': 0.7373663070683167, 'backbone': 0.207248401851871, 'dlod': 0.99479495574}
+kS020_E110: {'action': 'kept_sep', 'sep_cc': 0.7007217932005451, 'feb_cc': 0.6953193017604327}
+kS020_E130: {'action': 'imported', 'sep_cc': None, 'feb_cc': 0.7537486958080973, 'backbone': 0.207274995460214, 'dlod': 0.99435545254}
+kS020_E150: {'action': 'imported', 'sep_cc': 0.5674263951695855, 'feb_cc': 0.7185903640394744, 'backbone': 0.207224786268017, 'dlod': 0.99500148884}
+kS020_E170: {'action': 'imported', 'sep_cc': 0.7422446415441702, 'feb_cc': 0.7726379851054944, 'backbone': 0.207242433134627, 'dlod': 0.99469434131}
+kS020_W010: {'action': 'imported', 'sep_cc': None, 'feb_cc': 0.5496705888482352, 'backbone': 0.207494401448758, 'dlod': 0.99604977644}
+kS020_W030: {'action': 'imported', 'sep_cc': None, 'feb_cc': 0.6854254927363325, 'backbone': 0.207494401448758, 'dlod': 0.99614652084}
+kS020_W070: {'action': 'imported', 'sep_cc': None, 'feb_cc': 0.5799466385361223, 'backbone': 0.207495156937732, 'dlod': 0.9953692522}
+kS020_W090: {'action': 'kept_sep', 'sep_cc': 0.6362077210944997, 'feb_cc': 0.510631607055182}
+kS020_W110: {'action': 'imported', 'sep_cc': 0.5308925712686118, 'feb_cc': 0.6507893489716897, 'backbone': 0.205224688173846, 'dlod': 0.99610848282}
+kS020_W130: {'action': 'imported', 'sep_cc': 0.7112894337416092, 'feb_cc': 0.7435667810591174, 'backbone': 0.207482061963183, 'dlod': 0.9962394473}
+kS020_W150: {'action': 'imported', 'sep_cc': None, 'feb_cc': 0.7600312431128541, 'backbone': 0.207526824726858, 'dlod': 0.99974182088}
+kS020_W170: {'action': 'imported', 'sep_cc': None, 'feb_cc': 0.7511857846238683, 'backbone': 0.192672626169585, 'dlod': 0.99480901104}
+kS040_E010: {'action': 'imported', 'sep_cc': None, 'feb_cc': 0.6854841076992355, 'backbone': 0.207276223557568, 'dlod': 0.99513287625}
+kS040_E030: {'action': 'imported', 'sep_cc': None, 'feb_cc': 0.5396882892472596, 'backbone': 0.207275415190983, 'dlod': 0.9959322243}
+kS040_E050: {'action': 'kept_sep', 'sep_cc': 0.6889811672284311, 'feb_cc': 0.632479835987658}
+kS040_E070: {'action': 'kept_sep', 'sep_cc': 0.7336714806022386, 'feb_cc': 0.730669198624269}
+kS040_E090: {'action': 'imported', 'sep_cc': 0.6242055530541837, 'feb_cc': 0.7441258752133839, 'backbone': 0.229422916840777, 'dlod': 0.99904668916}
+kS040_E110: {'action': 'imported', 'sep_cc': None, 'feb_cc': 0.4643438358306313, 'backbone': 0.207221315033144, 'dlod': 0.99495354952}
+kS040_E130: {'action': 'imported', 'sep_cc': None, 'feb_cc': 0.7311364973633129, 'backbone': 1.0415511063207, 'dlod': 0.99515322955}
+kS040_E150: {'action': 'kept_sep', 'sep_cc': 0.8319111222383296, 'feb_cc': 0.8262080281096165}
+kS040_E170: {'action': 'kept_sep', 'sep_cc': 0.7729921321470494, 'feb_cc': 0.775982041408535}
+kS040_W010: {'action': 'kept_sep', 'sep_cc': 0.5454848207337931, 'feb_cc': 0.39642847634799006}
+kS040_W030: {'action': 'kept_sep', 'sep_cc': 0.7664295806460089, 'feb_cc': 0.7657423778930538}
+kS040_W050: {'action': 'kept_sep', 'sep_cc': 0.6708723218057822, 'feb_cc': 0.6433687617608219}
+kS040_W070: {'action': 'kept_sep', 'sep_cc': 0.568409797376164, 'feb_cc': 0.3942426897340687}
+kS040_W130: {'action': 'kept_sep', 'sep_cc': 0.5394101091001661, 'feb_cc': 0.4637548891690547}
+kS040_W150: {'action': 'kept_sep', 'sep_cc': 0.6330040430021607, 'feb_cc': 0.5507442888054896}
+kS040_W170: {'action': 'rejected_dlod', 'sep_cc': 0.5018747111837895, 'feb_cc': 0.6771334602486534, 'backbone': 0.207489438080987, 'dlod': None}
+kS060_W050: {'action': 'kept_sep', 'sep_cc': 0.5908116299191447, 'feb_cc': 0.36747744810826655}
+kS060_W070: {'action': 'kept_sep', 'sep_cc': 0.6461229515325753, 'feb_cc': 0.581179706296097}
