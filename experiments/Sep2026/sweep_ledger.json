@@ -4136,5 +4136,120 @@
     "elapsed_s": 127.6,
     "flag": "needs-re-evaluation",
     "note": "FLAGGED 2026-09-28: part of a 3-cell donor chain (kS040_W130->kS040_W150->kS040_W170) all showing an anomalous shared dip at year 2020.0 (~4 std below ensemble mean) in the manifold comparison -- user has better results pending in Feb2026, mark for re-evaluation once available."
+  },
+  {
+    "cell": "kS020_W090",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6935618689,
+      "validate": 0.7011185037,
+      "test": 0.1201208157
+    },
+    "dlod": 0.9952531854,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kS020_W110",
+    "timestamp": "2026-09-28T16:07:02",
+    "note": "LOCKW canonical-backbone re-sweep (donor-seeded from kS020_W110, 2089km). Min score improved -1.807 -> 0.120. backbone=0.207882373680203."
+  },
+  {
+    "cell": "kN020_W090",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7157543425,
+      "validate": 0.8343213235,
+      "test": 0.6943506304
+    },
+    "dlod": 0.99639233242,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kN020_W070",
+    "timestamp": "2026-09-28T17:13:39",
+    "note": "LOCKW canonical-backbone re-sweep (donor-seeded from kN020_W070, 2089km). Min score improved 0.014 -> 0.694. backbone=0.20731307829307."
+  },
+  {
+    "cell": "kS040_W010",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6490990904,
+      "validate": 0.7020737712,
+      "test": 0.3839181871
+    },
+    "dlod": 0.99422107005,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kS040_E010",
+    "timestamp": "2026-09-28T18:14:45",
+    "note": "LOCKW canonical-backbone re-sweep (donor-seeded from kS040_E010, 1700km). Min score improved 0.043 -> 0.384. backbone=0.414."
+  },
+  {
+    "cell": "kS040_W070",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6823012881,
+      "validate": 0.7105100513,
+      "test": 0.4155173793
+    },
+    "dlod": 0.99465377879,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kS040_W050",
+    "timestamp": "2026-09-28T18:21:32",
+    "note": "LOCKW canonical-backbone re-sweep (donor-seeded from kS040_W050, 1700km). Min score improved 0.072 -> 0.416. backbone=0.207."
+  },
+  {
+    "cell": "kN060_W130",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.7266498404,
+      "validate": 0.8410740981,
+      "test": 0.243583565
+    },
+    "dlod": 0.99538063796,
+    "n_attempts": 1,
+    "retry_index": 0,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kN060_W150",
+    "timestamp": "2026-09-28T18:28:19",
+    "note": "LOCKW canonical-backbone re-sweep (donor-seeded from kN060_W150, 1108km). Min score improved 0.135 -> 0.244. backbone=0.206937146065282."
+  },
+  {
+    "cell": "kS040_W010",
+    "accepted": true,
+    "attempt_tag": "validate_true_dtw",
+    "validate_mode": true,
+    "metric": "DTW",
+    "scores": {
+      "metric": "DTW",
+      "train": 0.6382484424,
+      "validate": 0.6690535979,
+      "test": 0.3855692089
+    },
+    "dlod": 0.994991635,
+    "backbone": 0.207,
+    "n_attempts": null,
+    "retry_index": 1,
+    "seed_from_path": "/home/paul/eval/gem-lte-core/experiments/Sep2026/kS040_E010",
+    "timestamp": "2026-09-28T23:19:00",
+    "note": "LOCKW retry with CANON_HARMONICS restricted to 1 only (after diagnosing the prior LOCKW-batch result had snapped to 2x canonical due to an NM mismatch silently truncating the donors real backbone term -- fixed by syncing target resp NM=3 to match the donor). Backbone now correctly at exactly 0.207. Comparable local fit to the 2x attempt (min=0.386 vs 0.384). Checked geo-smooth collective coherence for all 3 candidates (original/2x/1x): -0.119 / 0.032 / 0.034 respectively -- this cell has been poorly explained by the shared 20-harmonic model in EVERY version, including its original pre-session state, so the earlier claim that the LOCKW batch introduced new collective incoherence for this cell was wrong (conflated with a different metric). Kept as best-available: correct canonical structure, comparable local fit, no worse collectively than any alternative."
   }
 ]

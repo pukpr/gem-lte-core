@@ -578,6 +578,10 @@ package body GEM.LTE.Primitives.Solution is
       --F_Model  : Data_Pairs := Data_Records;
       Model : Data_Pairs := Data_Records;
       KeepModel : Data_Pairs := Data_Records;
+      --  Caches the SAME accepted iteration's Forcing (post-Bessel) that
+      --  KeepModel/DKeep were derived from -- see the Am_I_Last resync
+      --  below (2026-09-29 fix).
+      KeepForcing : Data_Pairs := Data_Records;
 
       Best : Boolean := False;
       Percentage : Integer;
@@ -1711,6 +1715,7 @@ package body GEM.LTE.Primitives.Solution is
             Ever_Accepted := True;
             Keep := Set;
             KeepModel := Model;
+            KeepForcing := Forcing;
             DKeep := D;
             if Catchup then  -- save it for other threads to reset from
                GEM.LTE.Primitives.Shared.Put (D);
@@ -1928,7 +1933,51 @@ package body GEM.LTE.Primitives.Solution is
             Save_Now := Ever_Accepted and then (Test_Only or Best_Client = ID);
          end if;
 
+      --  Forcing is recomputed unconditionally every iteration regardless
+      --  of accept/reject, so by the time Save fires (possibly many
+      --  rejected perturbations after this thread's -- or, under
+      --  VALIDATE=TRUE, even a DIFFERENT thread's -- own last accept) the
+      --  live Forcing can silently disagree with the KeepModel/DKeep
+      --  actually being saved, in BOTH the Validate and legacy paths
+      --  above (neither resyncs Forcing itself). Save()'s Forcing column
+      --  (lte_results.csv's column 4, the "manifold") could then
+      --  disagree with its own Model/DKeep/lt.exe.p -- found 2026-09-29
+      --  while cross-checking experiments/Feb2026/lte_forward.py's
+      --  reimplementation column-by-column: a from-scratch Python replay
+      --  of a saved lt.exe.p matched a live, single-threaded, first-
+      --  iteration Ada evaluation of that same lt.exe.p to 1e-13, yet
+      --  disagreed with that same run's own saved lte_results.csv
+      --  Forcing column by ~1e-4 relative -- exactly this gap. KeepForcing
+      --  is cached at the same accept-time assignment as KeepModel/DKeep
+      --  (see "Keep := Set; KeepModel := Model;" above), so it is always
+      --  valid whenever Ever_Accepted is True.
+      if Ever_Accepted then
+         Forcing := KeepForcing;
+      end if;
+
       if Save_Now then
+
+         --  M (windings/frequencies) is recomputed unconditionally every
+         --  iteration regardless of accept/reject (same root cause as the
+         --  Forcing fix above), so by the time Save fires it can differ
+         --  from DKeep's own accepted windings -- and the report loop
+         --  below writes DKeep.C back FROM M
+         --  (`DKeep.C(I-NM) := Integer(M(I)/M(NM))`), which
+         --  Shared.Save(DKeep) then serializes as lt.exe.p's "harm"
+         --  field. Unlike MAP/Save_Windings (amplitude/phase, write-only
+         --  into windings.json, never read back by anything), lt.exe.p
+         --  IS reloaded by future runs and by lte_forward.py's own
+         --  harm-array fix, so this one specific derivation needs to be
+         --  self-consistent with DKeep, not the live thread state.
+         --  Rebuild M from DKeep itself first so that write-back becomes
+         --  a harmless round-trip (2026-09-29).
+         M (1 .. NM) := DKeep.B.LT (1 .. NM);
+         if Lock_Freq then
+            M (NM) := 1.0 / (Decay * DKeep.B.mP);
+         end if;
+         for I in 1 .. NH loop
+            M (NM + I) := Long_Float (DKeep.C (I)) * M (NM);
+         end loop;
 
          -- Text_IO.Put_Line("### " & File_Name);
          -- Walker.Dump(Keep); -- Print results of last best evaluation,

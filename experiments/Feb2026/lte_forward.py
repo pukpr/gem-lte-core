@@ -188,8 +188,14 @@ def impulse_delta(dates, del_a, del_b, asym, sampling):
 def iir(raw, lag_a, lag_c, init, start_date, dates):
     """IIR integrator:  y[i] = x[i] + Mem*y[i-1] - copysign(lag_c, y[i-1]),
     seeded with `init` at the first sample with Date > start_date, then a
-    backward pass y[i-1] = -x[i-1] + Mem*y[i] + copysign(lag_c, y[i])
-    reconstructs pre-history.  Mem = lag_a clamped to [0, 1]."""
+    backward pass reconstructs pre-history as the EXACT algebraic inverse
+    of the forward step (not the plausible-looking but inexact heuristic
+    y[i-1] = -x[i-1] + Mem*y[i] + copysign(lag_c, y[i]), which the Ada
+    source's own comment says was replaced after a ~2.5-unit round-trip
+    discrepancy in iir_invariant_test.adb): solve both sign-branches of
+    Copy_Sign for y[i-1] and keep whichever is self-consistent with its own
+    sign assumption, averaging the two candidates in the rare case neither
+    (or both) is -- Mem = lag_a clamped to [0, 1]."""
     mem = 1.0 if lag_a > 1.0 else (0.0 if lag_a < 0.0 else lag_a)
     n = len(raw)
     idx = int(np.searchsorted(dates, start_date, side="right"))
@@ -199,8 +205,30 @@ def iir(raw, lag_a, lag_c, init, start_date, dates):
     for i in range(idx + 1, n):
         y[i] = raw[i] + mem * y[i - 1] - math.copysign(lag_c, y[i - 1])
     for i in range(idx, 0, -1):
-        y[i - 1] = -raw[i - 1] + mem * y[i] + math.copysign(lag_c, y[i])
+        if mem <= 0.0:
+            y[i - 1] = -raw[i - 1] + mem * y[i] + math.copysign(lag_c, y[i])
+        else:
+            cand_pos = (y[i] - raw[i] + lag_c) / mem
+            cand_neg = (y[i] - raw[i] - lag_c) / mem
+            if cand_pos >= 0.0:
+                y[i - 1] = cand_pos
+            elif cand_neg < 0.0:
+                y[i - 1] = cand_neg
+            else:
+                y[i - 1] = 0.5 * (cand_pos + cand_neg)
     return y
+
+
+def extend_backward(dates, target_first_date, sampling_per_year):
+    """Extend_Backward: prepend zero-value synthetic dates so the template
+    starts at (or before) target_first_date, spaced at 1/sampling_per_year.
+    No-op (returns dates, 0) when target_first_date is already >= dates[0]."""
+    first_date = dates[0]
+    if target_first_date >= first_date:
+        return dates, 0
+    n_extra = int(math.ceil((first_date - target_first_date) * sampling_per_year))
+    extra = first_date - np.arange(n_extra, 0, -1) / sampling_per_year
+    return np.concatenate([extra, dates]), n_extra
 
 
 def bessel(v, e_s, e_c, k, e_s2, e_c2):
@@ -440,9 +468,14 @@ def forward(cfg: Config, params: dict):
     f_start = cfg.get("FSTART", 0.01)
     f_step = cfg.get("FSTEP", 0.18)
     nm = cfg.get("NM", len(lt))
-    nh_str = cfg.get("NH", "")           # "" (resp has NH "") -> no harmonics
-    harms = [int(float(h)) for h in str(nh_str).split()]
-    exclude = cfg.get("EXCLUDE", True)
+    # NB: resp's NH is only the *initial* harmonic-count template the search
+    # started from (e.g. "1 1 1 1"); the actual fitted multipliers the
+    # search converged to are saved in lt.exe.p's "harm" array (e.g.
+    # [6.0, 2.0, 9.0, 4.0]) -- using NH here silently duplicates the
+    # backbone column len(NH) times and makes the regression matrix
+    # singular.
+    harms = [int(round(h)) for h in params.get("harm", [])]
+    exclude = cfg.get("EXCLUDE", False)
     trend_on = cfg.get("TREND", True)
 
     # (Ada line ~815: Data_Records := Filter9Point(Data_Records) mutates the
@@ -477,12 +510,34 @@ def forward(cfg: Config, params: dict):
         ap[:, 1] += np.arctan2(w_der, w_norm)
 
     # 3-5) tide sum -> impulse comb -> IIR integrator  (Calc_Forcing)
-    tf = tide_sum(dates, ap, periods, year_length(year_startup, year_cand),
-                  scaling=0.0, integ=B["shfT"])
-    forcing = iir(tf * impulse_delta(dates, B["delA"], B["delB"], B["asym"],
-                                     sampling),
-                  lag_a=1.0 - B["ma"], lag_c=B["mp"], init=B["init"],
-                  start_date=idate, dates=dates)
+    # STRICT_IDATE (or an explicit, non-negative INIT_DATE, which implies
+    # it) integrates from IDATE over a backward-extended template, seeding
+    # the IIR at IDATE - 0.1/sampling (so Start_Index lands one sample
+    # EARLIER than the plain path below whenever IDATE coincides exactly
+    # with dates[0], as it commonly does) -- see Calc_Forcing's Strict_IDate
+    # branch. The non-strict path seeds at dates[0] (the record's own first
+    # date), NOT at IDATE -- IDATE only matters when Strict_IDate is set.
+    init_date_raw = cfg.get("INIT_DATE", -1.0)
+    strict_idate = cfg.get("STRICT_IDATE", False) or init_date_raw >= 0.0
+    if strict_idate:
+        ext_dates, n_extra = extend_backward(dates, idate, sampling)
+        tf_ext = tide_sum(ext_dates, ap, periods,
+                          year_length(year_startup, year_cand),
+                          scaling=0.0, integ=B["shfT"])
+        imp_ext = impulse_delta(ext_dates, B["delA"], B["delB"], B["asym"],
+                                sampling)
+        forcing_ext = iir(tf_ext * imp_ext, lag_a=1.0 - B["ma"], lag_c=B["mp"],
+                          init=B["init"], start_date=idate - 0.1 / sampling,
+                          dates=ext_dates)
+        forcing = forcing_ext[n_extra:]
+        tf = tf_ext[n_extra:]
+    else:
+        tf = tide_sum(dates, ap, periods, year_length(year_startup, year_cand),
+                      scaling=0.0, integ=B["shfT"])
+        forcing = iir(tf * impulse_delta(dates, B["delA"], B["delB"], B["asym"],
+                                         sampling),
+                      lag_a=1.0 - B["ma"], lag_c=B["mp"], init=B["init"],
+                      start_date=dates[0], dates=dates)
 
     # 6) Bessel modulation of the forcing manifold (NM>1, no Lock_Freq).
     # This is the exact argument mapping in Dipole_Model: the final LTE

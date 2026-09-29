@@ -1,5 +1,75 @@
 # GEM-LTE grid-cell sweep — handoff notes (2026-09-27, updated 2026-09-28)
 
+## NEW GOVERNING PRINCIPLE: judge every future change by the COLLECTIVE measure, not per-cell scores (2026-09-28 ~21:30)
+
+Explicit reframing from the user: the objective from here on is to move
+the whole 89-quad collective toward a better shared parameterization --
+"the FIRST time 90 spatially separated SST time-series have been
+modelled with a handful of standing-wave parameters." A few individually
+weak cells are fine. A uniform shared bias in any parameter (dLOD,
+year-length-in-days, any other `.p` scalar) is fine too, as long as it's
+uniform across the collective -- what matters is the collective measure,
+not each cell hitting its own independently-best CC/DTW/dLOD.
+
+**The collective measure**: `mlr_shared_windings.py`'s overall geo-smooth
+R^2 (89 quads' real manifolds explained by the confirmed 20-winding
+shared harmonic/subharmonic set + a degree-1 geographic smoothness
+constraint on amplitude/phase -- 338 total parameters for ~78,000 data
+points). New wrapper `collective_r2_log.py "<label>"` runs it and appends
+one line to `collective_r2_log.jsonl` -- **run this before and after any
+future batch, LOCKW change, or manual-fix round, and compare consecutive
+entries** as the actual go/no-go signal, instead of counting how many
+individual cells pass some per-cell threshold.
+
+**Baseline logged 2026-09-28 ~21:30** (after 89/89 quads solved +
+manifold-outlier fixes + LOCKW batch #1): overall geo-smooth R^2 =
+**0.9341**, independent-per-quad mean = 0.9346 (min 0.6125, max 0.9658).
+Notably this is DOWN from 0.9461 (measured earlier today, before LOCKW
+batch #1) -- a real, concrete illustration of the tension the user is
+describing: LOCKW batch #1 improved several individual cells' own CC/DTW
+scores but slightly reduced cross-quad geo-smooth coherence. Worth
+digging into which of the 5 LOCKW-batch fixes caused the drop before
+running further batches blind -- possible that one or more landed on a
+locally-good-scoring but collectively-incoherent harmonic (a smaller-
+scale echo of the earlier "metastable"/`kS040_W030` pattern).
+
+## LOCKW batch #1: 5/8 weak cells improved (2026-09-28 ~16:00-19:30)
+
+First real-world validation of `LOCKW` (see below), per the user's
+"more sweeps, improve collective fit/CV AND reinforce canonical
+backbone" instruction. `sweep_lockw_batch.py` targeted the 8 weakest-
+scoring currently-accepted cells (lowest min(train/validate/test) or
+min(pair)), donor-seeded each from its nearest already-solved neighbor,
+ran with `LOCKW=TRUE` at a longer 400s internal timeout (LOCKW needs
+more iterations to re-adapt around a locked winding than the usual
+120s), and kept the result only if its minimum score beat the original.
+
+**5/8 improved and committed, all with confirmed canonical backbones**:
+- `kS020_W090`: -1.807 -> 0.120 (this was the session's one documented
+  pathological case -- validate=0.0 exactly, test~-1.8 -- finally
+  resolved)
+- `kN020_W090`: 0.014 -> 0.694
+- `kS040_W010`: 0.043 -> 0.384 (backbone landed on 0.414 = 2x canonical,
+  a valid harmonic)
+- `kS040_W070`: 0.072 -> 0.416
+- `kN060_W130`: 0.135 -> 0.244
+
+**3/8 failed and rolled back cleanly** (no data lost, kept original):
+`kN040_W010` (-0.200, unchanged), `kN020_W030` (0.017, unchanged),
+`kS040_E170` (0.164, unchanged) -- each after a very long cascade
+(~3200-3600s across all 4 DTW/CC x VALIDATE variants + retry) that never
+found a canonical-locked fit beating the original. These 3 may need a
+different donor, a manual fit, or may simply be cells whose real local
+data doesn't fit any canonical harmonic well (worth investigating
+individually if pursued further, same as the earlier hard-cell pattern
+this session).
+
+Script (`sweep_lockw_batch.py`) is reusable for further batches --
+change `TARGET_CELLS` to whatever's next (e.g. re-run the remaining
+weak-score cells from `quad_status_map.png`'s amber/salmon set, or the
+3 still-flagged `kS040_W130/150/170` once the user's pending Feb2026
+update lands).
+
 ## NEW: canonical-backbone winding lock (`LOCKW`) added to lt.exe (2026-09-28 ~15:30)
 
 Real Ada engineering, not a Python workaround. Goal (per the user): support
@@ -761,6 +831,98 @@ restarted to pick up the fix (no ledger data was lost; the interrupted
 attempt hadn't logged anything yet). If you edit `sweep.py` again while
 a sweep/refix driver is running in the background, remember to restart
 it too.
+
+## `lte_forward.py` bitrot fixed + real Ada Forcing-save bug found (2026-09-29)
+
+Per the user's instruction to fix `experiments/Feb2026/lte_forward.py`'s
+bitrot, verifying the manifold (`lte_results.csv` column 4, "Forcing")
+BEFORE the Model (column 2), three real bugs were found and fixed, plus one
+genuine pre-existing bug in the live Ada `enso_opt`/`lt.exe` binary itself.
+
+**Python bugs fixed in `lte_forward.py`:**
+1. `harms` was parsed from the resp's `NH` key (the *initial* harmonic-count
+   template, e.g. `"1 1 1 1"`) instead of `lt.exe.p`'s actual fitted `harm`
+   array (e.g. `[6.0, 2.0, 9.0, 4.0]`). This duplicated the backbone winding
+   several times in the regression design matrix, making it singular — the
+   literal `--verify` crash. Fixed to read `params["harm"]`.
+2. `STRICT_IDATE`/explicit `INIT_DATE` (which implies it, per
+   `gem-lte-primitives-solution.adb` lines ~669-719) were never implemented.
+   This activates a different IIR-seeding path (extend the template
+   backward, seed at `IDATE - 0.1/sampling` instead of plain `IDATE`) —
+   `amo`'s resp sets `INIT_DATE 1880.0` explicitly, silently taking this
+   path. Added `extend_backward()` + the branch. Also fixed the non-strict
+   path to seed at `dates[0]` (the record's own first date), not `IDATE` —
+   the two are conflated in Ada only when they happen to coincide.
+3. The IIR backward-reconstruction pass implemented the exact *deprecated*
+   heuristic (`y[i-1] = -x[i-1] + Mem*y[i] + copysign(lag_c, y[i])`) that
+   the Ada source's own comment says was replaced after
+   `iir_invariant_test.adb` caught a ~2.5-unit round-trip error. Replaced
+   with the current sign-candidate exact-inverse algorithm.
+
+After these three fixes, a controlled single-threaded (`NUMBER_OF_PROCESSORS
+=1`), single-iteration (`Counter=0`, no Markov perturbation yet) live Ada
+run — instrumented with temporary debug dumps, since removed — showed
+`lte_forward.py`'s forcing (both pre- and post-Bessel) matches the live Ada
+`Calc_Forcing`/`Bessel` output to **~1e-13**, i.e. exact to float64 noise.
+
+**Real Ada bug found and fixed** (`gem-lte-primitives-solution.adb`): the
+still-remaining ~1.8e-4 relative gap against the *saved* `lte_results.csv`
+was not a Python bug at all. Under `VALIDATE=TRUE` (the setting used by
+`amo` and most Sep2026 cells), the cross-thread "lockbox" reporting path
+resyncs `D` and `Model` to the winning thread's `DKeep`/`KeepModel` right
+before saving (`D := DKeep; Model := KeepModel;`, ~line 1968) — but
+`Forcing` was never included in that resync. Since `Forcing` is recomputed
+unconditionally every iteration regardless of accept/reject, by the time
+`Save` fires it can reflect a different (possibly rejected, possibly a
+different thread's own trial) candidate than the one whose `Model`/`DKeep`/
+`lt.exe.p` is actually being saved — so `lte_results.csv` column 4 (the
+manifold) could silently disagree with its own column 2 and its own
+`lt.exe.p`. **As the user pointed out**, this is not just a cosmetic
+CSV-column mismatch: it means the cross-thread lockbox could report/save
+Model/JSON from the winning thread while the accompanying Forcing came from
+a non-optimal thread, i.e. the historically-saved parameter sets for
+`VALIDATE=TRUE` cells may not be as internally consistent as intended.
+
+Fixed by caching `KeepForcing := Forcing;` at the same accept-time
+assignment as `KeepModel`/`DKeep` (`Keep := Set; KeepModel := Model;` ~line
+1758), then unconditionally restoring `Forcing := KeepForcing;` whenever
+`Ever_Accepted` is true, right before the `Save_Now` decision — covering
+both the `VALIDATE=TRUE` lockbox path and the legacy `Best_Client=ID` path
+uniformly. Verified on a fresh, real (multi-threaded, `VALIDATE=TRUE`,
+15s) `amo` run after rebuilding: the freshly-saved `lte_results.csv`
+column 4 now matches `lte_forward.py`'s independent computation of the
+same freshly-saved `lt.exe.p` to **1.7e-10 relative** (float64 noise).
+
+**Second Ada bug found and fixed, same root cause:** the same "`M` is
+recomputed unconditionally every iteration, never resynced to `DKeep`"
+pattern also affects the harmonic-multiplier report block right before
+`Save_Windings`/`Shared.Save(DKeep)` (~line 1980): `DKeep.C(I-NM) :=
+Integer(M(I)/M(NM))` derives the harmonic multipliers FROM the live
+(possibly stale) `M`, and `DKeep.C` is exactly what gets serialized as
+`lt.exe.p`'s `"harm"` field via the immediately-following
+`Shared.Save(DKeep)`. Checked with the user whether this mattered as much
+as the Forcing bug: amplitude/phase (`MAP`) is always freshly
+regression-derived and `lt.exe.windings.json` is confirmed genuinely
+write-only (grepped the whole source — no `Read_Windings`/`Load_Windings`
+function exists anywhere), so that part is low-stakes. But `lt.exe.p`
+itself is NOT write-only — it's the checkpoint reloaded by future runs and
+by `lte_forward.py`'s own `harm`-array fix (bug 1 above) — so a stale `M`
+corrupting `DKeep.C` here would propagate a real inconsistency into the
+checkpoint itself. Fixed by rebuilding `M` from `DKeep.B.LT`/`DKeep.C`
+directly at the top of the `Save_Now` block (before the report loop that
+writes `DKeep.C` back from `M`), making that write-back a harmless
+round-trip. Verified: `harm` in a fresh run's saved `lt.exe.p` stays
+correctly matched to a fresh `lte_forward.py` replay (manifold match still
+1.7e-10 after this second fix, unchanged from before it — confirming no
+regression).
+
+**Not yet done:** re-verifying/fixing the Model (column 2) path in
+`lte_forward.py` itself — it still needs at minimum the missing
+`Annual_Impulse` (`ImpC`) term (added to Model, not Forcing, right after
+the LTE response and before the IR delay-differential, in
+`gem-lte-primitives-solution.adb` ~line 1567) which `lte_forward.py`
+doesn't implement at all. Per the user's explicit ordering instruction,
+this was deferred until the manifold match above was confirmed.
 
 ## Suggested order of operations for a fresh session
 
