@@ -1286,6 +1286,56 @@ These files are also now fully inert even if any reappear (e.g. from an
 old un-rebuilt binary, or copied in from elsewhere) -- the current
 `enso_opt` no longer reads or writes them at all.
 
+## Full ImpC=0.01 sweep, short (90s) runs: 35/53 cells improved (2026-09-29)
+
+Follow-up to the stale-checkpoint fix above, per the user's explicit
+direction: "continue on but try to proceed with short training runs.
+Since the stale .p bug has been fixed, progress will be maintained
+from run-to-run so that short durations will not cause problems
+regressing to non-optimal sets."
+
+`sweep_impc_full.py` re-run against all 53 cells whose `impC` was still
+exactly `0.0` (i.e. never yet touched by the earlier 3-cell pilot, the
+Feb2026-vs-Sep2026 import pass, or any organic escape from `0.0`), with
+`TIMEOUT` dropped from 400s to 90s. Rationale confirmed correct in
+practice: no cell regressed to a worse-than-starting state mid-sweep,
+and per-cell wall time dropped roughly 4x with no loss of hit rate
+(35/53 improved here vs the pilot's 3/3 and the general expectation
+from the seed's own structural-bug rationale -- `Markov` never perturbs
+a parameter sitting at exactly `0.0`, so `ImpC` was permanently
+inaccessible to search until manually seeded).
+
+**Result: 35/53 committed, 18 reverted to their pre-sweep state** (either
+no improvement or one cascade failure, `kS040_E030`). Several large
+single-attempt gains: `kN020_W170` +0.379, `kS040_W030` +0.307,
+`kS020_E050` +0.201, `kN000_W050` +0.273, `kS040_E110` +0.245,
+`kN000_W130` +0.147, `kN060_E170` +0.147, `kS020_W070` +0.142,
+`kS020_W130` +0.075, plus many smaller positive deltas. Full per-cell
+detail in `sweep_impc_full.log` and `SWEEP_IMPC_DONE`.
+
+**One implementation wrinkle worth remembering**: `seed_impc()` mutates
+`lt.exe.p` on disk (writing `impC=0.01`) BEFORE `backup()` snapshots the
+cell, so a "rolled back" cell's `restore()` puts back the post-seed,
+pre-cascade state, not pristine git HEAD -- i.e. the on-disk seed
+survives a no-improvement rollback unless something else discards it.
+Handled manually this round by identifying the 18 non-committed cells
+from the log and `git checkout --`-ing them before committing, so the
+repo stays consistent with the ledger (no orphaned uncommitted `impC`
+seeds). Worth fixing in the script itself (move `backup()` before
+`seed_impc()`) before the next run, rather than repeating the manual
+cleanup step.
+
+**Status map: 85 good/4 warning -> 87 good/2 warning/0 serious/0
+critical/0 unattempted** -- the best collective state reached this
+session. Remaining 2 warnings: `kS020_W090` (weak, 0.106-0.120, this
+sweep tried it and made it worse, reverted) and `kS020_E070` (untouched
+-- `impC` already nonzero from an earlier pass, so outside this sweep's
+target set; a manual look is the natural next incremental step).
+
+Per the user's own reasoning validated: short bursts + the fixed
+checkpoint = compounding progress with fast turnaround, no need to
+return to long single-cell searches for this kind of exploratory sweep.
+
 ## Suggested order of operations for a fresh session
 
 1. Read this file, then skim `sweep.py` itself (well-commented, ~700 lines).
