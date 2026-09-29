@@ -1165,6 +1165,75 @@ toward two cheap, mostly-search-free improvements:
    collision-avoidance block, or add a `Test_Only`-aware guard around
    `Force_Harmonic`'s call inside it; not done this session.
 
+## Subharmonic quadrature metastability -- a real, unresolved structural degeneracy (2026-09-29)
+
+User finding: the LOWEST-value winding (~0.01-0.02, the `BACKBONE/11`
+subharmonic family responsible for the 60-120yr AMO-type frequency-
+doubling modulation) is genuinely METASTABLE. Its amplitude and phase
+are decided purely by `Regression_Factors`' OLS fit against
+`[sin(k*F), cos(k*F)]` basis columns, per-quad, with no physical
+constraint steering the outcome. Because this winding's period is
+comparable to or longer than the ~140yr record, `sin(k*F)` and
+`cos(k*F)` are nearly collinear over the observed range -- the
+regression can land on either a "cosine-dominant" or "sine-dominant"
+solution (a ~90 degree quadrature swap, not a simple 180 degree sign
+flip) with no way to algebraically choose between them after the fact.
+Per the user: "there is no way to automatically invert the winding
+other than determining which fits the data better" (the "Mach-Zehnder
+encryption paradigm" analogy) -- resolving it per-cell requires a real
+A/B optimization (lock each quadrature, refit, compare), not a cheap
+linear-algebra trick. **Relevant to long-term-trend interpretation**:
+since this winding's period rivals the record length, an arbitrarily-
+selected phase can partially alias into the fitted trend/level terms,
+muddying whether an individual quad's apparent SST trend is physical or
+partly a fitting artifact of this degeneracy.
+
+**Direct evidence gathered** (`experiments/Feb2026/amo` vs
+`experiments/Sep2026/amo`, two independent fits of the identical AMO
+data -- Feb2026 is described by the user as the "cosine" branch,
+Sep2026 as the newer "sine" branch):
+- Fit quality nearly tied: CC(model,data) = 0.776 (Feb2026) vs 0.782
+  (Sep2026).
+- Sep2026 slightly more parsimonious: `impC=0.0` (Annual_Impulse
+  inactive) vs Feb2026's `impC=-0.028` (active) -- same fit quality
+  with one fewer working mechanism.
+- The two full manifolds show a real but PARTIAL mirror-image
+  relationship: `corr(Feb2026, -Sep2026)` on the raw post-Bessel
+  forcing is ~0.26, stable across every smoothing scale from 5 to 40
+  years (not noise, but far from a clean identity). Backbone values
+  also differ genuinely (0.229 vs 0.174), and harmonic sets are
+  entirely different (`[6,2,9,4]` vs `[2,5,12,4]`). Conclusion: these
+  are two genuinely DIFFERENT local optima, not the same solution in
+  two equivalent conventions -- though both are plausibly anchored to
+  the same real AMO regime-shift timing (see `project_amo_resolved_
+  shallow_water.md` in memory).
+
+**A population-wide coherence test was attempted and is INCONCLUSIVE --
+do not re-run this exact approach expecting a different answer**
+(`check_subharmonic_coherence.py`): tested whether the subharmonic's
+fitted (amp*cos(phase), amp*sin(phase)) vector is spatially LESS smooth
+across the 89 quads than faster "control" windings (k=0.207, 0.414,
+0.828), and whether a sign-canonicalization improves that. Result:
+noisy in both directions for every winding tested including controls
+(subharmonic raw R^2=0.122 actually HIGHER than the 0.207 backbone
+control's 0.059; canonicalization sometimes helped, sometimes hurt,
+by comparable amounts for subharmonic and controls alike). Root cause
+of the inconclusive result: the canonicalization tested was a 180-
+degree sign flip, but the real ambiguity (per the amo evidence, ~81
+degree phase difference between the two fits) is closer to a genuine
+90-degree cos/sin quadrature swap -- which is NOT fixable by a sign
+flip at all (cos and sin are orthogonal, not sign-related), so this
+script was testing the wrong transform. No automatic fix exists per
+the user's own diagnosis above; don't try to invent one algebraically.
+
+**Decision (2026-09-29): not pursuing a full resolution now** -- doing
+the real per-cell A/B optimization needed to resolve this properly
+across even a handful of affected cells cuts against the fast-
+turnaround priority established this session. Documented here as a
+known, real, structural degeneracy for whenever it's picked back up;
+`check_subharmonic_coherence.py` remains in the repo as a (currently
+inconclusive) starting point, not a working diagnostic.
+
 ## Suggested order of operations for a fresh session
 
 1. Read this file, then skim `sweep.py` itself (well-commented, ~700 lines).
