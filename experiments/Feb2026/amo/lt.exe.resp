@@ -2,11 +2,10 @@
 FLIP                           0.0015
 SPREAD_MIN                     0.000001
 SPREAD_MAX                     0.45
-MAXH                           10
+MAXH                           3
 -NH                             "1 1 1 1 1 1 1 1 1"
 NH                             "1 1 1 1 1 1"
-NH                             "1 1 1 1"
-NM                             2
+NH                             "1"
 YEAR                           0.00405305
 -DLOD_REF                       TRUE
 -LOCKT                          FALSE
@@ -21,3 +20,6 @@ JERK                           0.0
 -CAL_LOD                        -0.0002
 VALIDATE                      TRUE
 INIT_DATE                     1880.0
+LAYER                         1
+NM                             3
+--LAYER_K                        0.231889340633804

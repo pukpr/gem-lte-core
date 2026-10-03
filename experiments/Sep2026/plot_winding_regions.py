@@ -57,9 +57,10 @@ WINDING_CUTOFF = 5.0
 BIN_WIDTH = 0.1
 N_BINS = int(WINDING_CUTOFF / BIN_WIDTH) + 1  # last bin is the overflow bin
 
-# Categorical palette (dataviz skill's validated default, light mode)
-CLUSTER_COLORS = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4",
-                   "#008300", "#4a3aa7", "#e34948"]
+# Primary colors, per the user's explicit request (2026-09-29) -- overrides
+# the dataviz skill's normal validated categorical palette.
+CLUSTER_COLORS = ["red", "lightgreen", "dodgerblue", "black", "gray",
+                   "brown", "magenta", "cyan"]
 
 
 def decode(name: str) -> tuple[float, float]:
@@ -165,11 +166,18 @@ def main() -> None:
     for i, cell in enumerate(used_cells):
         lat, lon = coords[i]
         color = CLUSTER_COLORS[labels[i] % len(CLUSTER_COLORS)]
-        ax.plot(lon, lat, "o", color=color, markersize=5,
+        ax.plot(lon, lat, "o", color=color, markersize=15,
                 transform=ccrs.PlateCarree(), markeredgecolor="white",
                 markeredgewidth=0.4)
 
     bin_centers = np.arange(N_BINS) * BIN_WIDTH + BIN_WIDTH / 2
+
+    # Map latitude extent used for ax.set_extent above -- reused to find
+    # each inset's poleward target so it can be pushed toward that edge
+    # instead of sitting on top of the centroid (which blocks the dots).
+    NORTH_EDGE_LAT, SOUTH_EDGE_LAT = 80.0, -70.0
+    PUSH_FRAC = 0.85  # how far from the centroid toward that edge, 0=stay
+                       # put (old behavior), 1=sit right on the map edge
 
     for cluster_id in range(best_k):
         members = labels == cluster_id
@@ -182,6 +190,17 @@ def main() -> None:
         px, py = ax.projection.transform_point(c_lon, c_lat, ccrs.PlateCarree())
         px_disp, py_disp = ax.transData.transform((px, py))
         px_fig, py_fig = fig.transFigure.inverted().transform((px_disp, py_disp))
+
+        # Push the inset toward the map's north edge for a northern-
+        # hemisphere region's centroid, or the south edge for a southern
+        # one -- "if it is north Pacific, move it further north, and vice
+        # versa" -- so it clears the dot cluster it summarizes instead of
+        # sitting directly on top of it.
+        edge_lat = NORTH_EDGE_LAT if c_lat >= 0 else SOUTH_EDGE_LAT
+        ex, ey = ax.projection.transform_point(c_lon, edge_lat, ccrs.PlateCarree())
+        ex_disp, ey_disp = ax.transData.transform((ex, ey))
+        _, ey_fig = fig.transFigure.inverted().transform((ex_disp, ey_disp))
+        py_fig = py_fig + PUSH_FRAC * (ey_fig - py_fig)
 
         w, h = 0.14, 0.13
         inset = fig.add_axes((max(0.01, min(0.99 - w, px_fig - w / 2)),

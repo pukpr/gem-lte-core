@@ -29,6 +29,7 @@ with Ada.Numerics.Long_Elementary_Functions;
 with Ada.Exceptions;
 with Ada.Numerics.Generic_Real_Arrays;
 with GNAT.OS_Lib;
+with Ada.Directories;
 
 --  COMMENTED CODE: Matrix operations package
 --  TODO: Can remove - was for experimental matrix-based regression approach
@@ -36,6 +37,156 @@ with GNAT.OS_Lib;
 --with GEM.Matrices;
 
 package body GEM.LTE.Primitives is
+
+   --  AERO aerosol series (see the spec). Loaded once, at elaboration
+   --  (single-threaded), so the worker tasks only ever read it. The file
+   --  is checked with Ada.Directories.Exists first: an optional input
+   --  must never take the silent OS_Exit path Make_Data uses.
+   type Aero_Series is array (Positive range <>) of Long_Float;
+   type Aero_Series_P is access Aero_Series;
+   Aero_Dates, Aero_Values : Aero_Series_P := null;
+   Aero_Lag_Years : constant Long_Float := GEM.Getenv ("AERO_LAG", 0.0);
+
+   procedure Load_Aero is
+      Name : constant String := GEM.Getenv ("AERO", "");
+      FT   : Text_IO.File_Type;
+      Line : String (1 .. 256);
+      Last : Natural;
+      N    : Natural := 0;
+      Max  : constant := 100_000;
+      D, V : Aero_Series (1 .. Max);
+   begin
+      if Name'Length = 0 or else not Ada.Directories.Exists (Name) then
+         if Name'Length > 0 then
+            Text_IO.Put_Line ("AERO file " & Name & " not found -- aero off");
+         end if;
+         return;
+      end if;
+      Text_IO.Open (FT, Text_IO.In_File, Name);
+      while not Text_IO.End_Of_File (FT) and N < Max loop
+         Text_IO.Get_Line (FT, Line, Last);
+         declare
+            S     : constant String := Line (1 .. Last);
+            Split : Natural := 0;
+         begin
+            for I in S'Range loop
+               if S (I) = ' ' or S (I) = ASCII.HT or S (I) = ',' then
+                  if I > S'First then
+                     Split := I;
+                     exit;
+                  end if;
+               end if;
+            end loop;
+            if Split > S'First then
+               N := N + 1;
+               D (N) := Long_Float'Value (S (S'First .. Split - 1));
+               V (N) := Long_Float'Value (S (Split + 1 .. S'Last));
+            end if;
+         exception
+            when Constraint_Error =>
+               null;  -- header or malformed line: skip
+         end;
+      end loop;
+      Text_IO.Close (FT);
+      if N >= 2 then
+         Aero_Dates := new Aero_Series'(D (1 .. N));
+         Aero_Values := new Aero_Series'(V (1 .. N));
+         Text_IO.Put_Line ("AERO " & Name & ":" & N'Img & " rows, lag"
+                           & Aero_Lag_Years'Img & " yr");
+      end if;
+   end Load_Aero;
+
+   --  ALPHA piecewise gain (2026-10-02, replaces the exp(-alpha*|F-M_Min|)
+   --  envelope tried first): the summed winding (LTE modulation) term is
+   --  multiplied by ALPHA_GAIN while the manifold F is within an Alpha
+   --  fraction of its minimum negative excursion, F - M_Min <=
+   --  Alpha*|M_Min|, AND that term is positive; negative excursions and
+   --  everything outside the window are unchanged. Alpha_Gain itself only
+   --  answers the window question; callers apply the sign condition.
+   --  ALPHA_GAIN (default 2.0 = doubling) sets the factor.
+   Alpha_Boost : constant Long_Float := GEM.Getenv ("ALPHA_GAIN", 2.0);
+
+   function Alpha_Gain (F, M_Min, Alpha : Long_Float) return Long_Float is
+   begin
+      if Alpha > 0.0 and then F - M_Min <= Alpha * abs M_Min then
+         return Alpha_Boost;
+      else
+         return 1.0;
+      end if;
+   end Alpha_Gain;
+
+   --  ALPHA_SLOPE (months, default 0 = off): with a window W > 0 the
+   --  quantity tested by the ALPHA window is no longer the manifold value
+   --  but its SIGNED SLOPE, the centred difference over +/- W/2 months
+   --  (manifold units per year). ALPHA_SIGN selects the side: -1 (default)
+   --  gates on the steepest FALLING stretches, +1 on the steepest RISING
+   --  ones (the slope is negated so the same "within an Alpha fraction of
+   --  the minimum" test applies). Used for the original-quadrature
+   --  manifold, where the large El Ninos sit on strongly negative ~1 yr
+   --  slopes rather than at a manifold extreme.
+   Alpha_Slope_W : constant Integer := GEM.Getenv ("ALPHA_SLOPE", 0);
+   Alpha_Side    : constant Long_Float := GEM.Getenv ("ALPHA_SIGN", -1.0);
+
+   function Alpha_Signal (F : Data_Pairs; I : Integer) return Long_Float is
+   begin
+      if Alpha_Slope_W <= 0 then
+         return F (I).Value;
+      end if;
+      declare
+         H : constant Integer := Integer'Max (1, Alpha_Slope_W / 2);
+         A : constant Integer := Integer'Max (F'First, I - H);
+         B : constant Integer := Integer'Min (F'Last, I + H);
+         S : Long_Float := 0.0;
+      begin
+         if B > A and then F (B).Date > F (A).Date then
+            S := (F (B).Value - F (A).Value) / (F (B).Date - F (A).Date);
+         end if;
+         return (if Alpha_Side > 0.0 then -S else S);
+      end;
+   end Alpha_Signal;
+
+   function Aero_On return Boolean is (Aero_Dates /= null);
+
+   --  Signed power sign(X)*|X|**P; 0.0 at X = 0 (Long_Float "**" with a
+   --  real exponent is undefined for a zero or negative base).
+   function SPow (X, P : Long_Float) return Long_Float is
+      use Ada.Numerics.Long_Elementary_Functions;
+   begin
+      if X = 0.0 then
+         return 0.0;
+      elsif X > 0.0 then
+         return X**P;
+      else
+         return -((-X)**P);
+      end if;
+   end SPow;
+
+   function Aero_Lag return Long_Float is (Aero_Lag_Years);
+
+   function Aero_Value (Date : in Long_Float) return Long_Float is
+      T : constant Long_Float := Date - Aero_Lag_Years;
+   begin
+      if Aero_Dates = null
+        or else T < Aero_Dates (Aero_Dates'First)
+        or else T > Aero_Dates (Aero_Dates'Last)
+      then
+         return 0.0;
+      end if;
+      for I in Aero_Dates'First + 1 .. Aero_Dates'Last loop
+         if T <= Aero_Dates (I) then
+            declare
+               T0 : constant Long_Float := Aero_Dates (I - 1);
+               W  : constant Long_Float :=
+                 (if Aero_Dates (I) > T0
+                  then (T - T0) / (Aero_Dates (I) - T0) else 0.0);
+            begin
+               return Aero_Values (I - 1) +
+                 W * (Aero_Values (I) - Aero_Values (I - 1));
+            end;
+         end if;
+      end loop;
+      return Aero_Values (Aero_Values'Last);
+   end Aero_Value;
 
    --  Configuration flags from environment variables
    Aliased_Period : constant Boolean := GEM.Getenv ("ALIAS", False);
@@ -116,7 +267,11 @@ package body GEM.LTE.Primitives is
       if Name = "" then
          return 0;
       end if;
-      Text_IO.Open (File => Data, Mode => Text_IO.In_File, Name => Name);
+      --  "shared=yes": several tasks read the same reference file at once
+      --  (both threads' CompareRef in TEST_ONLY); without it GNAT raises
+      --  USE_ERROR "reopening shared file" and the caller got 0 records.
+      Text_IO.Open (File => Data, Mode => Text_IO.In_File, Name => Name,
+                    Form => "shared=yes");
       loop
          Text_IO.Skip_Line (Data);
          Count := Count + 1;
@@ -143,7 +298,11 @@ package body GEM.LTE.Primitives is
       if Lines = 0 then
          return Arr;
       end if;
-      Text_IO.Open (File => Data, Mode => Text_IO.In_File, Name => Name);
+      --  "shared=yes": several tasks read the same reference file at once
+      --  (both threads' CompareRef in TEST_ONLY); without it GNAT raises
+      --  USE_ERROR "reopening shared file" and the caller got 0 records.
+      Text_IO.Open (File => Data, Mode => Text_IO.In_File, Name => Name,
+                    Form => "shared=yes");
       for I in 1 .. Lines loop
          Ada.Long_Float_Text_IO.Get (File => Data, Item => Date);
          Ada.Long_Float_Text_IO.Get (File => Data, Item => Value);
@@ -615,7 +774,10 @@ package body GEM.LTE.Primitives is
       NonLin : in Long_Float := 1.0;
       Annual : in Annual_Harmonics := (0.0, 0.0, 0.0, 0.0);
       Third : in Long_Float := 0.0;
-      Accel_Ref : in Long_Float := Long_Float'First)
+      Accel_Ref : in Long_Float := Long_Float'First;
+      Aero : in Long_Float := 0.0;
+      Alpha : in Long_Float := 0.0;
+      M_Min : in Long_Float := 0.0)
       return Data_Pairs
    is
       Res : Data_Pairs := Forcing;
@@ -626,6 +788,7 @@ package body GEM.LTE.Primitives is
       for I in Forcing'Range loop
          declare
             LF : Long_Float := 0.0;
+            WS : Long_Float := 0.0;  -- summed winding (LTE modulation) term
             use Ada.Numerics.Long_Elementary_Functions;
             Pi : Long_Float := Ada.Numerics.Pi;
          begin
@@ -634,26 +797,48 @@ package body GEM.LTE.Primitives is
                   M : GEM.LTE.Amp_Phase renames Amp_Phase (J);
                   SW : Long_Float;
                begin
-                  SW :=
-                    Sin
-                      (2.0 * Pi * Wave_Numbers (J) * Res (I).Value + M.Phase) *
-                    Exp (Res (I).Value * Third);
-                  if SW < 0.0 then
-                     SW := -(abs SW)**NonLin;
+                  if NonLin = 1.0 then
+                     SW :=
+                       Sin
+                         (2.0 * Pi * Wave_Numbers (J) * Res (I).Value
+                          + M.Phase) *
+                       Exp (Res (I).Value * Third);
                   else
-                     SW := SW**NonLin;
+                     --  Same waveform Regression_Factors fits with
+                     --  NonLin /= 1: a*SPow(sin) + b*SPow(cos), where
+                     --  a = A cos(phase), b = A sin(phase) are exactly the
+                     --  regression's own sin/cos coefficients (reduces to
+                     --  A sin(theta + phase) at NonLin = 1). The former
+                     --  SPow(sin(theta + phase)) applied the power AFTER
+                     --  fitting amplitudes for a pure sinusoid, shrinking
+                     --  the model by ~8% (p=1.5) to ~15% (p=2).
+                     declare
+                        Theta : constant Long_Float :=
+                          2.0 * Pi * Wave_Numbers (J) * Res (I).Value;
+                     begin
+                        SW :=
+                          (Cos (M.Phase) * SPow (Sin (Theta), NonLin) +
+                           Sin (M.Phase) * SPow (Cos (Theta), NonLin)) *
+                          Exp (Res (I).Value * Third);
+                     end;
                   end if;
                   if Sinc > 0.0 then
-                     LF :=
-                       LF + M.Amplitude * SW / (abs (Res (I).Value) + Sinc);
+                     WS :=
+                       WS + M.Amplitude * SW / (abs (Res (I).Value) + Sinc);
                   else
-                     LF := LF + M.Amplitude * SW;
+                     WS := WS + M.Amplitude * SW;
                   end if;
                exception
                   when Constraint_Error =>
                      null;
                end;
             end loop;
+            --  ALPHA: boost the summed winding term only when it is
+            --  positive and the manifold is inside the Alpha window.
+            if Alpha > 0.0 and then WS > 0.0 then
+               WS := WS * Alpha_Gain (Alpha_Signal (Forcing, I), M_Min, Alpha);
+            end if;
+            LF := LF + WS;
             --  Integer exponent (2, not 2.0): Ada's "**" for a Long_Float
             --  base with a Long_Float exponent uses the general
             --  Exp(Y*Log(X)) formula, undefined (ARGUMENT_ERROR) for a
@@ -670,6 +855,9 @@ package body GEM.LTE.Primitives is
               Accel *
                 (Res (I).Date -
                    Effective_Accel_Ref)**2; -- K0 is wavenumber=0 solution
+            if Aero /= 0.0 then
+               LF := LF + Aero * Aero_Value (Res (I).Date);
+            end if;
             LF := LF + Annual.Ann1 * Sin(2.0 * Pi * Res (I).Date) 
                      + Annual.Ann2 * Cos(2.0 * Pi * Res (I).Date) 
                      + Annual.Semi1 * Sin(4.0 * Pi * Res (I).Date) 
@@ -1662,10 +1850,15 @@ package body GEM.LTE.Primitives is
       DAK0 : out Long_Float;
       Secular_Trend : in out Long_Float;
       Accel : out Long_Float;
+      Accel_Ref : out Long_Float;
+      Aero : out Long_Float;
       Singular : out Boolean;
       Annual : out Annual_Harmonics;
       Third : in Long_Float := 0.0;
-      IR : in Long_Float := 0.0)
+      IR : in Long_Float := 0.0;
+      NonLin : in Long_Float := 1.0;
+      Alpha : in Long_Float := 0.0;
+      M_Min : in Long_Float := 0.0)
    is
 
       use Ada.Numerics.Long_Elementary_Functions;
@@ -1674,9 +1867,24 @@ package body GEM.LTE.Primitives is
       Pi : Long_Float := Ada.Numerics.Pi;
       Trend : Boolean := Secular_Trend > 0.0;
       -- Add_Trend : Integer := Integer(Secular_Trend);
-      Add_Trend : Integer := 6 * Boolean'Pos (Trend);
+      --  ACCEL (default TRUE): include the (t - Accel_Ref)**2 column.
+      --  Opt-out added 2026-09-30: across the 89 Sep2026 quads the other
+      --  regressors already explain ~97% of that column, and dropping it
+      --  improved decade-blocked cross-validation in 63/89 quads with no
+      --  change to the prorated global fit. With ACCEL=FALSE, Accel := 0
+      --  and Secular_Trend is the plain linear rate.
+      Accel_On : constant Boolean := GEM.Getenv ("ACCEL", True);
+      --  Column layout after the 2 + 2*NM tidal columns (Base):
+      --  Base+1 cos(2 pi t), Base+2 sin(2 pi t), Base+3 cos(4 pi t),
+      --  Base+4 sin(4 pi t), Base+5 t, Base+6 (t - Accel_Ref)**2.
+      Base : constant Integer := 2 + NM * 2;
+      Add_Trend : Integer :=
+        (if Trend then (if Accel_On then 6 else 5) else 0);
+      --  Optional aerosol column, always the last one when AERO is set.
+      Aero_Col : constant Integer :=
+        (if Aero_On then Base + Add_Trend + 1 else 0);
       Num_Coefficients : constant Integer :=
-        2 + NM * 2 + Add_Trend; -- 4 for annual harmonics
+        Base + Add_Trend + Boolean'Pos (Aero_On);
       RData : Vector (1 .. Last - First + 1);
       Factors_Matrix : Matrix (1 .. Last - First + 1, 1 .. Num_Coefficients);
       Value : Long_Float;
@@ -1700,34 +1908,102 @@ package body GEM.LTE.Primitives is
         GEM.Getenv ("UNCOMPENSATED", False);
    begin
       Annual := (0.0, 0.0, 0.0, 0.0);
+      --  The Accel column below is (Date - Forcing (First).Date)**2;
+      --  returned so the caller evaluates the model around the SAME date
+      --  (Trend's meaning depends on it: rate(t) = Trend +
+      --  2*Accel*(t - Accel_Ref)).
+      Accel_Ref :=
+        (if First in Forcing'Range then Forcing (First).Date else 0.0);
+      Aero := 0.0;
       for I in First .. Last loop
          RData (I - First + 1) := Data_Records (I).Value;
          Factors_Matrix (I - First + 1, 1) := 1.0;  -- DC offset
          Factors_Matrix (I - First + 1, 2) := Forcing (I).Value;
          for K in DBLT'First .. NM loop  -- D.B.LT'First = 1
             Value :=
-              Sin (2.0 * Pi * DBLT (K) * Forcing (I).Value) *
-              Exp (Forcing (I).Value * Third);
+              Sin (2.0 * Pi * DBLT (K) * Forcing (I).Value);
+            if NonLin /= 1.0 then
+               Value := SPow (Value, NonLin);
+            end if;
+            Value := Value * Exp (Forcing (I).Value * Third);
             Factors_Matrix (I - First + 1, 3 + (K - 1) * 2) := Value;
             Value :=
-              Cos (2.0 * Pi * DBLT (K) * Forcing (I).Value) *
-              Exp (Forcing (I).Value * Third);
+              Cos (2.0 * Pi * DBLT (K) * Forcing (I).Value);
+            if NonLin /= 1.0 then
+               Value := SPow (Value, NonLin);
+            end if;
+            Value := Value * Exp (Forcing (I).Value * Third);
             Factors_Matrix (I - First + 1, 4 + (K - 1) * 2) := Value;
          end loop;
          if Trend then
-            Factors_Matrix (I - First + 1, Num_Coefficients - 2) := Sin(4.0 * Pi * Forcing (I).Date);
-            Factors_Matrix (I - First + 1, Num_Coefficients - 3) := Cos(4.0 * Pi * Forcing (I).Date);
-            Factors_Matrix (I - First + 1, Num_Coefficients - 4) := Sin(2.0 * Pi * Forcing (I).Date);
-            Factors_Matrix (I - First + 1, Num_Coefficients - 5) := Cos(2.0 * Pi * Forcing (I).Date);
-            Factors_Matrix (I - First + 1, Num_Coefficients - 1) :=
+            Factors_Matrix (I - First + 1, Base + 4) := Sin(4.0 * Pi * Forcing (I).Date);
+            Factors_Matrix (I - First + 1, Base + 3) := Cos(4.0 * Pi * Forcing (I).Date);
+            Factors_Matrix (I - First + 1, Base + 2) := Sin(2.0 * Pi * Forcing (I).Date);
+            Factors_Matrix (I - First + 1, Base + 1) := Cos(2.0 * Pi * Forcing (I).Date);
+            Factors_Matrix (I - First + 1, Base + 5) :=
               Forcing (I).Date;
             --  Integer exponent -- see the matching comment in LTE; base
             --  is never negative here (I ranges over First..Last of the
             --  same array) but kept consistent with the same safe form.
-            Factors_Matrix (I - First + 1, Num_Coefficients) :=
-              (Forcing (I).Date - Forcing (First).Date)**2;
+            if Accel_On then
+               Factors_Matrix (I - First + 1, Base + 6) :=
+                 (Forcing (I).Date - Forcing (First).Date)**2;
+            end if;
+         end if;
+         if Aero_On then
+            Factors_Matrix (I - First + 1, Aero_Col) :=
+              Aero_Value (Forcing (I).Date);
          end if;
       end loop;
+
+      --  ALPHA: the gain applies only where the manifold is inside the
+      --  Alpha window AND the summed winding term is POSITIVE (negative
+      --  excursions are left alone). That sign depends on the amplitudes
+      --  being fitted, so: pass 1 fits without the gain and gives the sign
+      --  of the winding sum on each row; the winding columns of the rows
+      --  that qualify are then scaled, and the regression below (pass 2)
+      --  is the one that counts. LTE applies the same rule to its own
+      --  winding sum; the two can only differ where that sum is ~0, where
+      --  the gain changes nothing.
+      if Alpha > 0.0 then
+         declare
+            Pass1_Matrix : Matrix := Factors_Matrix;
+         begin
+            if Uncompensated_Mode and then IR /= 0.0 then
+               for J in 1 .. Num_Coefficients loop
+                  for Row in reverse 13 .. Last - First + 1 loop
+                     Pass1_Matrix (Row, J) :=
+                       Pass1_Matrix (Row, J) - IR * Pass1_Matrix (Row - 12, J);
+                  end loop;
+               end loop;
+            end if;
+            declare
+               C1 : constant Vector :=
+                 Regression_Coefficients
+                   (Source => RData, Regressors => Pass1_Matrix);
+               G, WSum : Long_Float;
+            begin
+               if C1'Length > 0 then
+                  for Row in 1 .. Last - First + 1 loop
+                     G := Alpha_Gain
+                       (Alpha_Signal (Forcing, First + Row - 1), M_Min, Alpha);
+                     if G /= 1.0 then
+                        WSum := 0.0;
+                        for J in 3 .. Base loop
+                           WSum := WSum + C1 (J) * Factors_Matrix (Row, J);
+                        end loop;
+                        if WSum > 0.0 then
+                           for J in 3 .. Base loop
+                              Factors_Matrix (Row, J) :=
+                                Factors_Matrix (Row, J) * G;
+                           end loop;
+                        end if;
+                     end if;
+                  end loop;
+               end if;
+            end;
+         end;
+      end if;
 
       --  Fold L (the lag-12 delay differential) into every basis column,
       --  matching exactly how it's later applied to the combined LTE
@@ -1765,16 +2041,17 @@ package body GEM.LTE.Primitives is
                K := K + 2;
             end loop;
             if Trend then
-               Annual.Semi1 := Coefficients (Num_Coefficients - 2);
-               Annual.Semi2 := Coefficients (Num_Coefficients - 3);
-               Annual.Ann1 := Coefficients (Num_Coefficients - 4);
-               Annual.Ann2 := Coefficients (Num_Coefficients - 5);
-               Secular_Trend := Coefficients (Num_Coefficients - 1); --!!!
-               Accel := Coefficients (Num_Coefficients); --!!!
+               Annual.Semi1 := Coefficients (Base + 4);
+               Annual.Semi2 := Coefficients (Base + 3);
+               Annual.Ann1 := Coefficients (Base + 2);
+               Annual.Ann2 := Coefficients (Base + 1);
+               Secular_Trend := Coefficients (Base + 5); --!!!
+               Accel := (if Accel_On then Coefficients (Base + 6) else 0.0);
             else
                Secular_Trend := 0.0;
                Accel := 0.0;
             end if;
+            Aero := (if Aero_On then Coefficients (Aero_Col) else 0.0);
             Singular := False;
          end if;
       end;
@@ -1803,4 +2080,6 @@ package body GEM.LTE.Primitives is
       return Res;
    end Filter9Point;
 
+begin
+   Load_Aero;
 end GEM.LTE.Primitives;

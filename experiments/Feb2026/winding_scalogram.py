@@ -42,15 +42,30 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+_DEFAULT_ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(_DEFAULT_ROOT))
 from wavelet_scalogram import load_columns, standardize, DEFAULT_INDICES
 from param_survey import compute_winding
 
-ROOT = Path(__file__).resolve().parent
+
+def _resolve_root(idx: str, explicit_root: Path | None) -> Path:
+    """Pick the root directory to resolve *idx* under.
+
+    Priority: --root CLI arg > $WINDING_ROOT env var > script's own
+    directory (backward-compatible default)."""
+    if explicit_root is not None:
+        return explicit_root.resolve()
+    env = Path(env_val) if (env_val := __import__("os").environ.get("WINDING_ROOT")) else None
+    if env is not None:
+        return env.resolve()
+    return _DEFAULT_ROOT
 
 
-def load_ir(idx: str) -> float:
-    p = json.loads((ROOT / idx / "lt.exe.p").read_text())
+ROOT = _DEFAULT_ROOT  # kept for module-level callers; main() overrides below
+
+
+def load_ir(idx: str, root: Path) -> float:
+    p = json.loads((root / idx / "lt.exe.p").read_text())
     return float(p.get("IR", p.get("ir", 0.0)))
 
 
@@ -83,13 +98,13 @@ def uncompensate_yearly_feedback(values, ir):
     return uncompensated
 
 
-def detect_gaps(idx: str, threshold: float = 0.5):
+def detect_gaps(idx: str, root: Path, threshold: float = 0.5):
     """Real gaps in the underlying lte_results.csv time column (not the
     interpolated grid load_columns produces) -- e.g. brestexcl has a
     1944.33-1954.33 gap where no observations exist at all. Returns a list
     of (gap_start, gap_end) in years, for any consecutive-row jump larger
     than `threshold` years."""
-    year = np.loadtxt(ROOT / idx / "lte_results.csv", delimiter=",",
+    year = np.loadtxt(root / idx / "lte_results.csv", delimiter=",",
                        usecols=(0,))
     diffs = np.diff(year)
     gaps = []
@@ -264,14 +279,16 @@ def plot_panel(ax, t0_grid, m_grid, log_power, edge_mask, fitted_m, title,
 
 def make_winding_scalogram(idx: str, m_max: float, dm: float, sigma: float,
                             t0_step: float, outdir: Path | None,
-                            cmap: str = "viridis", stacked: bool = False):
-    csv_path = ROOT / idx / "lte_results.csv"
+                            cmap: str = "viridis", stacked: bool = False,
+                            root: Path | None = None):
+    root = _resolve_root(idx, root)
+    csv_path = root / idx / "lte_results.csv"
     if not csv_path.exists():
         print(f"  (skipping {idx}: no lte_results.csv)", file=sys.stderr)
         return
 
-    year, dt, model, obs, forcing = load_columns(idx)
-    ir = load_ir(idx)
+    year, dt, model, obs, forcing = load_columns(idx, root=root)
+    ir = load_ir(idx, root=root)
     model = uncompensate_yearly_feedback(model, ir)
     obs_s = standardize(obs)
     model_s = standardize(model)
@@ -284,7 +301,7 @@ def make_winding_scalogram(idx: str, m_max: float, dm: float, sigma: float,
               file=sys.stderr)
         return
 
-    gaps = detect_gaps(idx)
+    gaps = detect_gaps(idx, root=root)
     valid = valid_mask_from_gaps(year, gaps)
     if gaps:
         gap_desc = ", ".join(f"{s:.2f}-{e:.2f}" for s, e in gaps)
@@ -298,7 +315,7 @@ def make_winding_scalogram(idx: str, m_max: float, dm: float, sigma: float,
     gap_mask = gap_mask_obs | gap_mask_model
     floor = noise_floor(year, forcing, m_grid, t0_grid, sigma, valid=valid)
 
-    w = compute_winding(idx)
+    w = compute_winding(idx, root=root)
     fitted_m = np.abs(w["m"]) if w is not None else None
 
     log_power_obs = compute_log_power(G_obs)
@@ -361,7 +378,7 @@ def make_winding_scalogram(idx: str, m_max: float, dm: float, sigma: float,
     if stacked:
         fig.tight_layout(rect=(0, 0, 1, 0.96))
 
-    out_dir = outdir if outdir is not None else (ROOT / idx)
+    out_dir = outdir if outdir is not None else (root / idx)
     suffix = "" if cmap == "viridis" else f"_{cmap}"
     out_path = out_dir / f"winding_scalogram{suffix}.png"
     fig.savefig(out_path, dpi=140)
@@ -372,6 +389,10 @@ def make_winding_scalogram(idx: str, m_max: float, dm: float, sigma: float,
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("indices", nargs="*", default=DEFAULT_INDICES)
+    ap.add_argument("--root", type=Path, default=None,
+                     help="base directory to resolve index subdirs under "
+                          "(default: script's own directory; also "
+                          "overridable via $WINDING_ROOT)")
     ap.add_argument("--m-max", type=float, default=5.0,
                      help="max winding number shown (default 5.0)")
     ap.add_argument("--dm", type=float, default=0.01,
@@ -394,7 +415,7 @@ def main():
         print(f"-- {idx} --")
         make_winding_scalogram(idx, args.m_max, args.dm, args.sigma,
                                 args.t0_step, args.outdir, cmap=args.cmap,
-                                stacked=args.stacked)
+                                stacked=args.stacked, root=args.root)
 
 
 if __name__ == "__main__":

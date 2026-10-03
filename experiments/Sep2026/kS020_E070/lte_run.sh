@@ -5,7 +5,7 @@ cd "$(dirname "$0")"
 export CLIMATE_INDEX=kS020_E070.dat
 export DLOD_REF=TRUE
 export EXCLUDE=true
-export F9=0
+export F9=1
 export IDATE=1920.9
 export LOCKA=FALSE
 export LOCKT=FALSE

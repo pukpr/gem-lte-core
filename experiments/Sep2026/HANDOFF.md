@@ -67,6 +67,399 @@ cells' own current manifolds). No cell's `.resp` sets `MANIFOLD` yet
 either, so this is purely a capability landing, not yet exercised
 against a real mean-manifold file or a real ambiguous cell.
 
+**First live test on kN040_W050 (2026-09-29 evening, resumed after a power
+outage)**: `medianManifold.dat` (built by `build_manifold_reference.py`)
+flags kN040_W050 (CC=-0.04) and kS020_W010 (-0.30) as the only
+off-quadrature cells. Ran all 4 cascade attempts on a copy
+(`_manifold_test_kN040_W050/`, TIMEOUT=400, each from the SAME fresh
+seed = kN040_W050's accepted lt.exe.p, per-attempt outputs in
+`attempts/`). Backbone stays 0.2294 in all four. Results:
+
+| attempt | manifold CC vs median | raw fit CC all / excl 2000-05 | dLOD | gate |
+|---|---|---|---|---|
+| original (no MANIFOLD) | -0.041 | 0.775 / 0.785 | 0.9991 | -- |
+| VALIDATE=T DTW | +0.663 | 0.684 / 0.691 | 0.947 | fail (dLOD) |
+| VALIDATE=F DTW | +0.230 | 0.737 / 0.762 | 0.9989 | pass |
+| VALIDATE=T CC  | +0.372 | 0.767 / 0.791 | 0.992 | fail (dLOD) |
+| VALIDATE=F CC  | +0.290 | 0.748 / 0.776 | 0.987 | fail (dLOD) |
+
+The pre-outage run (attempt 3 chained on attempts 1-2, so ~3x400s of
+search) reached manifold CC +0.80 with raw fit 0.788/0.804, BETTER than
+the original on both counts -- so the regularizer does rotate the
+quadrature, but 400s from a wrong-quadrature seed isn't enough. Fresh
+400s runs are part-way there and currently cost some fit/dLOD.
+
+**Gotcha found**: the penalty multiplies EVERY Metric call, including the
+short 2000-2005 test/validate window reports. Over that 5yr slice the
+manifold-vs-median CC is often <=0 (e.g. -0.10, -0.74), so the PRINTED
+test/val1 scores come out exactly 0.0 / -0.0 -- they're penalized scores,
+not comparable to unregularized ledger scores (and they can trip
+`stiff()`/acceptance logic spuriously). Probably the penalty should apply
+only to the search objective (full/training Z), or use the full-record
+manifold CC, and the reported scores should stay raw. Not changed yet.
+
+**trend/accel bookkeeping fixed in the Ada (2026-09-29, uncommitted).**
+Two defects made lt.exe.windings.json (and stdout :trend:/:accel:)
+misdescribe the model's secular term; the MLR itself was always fine:
+1. Accel reference mismatch. Regression_Factors fits accel*(t-ref)**2
+   with ref = first date of its fit array (1950 under EXCLUDE, where
+   TRAIN_START..TRAIN_END=2000..2005 is the excluded TEST gap), but LTE
+   evaluated around Forcing(First).Date = 2000 (adadb00's fix assumed
+   TRAIN_START = training start). Fix: Regression_Factors now returns
+   `Accel_Ref` (out param; gem-dlod.adb caller updated) and LTE uses it.
+   Verified: identical trend/accel, column 2 changes by exactly
+   accel*((t-1950)**2-(t-2000)**2) (IR delay applied), CC 1.0000.
+2. SECULAR (default TRUE) took abs() of trend/accel AFTER the model was
+   built -- only the saved/printed values changed sign. Removed.
+   kS020_W010's MLR accel is -5.6e-6 (saved as +5.6e-6 before).
+windings.json now also has `secular_context`: accel_ref, fit_span,
+train_start_end + role, record span, rate at start/end, rise,
+lowest_winding. All 89 quads were re-evaluated in place with the fixed
+lt.exe (TEST_ONLY, own lte_run.sh settings, lte_run.sh/resp restored;
+pre-fix copies in the session scratchpad only). Every JSON now has
+secular_context, accel_ref=1950 everywhere; 42/89 MLR accels and 9/89
+trends are negative (all had been saved positive). No dLOD fell below
+0.994, none deadlocked. lt.exe.p changed only in ann1/ann2/sem1/sem2
+(write-only copies of the MLR's annual cycle, refreshed). 27 quads'
+lte_results.csv changed by more than the tilt; an old-binary re-run of
+each showed data/manifold columns identical to the new ones, i.e. those
+CSVs had been stale relative to lt.exe.p, and the model difference is
+the predicted tilt to within 6%. Prorated result (global_sst_from_quads.py):
+trend +0.084 C/decade, accel -1.16e-6 C/yr^2, rate +0.084 -> +0.082
+C/decade, secular rise +0.605 C; stage 2 model CC 0.950 raw / 0.855
+detrended. Printed CC of
+existing parameters drops very slightly under the corrected evaluation
+(kS020_W010 train 0.6895->0.6884, kN040_W050 0.7840->0.7838).
+Curvature budget (stage 3, corrected JSON): model total 1.19e-4
+C/yr^2 = data 1.19e-4; accel term -1%, lowest winding 31%, other
+windings 29%, k0*F 25% -- the curvature is carried by the sinusoids and
+the manifold term, not by accel.
+
+**ACCEL opt-out + overnight Feb2026 sweep (2026-09-30 ~01:00).**
+Python re-fit of all 89 Sep2026 quads (own manifold + windings, with vs
+without the (t-1950)**2 column): the other regressors explain a median
+97% of that column; training CC gain +0.0002; decade-blocked CV WORSE in
+63/89; 2000-05 holdout 46/89 better (coin toss); prorated global CC
+0.9471 without vs 0.9468 with. So `accel` adds nothing and destabilizes
+the trend/accel split. New env/resp var ACCEL (in gem.adb Options enum;
+default TRUE = byte-identical output, verified) drops the column in
+Regression_Factors (accel := 0, trend = plain linear rate); JSON
+secular_context records accel_enabled.
+Overnight: experiments/Feb2026_sweep/ = copy of the 89 Feb2026 quads +
+frozen lt.exe (00:49 build) + dlod3.dat; run_overnight_sweep.py runs
+each quad (6 parallel): resp standardized to EXCLUDE TRUE /
+TRAIN_START 2000 / TRAIN_END 2005 / ACCEL FALSE, TEST_ONLY baseline
+(DTW, VALIDATE=TRUE), sweep.py 4-attempt cascade (TIMEOUT 300),
+TEST_ONLY re-score, keep only if cascade gates pass and min(train,
+validate,test) >= baseline. Log sweep.log, per-quad results.jsonl,
+SWEEP_DONE + global_sst_from_quads.txt/.png at the end. Resumable: just
+re-launch `nohup setsid python3 run_overnight_sweep.py >> sweep.log 2>&1 &`
+(quads already in results.jsonl are skipped; an interrupted quad may
+need its folder re-copied from Feb2026 first). Feb2026 is untouched.
+
+**AERO volcanic-aerosol regression term (2026-09-30, uncommitted).**
+Per the CSALT post (geoenergymath.com/2014/03/12/csalt-volcanic-aerosols):
+AERO=<file> (two-column "date value") adds one MLR column
+Aero_Value(t) = series(t - AERO_LAG) and LTE adds aero*Aero_Value(t).
+Unset = off; verified byte-identical model output vs the previous build.
+Files in experiments/ext_data/: aero_saod.dat (GISS CMIP7 2.2.1 global
+cos-lat mean stratospheric AOD, 1850-2023) and aero_sparse.dat (VEI>=5
+sparse profile, the post's intensities /100, fast-rise/1-yr-decay pulse
+peaking ~0.3 yr after each eruption); CC 0.875 with each other 1950-2023.
+Both are aerosol LOADING; AERO_LAG (years) adds the temperature response
+delay (post: cooling minimum 8-16 months after eruption -> ~0.5-1.0).
+JSON: top-level "aero", secular_context aero_enabled/aero_file/aero_lag;
+stdout ":aero:". Coefficient < 0 = cooling. First check, kN000_W130 with
+its current params and 2000-2005 gap, lag 0.5: aero +1.25 (SAOD) /
++1.18 (sparse), i.e. WARMING -- the El Nino coincidence again; not yet
+tried with the 1980-1985 gap or inside a search.
+Also fixed in the same edit: after a search, trend/accel/aero/M/MAP
+reported and saved were the LAST evaluated candidate's (possibly
+rejected), not the kept one's; now stored at accept and restored after
+the loop (Keep_Trend etc.). All JSON files produced this week came from
+single TEST_ONLY evaluations, so they were not affected.
+
+**Sep2026 -> Feb2026_sweep same-metric merge (2026-09-30 afternoon).**
+All 89 Sep2026 parameter sets (.p + .resp) scored exactly like the
+overnight sweep (TEST_ONLY, DTW, VALIDATE=TRUE, EXCLUDE 2000-2005,
+ACCEL=FALSE; 3 controls reproduced the overnight scores exactly). Sep2026
+beat the sweep on 25 quads by min(train,validate,test); the 5 hand-tuned
+equatorial quads (AERO/NONLIN) were not touched. Installing all 24 lowered
+the global detrended CC (0.8710 -> 0.8698), so only the 8 that raise the
+global fit on their own AND keep manifold CC vs median >= 0.5 were kept:
+kN000_E150 kN020_W090 kN060_E170 kN060_W050 kS020_E010 kS040_E050
+kS040_E070 kS040_W130 (global detrended 0.8710 -> 0.8754 vs prorated
+data; 0.856 -> 0.860 vs Kaplan global). kN040_W050's Sep set helps
+globally but is the known off-quadrature one (-0.04), excluded. Backups
+and scoring in Feb2026_sweep/_sepcmp/ (final.json lists kept/reverted).
+
+**Collective R^2 on Feb2026_sweep + quadrature fixes (2026-09-30).**
+mlr_shared_windings.py / collective_r2_log.py / sweep_manifold.py now take
+--root DIR (default unchanged: Sep2026 reproduces 0.9464 exactly);
+sweep_manifold.py also takes --env KEY=VALUE and --donor QUAD.
+Collective R^2: Sep2026 0.9464, Feb2026 0.9425, Feb2026_sweep 0.9373 --
+two inherited off-quadrature quads (kN060_W170 -0.245, kS020_W090 -0.269
+manifold CC vs median). kN060_W170 fixed via neighbour seed kN060_E170 +
+MANIFOLD (CC +0.996, fit 0.643 -> 0.644, global SST det CC 0.8754 ->
+0.8751): collective 0.9382, per-quad min 0.502 -> 0.853. kS020_W090 NOT
+fixed: seeds kS020_W110 (90 s and 300 s) and kS020_W070 (300 s) all reach
+quadrature (+0.96) but fit only 0.59-0.64 vs its current 0.721; still
+off-quadrature. Backups in Feb2026_sweep/_qfix_backup/.
+
+**1880-1949 back-cast of the Feb2026_sweep quads (2026-09-30/10-01).**
+Each quad's Kaplan box series rebuilt 1880-2023 (matches the existing
+.dat exactly from 1950); TEST_ONLY with EXCLUDE=FALSE, fit 1950-2023
+only, model evaluated from 1880 (Feb2026_sweep/_backcast/, plot
+backcast_1880.png). Anchoring: non-extended quads (IDATE 1880, data from
+1950) were seeded at the first sample, so the back-cast sets IDATE 1949.99
+(IIR seeds Jan 1950, exact backward pass to 1880); IDATE >= 1950 kept;
+INIT_DATE/STRICT_IDATE quads unchanged. NOT INIT_DATE=1950: since adadb00
+("Option A") init always means the value at IDATE in strict mode; the
+comment block near solution.adb ~707-755 still describes the old meaning
+(stale). Result: all 89 manifolds reproduce 1950-2023 (81 exact, 8 to
+1e-5). Composite vs Kaplan global 1880-1949: raw CC +0.445 is mostly the
+backward-extrapolated linear trend term (+0.076 C/decade gives -0.75 C by
+1880 vs data ~-0.2); without it raw CC +0.489 and trends match (+0.021 vs
++0.026 C/decade). Band CC 1880-1949 (fit period in brackets): >20 yr +0.77
+(0.99), 7-20 yr +0.17 (0.91), 2-7 yr +0.08 (0.92), 1-2 yr +0.01 (0.73).
+Multidecadal shape transfers; interannual/ENSO timing does not.
+ALSO FOUND: lt.exe TEST_ONLY finishes in ~5 s but never exits (shutdown
+hang); every "2-minute" TEST_ONLY this week was the watcher's own timeout
+killing a finished process. Workaround in the back-cast runner: wait for
+the final dLOD lines + settled lte_results.csv, then kill the process
+group. Not fixed in Ada.
+
+**Alternate long-period quadrature sweep launched (2026-10-01 01:00).**
+experiments/Oct2026_altquad/run_altquad_sweep.py. Seeds: the full-record
+Sep2026 index fits amo, nino4, nino34, nino3, nino12 -- one shared manifold
+(pairwise CC +1.000), CC -0.28 vs Sep2026 medianManifold, backbone 0.1736
+(Feb2026's amo/nino4/nino34 are in the CURRENT quadrature, +0.95).
+All 89 quads freshly seeded (index .p + .resp, STRICT_IDATE TRUE so the
+1880-anchored init carries over -- verified: seeded quad reproduces the
+index manifold, CC 0.999998). MANIFOLD lock: altMedianManifold_seed.dat
+(z-median of the 5 index manifolds) for the 20 North Atlantic quads
+first, then altMedianManifold.dat rebuilt from accepted NA quads + indices
+for the rest (outward by distance). Per quad: 5 seeds x 300 s CC search,
+unpenalized TEST_ONLY DTW re-score; accept best min score with dLOD >=
+0.994, backbone in range, manifold CC >= 0.5 vs reference (else best kept
++ flagged). Results: results.jsonl, sweep.log, SWEEP_DONE,
+global_sst_from_quads.txt. Note: mlr_shared_windings' k-set assumes the
+0.207 backbone, so the collective R^2 does not apply to this set as is.
+
+**FIXED 2026-10-01: saved lt.exe.p did not reproduce the displayed/kept
+optimum (harmonics).** Root cause: harmonic multipliers live in the local
+Harms/Harms_Keep arrays; D.C is only read at start-up, so DKeep := D at
+accept carried the ORIGINAL file's harmonics, and the 09-29 save-time
+rebuild of M from DKeep.C (commit 5d66099) wrote those back as "harm".
+Any search that accepted a harmonic change saved a file whose reload gave
+a different regression (same manifold, same B params, different harm) and
+a lower score than displayed. Reproduced on kN000_W130 (reload model off
+by 0.2 C, 0.7938 displayed vs 0.7918 reloaded); unrelated to AERO/NONLIN.
+Fix: at accept, D.C(1..NH) := Harms before DKeep := D. Also the
+non-VALIDATE final report now uses the kept candidate (D := DKeep; Model
+:= KeepModel), as the VALIDATE branch already did -- the final score line
+was computed from the last-tried candidate. Verified: 8 replicates
+(3 with changed harmonics) reload to 1e-11; VALIDATE=FALSE displayed ==
+re-run exactly. With VALIDATE=TRUE the middle (validate) number can still
+differ slightly: it is the live running maximum across threads by design.
+Consequence for earlier sweeps (Feb2026_sweep overnight, Oct2026_altquad):
+their files are self-consistent (every kept result was re-scored with
+TEST_ONLY from the saved file) but harmonic improvements found during
+those searches were dropped at save. DEBUG_KEEP=TRUE (env) prints
+full-precision fingerprints at each accept and at save.
+Oct2026_altquad/lt.exe replaced with the fixed build (old one kept as
+lt.exe.sweep_build_0930).
+
+**CC refinement sweep of Oct2026_altquad (re)launched 2026-10-01 11:23.**
+Sep2026/sweep_cc_refine.py --root ../Oct2026_altquad --ref
+altMedianManifold.dat --ALL --timeout 250 --threads 4 --workers 4 (~1.8 h).
+Recipe = the user's post-save-fix run on kS040_W010 (fit CC 0.55 -> 0.72,
+manifold still locked): own current params, METRIC=CC, VALIDATE=TRUE, F9=1.
+Accept: train not lower, validate not lower by >0.01, 2000-05 test not
+lower by >0.10 (5-yr CC is noisy), dLOD >= 0.994, backbone in range,
+manifold CC >= 0.5 vs the alt reference; rejection reasons logged.
+Scratch copies in _refine/<quad>, backups _refine/backup/, results
+_refine/results.jsonl, refine.log, _refine/REFINE_DONE. Resumable.
+First launch (1000 s, 2 threads x 7) was stopped: it exposed two more
+lt.exe problems, both fixed 11:20 build:
+ - File_Lines/Make_Data opened reference files without "shared=yes"; two
+   tasks reading the dLOD file at once (TEST_ONLY: both threads save) hit
+   USE_ERROR "reopening shared file" -> 0 records.
+ - Regression_Factors' unconditional Accel_Ref := Forcing(First).Date
+   (added 09-30) then raised CONSTRAINT_ERROR on that empty array, killing
+   the thread before its dLOD line; now guarded.
+ The altquad overnight sweep was slowed by the same thing (runner waited
+ for two dLOD lines). Runners now wait for one dLOD line + quiet output,
+ retry reading lte_results.csv until complete, and kill lt.exe by cwd.
+
+**CC refinement sweep of Oct2026_altquad DONE (2026-10-01 13:28).**
+49/89 quads improved and installed, 40 unchanged (38 rejected only for the
+2000-05 test CC dropping >0.10, 1 validate, 1 dLOD 0.9931). Accepted: fit
+CC +0.06 median, train +0.07, validate +0.12, test -0.01. Global vs
+Kaplan: monthly 0.927/0.703 -> 0.940/0.768 (raw/detrended), 12-mo
+0.954/0.776 -> 0.963/0.838. The per-quad test gate matters: taking the 38
+test-only rejections too would raise the global detrended CC (0.782 ->
+0.802 vs prorated data) but drop the GLOBAL held-out 2000-05 CC from
++0.31 to +0.12. Held-out 2000-05 global window: Oct2026_altquad CC +0.31
+(detrended -0.18, RMSE 0.105) vs Feb2026_sweep +0.83 (+0.52, RMSE 0.053)
+-- but Feb2026_sweep's 2000-05 scores have been used for accept decisions
+over several rounds, so that window is no longer pristine there.
+ANOTHER lt.exe FIX (13:25 build): Save_Mutex serializes the final save
+block. In TEST_ONLY both threads save; with shared reads one thread read
+dlod_ref.dat while the other rewrote it -> END_ERROR, process aborted
+mid-save, 0-byte lte_results.csv (26/89 re-scores). sweep_cc_refine.py
+--rescore-failed redid just those re-scores (all 26 reported cleanly).
+
+**ALPHA piecewise manifold-minimum gain (2026-10-02, uncommitted; build
+01:37).** ALPHA (env/resp, default 0 = code skipped, output identical):
+winding sin/cos terms are multiplied by ALPHA_GAIN (default 2.0) while
+F - M_min <= ALPHA*|M_min| (manifold within an ALPHA fraction of its
+minimum negative excursion), unchanged otherwise; same function
+(Alpha_Gain) in Regression_Factors and LTE; M_min = min of the candidate's
+whole manifold; JSON secular_context has alpha, m_min. (A first version,
+exp(-ALPHA*|F-M_min|) on all windings, only removed response away from the
+minimum and was replaced.) Purpose: isolate conditions for super El Ninos.
+Findings (alt-quadrature kN000_W090/W110/W130 mean, and Sep2026/nino12):
+manifold min -40.9 at 1978.8, within 10% of it 1976-2003. Events switch on
+as ALPHA passes their manifold position: 1976 (6% above min) and 1987-88
+(5%) at 0.1 -- landing on the data (nino12 1976: 0.92 -> 1.53, data 1.53;
+quads 1987-88: 0.83 -> 1.29, data 1.18); 1997-98 (15%) at 0.2; 1982-83
+(20%) at 0.3; 1972 (34%) at 0.4. With gain 2 the overall fit is ~flat
+(nino12 CC 0.545 -> 0.550, skew 0.13 -> 0.39 vs data 1.21) but 1982-83 /
+1997-98 only reach ~1.2-1.5 vs ~4 observed. Raising ALPHA_GAIN (3,4,6)
+lifts them (to ~2.0-2.3) but overshoots 1976 (2.1 vs 1.53), zeroes events
+outside the window (2015-16, 1957) and lowers CC (0.47 at gain 6). So
+"manifold near its minimum" is necessary-looking for 1982-83/1997-98 but
+not sufficient (1976 shares it) and not necessary for 2015-16, 2023,
+1957, 1888 (manifold 75-105% above min).
+NOTE: Sep2026/nino12's saved lt.exe.p re-evaluates to fit CC 0.545, not
+the 0.636 of its lte_results.csv (pre-fix harmonic-save bug).
+
+**ALPHA gain now POSITIVE-ONLY (2026-10-02, build 02:35).** Per the user:
+inside the ALPHA window the gain applies only when the summed winding (LTE
+modulation) term is positive; negative excursions are unchanged. The sign
+depends on the fitted amplitudes, so Regression_Factors does two passes
+(pass 1 without gain -> sign of the winding sum per row -> scale the
+winding columns of qualifying rows -> pass 2 is the fit); LTE applies the
+same rule to its own winding sum (WS). ALPHA=0 verified identical
+(kN000_W090, diff 0.0). Sep2026/nino12 re-run in place with ALPHA 0.1 (the user had edited the resp to ALPHA 0.1, ALPHA_GAIN 2.0, VALIDATE off)
+(300 s, user's lte_run.sh settings): plot CC 0.649 (train 0.656,
+validation 0.41) vs 0.636 without ALPHA; model max 2.13 (was 1.68), model
+min unchanged (-2.01); skew 0.49 (0.38; data 1.21). Peaks: 1976 1.97
+(data 1.53), 1982-83 1.64 (3.91), 1997-98 1.01 (4.05). Pre-ALPHA folder
+kept as Sep2026/nino12_pre_alpha/.
+
+**Overnight ALPHA update of Oct2026_altquad launched 2026-10-02 03:07.**
+User: positive-only ALPHA "works excellent" on nino12 at ALPHA 0.25,
+ALPHA_GAIN 3.0. Oct2026_altquad/run_alpha_overnight.sh: two back-to-back
+passes (A, B) of Sep2026/sweep_cc_refine.py --ALL, 300 s, 4 threads x 4
+workers, with --force-set ALPHA=0.25 --force-set ALPHA_GAIN=3.0 on 15
+El Nino pathway quads only: equatorial Pacific kN000_E170/W170/W150/W130/
+W110/W090; N. America west coast kN020_W090 (box also covers part of the
+Gulf of Mexico), kN020_W110, kN040_W130, kN060_W130, kN060_W150; S.
+America west coast kS020_W090, kS020_W070, kS040_W070, kS060_W070. Forced
+quads always end with the setting (searched fit if it beats the baseline
+scored WITH ALPHA, else that baseline: action kept_old_with_settings).
+The other 74 quads: plain CC refinement. Outputs: refine_alpha_{A,B}.log,
+_refine_alpha_{A,B}/ (results.jsonl, backups), global_sst_alpha_{A,B}.txt,
+global_sst_from_quads_alpha_{A,B}.png, ALPHA_OVERNIGHT_DONE. Binary:
+Oct2026_altquad/lt.exe = 02:35 build (previous kept as
+lt.exe.build_1001_1325). Earlier pass-2 records in _refine_pass2/.
+Feb2026_sweep not touched.
+
+**Which quadrature? evidence + path (2026-10-02 morning).**
+ALPHA overnight on Oct2026_altquad finished 07:45 (passes A,B: 61 and 65
+improved); pathway El Nino peaks inside the manifold-min window up (eq
+Pacific 6-quad mean: 1982-83 0.72->0.95 of 1.47, 1987-88 0.68->0.98 of
+1.02, 1997-98 0.64->1.26 of 1.71), outside it down (1957, 1972, 2015).
+Global alt: monthly 0.949/0.811, held-out 2000-05 CC +0.16 (was +0.31,
++0.25: falling with each refinement pass).
+Comparison original (Feb2026_sweep) vs alternate (Oct2026_altquad):
+per-quad median detrended fit 0.620 vs 0.668 (alt better 55/89), per-quad
+held-out 0.29 vs 0.35; windings 8 vs 6; BUT global detrended CC 0.875 vs
+0.825 and global held-out 2000-05 +0.83 vs +0.16. Confounded: alt has had
+4 CC refinement passes with the fixed binary, original none. Same-quad
+residual CC between sets 0.66, global residual CC 0.75 (misfit mostly
+common). Basins: alt better in the Atlantic (+0.08..+0.15), original
+better in eq/N Pacific. Weak in both: kS040_E130, kS040_W070, kS040_W150,
+kN040_E150, kN040_E130, kN040_E010, kN020_W010, kN000_W010, kS020_E030.
+Pathway skew (data/orig/alt): eq Pacific +0.27/+0.05/+0.52, N America
+coast +0.17/-0.14/+0.26, S America coast +0.03/+0.11/+0.43 -> ALPHA
+removed from the 4 S. America coast quads (re-fit, ALPHA 0.0, all 4
+improved); ALPHA stays on 11 quads. Manifolds: CC(orig, d/dt alt)=+0.50,
+CC(alt, d/dt orig)=-0.04; the 4 largest El Ninos sit at low |slope| of
+the original manifold (<=28th pct), moderate ones at high slope (n=10).
+1880-1949 back-cast, alt (Oct2026_altquad/_backcast, all 89 manifolds
+reproduce exactly) vs original: raw +0.514 vs +0.445; no-trend raw +0.339
+vs +0.489; lin-detrended +0.42 vs +0.37; 12-mo +0.50 both; bands 2-7 yr
++0.19 vs +0.08, 7-20 yr -0.52 vs +0.17, >20 yr +0.85 vs +0.77. Plots
+Oct2026_altquad/backcast_1880_detrended_both.png, backcast_1880_both.png.
+IN PROGRESS (launched 09:17): Feb2026_sweep/run_refine_overnight.sh --
+two CC refinement passes of the original set (equal effort); outputs
+refine_{A,B}.log, _refine_{A,B}/, global_sst_refine_{A,B}.txt,
+REFINE_AB_DONE. Then compare on global + held-out + back-cast.
+
+**Equal-effort quadrature comparison (2026-10-02 15:10) -- DONE.**
+Feb2026_sweep refinement finished 13:52 (pass A 63, pass B 64 improved;
+backups in _refine_A/, _refine_B/). Both back-casts refreshed.
+Global (Kaplan, 1950-2023) original vs alternate: monthly raw/det
+0.960/0.880 vs 0.949/0.813; 12-mo 0.977/0.938 vs 0.971/0.879. Held-out
+2000-05 global CC +0.84 (RMSE 0.047) vs +0.18 (0.107); excluding
+kN000_W150/W170 (1980-85 gap in original) +0.74 vs +0.13. Per-quad
+median det fit 0.676 vs 0.668 (alt better 35/89; held-out 47/89).
+Basins: alt better S/eq Atlantic; original better N/eq Pacific.
+Pathway skew data/orig/alt: eq Pac +0.27/+0.05/+0.52; N Am coast
++0.17/-0.11/+0.26; S Am coast (ALPHA off) +0.03/+0.08/+0.17.
+1880-1949 back-cast lin-detr monthly: original +0.32 (was +0.37 BEFORE
+refinement), alternate +0.42; bands 2-7 yr -0.01 (was +0.08) vs +0.19;
+7-20 yr -0.01 (was +0.17) vs -0.52; >20 yr +0.79 vs +0.84. So CC
+refinement cost the original its small pre-1950 interannual skill.
+Weak in both: kS040_E130, kN020_W010, kS040_W150, kN000_W010, kN000_E070.
+OPEN (user to decide): step 5 = low-|dM/dt| gain for the original
+manifold (analogue of ALPHA); which quadrature to carry forward.
+
+**Slope-keyed ALPHA + forward prediction (2026-10-02 evening).**
+Ada: ALPHA_SLOPE (months; window tested on signed manifold slope) and
+ALPHA_SIGN (-1 falling, default) added, build 15:38 (previous kept as
+Feb2026/enso_opt.build_1002_0235). Scratch refits of kN000_W090/W110/W130
+(Feb2026_sweep/_slope/root_*): falling side is right; best W=13, ALPHA
+0.7, gain 2 (train CC 0.817->0.842, 0.806->0.825, 0.804->0.807; skew
+matches data; 1957/82/87/97 peaks near observed; 1972 and 2015 shrink;
+2000-05 held-out drops). Not installed in real quads. ALPHA ON HOLD per
+user. Forward prediction: experiments/Oct2026_forecast (forecast.py,
+verify.py, forecast_vs_observed.png, sstoi.indices). Observed Aug 2026:
+Nino3.4 +2.52, Nino3 +3.13, Nino1+2 +4.08. No model reaches it (Jun-Aug
+2026 model -0.4..+0.7); alt quads W110/W130/W150 + alt_nino3 forecast CC
++0.5..+0.8, original quads ~0; orig_nino4 best single (CC +0.62).
+
+**LAYER two-stage manifold (2026-10-02 evening, Feb2026/_layer/).**
+Env/resp LAYER (0 off; enum added): lowest winding M(1) leaves the MLR and
+builds a new manifold F2 from the tidal F after its first-order impA/impB
+Bessel correction: LAYER=1 F2 = offs*sin(2pi k1 Fb) + bg*cos(2pi k1 Fb),
+LAYER=2 F2 = Fb + that; higher windings regressed on F2; offs/bg (formerly
+only 2nd-order Bessel factors, dropped in this mode) hold the layer
+amplitude (user's suggestion; v1 used impA/impB and lost the Bessel
+correction). Build 18:16. AMO results: baseline/control (300 s search)
+0.780/0.624/0.572 -> 0.781/0.619/0.583 (train/val/test). v2 grid (168
+pts, fixed params): best 0.705 (A 10, k1 x0.75) vs 0.780. 300 s searches
+from the 3 best: 0.759/0.566/0.516, 0.755/0.420/0.397, 0.786/0.536/0.331
+-- one beats the control in training, none out of sample. The search
+barely moves offs/bg/k1 (one-of-~150 small relative steps). LAYER=2 not
+yet tested in v2. Scripts layer_test.py, layer_seed_scan.py,
+layer_grid.py (v1), layer_grid2.py (v2); results grid2_amo.json.
+
+**LAYER sweep of all quads launched 2026-10-03 01:05 (experiments/Oct2026_layer).**
+run_layer_sweep.py: seeds = user's Feb2026 LAYER=1 fits amo, pdo, nino4 (.p AND
+.resp; ltep = [layer k1 ~0.021, Bessel k ~0.232, regressed ~3.8-4.1 (+6.1 nino4)]).
+Per quad: 200 s CC search per seed, TEST_ONLY re-score, usable if dLOD >= 0.99,
+choose best mean(train, validate); then stage 2 adds one harmonic of the last
+regressed winding (kept if train +0.02, validate -0.03 max, dLOD >= 0.99).
+4 workers x 4 threads, ~6 h. Frozen binary Oct2026_layer/lt.exe. Outputs
+results.jsonl, sweep.log, SWEEP_DONE, installed quads in Oct2026_layer/<quad>.
+Also: AMO/PDO common-manifold round-robin in Feb2026/_rr (joint 0.490 -> 0.690;
+PDO searches push dLOD < 0.994; round 4 the balanced state). Smoke test
+kN040_W050: 0.782/0.755/0.712 with nino4 seed + harmonic.
+
 ## NEW GOVERNING PRINCIPLE: judge every future change by the COLLECTIVE measure, not per-cell scores (2026-09-28 ~21:30)
 
 Explicit reframing from the user: the objective from here on is to move

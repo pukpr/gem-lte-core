@@ -616,12 +616,22 @@ def backbone_ok(cell_dir: Path) -> bool:
     return bb is not None and BACKBONE_MIN <= abs(bb) <= BACKBONE_MAX
 
 
-def attempt(cell_dir: Path, validate: bool, metric: str, timeout_s: int) -> dict:
+def attempt(cell_dir: Path, validate: bool, metric: str, timeout_s: int,
+            manifold: str | None = None) -> dict:
     set_resp_key(cell_dir / "lt.exe.resp", "VALIDATE", "TRUE" if validate else "FALSE")
     overrides = dict(BASE_OVERRIDES)
     overrides["CLIMATE_INDEX"] = f"{cell_dir.name}.dat"
     overrides["METRIC"] = metric
     overrides["TIMEOUT"] = str(timeout_s)
+    # MANIFOLD quadrature-flip regularizer (2026-09-29) -- see
+    # build_manifold_reference.py and HANDOFF.md. Off (None) for the
+    # normal 89-cell sweep; only set for a cell explicitly opted into
+    # regularization against the collective reference, since this
+    # hasn't been validated project-wide yet, only on kN040_W050.
+    # `manifold` is a path AS SEEN FROM cell_dir (lte_run.sh does `cd
+    # "$(dirname "$0")"` first) -- typically "../medianManifold.dat".
+    if manifold is not None:
+        overrides["MANIFOLD"] = manifold
     write_lte_run_sh(cell_dir, overrides)
     # Each of the 4 cascade attempts (DTW/CC x VALIDATE TRUE/FALSE) must
     # start from the SAME donor-derived lt.exe.p, not from whatever
@@ -657,32 +667,37 @@ def solve_cell_triangulated(cell: str, timeout_s: int, k: int = 3,
     return result
 
 
-def _run_cascade(cell: str, cell_dir: Path, timeout_s: int) -> dict:
+def _run_cascade(cell: str, cell_dir: Path, timeout_s: int,
+                  manifold: str | None = None) -> dict:
     log = []
 
     def record(tag, res):
         log.append((tag, res))
 
     # Attempt 1: VALIDATE=TRUE, METRIC=DTW
-    r1 = attempt(cell_dir, validate=True, metric="DTW", timeout_s=timeout_s)
+    r1 = attempt(cell_dir, validate=True, metric="DTW", timeout_s=timeout_s,
+                 manifold=manifold)
     record("validate_true_dtw", r1)
     if not stiff(r1) and gate_ok(r1) and backbone_ok(cell_dir):
         return finalize(cell, "validate_true_dtw", r1, log)
 
     # Attempt 2: VALIDATE=FALSE, METRIC=DTW
-    r2 = attempt(cell_dir, validate=False, metric="DTW", timeout_s=timeout_s)
+    r2 = attempt(cell_dir, validate=False, metric="DTW", timeout_s=timeout_s,
+                 manifold=manifold)
     record("validate_false_dtw", r2)
     if not stiff(r2) and gate_ok(r2) and backbone_ok(cell_dir):
         return finalize(cell, "validate_false_dtw", r2, log)
 
     # Attempt 3: VALIDATE=TRUE, METRIC=CC -- fallback if DTW itself is stiff
-    r3 = attempt(cell_dir, validate=True, metric="CC", timeout_s=timeout_s)
+    r3 = attempt(cell_dir, validate=True, metric="CC", timeout_s=timeout_s,
+                 manifold=manifold)
     record("validate_true_cc", r3)
     if not stiff(r3) and gate_ok(r3) and backbone_ok(cell_dir):
         return finalize(cell, "validate_true_cc", r3, log)
 
     # Attempt 4 (final fallback): VALIDATE=FALSE, METRIC=CC
-    r4 = attempt(cell_dir, validate=False, metric="CC", timeout_s=timeout_s)
+    r4 = attempt(cell_dir, validate=False, metric="CC", timeout_s=timeout_s,
+                 manifold=manifold)
     record("validate_false_cc", r4)
     if gate_ok(r4) and backbone_ok(cell_dir):
         return finalize(cell, "validate_false_cc", r4, log)

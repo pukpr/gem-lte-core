@@ -58,6 +58,8 @@ is
    --  was tested but standard long-period constituents proved sufficient.
    -- & Gem.LTE.Long_Periods_Amp_Phase'((0.0,0.0), (0.0,0.0), (0.0,0.0));
    Level, K0, Trend, Accel : Long_Float := 0.0;  -- Regression constants
+   Accel_Ref : Long_Float := 0.0;  -- unused here, see Regression_Factors
+   Aero : Long_Float := 0.0;       -- unused here, see Regression_Factors
    Last_Time : Long_Float;
    Annual : Annual_Harmonics;
    Calibrate : constant Long_Float := GEM.Getenv ("CAL_LOD", 0.0);   
@@ -102,6 +104,8 @@ begin
       DAK0 => K0, 
       Secular_Trend => Trend,
       Accel => Accel, 
+      Accel_Ref => Accel_Ref,
+      Aero => Aero,
       Annual => Annual,
       Singular => Singular);
 

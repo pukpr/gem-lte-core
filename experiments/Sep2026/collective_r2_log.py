@@ -15,7 +15,8 @@ round). This log is the actual go/no-go signal for future work --
 compare consecutive entries, not per-cell scores, to judge whether a
 change helped or hurt.
 
-Usage: python3 collective_r2_log.py "label describing what just happened"
+Usage: python3 collective_r2_log.py "label describing what just happened" [--root DIR]
+(--root is passed through to mlr_shared_windings.py and recorded in the log)
 """
 import json
 import subprocess
@@ -30,10 +31,12 @@ LOG_PATH = sweep.HERE / "collective_r2_log.jsonl"
 
 
 def main() -> None:
-    label = sys.argv[1] if len(sys.argv) > 1 else "unlabeled checkpoint"
+    label = sys.argv[1] if len(sys.argv) > 1 and not sys.argv[1].startswith("--") else "unlabeled checkpoint"
+    extra = [a for a in sys.argv[1:] if a != label]
+    root = extra[extra.index("--root") + 1] if "--root" in extra else None
 
     proc = subprocess.run(
-        [sys.executable, str(sweep.HERE / "mlr_shared_windings.py")],
+        [sys.executable, str(sweep.HERE / "mlr_shared_windings.py")] + extra,
         capture_output=True, text=True, cwd=str(sweep.HERE),
     )
     out = proc.stdout
@@ -52,6 +55,7 @@ def main() -> None:
     entry = dict(
         timestamp=time.strftime("%Y-%m-%dT%H:%M:%S"),
         label=label,
+        root=root,
         overall_geo_smooth_r2=overall_line,
         independent_baseline=indep_line,
         summary=summary_lines,

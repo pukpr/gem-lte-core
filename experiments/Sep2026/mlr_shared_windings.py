@@ -28,8 +28,10 @@ Compared against two baselines to isolate what's doing the work:
       not R^2 against the manifold) but the closest available reference
       point for "how good is good".
 """
+import argparse
 import json
 import sys
+from pathlib import Path
 
 sys.path.insert(0, "/home/paul/eval/gem-lte-core/experiments/Sep2026")
 import sweep
@@ -76,16 +78,25 @@ def apply_ir_filter(raw: np.ndarray, ir: float) -> np.ndarray:
     return out
 
 
-def load_quads():
-    cells = sorted((p.name for p in sweep.FEB.iterdir()
-                     if p.is_dir() and sweep.parse_grid_name(p.name)))
+def load_quads(root: Path | None = None):
+    """Default: each quad's freshest lte_results.csv/lt.exe.p across
+    Feb2026 and Sep2026 (original behaviour). With root: that folder's
+    quads only, e.g. --root ../Feb2026_sweep."""
+    base = root if root is not None else sweep.FEB
+    cells = sorted((p.name for p in base.iterdir()
+                     if p.is_dir() and sweep.parse_grid_name(p.name)
+                     and (root is None or (p / "lte_results.csv").exists())))
     data = []
     for cell in cells:
-        path = m.freshest_results_csv(cell)
+        if root is not None:
+            path = root / cell / "lte_results.csv"
+            p_path = root / cell / "lt.exe.p"
+        else:
+            path = m.freshest_results_csv(cell)
+            p_path = max((sweep.FEB / cell / "lt.exe.p", sweep.HERE / cell / "lt.exe.p"),
+                         key=lambda p: p.stat().st_mtime if p.exists() else -1)
         times, forcing = m.read_time_and_forcing(path)
         lat, lon = sweep.parse_grid_name(cell)
-        p_path = max((sweep.FEB / cell / "lt.exe.p", sweep.HERE / cell / "lt.exe.p"),
-                     key=lambda p: p.stat().st_mtime if p.exists() else -1)
         ir = json.loads(p_path.read_text()).get("IR", 0.0)
         data.append(dict(cell=cell, times=np.array(times), forcing=np.array(forcing),
                           lat=lat, lon=lon, ir=ir))
@@ -180,9 +191,15 @@ def fit_independent_baseline(data):
 
 
 def main() -> None:
+    ap = argparse.ArgumentParser(description="Joint multi-quad shared-winding MLR (collective R^2).")
+    ap.add_argument("--root", type=Path, default=None,
+                    help="read every quad from this folder only (default: freshest of Feb2026/Sep2026)")
+    args = ap.parse_args()
+    if args.root is not None:
+        print(f"Quads from: {args.root.resolve()}")
     print(f"Candidate shared k-set ({len(CANDIDATE_KS)} windings): "
           f"{[round(k,4) for k in CANDIDATE_KS]}")
-    data = load_quads()
+    data = load_quads(args.root.resolve() if args.root is not None else None)
     print(f"Loaded {len(data)} quads\n")
 
     print("=== Baseline: fully independent per-quad amp/phase (same k-set) ===")

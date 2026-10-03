@@ -104,11 +104,41 @@ package GEM.LTE.Primitives.Shared is
    --  read back in anywhere or affect Save/Load/Dump or the optimization
    --  loop. Intended to let downstream tooling collect amplitude/phase
    --  data across many runs/indices without scraping stdout.
+   --
+   --  Ctx (optional) adds a "secular_context" block giving Trend/Accel the
+   --  dates they depend on. The MLR (Regression_Factors) fits, and LTE
+   --  evaluates, the secular part as
+   --     Trend * t + Accel * (t - Accel_Ref)**2      (t = decimal year)
+   --  with Accel_Ref = the first date of the array the MLR was handed.
+   --  Under EXCLUDE that is the record start: TRAIN_START/TRAIN_END then
+   --  bound the excluded TEST interval, not the training span.
+   type Secular_Context is record
+      Known          : Boolean    := False;
+      Accel_Ref      : Long_Float := 0.0;
+      Fit_Start      : Long_Float := 0.0;  -- first/last date regressed on
+      Fit_End        : Long_Float := 0.0;
+      Interval_Start : Long_Float := 0.0;  -- TRAIN_START/TRAIN_END dates
+      Interval_End   : Long_Float := 0.0;
+      Record_Start   : Long_Float := 0.0;
+      Record_End     : Long_Float := 0.0;
+      Exclude        : Boolean    := False;
+      Enclosing      : Boolean    := False;
+      Coverage       : Long_Float := 1.0;
+      Accel_Enabled  : Boolean    := True;  -- ACCEL env/resp setting
+      Aero_Enabled   : Boolean    := False; -- AERO file loaded
+      Aero_Coef      : Long_Float := 0.0;   -- fitted aerosol coefficient
+      Aero_Lag       : Long_Float := 0.0;   -- AERO_LAG, years
+      Alpha          : Long_Float := 0.0;   -- ALPHA gain fraction (0 = off)
+      M_Min          : Long_Float := 0.0;   -- manifold minimum used with it
+   end record;
+   No_Secular_Context : constant Secular_Context := (others => <>);
+
    procedure Save_Windings
      (Trend, Accel, K0, Level, IR : in Long_Float;
       M                           : in Modulations;
       MAP                         : in Modulations_Amp_Phase;
       NM, NH                      : in Integer;
-      B                           : in Param_B);
+      B                           : in Param_B;
+      Ctx                         : in Secular_Context := No_Secular_Context);
 
 end GEM.LTE.Primitives.Shared;

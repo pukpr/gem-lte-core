@@ -109,7 +109,7 @@ def print_outliers(data: dict[str, dict[str, float]], z_thresh: float = 1.5) -> 
         print("  (none)")
 
 
-def compute_winding(idx: str) -> dict | None:
+def compute_winding(idx: str, root: Path | None = None) -> dict | None:
     """Run forward() once for `idx` and pull out the Forcing->Model mapping's
     parameters: the winding frequencies (wave-numbers M — ltep's base modes
     plus their integer harmonics) with each one's fitted amplitude/phase,
@@ -118,7 +118,8 @@ def compute_winding(idx: str) -> dict | None:
     (with a printed warning) if the index can't be evaluated at all —
     exploratory tool, one bad index shouldn't kill the rest.
     """
-    idx_dir = ROOT / idx
+    r = root if root is not None else ROOT
+    idx_dir = r / idx
     p_path = idx_dir / "lt.exe.p"
     if not p_path.exists():
         return None

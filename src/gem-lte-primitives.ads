@@ -80,6 +80,10 @@ package GEM.LTE.Primitives is
    --  call site, using that call's own TRAIN_START-resolved First) to
    --  fix this whenever Model is built over an array other than the one
    --  Accel was fit on.
+   --  Quantity the ALPHA window is tested on at index I: the manifold
+   --  value, or (ALPHA_SLOPE > 0) its signed slope; see the body.
+   function Alpha_Signal (F : Data_Pairs; I : Integer) return Long_Float;
+
    function LTE
      (Forcing : in Data_Pairs; Wave_Numbers : in Modulations;
       Amp_Phase : in Modulations_Amp_Phase;
@@ -87,8 +91,28 @@ package GEM.LTE.Primitives is
       NonLin : in Long_Float := 1.0;
       Annual : in Annual_Harmonics := (0.0, 0.0, 0.0, 0.0);
       Third : in Long_Float := 0.0;
-      Accel_Ref : in Long_Float := Long_Float'First)
+      Accel_Ref : in Long_Float := Long_Float'First;
+      Aero : in Long_Float := 0.0;
+      --  ALPHA piecewise gain: each winding term is doubled while the
+      --  manifold F is within an Alpha fraction of its minimum negative
+      --  excursion (F - M_Min <= Alpha*|M_Min|), unchanged otherwise.
+      --  Alpha = 0.0 (default) = no effect.
+      --  Regression_Factors must be given the SAME Alpha and M_Min.
+      Alpha : in Long_Float := 0.0;
+      M_Min : in Long_Float := 0.0)
       return Data_Pairs;
+
+   --  AERO (file path, default unset = off): volcanic aerosol series, two
+   --  columns "date value" (e.g. stratospheric aerosol optical depth, or
+   --  a sparse eruption profile, per the CSALT model). When loaded,
+   --  Regression_Factors fits one extra coefficient (Aero) on
+   --  Aero_Value(t), and LTE adds Aero * Aero_Value(t) to the model.
+   --  AERO_LAG (years, default 0.0) shifts the series later in time:
+   --  Aero_Value(t) = series(t - AERO_LAG), linearly interpolated, and 0.0
+   --  outside the file's date range.
+   function Aero_On return Boolean;
+   function Aero_Value (Date : in Long_Float) return Long_Float;
+   function Aero_Lag return Long_Float;
 
    -- Query to determine if a Tidal Constituent value should not be changed
    -- This uses a float comparison and is really only used for tidal periods
@@ -104,10 +128,20 @@ package GEM.LTE.Primitives is
 
       DBLT : in Periods; DALTAP : out Amp_Phases; DALEVEL : out Long_Float;
       DAK0 : out Long_Float; Secular_Trend : in out Long_Float;
-      Accel : out Long_Float; Singular : out Boolean;
+      Accel : out Long_Float;
+      Accel_Ref : out Long_Float; -- date the Accel column is centred on
+      Aero : out Long_Float;      -- aerosol coefficient (0 if AERO unset)
+      Singular : out Boolean;
       Annual : out Annual_Harmonics;
       Third : in Long_Float := 0.0;
-      IR : in Long_Float := 0.0);
+      IR : in Long_Float := 0.0;
+      --  NONLIN power p: with p /= 1.0 each winding's two basis columns
+      --  are sign(sin)|sin|**p and sign(cos)|cos|**p, the same waveform
+      --  LTE evaluates (see LTE), so the fitted amplitudes are least-
+      --  squares optimal for it. p = 1.0 is the ordinary sin/cos basis.
+      NonLin : in Long_Float := 1.0;
+      Alpha : in Long_Float := 0.0;   -- see LTE
+      M_Min : in Long_Float := 0.0);
 
    --
    -- Utility procedures

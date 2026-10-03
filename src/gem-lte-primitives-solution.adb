@@ -56,8 +56,12 @@ package body GEM.LTE.Primitives.Solution is
    Is_Split : constant Boolean := GEM.Getenv ("SPLIT_TRAINING", False);
    Split_Low : constant Boolean := GEM.Getenv ("SPLIT_LOW", True);
    Alternate : constant Boolean := GEM.Getenv ("ALTERNATE", False);
-   Monotonic_Increase : constant Boolean :=
-     GEM.Getenv ("SECULAR", True); -- FALSE
+   --  SECULAR (formerly Monotonic_Increase) removed 2026-09-29: it took
+   --  abs() of Secular_Trend/Accel AFTER LTE had already built the model
+   --  from the signed MLR values, so it never constrained the model --
+   --  it only flipped the sign of what was printed and saved to
+   --  lt.exe.windings.json whenever the MLR found a negative trend or
+   --  accel (seen on kS020_W010: saved accel +5.6e-6, model used -5.6e-6).
    Trigger : Long_Float := GEM.Getenv ("TRIGGER", 0.999_999);
    Ratio : constant Long_Float := GEM.Getenv ("RATIO", 0.0);
    NLoops : constant Integer := GEM.Getenv ("NLOOPS", 20); --100
@@ -198,6 +202,32 @@ package body GEM.LTE.Primitives.Solution is
    --    - Optional trigger threshold (TRIGGER env var) can halt all threads
    --      when target metric reached
    --  =========================================================================
+   --  Serializes the final save block. In TEST_ONLY every thread saves, and
+   --  two threads writing lt.exe.p / lte_results.csv / dlod_ref.dat at once
+   --  (while the other reads dlod_ref.dat back) aborted mid-save with
+   --  END_ERROR, leaving a 0-byte lte_results.csv (26 of 89 re-scores,
+   --  2026-10-01). Release is a no-op unless the caller is the owner, so the
+   --  exception handler can call it unconditionally.
+   protected Save_Mutex is
+      entry Seize (Who : in Integer);
+      procedure Release (Who : in Integer);
+   private
+      Owner : Integer := -1;
+   end Save_Mutex;
+
+   protected body Save_Mutex is
+      entry Seize (Who : in Integer) when Owner = -1 is
+      begin
+         Owner := Who;
+      end Seize;
+      procedure Release (Who : in Integer) is
+      begin
+         if Owner = Who then
+            Owner := -1;
+         end if;
+      end Release;
+   end Save_Mutex;
+
    protected Monitor is
       procedure Check
         (Metric : in Long_Float;
@@ -237,7 +267,7 @@ package body GEM.LTE.Primitives.Solution is
          Forcing : in Data_Pairs;
          M : in Modulations;
          MAP : in Modulations_Amp_Phase;
-         Trend, Accel : in Long_Float;
+         Trend, Accel, Aero : in Long_Float;
          Validate_Score : in Long_Float;
          Am_I_Last : out Boolean);
       procedure Winner
@@ -246,7 +276,7 @@ package body GEM.LTE.Primitives.Solution is
          Forcing : out Data_Pairs;
          M : out Modulations;
          MAP : out Modulations_Amp_Phase;
-         Trend, Accel : out Long_Float);
+         Trend, Accel, Aero : out Long_Float);
 
       --  Non-blocking peek at the SAME three numbers the live Status
       --  display shows (Best_Metric/Best_OOB/Best_Validate_Live) --
@@ -304,6 +334,7 @@ package body GEM.LTE.Primitives.Solution is
       Best_Validate_MAP : Final_MAP_P := null;
       Best_Validate_Trend : Long_Float := 0.0;
       Best_Validate_Accel : Long_Float := 0.0;
+      Best_Validate_Aero : Long_Float := 0.0;
    end Monitor;
 
    protected body Monitor is
@@ -414,6 +445,7 @@ package body GEM.LTE.Primitives.Solution is
          Best_Validate_MAP := null;
          Best_Validate_Trend := 0.0;
          Best_Validate_Accel := 0.0;
+         Best_Validate_Aero := 0.0;
       end Reset;
 
       procedure Report_Final
@@ -422,7 +454,7 @@ package body GEM.LTE.Primitives.Solution is
          Forcing : in Data_Pairs;
          M : in Modulations;
          MAP : in Modulations_Amp_Phase;
-         Trend, Accel : in Long_Float;
+         Trend, Accel, Aero : in Long_Float;
          Validate_Score : in Long_Float;
          Am_I_Last : out Boolean)
       is
@@ -441,6 +473,7 @@ package body GEM.LTE.Primitives.Solution is
             Best_Validate_MAP := new Modulations_Amp_Phase'(MAP);
             Best_Validate_Trend := Trend;
             Best_Validate_Accel := Accel;
+            Best_Validate_Aero := Aero;
          end if;
          Threads_Reported := Threads_Reported + 1;
          Am_I_Last := Threads_Reported >= Validate_Thread_Count;
@@ -452,7 +485,7 @@ package body GEM.LTE.Primitives.Solution is
          Forcing : out Data_Pairs;
          M : out Modulations;
          MAP : out Modulations_Amp_Phase;
-         Trend, Accel : out Long_Float)
+         Trend, Accel, Aero : out Long_Float)
       is
       begin
          D := Best_Validate_D.all;
@@ -462,6 +495,7 @@ package body GEM.LTE.Primitives.Solution is
          MAP := Best_Validate_MAP.all;
          Trend := Best_Validate_Trend;
          Accel := Best_Validate_Accel;
+         Aero := Best_Validate_Aero;
       end Winner;
 
       procedure Current
@@ -986,6 +1020,47 @@ package body GEM.LTE.Primitives.Solution is
          return M;
       end Bessel;
 
+      --  LAYER (default 0 = off): two-stage manifold. The LOWEST winding
+      --  M(1) is taken out of the MLR and instead builds a new manifold
+      --  from the tidal one F (after its usual first-order Bessel
+      --  correction by impA/impB, which keep their meaning),
+      --     LAYER=1:  F2 = eS*sin(2 pi M(1) F) + eC*cos(2 pi M(1) F)
+      --     LAYER=2:  F2 = F + the same term
+      --  and the remaining windings M(2..) are regressed on F2. eS/eC are
+      --  the offs/bg search parameters (otherwise only the Bessel stage's
+      --  second-order factors, dropped in this mode), so the lowest
+      --  winding's amplitude and phase (and M(1) itself) are found
+      --  iteratively by the search, not by the regression. Needs NM >= 2.
+      Layer : constant Integer := GEM.Getenv ("LAYER", 0);
+      --  LAYER_K (default 0 = off): wavenumber of the impA/impB Bessel
+      --  correction in LAYER mode. By default that is M(NM) (M(NM-1)
+      --  with LOCKF), i.e. it moves when NM changes; reducing NM to a
+      --  single regressed winding would then re-key the correction to
+      --  that winding and change the layered manifold. LAYER_K pins it
+      --  (e.g. to the old backbone).
+      --  With NM >= 3 (and LAYER_K unset) the Bessel wavenumber is instead
+      --  the SECOND winding M(2), which then also leaves the MLR: M(1)
+      --  builds the layer, M(2) keys the Bessel correction, M(3..) (and
+      --  integer harmonics of M(NM)) are regressed -- all three found
+      --  independently by the search.
+      Layer_K : constant Long_Float := GEM.Getenv ("LAYER_K", 0.0);
+
+      function Layered
+        (Model : in Data_Pairs; eS, eC, k : in Long_Float) return Data_Pairs
+      is
+         M : Data_Pairs := Model;
+         Pi : constant Long_Float := Ada.Numerics.Pi;
+         use Ada.Numerics.Long_Elementary_Functions;
+         W : Long_Float;
+      begin
+         for I in Model'Range loop
+            W := eS * Sin (2.0 * Pi * k * M (I).Value)
+               + eC * Cos (2.0 * Pi * k * M (I).Value);
+            M (I).Value := (if Layer = 2 then M (I).Value + W else W);
+         end loop;
+         return M;
+      end Layered;
+
       function Frictional (Model : in Data_Pairs;
                            Offset, Saturate, Eps : in Long_Float) return Data_Pairs
       is
@@ -1210,6 +1285,51 @@ package body GEM.LTE.Primitives.Solution is
          end if;
       end Excluded;
 
+      --  The region Regression_Factors is handed (same choice as its
+      --  call site); used to report the fit span. Under EXCLUDE it is the
+      --  record minus the TRAIN_START..TRAIN_END test gap.
+      --  DEBUG_KEEP (env, default off): full-precision fingerprints of a
+      --  candidate, printed at every accept and again at save, to check
+      --  that what is saved is what was kept (2026-10-01 investigation).
+      Debug_Keep : constant Boolean := GEM.Getenv ("DEBUG_KEEP", False);
+
+      procedure Fingerprint
+        (Tag : String; P : GEM.LTE.Primitives.Shared.Param_S;
+         Mdl, Frc : Data_Pairs; Mv : Modulations; H : Ns;
+         T, Ae, CCv : Long_Float; Who : Integer)
+      is
+         SM, SF, SK, SL : Long_Float := 0.0;
+         function HS (X : Ns) return String is
+           (if X'Length = 0 then ""
+            else X (X'First)'Img & HS (X (X'First + 1 .. X'Last)));
+      begin
+         if not Debug_Keep then
+            return;
+         end if;
+         for I in Mdl'Range loop
+            SM := SM + Mdl (I).Value;
+            SF := SF + Frc (I).Value;
+         end loop;
+         for I in Mv'Range loop
+            SK := SK + Mv (I);
+         end loop;
+         for I in P.B.LPAP'Range loop
+            SL := SL + P.B.LPAP (I).Amplitude + P.B.LPAP (I).Phase;
+         end loop;
+         Text_IO.Put_Line
+           ("KEEPDBG " & Tag & Who'Img & " cc" & CCv'Img & " sumModel" & SM'Img
+            & " sumForcing" & SF'Img & " sumM" & SK'Img & " trend" & T'Img
+            & " aero" & Ae'Img & " level" & P.A.level'Img & " k0" & P.A.k0'Img
+            & " init" & P.B.init'Img & " IR" & P.B.IR'Img & " impC" & P.B.ImpC'Img
+            & " mP" & P.B.mP'Img & " year" & P.B.Year'Img & " sumLPAP" & SL'Img
+            & " harm" & HS (H));
+      end Fingerprint;
+
+      function Fit_Region (D : Data_Pairs) return Data_Pairs is
+        (if Coverage < 1.0 then Coverage_Region (D)
+         elsif Enclosing then Lower_Region (D)
+         else Excluded (D));
+
       Max_Harmonics : Positive := GEM.Getenv ("MAXH", 1_000);
 
       ------------------------------------------------------------------------
@@ -1273,6 +1393,34 @@ package body GEM.LTE.Primitives.Solution is
       M : Modulations (1 .. NM + NH);
       MAP : Modulations_Amp_Phase (1 .. NM + NH);
       Accel : Long_Float;
+      --  Date Regression_Factors centred Accel on (its own return value,
+      --  never re-derived here); LTE and the windings JSON use it as-is.
+      Accel_Ref : Long_Float := 0.0;
+      Aero : Long_Float := 0.0;  -- AERO coefficient (0 when AERO unset)
+      --  ALPHA (default 0.0 = off): winding terms are doubled while
+      --  F - M_Min <= Alpha*|M_Min|. M_Min is the minimum of the WHOLE
+      --  manifold for the candidate being evaluated (not the training rows
+      --  only), computed once and handed to both Regression_Factors and
+      --  LTE so the fit and the evaluation use the same envelope.
+      Alpha : constant Long_Float := GEM.Getenv ("ALPHA", 0.0);
+      M_Min : Long_Float := 0.0;
+
+      function Manifold_Min (F : Data_Pairs) return Long_Float is
+         V : Long_Float := Alpha_Signal (F, F'First);
+      begin
+         for I in F'Range loop
+            V := Long_Float'Min (V, Alpha_Signal (F, I));
+         end loop;
+         return V;
+      end Manifold_Min;
+      --  The accepted (kept) candidate's regression outputs. Model,
+      --  Forcing and D are already kept at accept time (KeepModel,
+      --  KeepForcing, DKeep); these were not, so after the search loop
+      --  the reported trend/accel/windings came from the LAST candidate
+      --  evaluated, which may have been rejected. Restored after the loop.
+      Keep_Trend, Keep_Accel, Keep_Aero : Long_Float := 0.0;
+      Keep_M : Modulations (1 .. NM + NH);
+      Keep_MAP : Modulations_Amp_Phase (1 .. NM + NH);
       Annual_Cycle : Annual_Harmonics;
       Keep_Initial_Value, Init_Value0 : Long_Float := 0.0;
 
@@ -1575,7 +1723,15 @@ package body GEM.LTE.Primitives.Solution is
             --  own basis columns instead (see IR parameter below).
             
 --            DR := Annual_Add (DR, -1.0);
-            if Has_Friction then
+            if Layer > 0 and then NM >= 2 then
+               Forcing := Layered
+                 (Bessel (Forcing, D.B.ImpA, D.B.ImpB,
+                          (if Layer_K > 0.0 then Layer_K
+                           elsif NM >= 3 then M (2)
+                           elsif Lock_Freq then M (NM - 1) else M (NM)),
+                          0.0, 0.0, 0.0),
+                  D.B.Offset, D.B.bg, M (1));
+            elsif Has_Friction then
                Forcing := Frictional(Forcing, D.B.ImpA, D.B.ImpB, 0.0);
             elsif NM = 1 then
                Forcing := Bessel(Forcing, D.B.ImpA, D.B.ImpB, M(NM)*(1.0-D.B.BG), 0.0, D.B.Offset, D.B.bg);
@@ -1586,6 +1742,20 @@ package body GEM.LTE.Primitives.Solution is
                   Forcing := Bessel(Forcing, D.B.ImpA, D.B.ImpB, M(NM), M(NM-1), D.B.Offset, D.B.bg);
                end if;
             end if;
+            if Alpha /= 0.0 then
+               M_Min := Manifold_Min (Forcing);
+            end if;
+            declare
+               --  LAYER: the lowest winding is not a regressor.
+               Lo : constant Integer :=
+                 (if Layer > 0 and then NM >= 3 and then Layer_K <= 0.0
+                  then 3
+                  elsif Layer > 0 and then NM >= 2 then 2 else 1);
+               RM : constant Modulations (1 .. NM + NH - Lo + 1) :=
+                 M (Lo .. NM + NH);
+               RMAP : Modulations_Amp_Phase (1 .. NM + NH - Lo + 1) :=
+                 MAP (Lo .. NM + NH);
+            begin
             Regression_Factors
               (Data_Records =>
                  (if Coverage < 1.0 then Coverage_Region (DR)
@@ -1595,18 +1765,32 @@ package body GEM.LTE.Primitives.Solution is
                  (if Coverage < 1.0 then Coverage_Region (Forcing)
                   elsif Enclosing then Lower_Region (Forcing)
                   else Excluded (Forcing)),  -- Value @ Time
-               NM => NM + NH, -- # modulations
-               DBLT => M, --D.B.LT,
-               DALTAP => MAP, --D.A.LTAP,
+               NM => RM'Length, -- # modulations
+               DBLT => RM, --D.B.LT,
+               DALTAP => RMAP, --D.A.LTAP,
                DALEVEL => D.A.level,
                DAK0 => D.A.k0, 
                Secular_Trend => Secular_Trend, 
                Accel => Accel,
+               Accel_Ref => Accel_Ref,
+               Aero => Aero,
                Singular => Singular, 
                Annual => Annual_Cycle,
                Third => 0.0,
-               IR => D.B.IR
+               IR => D.B.IR,
+               NonLin => NonLin,
+               Alpha => Alpha,
+               M_Min => M_Min
             );
+            MAP (Lo .. NM + NH) := RMAP;
+            --  Zero amplitude for the windings that are not regressors
+            --  (layer, and Bessel with NM >= 3): LTE (given the full
+            --  arrays) then adds nothing for them, and the windings JSON
+            --  shows them as 0.
+            for J in 1 .. Lo - 1 loop
+               MAP (J) := (Amplitude => 0.0, Phase => 0.0);
+            end loop;
+            end;
             if Climate_Trend and then not Singular then
                D.B.Ann1 := Annual_Cycle.Ann1;
                D.B.Ann2 := Annual_Cycle.Ann2;
@@ -1634,20 +1818,17 @@ package body GEM.LTE.Primitives.Solution is
                     NonLin => NonLin,
                     Annual => Annual_Cycle,
                     Third => 0.0,
-                    --  Anchor Accel's own reference date at the SAME
-                    --  point Regression_Factors actually fit it against
-                    --  (Forcing(First).Date, using this scope's own
-                    --  TRAIN_START-resolved First) rather than LTE's
-                    --  default (Forcing'First's date on WHATEVER array
-                    --  it's evaluated over) -- see LTE's own Accel_Ref
-                    --  doc comment for why these silently diverge
-                    --  whenever Model is built over a longer array than
-                    --  Accel was fit on.
-                    Accel_Ref => Forcing (First).Date);
-               if Monotonic_Increase then
-                  Secular_Trend := abs Secular_Trend;
-                  Accel := abs Accel;
-               end if;
+                    --  Anchor Accel at the date Regression_Factors
+                    --  itself reports centring it on. Forcing(First).Date
+                    --  (used before) is only that date when EXCLUDE is
+                    --  off; under EXCLUDE, First is the start of the
+                    --  excluded test gap, which re-centred Accel on 2000
+                    --  while the fit used 1950 -- a linear tilt of
+                    --  100*Accel per year relative to the model's own MLR.
+                    Accel_Ref => Accel_Ref,
+                    Aero => Aero,
+                    Alpha => Alpha,
+                    M_Min => M_Min);
 
 --               Model := Annual_Add (Model);
                if D.B.ImpC /= 0.0 then
@@ -1672,6 +1853,11 @@ package body GEM.LTE.Primitives.Solution is
                for F in 1 .. Filter9Pt loop
                   Model := Filter9Point (Model);
                end loop;
+            elsif Filter9Pt < 0 then
+               --  F9 < 0: no filtering of any kind, on either side (Data
+               --  is only filtered for F9 > 0, above). Added 2026-09-30 to
+               --  expose sub-annual structure the default filters hide.
+               null;
             else
                -- extra filtering, 2 equal-weighted 3-point box windows creating triangle
                Model := Median (Model);
@@ -1798,11 +1984,29 @@ package body GEM.LTE.Primitives.Solution is
             Keep := Set;
             KeepModel := Model;
             KeepForcing := Forcing;
+            --  The harmonic multipliers live in the local Harms array;
+            --  D.C is only read once at start-up. Without copying them
+            --  here, DKeep carried the ORIGINAL file's harmonics, and the
+            --  save-time rebuild of M from DKeep.C (2026-09-29) wrote
+            --  those back to lt.exe.p -- so a search that accepted a
+            --  harmonic change saved a file that did not reproduce its
+            --  own kept model (reload scored lower than displayed).
+            for I in 1 .. NH loop
+               exit when I > D.C'Last;
+               D.C (I) := Harms (I);
+            end loop;
             DKeep := D;
+            Keep_Trend := Secular_Trend;
+            Keep_Accel := Accel;
+            Keep_Aero := Aero;
+            Keep_M := M;
+            Keep_MAP := MAP;
             if Catchup then  -- save it for other threads to reset from
                GEM.LTE.Primitives.Shared.Put (D);
             end if;
             Harms_Keep := Harms;
+            Fingerprint ("accept", D, Model, Forcing, M, Harms,
+                         Secular_Trend, Aero, CorrCoeff, ID);
          elsif Local_Max and CorrCoeff > Prior_Best_CC then
             -- Don't revert to Keep values
             Prior_Best_CC := CorrCoeff;
@@ -1924,6 +2128,15 @@ package body GEM.LTE.Primitives.Solution is
 
       end loop;
       Monitor.Stop;
+      if Ever_Accepted then
+         --  Report the KEPT candidate's regression outputs, matching
+         --  KeepModel/DKeep (see Keep_Trend's declaration).
+         Secular_Trend := Keep_Trend;
+         Accel := Keep_Accel;
+         Aero := Keep_Aero;
+         M := Keep_M;
+         MAP := Keep_MAP;
+      end if;
 
       --  DEADLOCK GUARD: KeepModel's/DKeep's own declaration-time
       --  initializers (`:= Data_Records` / `:= D`) are a plain
@@ -1979,7 +2192,7 @@ package body GEM.LTE.Primitives.Solution is
                Monitor.Report_Final
                  (D => DKeep, Model => KeepModel, Forcing => KeepForcing,
                   M => M, MAP => MAP,
-                  Trend => Secular_Trend, Accel => Accel,
+                  Trend => Secular_Trend, Accel => Accel, Aero => Aero,
                   --  A deadlocked thread's own KeepModel is untouched raw
                   --  Data (see the guard above) -- Validate_Metric on
                   --  Data-vs-itself can score deceptively HIGH, exactly
@@ -1997,7 +2210,7 @@ package body GEM.LTE.Primitives.Solution is
                   Monitor.Winner
                     (D => DKeep, Model => KeepModel, Forcing => KeepForcing,
                      M => M, MAP => MAP,
-                     Trend => Secular_Trend, Accel => Accel);
+                     Trend => Secular_Trend, Accel => Accel, Aero => Aero);
                   --  Keep D.A/D.B AND the live Model in sync w/ the
                   --  winning DKeep/KeepModel: the reporting below (CorrCoeff/
                   --  CorrCoeffP, Exclude_Metric) reads Model directly, so
@@ -2021,6 +2234,13 @@ package body GEM.LTE.Primitives.Solution is
             --  so it must never be the one saved even if (in some
             --  Ratio-weighted edge case) it still ended up as Best_Client.
             Save_Now := Ever_Accepted and then (Test_Only or Best_Client = ID);
+            if Ever_Accepted then
+               --  As in the VALIDATE branch above: report and save the
+               --  KEPT candidate, not the live last-tried one (the final
+               --  score line below is computed from Model).
+               D := DKeep;
+               Model := KeepModel;
+            end if;
          end if;
 
       --  Forcing is recomputed unconditionally every iteration regardless
@@ -2046,6 +2266,7 @@ package body GEM.LTE.Primitives.Solution is
       end if;
 
       if Save_Now then
+         Save_Mutex.Seize (ID);
 
          --  M (windings/frequencies) is recomputed unconditionally every
          --  iteration regardless of accept/reject (same root cause as the
@@ -2082,6 +2303,9 @@ package body GEM.LTE.Primitives.Solution is
             " :enclosed:");
          Put (Secular_Trend, " :trend:", NL);
          Put (Accel, " :accel:", NL);
+         if GEM.LTE.Primitives.Aero_On then
+            Put (Aero, " :aero:", NL);
+         end if;
          Put (D.A.k0, " :K0:", NL);
          Put (D.A.level, " :level:", NL);
          for I in 1 .. NM loop
@@ -2099,11 +2323,35 @@ package body GEM.LTE.Primitives.Solution is
          end loop;
          Text_IO.Put_Line ("```");
 
-         GEM.LTE.Primitives.Shared.Save_Windings
-           (Trend => Secular_Trend, Accel => Accel, K0 => D.A.k0,
-            Level => D.A.level, IR => D.B.IR, M => M, MAP => MAP,
-            NM => NM, NH => NH, B => D.B);
+         declare
+            Fit_Array : constant Data_Pairs := Fit_Region (Data_Records);
+         begin
+            GEM.LTE.Primitives.Shared.Save_Windings
+              (Trend => Secular_Trend, Accel => Accel, K0 => D.A.k0,
+               Level => D.A.level, IR => D.B.IR, M => M, MAP => MAP,
+               NM => NM, NH => NH, B => D.B,
+               Ctx =>
+                 (Known          => True,
+                  Accel_Ref      => Accel_Ref,
+                  Fit_Start      => Fit_Array (Fit_Array'First).Date,
+                  Fit_End        => Fit_Array (Fit_Array'Last).Date,
+                  Interval_Start => Forcing (First).Date,
+                  Interval_End   => Forcing (Last).Date,
+                  Record_Start   => Data_Records (Data_Records'First).Date,
+                  Record_End     => Data_Records (Data_Records'Last).Date,
+                  Exclude        => Exclude,
+                  Enclosing      => Enclosing,
+                  Coverage       => Coverage,
+                  Accel_Enabled  => GEM.Getenv ("ACCEL", True),
+                  Aero_Enabled   => GEM.LTE.Primitives.Aero_On,
+                  Aero_Coef      => Aero,
+                  Aero_Lag       => GEM.LTE.Primitives.Aero_Lag,
+                  Alpha          => Alpha,
+                  M_Min          => (if Alpha /= 0.0 then Manifold_Min (Forcing) else 0.0)));
+         end;
 
+         Fingerprint ("save  ", DKeep, KeepModel, Forcing, M, Harms_Keep,
+                      Secular_Trend, Aero, Old_CC, ID);
          GEM.LTE.Primitives.Shared.Save (DKeep);
          Save (KeepModel, Data_Records, Forcing, IR => D.B.IR);    -- saves to file
 
@@ -2162,6 +2410,7 @@ package body GEM.LTE.Primitives.Solution is
            CompareRef (DKeep.A.LP, DKeep.B.LPAP, DKeep.B.Year);
          Put (CorrCoeff, ":dLOD:   ");
          Put (Year_Length (DKeep.B.Year), ":Yr: " & File_Name);
+         Save_Mutex.Release (ID);
 
       else
          null; -- Text_IO.Put_Line("Exited " & ID'Img);
@@ -2170,6 +2419,7 @@ package body GEM.LTE.Primitives.Solution is
 
    exception
       when E : others =>
+         Save_Mutex.Release (ID);
          Text_IO.Put_Line
            ("Solution err: " & Ada.Exceptions.Exception_Information (E));
          -- The following may need a debug-specifi compiler switch to activate
@@ -2191,7 +2441,7 @@ package body GEM.LTE.Primitives.Solution is
                   Monitor.Report_Final
                     (D => DKeep, Model => KeepModel, Forcing => KeepForcing,
                      M => M, MAP => MAP,
-                     Trend => Secular_Trend, Accel => Accel,
+                     Trend => Secular_Trend, Accel => Accel, Aero => Aero,
                      Validate_Score => Long_Float'First,
                      Am_I_Last => Dummy_Last);
                end;

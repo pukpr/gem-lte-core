@@ -324,7 +324,8 @@ package body GEM.LTE.Primitives.Shared is
       M                           : in Modulations;
       MAP                         : in Modulations_Amp_Phase;
       NM, NH                      : in Integer;
-      B                           : in Param_B)
+      B                           : in Param_B;
+      Ctx                         : in Secular_Context := No_Secular_Context)
    is
       use GNATCOLL.JSON;
       FN : constant String :=
@@ -333,6 +334,100 @@ package body GEM.LTE.Primitives.Shared is
       Obj      : constant JSON_Value := Create_Object;
       K_Arr    : JSON_Array          := Empty_Array;
       Manifold : constant JSON_Value := Create_Object;
+
+      function Span (A, B : Long_Float) return JSON_Array is
+         Arr : JSON_Array := Empty_Array;
+      begin
+         Append (Arr, Create (A));
+         Append (Arr, Create (B));
+         return Arr;
+      end Span;
+
+      --  Local warming rate of the secular term as LTE evaluates it.
+      function Rate (T : Long_Float) return Long_Float is
+        (Trend + 2.0 * Accel * (T - Ctx.Accel_Ref));
+
+      procedure Add_Secular_Context is
+         Sec    : constant JSON_Value := Create_Object;
+         Low    : constant JSON_Value := Create_Object;
+         Lowest : Integer             := 1;
+      begin
+         Set_Field (Sec, "form",
+           "model += level + k0*F(t) + trend*t"
+           & " + accel*(t - accel_ref)**2"
+           & " + aero*A(t - aero_lag)"
+           & " + G*sum amp*sin(2*pi*k*F(t) + phase), G = ALPHA_GAIN if"
+           & " F(t)-m_min <= alpha*|m_min| and the sum > 0, else 1"
+           & "; t = decimal year, F = manifold (lte_results.csv col 4)");
+         Set_Field (Sec, "accel_enabled", Create (Ctx.Accel_Enabled));
+         Set_Field (Sec, "aero_enabled", Create (Ctx.Aero_Enabled));
+         Set_Field (Sec, "aero_file", GEM.Getenv ("AERO", ""));
+         Set_Field (Sec, "aero_lag", Create (Ctx.Aero_Lag));
+         Set_Field (Sec, "alpha", Create (Ctx.Alpha));
+         Set_Field (Sec, "m_min", Create (Ctx.M_Min));
+         --  ALPHA_SLOPE > 0: the window is tested on the manifold's signed
+         --  slope over that many months (negated when alpha_sign > 0), and
+         --  m_min is the minimum of that quantity, not of F.
+         --  LAYER > 0: two-stage manifold -- F (col 4) is then
+         --  [Fb +] offs*sin(2 pi k1 Fb) + bg*cos(2 pi k1 Fb), Fb = tidal
+         --  manifold after the first-order impA/impB Bessel correction,
+         --  k1 = the lowest winding (listed with amplitude 0: not regressed).
+         --  The Bessel wavenumber is layer_k if > 0, else (NM >= 3) the
+         --  second winding (also listed with amplitude 0), else the last.
+         Set_Field (Sec, "layer", Create (Integer'(GEM.Getenv ("LAYER", 0))));
+         Set_Field (Sec, "layer_k",
+                    Create (Long_Float'(GEM.Getenv ("LAYER_K", 0.0))));
+         Set_Field (Sec, "alpha_slope_months",
+                    Create (Integer'(GEM.Getenv ("ALPHA_SLOPE", 0))));
+         Set_Field (Sec, "alpha_sign",
+                    Create (Long_Float'(GEM.Getenv ("ALPHA_SIGN", -1.0))));
+         Set_Field (Sec, "alpha_gain",
+                    Create (Long_Float'(GEM.Getenv ("ALPHA_GAIN", 2.0))));
+         Set_Field (Sec, "accel_ref", Create (Ctx.Accel_Ref));
+         Set_Field (Sec, "accel_ref_note",
+           "first date of the array the MLR was fitted on; the same date"
+           & " LTE evaluates accel around. Warming rate at year t is"
+           & " trend + 2*accel*(t - accel_ref).");
+         Set_Field (Sec, "fit_span",
+           Create (Span (Ctx.Fit_Start, Ctx.Fit_End)));
+         Set_Field (Sec, "train_start_end",
+           Create (Span (Ctx.Interval_Start, Ctx.Interval_End)));
+         Set_Field (Sec, "train_start_end_role",
+           (if Ctx.Coverage < 1.0 then "coverage: fit on leading fraction"
+            elsif Ctx.Enclosing then "enclosing: interval is held out"
+            elsif Ctx.Exclude
+            then "excluded TEST interval (EXCLUDE=TRUE; training is"
+                 & " the record outside it)"
+            else "training interval"));
+         Set_Field (Sec, "exclude", Create (Ctx.Exclude));
+         Set_Field (Sec, "enclosing", Create (Ctx.Enclosing));
+         Set_Field (Sec, "coverage", Create (Ctx.Coverage));
+         Set_Field (Sec, "record_span",
+           Create (Span (Ctx.Record_Start, Ctx.Record_End)));
+         Set_Field (Sec, "rate_at_record_start",
+           Create (Rate (Ctx.Record_Start)));
+         Set_Field (Sec, "rate_at_record_end",
+           Create (Rate (Ctx.Record_End)));
+         Set_Field (Sec, "rise_over_record",
+           Create (Trend * (Ctx.Record_End - Ctx.Record_Start)
+                   + Accel * ((Ctx.Record_End - Ctx.Accel_Ref)**2
+                              - (Ctx.Record_Start - Ctx.Accel_Ref)**2)));
+
+         --  The lowest winding is a slow sinusoid in F(t); over a short
+         --  record it bends like a quadratic and the regression can
+         --  trade curvature between it and accel.
+         for I in 2 .. NM + NH loop
+            if abs M (I) < abs M (Lowest) then
+               Lowest := I;
+            end if;
+         end loop;
+         Set_Field (Low, "index", Create (Lowest));
+         Set_Field (Low, "k", Create (M (Lowest)));
+         Set_Field (Low, "amp", Create (MAP (Lowest).Amplitude));
+         Set_Field (Low, "phase", Create (MAP (Lowest).Phase));
+         Set_Field (Sec, "lowest_winding", Low);
+         Set_Field (Obj, "secular_context", Sec);
+      end Add_Secular_Context;
    begin
       Set_Field (Obj, "trend", Create (Trend));
       Set_Field (Obj, "accel", Create (Accel));
@@ -364,6 +459,12 @@ package body GEM.LTE.Primitives.Shared is
          end;
       end loop;
       Set_Field (Obj, "k_amp_phase", Create (K_Arr));
+      if Ctx.Known then
+         Set_Field (Obj, "aero", Create (Ctx.Aero_Coef));
+      end if;
+      if Ctx.Known and then NM + NH >= 1 then
+         Add_Secular_Context;
+      end if;
 
       declare
          JSON_Text : constant String := Write (Obj, Compact => False);

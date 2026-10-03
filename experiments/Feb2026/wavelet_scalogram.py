@@ -75,8 +75,9 @@ def morlet_cwt(x, dt, dj=0.125, s0=None, w0=6.0):
     return W, periods, coi_period
 
 
-def load_columns(idx: str):
-    csv_path = ROOT / idx / "lte_results.csv"
+def load_columns(idx: str, root: Path | None = None):
+    r = root if root is not None else ROOT
+    csv_path = r / idx / "lte_results.csv"
     data = np.loadtxt(csv_path, delimiter=",", usecols=(0, 1, 2, 3))
     year, model, obs, forcing = data.T
 
