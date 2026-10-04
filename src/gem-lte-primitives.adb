@@ -147,6 +147,50 @@ package body GEM.LTE.Primitives is
 
    function Aero_On return Boolean is (Aero_Dates /= null);
 
+   --  ANNUAL_DITHER (2026-10-03): a dummy annual signal is added to the
+   --  manifold before the winding nonlinearity (solution.adb); the model
+   --  is then compared as an ANOMALY, the way the data were made: the
+   --  strictly periodic seasonal pattern (monthly climatology minus its
+   --  mean) is removed from the model output and, consistently, from the
+   --  manifold-derived regression columns. Only nonlinear products that
+   --  are not strictly annual survive (J0 damping of each winding,
+   --  rectified low-frequency terms).
+   Dither_On : constant Boolean :=
+     Long_Float'(GEM.Getenv ("ANNUAL_DITHER", 0.0)) /= 0.0;
+
+   function Month_Of (Date : Long_Float) return Integer is
+     (Integer (Long_Float'Floor ((Date - Long_Float'Floor (Date)) * 12.0
+                                 + 0.5)) mod 12);
+
+   function Remove_Climatology (X : Data_Pairs) return Data_Pairs is
+      R : Data_Pairs := X;
+      Sum : array (0 .. 11) of Long_Float := (others => 0.0);
+      Cnt : array (0 .. 11) of Natural := (others => 0);
+      All_Mean : Long_Float := 0.0;
+      N : Natural := 0;
+   begin
+      for I in X'Range loop
+         Sum (Month_Of (X (I).Date)) := Sum (Month_Of (X (I).Date)) + X (I).Value;
+         Cnt (Month_Of (X (I).Date)) := Cnt (Month_Of (X (I).Date)) + 1;
+      end loop;
+      for M in 0 .. 11 loop
+         if Cnt (M) > 0 then
+            Sum (M) := Sum (M) / Long_Float (Cnt (M));
+            All_Mean := All_Mean + Sum (M);
+            N := N + 1;
+         end if;
+      end loop;
+      if N > 0 then
+         All_Mean := All_Mean / Long_Float (N);
+      end if;
+      for I in X'Range loop
+         if Cnt (Month_Of (X (I).Date)) > 0 then
+            R (I).Value := X (I).Value - (Sum (Month_Of (X (I).Date)) - All_Mean);
+         end if;
+      end loop;
+      return R;
+   end Remove_Climatology;
+
    --  Signed power sign(X)*|X|**P; 0.0 at X = 0 (Long_Float "**" with a
    --  real exponent is undefined for a zero or negative base).
    function SPow (X, P : Long_Float) return Long_Float is
@@ -1955,6 +1999,42 @@ package body GEM.LTE.Primitives is
               Aero_Value (Forcing (I).Date);
          end if;
       end loop;
+
+      --  ANNUAL_DITHER: remove each manifold-derived column's seasonal
+      --  pattern (k0*F and the winding sin/cos columns), as is done to the
+      --  model output, so the regression fits anomalies to anomalies.
+      if Dither_On then
+         for J in 2 .. Base loop
+            declare
+               Sum : array (0 .. 11) of Long_Float := (others => 0.0);
+               Cnt : array (0 .. 11) of Natural := (others => 0);
+               All_Mean : Long_Float := 0.0;
+               N : Natural := 0;
+               M : Integer;
+            begin
+               for Row in 1 .. Last - First + 1 loop
+                  M := Month_Of (Forcing (First + Row - 1).Date);
+                  Sum (M) := Sum (M) + Factors_Matrix (Row, J);
+                  Cnt (M) := Cnt (M) + 1;
+               end loop;
+               for K in 0 .. 11 loop
+                  if Cnt (K) > 0 then
+                     Sum (K) := Sum (K) / Long_Float (Cnt (K));
+                     All_Mean := All_Mean + Sum (K);
+                     N := N + 1;
+                  end if;
+               end loop;
+               if N > 0 then
+                  All_Mean := All_Mean / Long_Float (N);
+               end if;
+               for Row in 1 .. Last - First + 1 loop
+                  M := Month_Of (Forcing (First + Row - 1).Date);
+                  Factors_Matrix (Row, J) :=
+                    Factors_Matrix (Row, J) - (Sum (M) - All_Mean);
+               end loop;
+            end;
+         end loop;
+      end if;
 
       --  ALPHA: the gain applies only where the manifold is inside the
       --  Alpha window AND the summed winding term is POSITIVE (negative

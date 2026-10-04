@@ -84,6 +84,10 @@ package GEM.LTE.Primitives is
    --  value, or (ALPHA_SLOPE > 0) its signed slope; see the body.
    function Alpha_Signal (F : Data_Pairs; I : Integer) return Long_Float;
 
+   --  X minus its seasonal pattern (monthly climatology minus its mean);
+   --  used for the ANNUAL_DITHER anomaly comparison.
+   function Remove_Climatology (X : Data_Pairs) return Data_Pairs;
+
    function LTE
      (Forcing : in Data_Pairs; Wave_Numbers : in Modulations;
       Amp_Phase : in Modulations_Amp_Phase;

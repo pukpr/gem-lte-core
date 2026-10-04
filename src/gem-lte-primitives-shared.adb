@@ -374,7 +374,23 @@ package body GEM.LTE.Primitives.Shared is
          --  k1 = the lowest winding (listed with amplitude 0: not regressed).
          --  The Bessel wavenumber is layer_k if > 0, else (NM >= 3) the
          --  second winding (also listed with amplitude 0), else the last.
+         --  With LAYER=1 and LAYER_MIX=TRUE, impC is the mixing weight W
+         --  of Fb in F2 (F2 = W*Fb + layer term), not the annual impulse.
          Set_Field (Sec, "layer", Create (Integer'(GEM.Getenv ("LAYER", 0))));
+         Set_Field (Sec, "annual_dither",
+                    Create (Long_Float'(GEM.Getenv ("ANNUAL_DITHER", 0.0))));
+         Set_Field (Sec, "annual_dither_phase",
+                    Create (Long_Float'(GEM.Getenv ("ANNUAL_DITHER_PHASE", 0.0))));
+         Set_Field (Sec, "annual_dither_stage",
+                    Create (Integer'(GEM.Getenv ("ANNUAL_DITHER_STAGE", 1))));
+         Set_Field (Sec, "ir_side",
+                    Create (Integer'(GEM.Getenv ("IR_SIDE", 0))));
+         Set_Field (Sec, "ir_base_months",
+                    Create (Integer'(GEM.Getenv ("IR_BASE", 121))));
+         Set_Field (Sec, "layer_mix",
+                    Create (Boolean'(GEM.Getenv ("LAYER_MIX", False))));
+         Set_Field (Sec, "layer_hp_months",
+                    Create (Integer'(GEM.Getenv ("LAYER_HP", 0))));
          Set_Field (Sec, "layer_k",
                     Create (Long_Float'(GEM.Getenv ("LAYER_K", 0.0))));
          Set_Field (Sec, "alpha_slope_months",
