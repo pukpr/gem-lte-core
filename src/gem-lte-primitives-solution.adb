@@ -1031,6 +1031,80 @@ package body GEM.LTE.Primitives.Solution is
       --  second-order factors, dropped in this mode), so the lowest
       --  winding's amplitude and phase (and M(1) itself) are found
       --  iteratively by the search, not by the regression. Needs NM >= 2.
+      --  LAYER_MIX=TRUE (default FALSE) with LAYER=1 mixes back a weight W
+      --  of the Bessel-corrected tidal manifold, F2 = W*Fb + (layer term),
+      --  with W = impC (otherwise the once-a-year model impulse, which
+      --  contributed nothing measurable); W = 0 reproduces the pure layer.
+      --  Opt-in so that existing fits, which carry small nonzero impC
+      --  values as impulses, keep their meaning. LAYER=2 is W = 1 and
+      --  keeps impC as the annual impulse.
+      Layer_Mix : constant Boolean := GEM.Getenv ("LAYER_MIX", False);
+      --  LAYER_HP (months, default 0 = off): the mixed-back Fb is first
+      --  HIGH-PASSED, Fb minus its centred LAYER_HP-month running mean
+      --  (shortened at the ends), so W restores the fast tidal content
+      --  the layer suppresses at its crest without tilting the slow
+      --  (~120-yr) part that sets the layer's quantized levels.
+      Layer_HP : constant Integer := GEM.Getenv ("LAYER_HP", 0);
+
+      --  IR_SIDE (default 0 = symmetric): one-sided 12-month delay
+      --  differential. +1 applies the IR term only where the value a year
+      --  earlier was WARM, -1 only where it was COLD; "warm" means above
+      --  the series' own centred IR_BASE-month running mean (default 121,
+      --  so the trend does not decide the sign). Applied consistently to
+      --  the data side (DR = D + IR*D(t-12)) and the model side
+      --  (Model - IR*Model(t-12)), each judged on its own series.
+      --  Compensated mode only (UNCOMPENSATED folds IR into the regression
+      --  basis symmetrically, so IR_SIDE is ignored there).
+      IR_Side : constant Integer := GEM.Getenv ("IR_SIDE", 0);
+
+      --  ANNUAL_DITHER a (default 0 = off), ANNUAL_DITHER_PHASE phi
+      --  (radians), ANNUAL_DITHER_STAGE (1 = after the Bessel/layer
+      --  transform, on the manifold the windings see; 0 = before it, on
+      --  the tidal manifold): add a*cos(2 pi t + phi) to that manifold. The
+      --  model output and the regression columns are then de-seasonalized
+      --  (Remove_Climatology), so only non-annual nonlinear products of
+      --  the dummy annual signal reach the fit.
+      Dither_A : constant Long_Float := GEM.Getenv ("ANNUAL_DITHER", 0.0);
+      Dither_Phase : constant Long_Float :=
+        GEM.Getenv ("ANNUAL_DITHER_PHASE", 0.0);
+      Dither_Stage : constant Integer := GEM.Getenv ("ANNUAL_DITHER_STAGE", 1);
+      function Add_Dither (F : Data_Pairs) return Data_Pairs is
+         R : Data_Pairs := F;
+         use Ada.Numerics.Long_Elementary_Functions;
+      begin
+         for I in F'Range loop
+            R (I).Value := F (I).Value + Dither_A *
+              Cos (2.0 * Ada.Numerics.Pi * F (I).Date + Dither_Phase);
+         end loop;
+         return R;
+      end Add_Dither;
+      IR_Base : constant Integer := GEM.Getenv ("IR_BASE", 121);
+
+      --  True where X(I) is on the side IR_SIDE selects (always True for 0)
+      type Side_Mask is array (Integer range <>) of Boolean;
+      function IR_Mask (X : Data_Pairs) return Side_Mask is
+         R : Side_Mask (X'Range) := (others => True);
+         Cum : array (X'First - 1 .. X'Last) of Long_Float;
+         H : constant Integer := Integer'Max (1, IR_Base / 2);
+         A, B : Integer;
+         Mean : Long_Float;
+      begin
+         if IR_Side = 0 or else Uncompensated then
+            return R;
+         end if;
+         Cum (X'First - 1) := 0.0;
+         for I in X'Range loop
+            Cum (I) := Cum (I - 1) + X (I).Value;
+         end loop;
+         for I in X'Range loop
+            A := Integer'Max (X'First, I - H);
+            B := Integer'Min (X'Last, I + H);
+            Mean := (Cum (B) - Cum (A - 1)) / Long_Float (B - A + 1);
+            R (I) := (if IR_Side > 0 then X (I).Value > Mean
+                      else X (I).Value < Mean);
+         end loop;
+         return R;
+      end IR_Mask;
       Layer : constant Integer := GEM.Getenv ("LAYER", 0);
       --  LAYER_K (default 0 = off): wavenumber of the impA/impB Bessel
       --  correction in LAYER mode. By default that is M(NM) (M(NM-1)
@@ -1046,17 +1120,43 @@ package body GEM.LTE.Primitives.Solution is
       Layer_K : constant Long_Float := GEM.Getenv ("LAYER_K", 0.0);
 
       function Layered
-        (Model : in Data_Pairs; eS, eC, k : in Long_Float) return Data_Pairs
+        (Model : in Data_Pairs; eS, eC, k : in Long_Float;
+         W_Mix : in Long_Float := 0.0) return Data_Pairs
       is
          M : Data_Pairs := Model;
          Pi : constant Long_Float := Ada.Numerics.Pi;
          use Ada.Numerics.Long_Elementary_Functions;
          W : Long_Float;
+         --  Mixed-back part: Fb itself, or Fb minus its running mean.
+         Mix : array (Model'Range) of Long_Float;
       begin
+         if Layer = 1 and then W_Mix /= 0.0 and then Layer_HP > 1 then
+            declare
+               Cum : array (Model'First - 1 .. Model'Last) of Long_Float;
+               H : constant Integer := Layer_HP / 2;
+               A, B : Integer;
+            begin
+               Cum (Model'First - 1) := 0.0;
+               for I in Model'Range loop
+                  Cum (I) := Cum (I - 1) + Model (I).Value;
+               end loop;
+               for I in Model'Range loop
+                  A := Integer'Max (Model'First, I - H);
+                  B := Integer'Min (Model'Last, I + H);
+                  Mix (I) := Model (I).Value
+                    - (Cum (B) - Cum (A - 1)) / Long_Float (B - A + 1);
+               end loop;
+            end;
+         else
+            for I in Model'Range loop
+               Mix (I) := Model (I).Value;
+            end loop;
+         end if;
          for I in Model'Range loop
             W := eS * Sin (2.0 * Pi * k * M (I).Value)
                + eC * Cos (2.0 * Pi * k * M (I).Value);
-            M (I).Value := (if Layer = 2 then M (I).Value + W else W);
+            M (I).Value :=
+              (if Layer = 2 then M (I).Value + W else W_Mix * Mix (I) + W);
          end loop;
          return M;
       end Layered;
@@ -1714,15 +1814,24 @@ package body GEM.LTE.Primitives.Solution is
             end if;
             DR := Data_Records;
             if D.B.IR /= 0.0 and then not Uncompensated then
-               for I in reverse Data_Records'First + 12 .. Data_Records'Last loop
-                  DR (I).Value := Data_Records (I).Value + D.B.IR*Data_Records (I - 12).Value;
-               end loop;
+               declare
+                  Side : constant Side_Mask := IR_Mask (Data_Records);
+               begin
+                  for I in reverse Data_Records'First + 12 .. Data_Records'Last loop
+                     if Side (I - 12) then
+                        DR (I).Value := Data_Records (I).Value + D.B.IR*Data_Records (I - 12).Value;
+                     end if;
+                  end loop;
+               end;
             end if;
             --  Uncompensated=True: DR stays equal to raw Data_Records --
             --  Regression_Factors folds the delay differential into its
             --  own basis columns instead (see IR parameter below).
             
 --            DR := Annual_Add (DR, -1.0);
+            if Dither_A /= 0.0 and then Dither_Stage = 0 then
+               Forcing := Add_Dither (Forcing);
+            end if;
             if Layer > 0 and then NM >= 2 then
                Forcing := Layered
                  (Bessel (Forcing, D.B.ImpA, D.B.ImpB,
@@ -1730,7 +1839,9 @@ package body GEM.LTE.Primitives.Solution is
                            elsif NM >= 3 then M (2)
                            elsif Lock_Freq then M (NM - 1) else M (NM)),
                           0.0, 0.0, 0.0),
-                  D.B.Offset, D.B.bg, M (1));
+                  D.B.Offset, D.B.bg, M (1),
+                  W_Mix => (if Layer = 1 and then Layer_Mix then D.B.ImpC
+                            else 0.0));
             elsif Has_Friction then
                Forcing := Frictional(Forcing, D.B.ImpA, D.B.ImpB, 0.0);
             elsif NM = 1 then
@@ -1741,6 +1852,9 @@ package body GEM.LTE.Primitives.Solution is
                else
                   Forcing := Bessel(Forcing, D.B.ImpA, D.B.ImpB, M(NM), M(NM-1), D.B.Offset, D.B.bg);
                end if;
+            end if;
+            if Dither_A /= 0.0 and then Dither_Stage /= 0 then
+               Forcing := Add_Dither (Forcing);
             end if;
             if Alpha /= 0.0 then
                M_Min := Manifold_Min (Forcing);
@@ -1831,7 +1945,12 @@ package body GEM.LTE.Primitives.Solution is
                     M_Min => M_Min);
 
 --               Model := Annual_Add (Model);
-               if D.B.ImpC /= 0.0 then
+               if Dither_A /= 0.0 then
+                  Model := Remove_Climatology (Model);
+               end if;
+               if D.B.ImpC /= 0.0
+                 and then not (Layer = 1 and then Layer_Mix)
+               then
                   for I in Model'Range loop
                      Model (I).Value :=
                        Model (I).Value + Annual_Impulse (Model (I).Date);
@@ -1840,9 +1959,15 @@ package body GEM.LTE.Primitives.Solution is
 
                -- Delay differential
                if D.B.IR /= 0.0 then
-                  for I in reverse Model'First + 12 .. Model'Last loop
-                     Model (I).Value := Model (I).Value - D.B.IR*Model (I - 12).Value; 
-                  end loop;
+                  declare
+                     Side : constant Side_Mask := IR_Mask (Model);
+                  begin
+                     for I in reverse Model'First + 12 .. Model'Last loop
+                        if Side (I - 12) then
+                           Model (I).Value := Model (I).Value - D.B.IR*Model (I - 12).Value;
+                        end if;
+                     end loop;
+                  end;
                end if;
 
 

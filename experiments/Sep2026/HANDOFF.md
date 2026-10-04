@@ -460,6 +460,25 @@ Also: AMO/PDO common-manifold round-robin in Feb2026/_rr (joint 0.490 -> 0.690;
 PDO searches push dLOD < 0.994; round 4 the balanced state). Smoke test
 kN040_W050: 0.782/0.755/0.712 with nino4 seed + harmonic.
 
+**Warm-side IR paired pass launched 2026-10-03 12:13 (experiments/Oct2026_layer_ir).**
+New Ada options since the LAYER commit (uncommitted, all off by default): LAYER_MIX
+(impC as tidal-manifold mixing weight w under LAYER=1; opt-in because existing fits
+carry small impC impulses), LAYER_HP (high-pass the mixed Fb), IR_SIDE (+1 warm-side
+only / -1 cold-side only 12-month delay differential, "warm" = above own IR_BASE=121
+month running mean, data and model sides). Findings: w mixing never helps the eastern
+Pacific quads (raw or high-passed); symmetric IR weak; warm-only IR seeded -0.2 beat
+IR=0 searches on 2000-05 test in 10/10 targets (amo, pdo, 8 Pacific quads).
+run_ir_pass.py: per quad, from Oct2026_layer, a 300 s control search (IR 0) and a
+300 s warm-only search (IR_SIDE 1, IR -0.2), installed in ctrl/ and warm/; Pacific
+quads first; ~4.3 h; results.jsonl, pass.log, PASS_DONE. Then compare both sets
+globally (held-out + 1880 back-cast) at equal effort.
+
+**ANNUAL_DITHER set aside (2026-10-03).** Dummy annual signal added to the manifold
+(ANNUAL_DITHER a, _PHASE, _STAGE 1 after layer / 0 before) with climatology removal of model
+output and regression columns. Grid (Oct2026_layer/_dither/grid.log): all a > 0 worse;
+the modulated annual sidebands survive climatology removal. Code stays, off by default.
+Focus: warm-only IR paired pass (Oct2026_layer_ir).
+
 ## NEW GOVERNING PRINCIPLE: judge every future change by the COLLECTIVE measure, not per-cell scores (2026-09-28 ~21:30)
 
 Explicit reframing from the user: the objective from here on is to move
