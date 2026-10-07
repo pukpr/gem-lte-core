@@ -377,6 +377,7 @@ package body GEM.LTE.Primitives.Shared is
          --  With LAYER=1 and LAYER_MIX=TRUE, impC is the mixing weight W
          --  of Fb in F2 (F2 = W*Fb + layer term), not the annual impulse.
          Set_Field (Sec, "layer", Create (Integer'(GEM.Getenv ("LAYER", 0))));
+         Set_Field (Sec, "tides", GEM.Getenv ("TIDES", "TABLE"));
          Set_Field (Sec, "annual_dither",
                     Create (Long_Float'(GEM.Getenv ("ANNUAL_DITHER", 0.0))));
          Set_Field (Sec, "annual_dither_phase",

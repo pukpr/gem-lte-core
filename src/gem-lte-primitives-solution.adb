@@ -1,3 +1,4 @@
+with GEM.Zonal;
 --  ============================================================================
 --  GEM.LTE.Primitives.Solution - Parallel Optimization Solver
 --  ============================================================================
@@ -95,7 +96,13 @@ package body GEM.LTE.Primitives.Solution is
           (Template => Ref, Constituents => AP, Periods => LP,
            Ref_Time => Ref_Time, Scaling => 1.0, Cos_Phase => False,
            Year_Len => Year_Length (Year_Correction));
-      Metric := Long_Float'Max (CC (R2, M2), Metric);
+      --  TIDES=ZONAL: Tide_Sum returns the generator for both calls, so
+      --  the gate compares the generator directly with the observed dLOD.
+      if GEM.Zonal.On then
+         Metric := CC (D, M2);
+      else
+         Metric := Long_Float'Max (CC (R2, M2), Metric);
+      end if;
       Text_IO.Create (File, Text_IO.Out_File, "dlod_compare.csv");
       for I in R2'Range loop
          Text_IO.Put_Line
@@ -696,6 +703,8 @@ package body GEM.LTE.Primitives.Solution is
       Local_Max : constant Boolean := GEM.Getenv ("LOCAL", False);
       Lock_Tidal : constant Boolean := GEM.Getenv ("LOCKT", False);
       Lock_T_Amp : constant Boolean := GEM.Getenv ("LOCKA", False);
+      --  IMPULSE_MOD12: see Impulse_Delta (impulse month taken modulo the year).
+      Impulse_Mod12 : constant Boolean := GEM.Getenv ("IMPULSE_MOD12", False);
       --  Constrains ltep (the "winding"/LT modulation period) entries to
       --  snap to the nearest value in a caller-supplied canonical set
       --  (backbone harmonics/subharmonics) after each Markov step that
@@ -892,7 +901,14 @@ package body GEM.LTE.Primitives.Solution is
          -- Impulses will occur on a month for monthly data
          Trunc : Integer :=
            Integer (((Time - Long_Float'Floor (Time)) * Sampling_Per_Year));
-         DPos : Integer := Integer ((abs (D.B.DelB) * Sampling_Per_Year));
+         --  IMPULSE_MOD12=TRUE: reduce the impulse month modulo the year. Without it,
+         --  |DelB| >= ~0.96 gives DPos >= 12, which no month index (0..11) can equal,
+         --  so the DelA impulse never fires and only the half-year companion (Asym,
+         --  at (DPos + 6) mod 12) does. Default FALSE keeps existing fits as fitted.
+         DPos : Integer :=
+           (if Impulse_Mod12
+            then Integer ((abs (D.B.DelB) * Sampling_Per_Year)) mod Integer (Sampling_Per_Year)
+            else Integer ((abs (D.B.DelB) * Sampling_Per_Year)));
       begin
          if Trunc = DPos then
             Value := D.B.DelA;
@@ -949,7 +965,14 @@ package body GEM.LTE.Primitives.Solution is
          -- Impulses will occur on a month for monthly data
          Trunc : Integer :=
            Integer (((Time - Long_Float'Floor (Time)) * Sampling_Per_Year));
-         DPos : Integer := Integer ((abs (D.B.DelB) * Sampling_Per_Year));
+         --  IMPULSE_MOD12=TRUE: reduce the impulse month modulo the year. Without it,
+         --  |DelB| >= ~0.96 gives DPos >= 12, which no month index (0..11) can equal,
+         --  so the DelA impulse never fires and only the half-year companion (Asym,
+         --  at (DPos + 6) mod 12) does. Default FALSE keeps existing fits as fitted.
+         DPos : Integer :=
+           (if Impulse_Mod12
+            then Integer ((abs (D.B.DelB) * Sampling_Per_Year)) mod Integer (Sampling_Per_Year)
+            else Integer ((abs (D.B.DelB) * Sampling_Per_Year)));
          DPos2 : Integer := (DPos + Integer (Sampling_Per_Year) / 2) mod 12;
       begin
          if Trunc = DPos2-1 then

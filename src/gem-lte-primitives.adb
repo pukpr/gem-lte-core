@@ -1,3 +1,4 @@
+with GEM.Zonal;
 --  GEM.LTE.Primitives - Core Algorithms for Laplace's Tidal Equation Modeling
 --
 --  This package body implements the mathematical core of the GEM-LTE climate model:
@@ -234,6 +235,11 @@ package body GEM.LTE.Primitives is
 
    --  Configuration flags from environment variables
    Aliased_Period : constant Boolean := GEM.Getenv ("ALIAS", False);
+   --  TIDE_LEGACY=TRUE restores the pre-2026-10-06 tidal sum, for re-scoring
+   --  archived fits: the climate forcing in cos while the dLOD calibration
+   --  (and its phases) use sin, and the jerk term without the Amplitude
+   --  factor. Default (FALSE): sin throughout, jerk scaled by Amplitude.
+   Tide_Legacy : constant Boolean := GEM.Getenv ("TIDE_LEGACY", False);
    Min_Entropy : constant Boolean := GEM.Getenv ("METRIC", "") = "ME";
    Linear_Step : constant Boolean := GEM.Getenv ("STEP", True);
    Every_N_Line : constant Integer := GEM.Getenv ("EVERY", 1);
@@ -562,6 +568,11 @@ package body GEM.LTE.Primitives is
    end Amplify;
 
    -- Conventional tidal series summation or superposition of cycles
+   --  Integ (shfT, from the caller) is a jerk factor: each line gets
+   --  Integ * Freq * Amplitude in quadrature, i.e. the series plus
+   --  (Integ / 2 pi) times its time derivative. 2026-10-06: restored the
+   --  Amplitude factor, lost in a refactor; without it every line,
+   --  however weak, got a component of size Integ * Freq.
    function Tide_Sum_Diff
      (Template : in Data_Pairs; Constituents : in Long_Periods_Amp_Phase;
       Periods : in Long_Periods; Ref_Time : in Long_Float := 0.0;
@@ -592,12 +603,12 @@ package body GEM.LTE.Primitives is
                      TF1 :=
                        TF1 +
                        L.Amplitude * (Cos (2.0 * Pi * Freq * Time + L.Phase)) - 
-                         Integ * Freq * (Sin (2.0 * Pi * Freq * Time + L.Phase));
+                         Integ * Freq * (if Tide_Legacy then 1.0 else L.Amplitude) * (Sin (2.0 * Pi * Freq * Time + L.Phase));
                   else
                      TF1 :=
                        TF1 +
                        L.Amplitude * (Sin (2.0 * Pi * Freq * Time + L.Phase)) + 
-                         Integ * Freq * (Cos (2.0 * Pi * Freq * Time + L.Phase));
+                         Integ * Freq * (if Tide_Legacy then 1.0 else L.Amplitude) * (Cos (2.0 * Pi * Freq * Time + L.Phase));
                   end if;
                end;
             end loop;
@@ -614,12 +625,12 @@ package body GEM.LTE.Primitives is
                      TF2 :=
                        TF2 +
                        L.Amplitude * (Cos (2.0 * Pi * Freq * Time + L.Phase)) - 
-                         Integ * Freq * (Sin (2.0 * Pi * Freq * Time + L.Phase));
+                         Integ * Freq * (if Tide_Legacy then 1.0 else L.Amplitude) * (Sin (2.0 * Pi * Freq * Time + L.Phase));
                   else
                      TF2 :=
                        TF2 +
                        L.Amplitude * (Sin (2.0 * Pi * Freq * Time + L.Phase)) +
-                         Integ * Freq * (Cos (2.0 * Pi * Freq * Time + L.Phase));
+                         Integ * Freq * (if Tide_Legacy then 1.0 else L.Amplitude) * (Cos (2.0 * Pi * Freq * Time + L.Phase));
                   end if;
                end;
             end loop;
@@ -647,6 +658,10 @@ package body GEM.LTE.Primitives is
       pragma Unreferenced
         (Integ, Scaling, Cos_Phase, Ext_Forcing, Ext_Factor, Ext_Phase,
          Ext_Amp);
+      --  sin unless TIDE_LEGACY (the phases are calibrated in sin).
+      function Cs (X : Long_Float) return Long_Float is
+        (if Tide_Legacy then Ada.Numerics.Long_Elementary_Functions.Cos (X)
+         else Ada.Numerics.Long_Elementary_Functions.Sin (X));
    begin
       for I in Template'Range loop
          Time := Template (I).Date + Ref_Time;
@@ -663,8 +678,8 @@ package body GEM.LTE.Primitives is
               L.Amplitude *
               (Cos
                  (2.0 * Pi * Freq * Time + L.Phase +
-                  HF.Amplitude * Cos (2.0 * Pi * HP * Time + HF.Phase) +
-                  NF.Amplitude * Cos (2.0 * Pi * NP * Time + NF.Phase)));
+                  HF.Amplitude * Cs (2.0 * Pi * HP * Time + HF.Phase) +
+                  NF.Amplitude * Cs (2.0 * Pi * NP * Time + NF.Phase)));
          end;
          declare
             use Ada.Numerics.Long_Elementary_Functions;
@@ -683,7 +698,7 @@ package body GEM.LTE.Primitives is
                     (Cos
                        (2.0 * Pi * PP * Time +
                         EF.Amplitude *
-                          abs (Cos (2.0 * Pi * PP * Time + EF.Phase)) +
+                          abs (Cs (2.0 * Pi * PP * Time + EF.Phase)) +
                         PF.Phase))));
          end;
          declare
@@ -691,49 +706,49 @@ package body GEM.LTE.Primitives is
             L : Amp_Phase renames Constituents (7);
             Freq : Long_Float := Year_Len / Periods (7);
          begin --ampA*(ABS(SIN(freq*$A18+$E$13*ABS(SIN(freq*($A18+$E$14)))+phaseA))))
-            T := L.Amplitude * Cos (2.0 * Pi * Freq * Time + L.Phase);
+            T := L.Amplitude * Cs (2.0 * Pi * Freq * Time + L.Phase);
          end;
          declare
             use Ada.Numerics.Long_Elementary_Functions;
             L : Amp_Phase renames Constituents (12);
             Freq : Long_Float := Year_Len / Periods (12);
          begin --ampA*(ABS(SIN(freq*$A18+$E$13*ABS(SIN(freq*($A18+$E$14)))+phaseA))))
-            FF := L.Amplitude * Cos (2.0 * Pi * Freq * Time + L.Phase);
+            FF := L.Amplitude * Cs (2.0 * Pi * Freq * Time + L.Phase);
          end;
          declare
             use Ada.Numerics.Long_Elementary_Functions;
             L : Amp_Phase renames Constituents (6);
             Freq : Long_Float := Year_Len / Periods (6);
          begin --ampA*(ABS(SIN(freq*$A18+$E$13*ABS(SIN(freq*($A18+$E$14)))+phaseA))))
-            TD := L.Amplitude * Cos (2.0 * Pi * Freq * Time + L.Phase);
+            TD := L.Amplitude * Cs (2.0 * Pi * Freq * Time + L.Phase);
          end;
          declare
             use Ada.Numerics.Long_Elementary_Functions;
             L : Amp_Phase renames Constituents (8);
             Freq : Long_Float := Year_Len / Periods (8);
          begin --ampA*(ABS(SIN(freq*$A18+$E$13*ABS(SIN(freq*($A18+$E$14)))+phaseA))))
-            DD := L.Amplitude * Cos (2.0 * Pi * Freq * Time + L.Phase);
+            DD := L.Amplitude * Cs (2.0 * Pi * Freq * Time + L.Phase);
          end;
          declare
             use Ada.Numerics.Long_Elementary_Functions;
             L : Amp_Phase renames Constituents (1);
             Freq : Long_Float := Year_Len / Periods (2);
          begin
-            DPlain := L.Amplitude * Cos (2.0 * Pi * Freq * Time + L.Phase);
+            DPlain := L.Amplitude * Cs (2.0 * Pi * Freq * Time + L.Phase);
          end;
          declare
             use Ada.Numerics.Long_Elementary_Functions;
             L : Amp_Phase renames Constituents (10);
             Freq : Long_Float := Year_Len / Periods (11);
          begin
-            N := L.Amplitude * Cos (2.0 * Pi * Freq * Time + L.Phase);
+            N := L.Amplitude * Cs (2.0 * Pi * Freq * Time + L.Phase);
          end;
          declare
             use Ada.Numerics.Long_Elementary_Functions;
             L : Amp_Phase renames Constituents (13);
             Freq : Long_Float := Year_Len / Periods (22);
          begin
-            F := L.Amplitude * Cos (2.0 * Pi * Freq * Time + L.Phase);
+            F := L.Amplitude * Cs (2.0 * Pi * Freq * Time + L.Phase);
          end;
 
          declare
@@ -773,15 +788,24 @@ package body GEM.LTE.Primitives is
       Res : Data_Pairs := Template;
       pragma Unreferenced (Ref_Time);
    begin
+      --  TIDES=ZONAL: closed-form zonal tide rate (GEM.Zonal) instead of
+      --  the constituent table; Integ (jerk) applied as in Tide_Sum_Diff.
+      if GEM.Zonal.On then
+         for I in Res'Range loop
+            Res (I).Value := GEM.Zonal.Forcing_At
+              (Template (I).Date, (if Tide_Legacy then 0.0 else Integ));
+         end loop;
+         return Res;
+      end if;
       if Custom_Tide then
          Res :=
            Tide_Sum_Custom
-             (Template, Constituents, Periods, 0.0, Scaling, Cos_Phase,
+             (Template, Constituents, Periods, 0.0, Scaling, Cos_Phase and Tide_Legacy,
               Year_Len, Integ);
       else
          Res :=
            Tide_Sum_Diff
-             (Template, Constituents, Periods, 0.0, Scaling, Cos_Phase,
+             (Template, Constituents, Periods, 0.0, Scaling, Cos_Phase and Tide_Legacy,
               Year_Len, Integ);
       end if;
       return Res;

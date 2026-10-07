@@ -1,0 +1,97 @@
+{
+  "trend": -1.79938503495145E-02,
+  "accel": 1.16330876745109E-04,
+  "k0": -5.73500758030184E+00,
+  "level": 3.39937379326381E+01,
+  "IR": -4.44593276524197E-01,
+  "manifold": {
+    "delA": -4.22553380273047E+00,
+    "delB": 1.65427742814965E+00,
+    "asym": 6.20765641190179E+00,
+    "ma": 2.60702915351164E-04,
+    "mp": 5.08531528347855E-03,
+    "shiftT": 2.87486703627734E-03,
+    "impA": -6.71135908546275E+00,
+    "impB": -7.84148148314816E+00,
+    "offs": 3.90785416091562E-03,
+    "bg": 2.18353363325130E-01,
+    "year": -5.48601554518334E-06
+  },
+  "k_amp_phase": [
+    [
+      -4.18203858529923E-02,
+      0.00000000000000E+00,
+      0.00000000000000E+00
+    ],
+    [
+      1.07088441225776E-02,
+      0.00000000000000E+00,
+      0.00000000000000E+00
+    ],
+    [
+      4.65400837431748E+00,
+      3.92821611629136E-01,
+      1.52319548490033E+00
+    ],
+    [
+      1.39620251229525E+01,
+      5.35264219087166E-01,
+      -2.98503188438027E+00
+    ],
+    [
+      9.30801674863497E+00,
+      2.41672526304574E-01,
+      2.67652512682715E+00
+    ]
+  ],
+  "aero": 0.00000000000000E+00,
+  "secular_context": {
+    "form": "model += level + k0*F(t) + trend*t + accel*(t - accel_ref)**2 + aero*A(t - aero_lag) + G*sum amp*sin(2*pi*k*F(t) + phase), G = ALPHA_GAIN if F(t)-m_min <= alpha*|m_min| and the sum > 0, else 1; t = decimal year, F = manifold (lte_results.csv col 4)",
+    "accel_enabled": true,
+    "aero_enabled": false,
+    "aero_file": "",
+    "aero_lag": 0.00000000000000E+00,
+    "alpha": 0.00000000000000E+00,
+    "m_min": 0.00000000000000E+00,
+    "layer": 1,
+    "tides": "ZONAL",
+    "annual_dither": 0.00000000000000E+00,
+    "annual_dither_phase": 0.00000000000000E+00,
+    "annual_dither_stage": 1,
+    "ir_side": 0,
+    "ir_base_months": 121,
+    "layer_mix": false,
+    "layer_hp_months": 0,
+    "layer_k": 0.00000000000000E+00,
+    "alpha_slope_months": 0,
+    "alpha_sign": -1.00000000000000E+00,
+    "alpha_gain": 2.00000000000000E+00,
+    "accel_ref": 1.88000000000000E+03,
+    "accel_ref_note": "first date of the array the MLR was fitted on; the same date LTE evaluates accel around. Warming rate at year t is trend + 2*accel*(t - accel_ref).",
+    "fit_span": [
+      1.88000000000000E+03,
+      2.02258333300000E+03
+    ],
+    "train_start_end": [
+      2.00000000000000E+03,
+      2.00500000000000E+03
+    ],
+    "train_start_end_role": "excluded TEST interval (EXCLUDE=TRUE; training is the record outside it)",
+    "exclude": true,
+    "enclosing": false,
+    "coverage": 1.00000000000000E+00,
+    "record_span": [
+      1.88000000000000E+03,
+      2.02258333300000E+03
+    ],
+    "rate_at_record_start": -1.79938503495145E-02,
+    "rate_at_record_end": 1.51798379247451E-02,
+    "rise_over_record": -2.00615635313518E-01,
+    "lowest_winding": {
+      "index": 2,
+      "k": 1.07088441225776E-02,
+      "amp": 0.00000000000000E+00,
+      "phase": 0.00000000000000E+00
+    }
+  }
+}

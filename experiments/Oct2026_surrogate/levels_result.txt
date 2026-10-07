@@ -1,0 +1,18 @@
+[amo] POSITIVE CONTROL  S1 cross: planted rank 1/20, margin +2.32 sd
+[amo] NEGATIVE CONTROL  S1 cross: s01 rank 5/19, margin -0.52 sd
+[amo] S1 cross manifold (pdo)   : real eta2_adj 0.366, rank 1/20, surrogates 0.158+-0.088, margin over best +0.81 sd
+[amo] S1 own manifold           : real eta2_adj 0.456, rank 1/20, surrogates 0.162+-0.078, margin over best +2.08 sd
+[amo] S2 cross penalized winding: real dBIC -49.8 at k=2.84, rank 6/20; surrogates dBIC -38.5, k chosen [1.02, 1.55, 2.1, 2.68, 2.89, 2.98, 3.1, 3.35, 3.78, 4.05, 4.14, 7.11, 8.26, 8.37, 8.44, 9.25, 9.26, 9.6, 9.68]
+[amo] S2 own   penalized winding: real dBIC -482.9 at k=4.06, rank 1/20; surrogates dBIC -73.4, k chosen [0.25, 2.16, 2.22, 2.31, 2.33, 3.87, 4.07, 4.3, 4.73, 4.88, 7.65, 7.82, 7.91, 8.11, 8.3, 8.43, 8.76, 9.97, 10.0]
+[pdo] POSITIVE CONTROL  S1 cross: planted rank 2/20, margin -0.21 sd
+[pdo] NEGATIVE CONTROL  S1 cross: s01 rank 9/19, margin -1.82 sd
+[pdo] S1 cross manifold (amo)   : real eta2_adj 0.113, rank 3/20, surrogates 0.067+-0.032, margin over best -0.58 sd
+[pdo] S1 own manifold           : real eta2_adj 0.263, rank 1/20, surrogates 0.064+-0.026, margin over best +5.17 sd
+[pdo] S2 cross penalized winding: real dBIC -154.2 at k=3.62, rank 1/20; surrogates dBIC -48.8, k chosen [0.25, 0.5, 1.13, 1.9, 2.04, 2.28, 2.51, 2.78, 3.15, 3.95, 4.02, 4.22, 5.25, 6.36, 6.59, 7.44, 7.73, 9.33, 10.0]
+[pdo] S2 own   penalized winding: real dBIC -525.7 at k=4.01, rank 1/20; surrogates dBIC -33.3, k chosen [1.43, 1.52, 1.64, 2.03, 2.33, 2.37, 3.71, 3.99, 4.09, 4.09, 4.97, 6.96, 7.42, 8.28, 8.99, 9.46, 9.57, 9.85, 10.0]
+[nino4] POSITIVE CONTROL  S1 cross: planted rank 1/20, margin +0.94 sd
+[nino4] NEGATIVE CONTROL  S1 cross: s01 rank 9/19, margin -1.48 sd
+[nino4] S1 cross manifold (amo)   : real eta2_adj 0.105, rank 1/20, surrogates 0.058+-0.025, margin over best +0.23 sd
+[nino4] S1 own manifold           : real eta2_adj 0.212, rank 1/20, surrogates 0.054+-0.026, margin over best +3.71 sd
+[nino4] S2 cross penalized winding: real dBIC -107.9 at k=3.68, rank 1/20; surrogates dBIC -44.2, k chosen [0.25, 0.25, 0.25, 0.98, 1.55, 2.12, 2.24, 2.91, 3.14, 3.18, 3.66, 5.09, 5.47, 5.57, 5.92, 6.47, 9.16, 9.57, 9.96]
+[nino4] S2 own   penalized winding: real dBIC -560.0 at k=3.99, rank 1/20; surrogates dBIC -37.1, k chosen [1.01, 1.14, 1.75, 1.77, 2.32, 2.39, 2.42, 2.43, 2.97, 3.82, 3.99, 4.11, 4.23, 5.65, 5.9, 7.19, 8.4, 8.9, 9.76]
