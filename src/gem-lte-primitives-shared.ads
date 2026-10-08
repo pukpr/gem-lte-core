@@ -31,6 +31,7 @@ package GEM.LTE.Primitives.Shared is
       mP : Long_Float;   -- 2nd order response
       shiftT : Long_Float;   -- Starting time correction
       init : Long_Float;   -- Initial value
+      rho : Long_Float;   -- TIDES=BLEND: weight of the Meeus generator (1 = pure ZONAL)
 
       LPAP : Long_Periods_Amp_Phase (1 .. NLP);
       LT : Modulations (1 .. NLT);
@@ -43,10 +44,10 @@ package GEM.LTE.Primitives.Shared is
    --  in the random descent optimization algorithm.
    --
    --  STRUCTURE (for NLP=29, NLT=11):
-   --    - 18 scalar Long_Float fields (Offset through init)
+   --    - 19 scalar Long_Float fields (Offset through rho)
    --    - LPAP array: NLP Amp_Phase records = NLP * 2 Long_Floats (58 floats)
    --    - LT array: NLT Long_Floats (11 floats)
-   --    TOTAL: 18 + 58 + 11 = 87 Long_Float values
+   --    TOTAL: 19 + 58 + 11 = 88 Long_Float values
    --
    --  SIZE CALCULATION:
    --    With GNAT compiler, unconstrained arrays have dope information (bounds)

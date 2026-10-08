@@ -577,13 +577,17 @@ package body GEM.LTE.Primitives is
      (Template : in Data_Pairs; Constituents : in Long_Periods_Amp_Phase;
       Periods : in Long_Periods; Ref_Time : in Long_Float := 0.0;
       Scaling : in Long_Float := 1.0; Cos_Phase : in Boolean := True;
-      Year_Len : in Long_Float := Year_Length; Integ : in Long_Float := 0.0) return Data_Pairs
+      Year_Len : in Long_Float := Year_Length; Integ : in Long_Float := 0.0;
+      Lod : in Long_Float := 0.0) return Data_Pairs
    is
       Pi : Long_Float := Ada.Numerics.Pi;
       Time : Long_Float;
       Res : Data_Pairs := Template;
       One : constant Long_Float := 1.0;
       Partition : constant Integer := 7; -- 4
+      --  LOD factor per line: Lod / Freq (the jerk is Integ * Freq)
+      function Lod_F (Freq : Long_Float) return Long_Float is
+        (if Lod = 0.0 or else Freq = 0.0 then 0.0 else Lod / Freq);
    begin
       for I in Template'Range loop
          Time := Template (I).Date + Ref_Time;
@@ -603,12 +607,14 @@ package body GEM.LTE.Primitives is
                      TF1 :=
                        TF1 +
                        L.Amplitude * (Cos (2.0 * Pi * Freq * Time + L.Phase)) - 
-                         Integ * Freq * (if Tide_Legacy then 1.0 else L.Amplitude) * (Sin (2.0 * Pi * Freq * Time + L.Phase));
+                         Integ * Freq * (if Tide_Legacy then 1.0 else L.Amplitude) * (Sin (2.0 * Pi * Freq * Time + L.Phase))
+                         + Lod_F (Freq) * L.Amplitude * Sin (2.0 * Pi * Freq * Time + L.Phase);
                   else
                      TF1 :=
                        TF1 +
                        L.Amplitude * (Sin (2.0 * Pi * Freq * Time + L.Phase)) + 
-                         Integ * Freq * (if Tide_Legacy then 1.0 else L.Amplitude) * (Cos (2.0 * Pi * Freq * Time + L.Phase));
+                         Integ * Freq * (if Tide_Legacy then 1.0 else L.Amplitude) * (Cos (2.0 * Pi * Freq * Time + L.Phase))
+                         - Lod_F (Freq) * L.Amplitude * Cos (2.0 * Pi * Freq * Time + L.Phase);
                   end if;
                end;
             end loop;
@@ -625,12 +631,14 @@ package body GEM.LTE.Primitives is
                      TF2 :=
                        TF2 +
                        L.Amplitude * (Cos (2.0 * Pi * Freq * Time + L.Phase)) - 
-                         Integ * Freq * (if Tide_Legacy then 1.0 else L.Amplitude) * (Sin (2.0 * Pi * Freq * Time + L.Phase));
+                         Integ * Freq * (if Tide_Legacy then 1.0 else L.Amplitude) * (Sin (2.0 * Pi * Freq * Time + L.Phase))
+                         + Lod_F (Freq) * L.Amplitude * Sin (2.0 * Pi * Freq * Time + L.Phase);
                   else
                      TF2 :=
                        TF2 +
                        L.Amplitude * (Sin (2.0 * Pi * Freq * Time + L.Phase)) +
-                         Integ * Freq * (if Tide_Legacy then 1.0 else L.Amplitude) * (Cos (2.0 * Pi * Freq * Time + L.Phase));
+                         Integ * Freq * (if Tide_Legacy then 1.0 else L.Amplitude) * (Cos (2.0 * Pi * Freq * Time + L.Phase))
+                         - Lod_F (Freq) * L.Amplitude * Cos (2.0 * Pi * Freq * Time + L.Phase);
                   end if;
                end;
             end loop;
@@ -783,7 +791,8 @@ package body GEM.LTE.Primitives is
      (Template : in Data_Pairs; Constituents : in Long_Periods_Amp_Phase;
       Periods : in Long_Periods; Ref_Time : in Long_Float := 0.0;
       Scaling : in Long_Float := 1.0; Cos_Phase : in Boolean := True;
-      Year_Len : in Long_Float := Year_Length; Integ : in Long_Float := 0.0) return Data_Pairs
+      Year_Len : in Long_Float := Year_Length; Integ : in Long_Float := 0.0;
+      Lod : in Long_Float := 0.0; Rho : in Long_Float := 1.0) return Data_Pairs
    is
       Res : Data_Pairs := Template;
       pragma Unreferenced (Ref_Time);
@@ -791,10 +800,62 @@ package body GEM.LTE.Primitives is
       --  TIDES=ZONAL: closed-form zonal tide rate (GEM.Zonal) instead of
       --  the constituent table; Integ (jerk) applied as in Tide_Sum_Diff.
       if GEM.Zonal.On then
-         for I in Res'Range loop
-            Res (I).Value := GEM.Zonal.Forcing_At
-              (Template (I).Date, (if Tide_Legacy then 0.0 else Integ));
-         end loop;
+         declare
+            T : GEM.Zonal.LF_Vec (Template'Range);
+         begin
+            for I in T'Range loop
+               T (I) := Template (I).Date;
+            end loop;
+            declare
+               F : constant GEM.Zonal.LF_Vec := GEM.Zonal.Forcing_Series
+                 (T, (if Tide_Legacy then 0.0 else Integ),
+                  (if Tide_Legacy then 0.0 else Year_Len), Lod);
+            begin
+               for I in Res'Range loop
+                  Res (I).Value := F (I);
+               end loop;
+            end;
+         end;
+         --  TIDES=BLEND: Rho * generator + (1 - Rho) * table, the table
+         --  scaled to the generator's variance
+         if GEM.Zonal.Blend then
+            declare
+               --  The table's phases refer to the base model year
+               --  (Year_Length (0.0), the year it must be calibrated at).
+               --  Its clock is anchored at 1990.5 like the generator's, so a
+               --  change of the fitted year re-times both parts together
+               --  instead of sliding the table's phases over ~2000 years.
+               Corr : constant Data_Pairs :=
+                 Tide_Sum_Diff
+                   (Template, Constituents, Periods,
+                    1990.5 * (Year_Length (0.0) / Year_Len - 1.0), Scaling,
+                    Cos_Phase and Tide_Legacy, Year_Len, Integ, Lod);
+               S : Long_Float := 0.0;
+            begin
+               for J in Constituents'Range loop
+                  S := S + 0.5 * Constituents (J).Amplitude**2;
+               end loop;
+               S := (if S > 0.0
+                     then Ada.Numerics.Long_Elementary_Functions.Sqrt (GEM.Zonal.Forcing_Variance / S)
+                     else 0.0);
+               for I in Res'Range loop
+                  Res (I).Value := Rho * Res (I).Value + (1.0 - Rho) * S * Corr (I).Value;
+               end loop;
+            end;
+         end if;
+         --  TIDES=HYBRID: the table adds correction lines to the generator
+         if GEM.Zonal.Hybrid then
+            declare
+               Corr : constant Data_Pairs :=
+                 Tide_Sum_Diff
+                   (Template, Constituents, Periods, 0.0, Scaling, Cos_Phase and Tide_Legacy,
+                    Year_Len, Integ, Lod);
+            begin
+               for I in Res'Range loop
+                  Res (I).Value := Res (I).Value + Corr (I).Value;
+               end loop;
+            end;
+         end if;
          return Res;
       end if;
       if Custom_Tide then
@@ -806,7 +867,7 @@ package body GEM.LTE.Primitives is
          Res :=
            Tide_Sum_Diff
              (Template, Constituents, Periods, 0.0, Scaling, Cos_Phase and Tide_Legacy,
-              Year_Len, Integ);
+              Year_Len, Integ, Lod);
       end if;
       return Res;
    end Tide_Sum;

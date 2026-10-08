@@ -1,3 +1,5 @@
+with Ada.Task_Attributes;
+with Ada.Unchecked_Deallocation;
 with Ada.Numerics.Long_Elementary_Functions;
 package body GEM.Zonal is
    --  v2 (2026-10-06): full Meeus ch. 47 tables from lteMod gem-ephemeris.adb, with three fixes
@@ -8,7 +10,15 @@ package body GEM.Zonal is
    use Ada.Numerics.Long_Elementary_Functions;
    D2R : constant Long_Float := Ada.Numerics.Pi / 180.0;
 
-   Zonal_On : constant Boolean := GEM.Getenv ("TIDES", "TABLE") = "ZONAL";
+   --  TIDES=HYBRID: the generator plus the constituent table as correction lines
+   --  (see Tide_Sum); everything keyed on Zonal_On behaves as in TIDES=ZONAL.
+   Hybrid_On : constant Boolean := GEM.Getenv ("TIDES", "TABLE") = "HYBRID";
+   --  TIDES=BLEND: rho * generator + (1 - rho) * the constituent table (lpap, e.g.
+   --  the dLOD regression), the table first scaled to the generator's variance
+   --  (see Tide_Sum); rho is the searched .p parameter "rho".
+   Blend_On : constant Boolean := GEM.Getenv ("TIDES", "TABLE") = "BLEND";
+   Zonal_On : constant Boolean :=
+     Hybrid_On or else Blend_On or else GEM.Getenv ("TIDES", "TABLE") = "ZONAL";
    Kappa : constant Long_Float := GEM.Getenv ("ZONAL_KAPPA", -5.866344);
    Tau   : constant Long_Float := GEM.Getenv ("ZONAL_TAU", 0.92);
    W_Sun : constant Long_Float := 0.4600 * GEM.Getenv ("ZONAL_WSUN", 1.0);
@@ -217,7 +227,12 @@ package body GEM.Zonal is
       ((2, 0, -1, -2, 0, 0, 0, 0), 8.752, False));
 
    function On return Boolean is (Zonal_On);
-   function JD_Of (T : Long_Float) return Long_Float is (JD_Anchor + (T - T_Anchor) * Year_Days);
+   function Hybrid return Boolean is (Hybrid_On);
+   function Blend return Boolean is (Blend_On);
+   --  0.0669 = variance of the daily forcing over the dLOD record at the default Kappa
+   function Forcing_Variance return Long_Float is (0.0669 * (Kappa / (-5.866344))**2);
+   function JD_Of (T : Long_Float; Year_Len : Long_Float := 0.0) return Long_Float is
+     (JD_Anchor + (T - T_Anchor) * (if Year_Len > 0.0 then Year_Len else Year_Days));
 
    function Is_Arg (X : Term; A, B, C, D : Integer) return Boolean is
      (X.Mu (1) = A and X.Mu (2) = B and X.Mu (3) = C and X.Mu (4) = D
@@ -278,14 +293,115 @@ package body GEM.Zonal is
    --  Integ = the jerk factor (shfT): forcing + (Integ / 2 pi) * d(forcing)/dt,
    --  t in years -- the same term Tide_Sum_Diff adds per line
    --  (Integ * Freq * Amplitude in quadrature).
-   function Forcing_At (T : Long_Float; Integ : Long_Float := 0.0) return Long_Float is
-      JD : constant Long_Float := JD_Of (T) - Tau;
-      F  : constant Long_Float := Kappa * Rate (JD);
+   --  mean of V over 1880-2021 (set at elaboration), removed from the LOD term
+   V_Mean : Long_Float := 0.0;
+   function Forcing_At
+     (T : Long_Float; Integ : Long_Float := 0.0; Year_Len : Long_Float := 0.0;
+      Lod : Long_Float := 0.0) return Long_Float is
+      YD : constant Long_Float := (if Year_Len > 0.0 then Year_Len else Year_Days);
+      JD : constant Long_Float := JD_Of (T, YD) - Tau;
+      F  : Long_Float := Kappa * Rate (JD);
    begin
-      if Integ = 0.0 then
-         return F;
+      if Integ /= 0.0 then
+         F := F + Integ / (2.0 * Ada.Numerics.Pi) * Kappa
+           * (Rate (JD + 0.25) - Rate (JD - 0.25)) / 0.5 * YD;
       end if;
-      return F + Integ / (2.0 * Ada.Numerics.Pi) * Kappa
-        * (Rate (JD + 0.25) - Rate (JD - 0.25)) / 0.5 * Year_Days;
+      if Lod /= 0.0 then
+         F := F + Lod * 2.0 * Ada.Numerics.Pi * Kappa * (Potential (JD) - V_Mean) / YD;
+      end if;
+      return F;
    end Forcing_At;
+
+   type Vec_Access is access LF_Vec;
+   procedure Free is new Ada.Unchecked_Deallocation (LF_Vec, Vec_Access);
+   type Slot is record
+      N : Integer := 0;
+      YD, T_First, T_Mid, T_Last : Long_Float := 0.0;
+      R0, DR, PV : Vec_Access;      -- Rate, Rate (+0.25) - Rate (-0.25), Potential - V_Mean
+      Stamp : Natural := 0;
+   end record;
+   type Slot_Array is array (1 .. 2) of Slot;
+   type Cache is record
+      S : Slot_Array;
+      Clock : Natural := 0;
+   end record;
+   type Cache_Access is access Cache;
+   package Cache_Attr is new Ada.Task_Attributes (Cache_Access, null);
+
+   function Forcing_Series
+     (T : LF_Vec; Integ : Long_Float := 0.0; Year_Len : Long_Float := 0.0;
+      Lod : Long_Float := 0.0) return LF_Vec
+   is
+      YD : constant Long_Float := (if Year_Len > 0.0 then Year_Len else Year_Days);
+      Res : LF_Vec (T'Range);
+      C : Cache_Access := Cache_Attr.Value;
+      K : Integer := 0;
+      Mid : constant Integer := (if T'Length = 0 then T'First else T'First + T'Length / 2);
+   begin
+      if T'Length = 0 then
+         return Res;
+      end if;
+      if C = null then
+         C := new Cache;
+         Cache_Attr.Set_Value (C);
+      end if;
+      for I in C.S'Range loop
+         if C.S (I).N = T'Length and then C.S (I).YD = YD
+           and then C.S (I).T_First = T (T'First) and then C.S (I).T_Mid = T (Mid)
+           and then C.S (I).T_Last = T (T'Last)
+         then
+            K := I;
+         end if;
+      end loop;
+      if K = 0 then
+         K := (if C.S (1).Stamp <= C.S (2).Stamp then 1 else 2);   -- least recently used
+         Free (C.S (K).R0); Free (C.S (K).DR); Free (C.S (K).PV);
+         C.S (K).N := T'Length; C.S (K).YD := YD;
+         C.S (K).T_First := T (T'First); C.S (K).T_Mid := T (Mid); C.S (K).T_Last := T (T'Last);
+         C.S (K).R0 := new LF_Vec (T'Range);
+         for I in T'Range loop
+            C.S (K).R0 (I) := Rate (JD_Of (T (I), YD) - Tau);
+         end loop;
+      end if;
+      C.Clock := C.Clock + 1;
+      C.S (K).Stamp := C.Clock;
+      if Integ /= 0.0 and then C.S (K).DR = null then
+         C.S (K).DR := new LF_Vec (T'Range);
+         for I in T'Range loop
+            C.S (K).DR (I) := Rate (JD_Of (T (I), YD) - Tau + 0.25) - Rate (JD_Of (T (I), YD) - Tau - 0.25);
+         end loop;
+      end if;
+      if Lod /= 0.0 and then C.S (K).PV = null then
+         C.S (K).PV := new LF_Vec (T'Range);
+         for I in T'Range loop
+            C.S (K).PV (I) := Potential (JD_Of (T (I), YD) - Tau) - V_Mean;
+         end loop;
+      end if;
+      --  same expressions, in the same order, as Forcing_At
+      for I in T'Range loop
+         declare
+            F : Long_Float := Kappa * C.S (K).R0 (C.S (K).R0'First + (I - T'First));
+         begin
+            if Integ /= 0.0 then
+               F := F + Integ / (2.0 * Ada.Numerics.Pi) * Kappa
+                 * C.S (K).DR (C.S (K).DR'First + (I - T'First)) / 0.5 * YD;
+            end if;
+            if Lod /= 0.0 then
+               F := F + Lod * 2.0 * Ada.Numerics.Pi * Kappa * C.S (K).PV (C.S (K).PV'First + (I - T'First)) / YD;
+            end if;
+            Res (I) := F;
+         end;
+      end loop;
+      return Res;
+   end Forcing_Series;
+begin
+   declare
+      N : constant Integer := 17_166;   -- 1880-01-01 to 2021, every 3 days
+      S : Long_Float := 0.0;
+   begin
+      for I in 0 .. N loop
+         S := S + Potential (2_407_715.5 + 3.0 * Long_Float (I));
+      end loop;
+      V_Mean := S / Long_Float (N + 1);
+   end;
 end GEM.Zonal;

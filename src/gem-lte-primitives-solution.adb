@@ -73,7 +73,7 @@ package body GEM.LTE.Primitives.Solution is
    --  showing how well the tidal reconstruction matches reference data.
    function CompareRef
      (LP : in Long_Periods; AP : in Long_Periods_Amp_Phase;
-      Year_Correction : in Long_Float)
+      Year_Correction : in Long_Float; Rho : in Long_Float := 1.0)
       return Long_Float
    is
       dLOD_dat : String := GEM.Getenv ("DLOD_DAT", "../dlod3.dat");
@@ -95,7 +95,7 @@ package body GEM.LTE.Primitives.Solution is
         Tide_Sum
           (Template => Ref, Constituents => AP, Periods => LP,
            Ref_Time => Ref_Time, Scaling => 1.0, Cos_Phase => False,
-           Year_Len => Year_Length (Year_Correction));
+           Year_Len => Year_Length (Year_Correction), Rho => Rho);
       --  TIDES=ZONAL: Tide_Sum returns the generator for both calls, so
       --  the gate compares the generator directly with the observed dLOD.
       if GEM.Zonal.On then
@@ -704,7 +704,8 @@ package body GEM.LTE.Primitives.Solution is
       Lock_Tidal : constant Boolean := GEM.Getenv ("LOCKT", False);
       Lock_T_Amp : constant Boolean := GEM.Getenv ("LOCKA", False);
       --  IMPULSE_MOD12: see Impulse_Delta (impulse month taken modulo the year).
-      Impulse_Mod12 : constant Boolean := GEM.Getenv ("IMPULSE_MOD12", False);
+      --  default on under TIDES=ZONAL, so the semiannual (delA) impulse can fire
+      Impulse_Mod12 : constant Boolean := GEM.Getenv ("IMPULSE_MOD12", GEM.Zonal.On);
       --  Constrains ltep (the "winding"/LT modulation period) entries to
       --  snap to the nearest value in a caller-supplied canonical set
       --  (backbone harmonics/subharmonics) after each Markov step that
@@ -818,6 +819,11 @@ package body GEM.LTE.Primitives.Solution is
       Manifold_Ref : constant Data_Pairs :=
         (if Manifold_Regularize then Make_Data (Manifold_Ref_File)
          else Empty_Data);
+      --  TIDES=HYBRID: ridge weight on the table's correction lines (see GEM.Zonal)
+      Hybrid_Lambda : constant Long_Float := GEM.Getenv ("HYBRID_LAMBDA", 1.0);
+      --  LOD_TERM: mixes a little LOD (time integral of the dLOD-rate forcing)
+      --  into the climate forcing, amplitude-corrected per line (see GEM.Zonal)
+      Lod_Term : constant Long_Float := GEM.Getenv ("LOD_TERM", 0.0);
 
       function Metric (X, Y, Z : in Data_Pairs) return Long_Float is
          Raw_Score : Long_Float;
@@ -890,6 +896,20 @@ package body GEM.LTE.Primitives.Solution is
                   --  (e.g. a shorter/misaligned reference file) -- no
                   --  reference available for this range, so no penalty.
                   null;
+            end;
+         end if;
+
+         --  TIDES=HYBRID: penalize the correction lines by their share of
+         --  the generator's variance, so a line only grows if it pays.
+         if GEM.Zonal.Hybrid and then Hybrid_Lambda > 0.0 then
+            declare
+               S : Long_Float := 0.0;
+            begin
+               for I in D.B.LPAP'Range loop
+                  S := S + 0.5 * D.B.LPAP (I).Amplitude**2;
+               end loop;
+               Raw_Score := Raw_Score * Long_Float'Max
+                 (0.0, 1.0 - Hybrid_Lambda * S / GEM.Zonal.Forcing_Variance);
             end;
          end if;
 
@@ -1469,9 +1489,9 @@ package body GEM.LTE.Primitives.Solution is
         GEM.LTE.Primitives.Param_B_Overlay.Overlay_Size (D.B.NLP, D.B.NLT);
       
       -- Reduced size for Walker search based on NM (only search used LT entries)
-      -- Size = 18 scalars + (NLP * 2) LPAP + NM LT entries
+      -- Size = 19 scalars + (NLP * 2) LPAP + NM LT entries
       Size_Shared : constant Positive :=
-        GEM.Getenv ("DSIZE", 18 + (D.B.NLP * 2) + NM);
+        GEM.Getenv ("DSIZE", 19 + (D.B.NLP * 2) + NM);
 
       package Walker is new GEM.Random_Descent
         (Fixed => Is_Fixed, Set_Range => Size_Shared,
@@ -1641,7 +1661,8 @@ package body GEM.LTE.Primitives.Solution is
                         (Template => Extended_Template,
                          Constituents => Jerked_Tidal_Factors,
                          Periods => D.A.LP, Ref_Time => 0.0, Scaling => 0.0,
-                         Year_Len => Year_Length (D.B.Year), Integ => D.B.ShiftT),
+                         Year_Len => Year_Length (D.B.Year), Integ => D.B.ShiftT,
+                         Lod => Lod_Term, Rho => D.B.rho),
                     Offset => 0.0, Ramp => 0.0,
                     Start => Extended_Template (Extended_Template'First).Date);
                --  Start_Index searches for the first Date STRICTLY
@@ -1676,7 +1697,8 @@ package body GEM.LTE.Primitives.Solution is
                    Tide_Sum
                      (Template => Data_Records, Constituents => Jerked_Tidal_Factors,
                       Periods => D.A.LP, Ref_Time => 0.0, Scaling => 0.0,
-                      Year_Len => Year_Length (D.B.Year), Integ => D.B.ShiftT),
+                      Year_Len => Year_Length (D.B.Year), Integ => D.B.ShiftT,
+                         Lod => Lod_Term, Rho => D.B.rho),
                  Offset => 0.0, Ramp => 0.0,
                  Start => Data_Records (Data_Records'First).Date);
 
@@ -2555,7 +2577,7 @@ package body GEM.LTE.Primitives.Solution is
          end if;
 
          CorrCoeff :=
-           CompareRef (DKeep.A.LP, DKeep.B.LPAP, DKeep.B.Year);
+           CompareRef (DKeep.A.LP, DKeep.B.LPAP, DKeep.B.Year, DKeep.B.rho);
          Put (CorrCoeff, ":dLOD:   ");
          Put (Year_Length (DKeep.B.Year), ":Yr: " & File_Name);
          Save_Mutex.Release (ID);

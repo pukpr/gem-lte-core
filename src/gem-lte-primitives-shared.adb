@@ -238,6 +238,7 @@ package body GEM.LTE.Primitives.Shared is
          Set_Field (Obj, "mp", Create (D.B.mP));
          Set_Field (Obj, "shfT", Create (D.B.shiftT));
          Set_Field (Obj, "init", Create (D.B.init));
+         Set_Field (Obj, "rho", Create (D.B.rho));
          
          -- LPAP array (tidal constituents) - only in primary file
          if Include_LPAP then
@@ -458,6 +459,7 @@ package body GEM.LTE.Primitives.Shared is
       Set_Field (Manifold, "ma", Create (B.mA));
       Set_Field (Manifold, "mp", Create (B.mP));
       Set_Field (Manifold, "shiftT", Create (B.shiftT));
+      Set_Field (Manifold, "rho", Create (B.rho));
       Set_Field (Manifold, "impA", Create (B.ImpA));
       Set_Field (Manifold, "impB", Create (B.ImpB));
       Set_Field (Manifold, "offs", Create (B.Offset));
@@ -796,6 +798,8 @@ package body GEM.LTE.Primitives.Shared is
         Get_Float_Field
           (Data, "shfT", Get_Float_Field (Data, "shft", D.B.shiftT));
       D.B.init := Get_Float_Field (Data, "init", D.B.init);
+      --  absent in older files: 1.0 = pure Meeus generator
+      D.B.rho := Get_Float_Field (Data, "rho", 1.0);
       if Include_LPAP then
          Read_JSON_LPAP (Data, "LPAP", D);
          Read_JSON_LPAP (Data, "lpap", D);
@@ -919,6 +923,7 @@ package body GEM.LTE.Primitives.Shared is
       Put (D.B.mP, " :mP:", NL);
       Put (D.B.shiftT, " :shiftT:", NL);
       Put (D.B.init, " :init:", NL);
+      Put (D.B.rho, " :rho:", NL);
       Ada.Text_IO.Put_Line ("---- Tidal ----");
       for I in D.B.LPAP'Range loop
          Put (D.A.LP (I), ", ");

@@ -13,7 +13,7 @@ package body GEM.LTE.Primitives.Param_B_Overlay is
    
    function First_LPAP_Index return Positive is
    begin
-      return Scalar_Field_Count + 1;  -- 19
+      return Scalar_Field_Count + 1;  -- 20
    end First_LPAP_Index;
    
    function First_LT_Index (NLP : Integer) return Positive is
@@ -51,7 +51,7 @@ package body GEM.LTE.Primitives.Param_B_Overlay is
       Text_IO.Put_Line ("  NLT (modulations) = " & P.NLT'Image);
       Text_IO.Put_Line ("  Expected overlay size = " & Expected_Size'Image);
       Text_IO.Put_Line ("  Calculated (P'Size / LF'Size - 1) = " & Calculated_Size'Image);
-      Text_IO.Put_Line ("  Manual (18 + NLP*2 + NLT) = " & Manual_Size'Image);
+      Text_IO.Put_Line ("  Manual (19 + NLP*2 + NLT) = " & Manual_Size'Image);
       
       if Calculated_Size /= Expected_Size then
          Text_IO.Put_Line ("  ERROR: Calculated size mismatch!");
@@ -132,7 +132,8 @@ package body GEM.LTE.Primitives.Param_B_Overlay is
             (MA_Index,     "mA       ", P.mA),
             (MP_Index,     "mP       ", P.mP),
             (ShiftT_Index, "shiftT   ", P.shiftT),
-            (Init_Index,   "init     ", P.init)
+            (Init_Index,   "init     ", P.init),
+            (Rho_Index,    "rho      ", P.rho)
          );
          
          Matches : Natural := 0;

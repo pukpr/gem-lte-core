@@ -46,7 +46,7 @@ procedure ENSO_Opt is  -- gprbuild lte.gpr enso_opt -largs -Wl, --stack=40000000
          ImpA => 1.0, ImpB => 0.0, ImpC => 0.0, DelA => 0.0, DelB => 0.0,
          Asym => 0.0, Ann1 => 0.0, Ann2 => 0.0, Sem1 => 0.0, Sem2 => 0.0,
          Year => 0.0, IR => 0.0, mA => 0.0, mP => 0.0, shiftT => 0.000_00,
-         init => 0.006_3),
+         init => 0.006_3, rho => 1.0),
       C => (others => 0));
 
 begin

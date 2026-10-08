@@ -61,7 +61,8 @@ package GEM.LTE.Primitives is
      (Template : in Data_Pairs; Constituents : in Long_Periods_Amp_Phase;
       Periods : in Long_Periods; Ref_Time : in Long_Float := 0.0;
       Scaling : in Long_Float := 1.0; Cos_Phase : in Boolean := True;
-      Year_Len : in Long_Float := Year_Length; Integ : in Long_Float := 0.0) return Data_Pairs;
+      Year_Len : in Long_Float := Year_Length; Integ : in Long_Float := 0.0;
+      Lod : in Long_Float := 0.0; Rho : in Long_Float := 1.0) return Data_Pairs;
 
    --  Accel_Ref (default Long_Float'First, a sentinel meaning "use
    --  Forcing'First's own date", today's exact behavior): the calendar
