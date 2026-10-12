@@ -8,7 +8,7 @@ value when it defines one (e.g. most index dirs set IDATE=1880.0, not the
 
     JSON mode on (-j), METRIC=CC, TIMEOUT=1000, IDATE=1920.9,
     EXCLUDE=true, TREND=true, F9=1, TEST_ONLY=false,
-    DLOD_REF=TRUE, LOCKT=FALSE, LOCKA=FALSE, ZONE=FALSE, RIDGE=0.0, sim off.
+    DLOD_REF=TRUE, LOCKT=FALSE, LOCKA=FALSE, BZONE=FALSE, RIDGE=0.0, sim off.
 
 An explicit CLI flag always wins over both the resp file and the GUI
 default. The only thing you normally change is the CV interval
@@ -86,7 +86,7 @@ def _resp_float(resp: dict, key: str, fallback: float) -> float:
 def _bool_str(raw, true_str: str, false_str: str) -> str:
     """Interpret a resp/env boolean string the same way Ada's GEM.Getenv
     does (case-insensitive TRUE/T/1), rendered in the caller's casing
-    convention (e.g. "true"/"false" for EXCLUDE, "TRUE"/"FALSE" for ZONE)."""
+    convention (e.g. "true"/"false" for EXCLUDE, "TRUE"/"FALSE" for BZONE)."""
     return true_str if str(raw).strip().upper() in ("TRUE", "T", "1") else false_str
 
 
@@ -127,8 +127,10 @@ def build_env(index: str, args: argparse.Namespace, resp: dict) -> dict:
                      _bool_str(resp.get("LOCKT", DEFAULTS["lockt"]), "TRUE", "FALSE"))
     env["LOCKA"] = ("TRUE" if args.lock_tidal_amplitude else
                      _bool_str(resp.get("LOCKA", DEFAULTS["locka"]), "TRUE", "FALSE"))
-    env["ZONE"] = ("TRUE" if args.zone else
-                    _bool_str(resp.get("ZONE", DEFAULTS["zone"]), "TRUE", "FALSE"))
+    # BZONE = Brillouin-zone folding; the older key/flag ZONE is still accepted
+    env["BZONE"] = ("TRUE" if args.zone else
+                     _bool_str(resp.get("BZONE", resp.get("ZONE", DEFAULTS["zone"])), "TRUE", "FALSE"))
+    env["ZONE"] = env["BZONE"]
     env["ENCLOSING"] = ("TRUE" if args.enclosed is not None else
                          _bool_str(resp.get("ENCLOSING", DEFAULTS["enclosing"]), "TRUE", "FALSE"))
     env["ENCLOSED"] = (args.enclosed.upper() if args.enclosed is not None
@@ -168,8 +170,8 @@ def main() -> int:
     # explicitly passed" apart from "not passed, use the resp/GUI default".
     ap.add_argument("--test-only", action="store_true", default=None,
                     help="force TEST_ONLY=true (default: from lt.exe.resp, else false)")
-    ap.add_argument("--zone", action="store_true", default=None,
-                    help="force ZONE=TRUE (default: from lt.exe.resp, else FALSE)")
+    ap.add_argument("--bzone", "--zone", dest="zone", action="store_true", default=None,
+                    help="force BZONE=TRUE, Brillouin-zone folding (default: from lt.exe.resp, else FALSE); --zone is the older spelling")
     ap.add_argument("--enclosed", choices=["u", "ul"], nargs="?", const="ul",
                     default=None,
                     help="force ENCLOSING=TRUE — fit only on the data BEFORE "

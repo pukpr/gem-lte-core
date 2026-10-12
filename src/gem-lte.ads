@@ -14,13 +14,29 @@ package GEM.LTE is
 
    Draconic : constant Long_Float := 27.212_220_815;
    --Draconic : constant Long_Float := 27.212_0;
-   Tropical : constant Long_Float := 27.321_661_554; -- 27.32166155;
-   --Tropical : constant Long_Float := 27.321_582_252;
+   --  The Moon's mean-longitude month used for the Doodson argument s.
+   --    sidereal month 27.321_661_554 d (star to star)       -> Mf 13.660831 d
+   --    tropical month 27.321_582_252 d (equinox to equinox) -> Mf 13.660791 d
+   --  The value used up to now (under the name Tropical) is the SIDEREAL
+   --  month, and it stays the default so existing fits are unchanged.
+   --  TROPICAL=TRUE (or SIDEREAL=FALSE) selects the tropical month.
+   Sidereal_Month : constant Long_Float := 27.321_661_554;
+   Tropical_Month : constant Long_Float := 27.321_582_252;
+   Use_Tropical : constant Boolean :=
+     GEM.Getenv ("TROPICAL", False) or else not GEM.Getenv ("SIDEREAL", True);
+   Tropical : constant Long_Float :=
+     (if Use_Tropical then Tropical_Month else Sidereal_Month);
    Anomalistic : constant Long_Float := 27.554_549_886;
    Extra : constant Long_Float := GEM.Getenv ("EXTRA", 0.405);
 
-   N : constant := 1.0 / (1.0 / Draconic - 1.0 / Tropical);
-   p : constant := 1.0 / (1.0 / Tropical - 1.0 / Anomalistic);
+   --  nodal and perigee periods, as exact static values for each month so
+   --  the default reproduces earlier results bit for bit
+   N_Sid : constant := 1.0 / (1.0 / Draconic - 1.0 / Sidereal_Month);
+   p_Sid : constant := 1.0 / (1.0 / Sidereal_Month - 1.0 / Anomalistic);
+   N_Trop : constant := 1.0 / (1.0 / Draconic - 1.0 / Tropical_Month);
+   p_Trop : constant := 1.0 / (1.0 / Tropical_Month - 1.0 / Anomalistic);
+   N : constant Long_Float := (if Use_Tropical then N_Trop else N_Sid);
+   p : constant Long_Float := (if Use_Tropical then p_Trop else p_Sid);
    --Year_Length : constant := 365.2412384;  -- 365.241237718675000;
 
    function Year_Length (Dynamic_Correction : Long_Float := 0.0)

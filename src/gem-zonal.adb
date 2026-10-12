@@ -1,4 +1,5 @@
 with Ada.Task_Attributes;
+with GEM.LTE;
 with Ada.Unchecked_Deallocation;
 with Ada.Numerics.Long_Elementary_Functions;
 package body GEM.Zonal is
@@ -27,6 +28,22 @@ package body GEM.Zonal is
    M_Var   : constant Long_Float := GEM.Getenv ("ZONAL_VAR", 1.0);
    M_AnnEq : constant Long_Float := GEM.Getenv ("ZONAL_ANNEQ", 1.0);
    M_Incl  : constant Long_Float := GEM.Getenv ("ZONAL_INCL", 1.0);
+   --  ZONAL_SIDEREAL (0 .. 1): fraction of the general precession in
+   --  longitude (1.3969713 deg per century) removed from the Moon's longitude,
+   --  counted from the clock anchor 1990.5. 0 = longitude from the equinox of
+   --  date (tropical: Mf 13.660791 d, Mt 9.132933 d); 1 = from the equinox fixed
+   --  at 1990.5 (sidereal: Mf 13.660831 d, Mt 9.132951 d, the constituent
+   --  table's periods); between = a combination of the two. Phases at 1990.5,
+   --  and so the dLOD calibration, are the same for every value. The Sun is
+   --  left tropical unless ZONAL_SIDEREAL_SUN (same meaning) is set.
+   --  Default (2026-10-09): the same month as the constituent table, i.e.
+   --  1 (sidereal) unless TROPICAL=TRUE / SIDEREAL=FALSE (see GEM.LTE), then 0.
+   --  Fits made before that date were tropical: give them ZONAL_SIDEREAL 0.
+   Sidereal : constant Long_Float :=
+     GEM.Getenv ("ZONAL_SIDEREAL", (if GEM.LTE.Use_Tropical then 0.0 else 1.0));
+   Sidereal_Sun : constant Long_Float := GEM.Getenv ("ZONAL_SIDEREAL_SUN", 0.0);
+   Prec_Rate : constant Long_Float := 1.3969713;     -- deg per Julian century
+   T_Prec0 : constant Long_Float := (2448074.761995 - 2451545.0) / 36525.0;
 
    --  Clock: the tides are evaluated at true Julian dates; the model (and its annual
    --  impulse comb) advances one MODEL year per decimal year, of length
@@ -256,7 +273,9 @@ package body GEM.Zonal is
       return Acc;
    end Series;
 
-   function Potential (JD : Long_Float) return Long_Float is
+   --  the four factors of the potential: Moon (a / r)**3 and 3 sin**2 dec - 1,
+   --  Sun likewise
+   procedure Core (JD : Long_Float; Rm3, HM, Rs3, HS : out Long_Float) is
       T  : constant Long_Float := (JD - 2451545.0) / 36525.0;
       L  : constant Long_Float := 218.3164477 + (481267.88123421 + (-0.0015786 + (1.85584E-6 - 1.53388E-8 * T) * T) * T) * T;
       M  : constant Long_Float := 357.5291092 + (35999.0502909 + (-0.0001536 - 4.0833E-8 * T) * T) * T;
@@ -269,11 +288,11 @@ package body GEM.Zonal is
       Eps : constant Long_Float := (23.43929111 + (-0.0130041667 + (-1.638889E-7 + 5.036111E-7 * T) * T) * T) * D2R;
       E  : constant Long_Float := 1.0 - (0.002516 + 0.0000074 * T) * T;
       V  : constant Vals := (DD * D2R, M * D2R, Mm * D2R, FF * D2R, A1 * D2R, A2 * D2R, A3 * D2R, L * D2R);
-      Lam : constant Long_Float := (L + Series (Lon, V, E, False)) * D2R;
+      Lam : constant Long_Float :=
+        (L + Series (Lon, V, E, False) - Sidereal * Prec_Rate * (T - T_Prec0)) * D2R;
       Bet : constant Long_Float := Series (Lat, V, E, True) * D2R;
       Rm  : constant Long_Float := (385000.56 + Series (Dist, V, E, False)) / 385000.56;
       SDec : constant Long_Float := Sin (Bet) * Cos (Eps) + Cos (Bet) * Sin (Eps) * Sin (Lam);
-      Res : Long_Float := Rm ** (-3) * (3.0 * SDec * SDec - 1.0) / 2.0;
       --  Sun (Keplerian, equation of the centre)
       L0 : constant Long_Float := 280.46646 + 36000.76983 * T;
       Mr : constant Long_Float := M * D2R;
@@ -281,9 +300,21 @@ package body GEM.Zonal is
       Ec : constant Long_Float := 0.016708634 - 0.000042037 * T;
       Nu : constant Long_Float := Mr + C * D2R;
       Rs : constant Long_Float := (1.000001018 * (1.0 - Ec * Ec)) / (1.0 + Ec * Cos (Nu));
-      Sd : constant Long_Float := Sin (Eps) * Sin ((L0 + C) * D2R);
+      Sd : constant Long_Float :=
+        Sin (Eps) * Sin ((L0 + C - Sidereal_Sun * Prec_Rate * (T - T_Prec0)) * D2R);
    begin
-      Res := Res + W_Sun * Rs ** (-3) * (3.0 * Sd * Sd - 1.0) / 2.0;
+      Rm3 := Rm ** (-3);
+      HM := 3.0 * SDec * SDec - 1.0;
+      Rs3 := Rs ** (-3);
+      HS := 3.0 * Sd * Sd - 1.0;
+   end Core;
+
+   function Potential (JD : Long_Float) return Long_Float is
+      Rm3, HM, Rs3, HS, Res : Long_Float;
+   begin
+      Core (JD, Rm3, HM, Rs3, HS);
+      Res := Rm3 * HM / 2.0;
+      Res := Res + W_Sun * Rs3 * HS / 2.0;
       return Res;
    end Potential;
 
@@ -314,10 +345,20 @@ package body GEM.Zonal is
 
    type Vec_Access is access LF_Vec;
    procedure Free is new Ada.Unchecked_Deallocation (LF_Vec, Vec_Access);
+   --  shift grid for the timing adjustables: offsets (K - Kn - 1) * Hn days,
+   --  K in 1 .. NN, about each of the two centres -0.5 and +0.5 day of Rate
+   Kn : constant := 6;
+   NN : constant := 2 * Kn + 1;
+   Hn : constant Long_Float := 0.125;
+   type Mat is array (Integer range <>, Integer range <>) of Long_Float;
+   type Mat_Access is access Mat;
+   procedure Free is new Ada.Unchecked_Deallocation (Mat, Mat_Access);
    type Slot is record
       N : Integer := 0;
       YD, T_First, T_Mid, T_Last : Long_Float := 0.0;
       R0, DR, PV : Vec_Access;      -- Rate, Rate (+0.25) - Rate (-0.25), Potential - V_Mean
+      D2 : Vec_Access;              -- second time derivative of Rate, per day**2
+      G, H, S : Mat_Access;         -- Rm**-3, 3 sin**2 dec - 1, Sun's product on the shift grid
       Stamp : Natural := 0;
    end record;
    type Slot_Array is array (1 .. 2) of Slot;
@@ -330,9 +371,32 @@ package body GEM.Zonal is
 
    function Forcing_Series
      (T : LF_Vec; Integ : Long_Float := 0.0; Year_Len : Long_Float := 0.0;
-      Lod : Long_Float := 0.0) return LF_Vec
+      Lod : Long_Float := 0.0; Tau_Mult : Long_Float := 1.0;
+      Dist_Mult : Long_Float := 1.0; Tilt : Long_Float := 0.0;
+      Ssa_A : Long_Float := 0.0; Ssa_P : Long_Float := 0.0) return LF_Vec
    is
       YD : constant Long_Float := (if Year_Len > 0.0 then Year_Len else Year_Days);
+      Shifted : constant Boolean := Tau_Mult /= 1.0 or else Dist_Mult /= 1.0;
+      Lim : constant Long_Float := 0.5;
+      --  offsets in days added to the evaluation time (JD_Of - Tau)
+      S_Dec : constant Long_Float :=
+        Long_Float'Max (-Lim, Long_Float'Min (Lim, -Tau * (Tau_Mult - 1.0)));
+      S_Dist : constant Long_Float :=
+        Long_Float'Max (-Lim, Long_Float'Min (Lim, S_Dec - Tau * Tau_Mult * (Dist_Mult - 1.0)));
+      W0_2 : constant Long_Float := (2.0 * Ada.Numerics.Pi / 13.6608) ** 2;
+      --  cubic Lagrange interpolation of row I of M at offset Sh about centre C (0 or 1)
+      function Interp (M : Mat_Access; I, C : Integer; Sh : Long_Float) return Long_Float is
+         X : constant Long_Float := Sh / Hn + Long_Float (Kn + 1);
+         J : constant Integer :=
+           Integer'Max (2, Integer'Min (NN - 2, Integer (Long_Float'Floor (X))));
+         U : constant Long_Float := X - Long_Float (J);
+         B : constant Integer := C * NN + J;
+      begin
+         return -U * (U - 1.0) * (U - 2.0) / 6.0 * M (I, B - 1)
+           + (U + 1.0) * (U - 1.0) * (U - 2.0) / 2.0 * M (I, B)
+           - (U + 1.0) * U * (U - 2.0) / 2.0 * M (I, B + 1)
+           + (U + 1.0) * U * (U - 1.0) / 6.0 * M (I, B + 2);
+      end Interp;
       Res : LF_Vec (T'Range);
       C : Cache_Access := Cache_Attr.Value;
       K : Integer := 0;
@@ -356,6 +420,7 @@ package body GEM.Zonal is
       if K = 0 then
          K := (if C.S (1).Stamp <= C.S (2).Stamp then 1 else 2);   -- least recently used
          Free (C.S (K).R0); Free (C.S (K).DR); Free (C.S (K).PV);
+         Free (C.S (K).D2); Free (C.S (K).G); Free (C.S (K).H); Free (C.S (K).S);
          C.S (K).N := T'Length; C.S (K).YD := YD;
          C.S (K).T_First := T (T'First); C.S (K).T_Mid := T (Mid); C.S (K).T_Last := T (T'Last);
          C.S (K).R0 := new LF_Vec (T'Range);
@@ -377,11 +442,58 @@ package body GEM.Zonal is
             C.S (K).PV (I) := Potential (JD_Of (T (I), YD) - Tau) - V_Mean;
          end loop;
       end if;
+      if Tilt /= 0.0 and then C.S (K).D2 = null then
+         C.S (K).D2 := new LF_Vec (T'Range);
+         for I in T'Range loop
+            declare
+               JD : constant Long_Float := JD_Of (T (I), YD) - Tau;
+            begin
+               C.S (K).D2 (I) := (Rate (JD + 0.25) - 2.0 * Rate (JD) + Rate (JD - 0.25)) / 0.0625;
+            end;
+         end loop;
+      end if;
+      if Shifted and then C.S (K).G = null then
+         C.S (K).G := new Mat (T'Range, 1 .. 2 * NN);
+         C.S (K).H := new Mat (T'Range, 1 .. 2 * NN);
+         C.S (K).S := new Mat (T'Range, 1 .. 2 * NN);
+         for I in T'Range loop
+            for Ctr in 0 .. 1 loop
+               for J in 1 .. NN loop
+                  declare
+                     Rm3, HM, Rs3, HS : Long_Float;
+                  begin
+                     Core (JD_Of (T (I), YD) - Tau + (Long_Float (Ctr) - 0.5)
+                           + Long_Float (J - Kn - 1) * Hn, Rm3, HM, Rs3, HS);
+                     C.S (K).G (I, Ctr * NN + J) := Rm3;
+                     C.S (K).H (I, Ctr * NN + J) := HM;
+                     C.S (K).S (I, Ctr * NN + J) := Rs3 * HS;
+                  end;
+               end loop;
+            end loop;
+         end loop;
+      end if;
       --  same expressions, in the same order, as Forcing_At
       for I in T'Range loop
          declare
             F : Long_Float := Kappa * C.S (K).R0 (C.S (K).R0'First + (I - T'First));
          begin
+            if Shifted then
+               declare
+                  V : array (0 .. 1) of Long_Float;
+               begin
+                  for Ctr in 0 .. 1 loop
+                     V (Ctr) := Interp (C.S (K).G, I, Ctr, S_Dist) * Interp (C.S (K).H, I, Ctr, S_Dec) / 2.0
+                       + W_Sun * Interp (C.S (K).S, I, Ctr, S_Dec) / 2.0;
+                  end loop;
+                  F := Kappa * (V (1) - V (0));
+               end;
+            end if;
+            if Tilt /= 0.0 then
+               F := F + Tilt * (F + Kappa * C.S (K).D2 (C.S (K).D2'First + (I - T'First)) / W0_2);
+            end if;
+            if Ssa_A /= 0.0 then
+               F := F + Ssa_A * Sin (2.0 * Ada.Numerics.Pi * (JD_Of (T (I), YD) - 2_451_545.0) / 182.62112 + Ssa_P);
+            end if;
             if Integ /= 0.0 then
                F := F + Integ / (2.0 * Ada.Numerics.Pi) * Kappa
                  * C.S (K).DR (C.S (K).DR'First + (I - T'First)) / 0.5 * YD;

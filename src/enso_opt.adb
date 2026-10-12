@@ -24,7 +24,10 @@ procedure ENSO_Opt is  -- gprbuild lte.gpr enso_opt -largs -Wl, --stack=40000000
      GEM.Getenv
        ("NUMBER_OF_PROCESSORS", System.Task_Info.Number_Of_Processors);
    dLOD_dat : String := GEM.Getenv ("DLOD_DAT", "../dlod3.dat");
-   Ch : Character;  --  User keyboard input
+   Ch : Character := ' ';  --  User keyboard input
+   --  A test run takes no keyboard commands: reading the keyboard blocks
+   --  when standard input is an idle pipe, which kept the run from ending.
+   Test_Mode : constant Boolean := GEM.Getenv ("TEST_ONLY", False);
    Avail : Boolean;  --  Keyboard input available flag
    T : Ada.Calendar.Time;  --  Timeout tracking
    Cycle : Duration :=  --  Maximum optimization duration
@@ -46,7 +49,8 @@ procedure ENSO_Opt is  -- gprbuild lte.gpr enso_opt -largs -Wl, --stack=40000000
          ImpA => 1.0, ImpB => 0.0, ImpC => 0.0, DelA => 0.0, DelB => 0.0,
          Asym => 0.0, Ann1 => 0.0, Ann2 => 0.0, Sem1 => 0.0, Sem2 => 0.0,
          Year => 0.0, IR => 0.0, mA => 0.0, mP => 0.0, shiftT => 0.000_00,
-         init => 0.006_3, rho => 1.0),
+         init => 0.006_3, rho => 1.0, ztau => 1.0, zdist => 1.0, ztilt => 0.0,
+         ssaA => 0.0, ssaP => 0.0, mB => 0.0),
       C => (others => 0));
 
 begin
@@ -140,11 +144,18 @@ begin
       end;
 
       --  Check for user keyboard commands
-      if Expect then
+      if Test_Mode then
+         Avail := False;
+      elsif Expect then
          Text_IO.Get (Ch);  --  Blocking for scripted use
          Avail := True;
       else
-         Text_IO.Get_Immediate (Ch, Avail);  --  Non-blocking for interactive
+         begin
+            Text_IO.Get_Immediate (Ch, Avail);  --  Non-blocking for interactive
+         exception
+            when Text_IO.End_Error =>
+               Avail := False;  --  no keyboard (input redirected): carry on
+         end;
       end if;
 
       if Avail then

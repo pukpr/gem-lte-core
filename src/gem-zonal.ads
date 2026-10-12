@@ -6,7 +6,9 @@
 --  fundamental arguments D, M, M', F; Sun from its Keplerian orbit. Every tidal
 --  constituent (and its nodal sidebands and cross terms) follows from the
 --  expansion, so no per-constituent amplitude or phase is free.
---  Enabled by TIDES=ZONAL (default TABLE = old behaviour). The forcing is the
+--  Enabled by TIDES=ZONAL (default TABLE = old behaviour). The Moon's longitude
+--  is sidereal by default, like the table's month; ZONAL_SIDEREAL 0 or
+--  TROPICAL=TRUE gives the tropical longitude (the default before 2026-10-09). The forcing is the
 --  RATE dV/dt (dLOD is a rate), scaled and aligned to the daily dLOD record:
 --     forcing(t) = ZONAL_KAPPA * dV/dt (JD_Of(t) - ZONAL_TAU).
 --  Tier-1 generating-factor multipliers (default 1.0): ZONAL_WSUN (Sun/Moon
@@ -55,7 +57,27 @@ package GEM.Zonal is
    --  sets): a search step that leaves the year alone costs three multiplies
    --  per date instead of up to seven evaluations of the lunar series.
    type LF_Vec is array (Integer range <>) of Long_Float;
+   --
+   --  Adjustables (2026-10-09), the searched .p parameters ztau, zdist, ztilt,
+   --  ssaA, ssaP; the defaults reproduce the plain generator bit for bit:
+   --    Tau_Mult  the time offset becomes ZONAL_TAU * Tau_Mult: a uniform shift
+   --              of the whole tide (moves Mf, Mm, Mt phases as 2 : 1 : 3).
+   --    Dist_Mult the Moon's distance is evaluated ZONAL_TAU * Tau_Mult *
+   --              (Dist_Mult - 1) days later than its declination (and the Sun).
+   --    Tilt      response tilt with period: forcing + Tilt * (forcing +
+   --              forcing'' / w0**2), w0 = 2 pi / 13.6608 d, i.e. each line
+   --              scaled by 1 + Tilt * (1 - (13.6608 / period)**2).
+   --    Ssa_A, Ssa_P  a free line Ssa_A * sin (2 pi (JD - 2451545) / 182.62112
+   --              + Ssa_P) added to the generator (the measured semi-annual
+   --              term is mostly atmospheric).
+   --  The two timing shifts are applied by cubic interpolation of the cached
+   --  distance, declination and solar factors on a 3-hour grid, so a search
+   --  step costs no evaluation of the lunar series; each shift is limited to
+   --  +-12 hours about ZONAL_TAU. The jerk, LOD and tilt terms stay at the
+   --  unshifted time (they are small corrections).
    function Forcing_Series
      (T : LF_Vec; Integ : Long_Float := 0.0; Year_Len : Long_Float := 0.0;
-      Lod : Long_Float := 0.0) return LF_Vec;
+      Lod : Long_Float := 0.0; Tau_Mult : Long_Float := 1.0;
+      Dist_Mult : Long_Float := 1.0; Tilt : Long_Float := 0.0;
+      Ssa_A : Long_Float := 0.0; Ssa_P : Long_Float := 0.0) return LF_Vec;
 end GEM.Zonal;

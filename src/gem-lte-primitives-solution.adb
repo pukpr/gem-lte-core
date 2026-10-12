@@ -1,3 +1,4 @@
+with Ada.Strings.Fixed;
 with GEM.Zonal;
 --  ============================================================================
 --  GEM.LTE.Primitives.Solution - Parallel Optimization Solver
@@ -68,12 +69,46 @@ package body GEM.LTE.Primitives.Solution is
    NLoops : constant Integer := GEM.Getenv ("NLOOPS", 20); --100
    Test_Only : constant Boolean := GEM.Getenv ("TEST_ONLY", False);
 
+   --  LEGS = 2: the worker tasks are divided into two leg groups. Tasks come
+   --  in pairs, a leader on leg 1 and a follower on leg 2. Each leg takes its
+   --  own settings (index file, SAMPLING, TRAIN_START, TRAIN_END, EXCLUDE,
+   --  ... anything a response file can hold) from "<exe>.resp.1" and
+   --  "<exe>.resp.2" ahead of the common response file. The leader walks
+   --  the parameters; every candidate is evaluated by both tasks of the pair
+   --  at the same time, each on its own leg, and the pair's Exchange (below)
+   --  combines the two scores into the one composite the search accepts or
+   --  rejects on. One parameter file is saved; results and windings are
+   --  saved per leg (lte_results.1.csv, lte_results.2.csv, ...).
+   --  Default 0: no legs, everything as before.
+   Paired : constant Boolean := Integer'(GEM.Getenv ("LEGS", 0)) = 2;
+   Active_Threads : Natural := 0;  -- set by Start
+
+   --  SELECT_TOP = N (default 0 = off, the old rule: the search with the best
+   --  training score saves). With N > 0 the choice is made once, when every
+   --  search has stopped: of the (at most) N best training scores that lie
+   --  within SELECT_TIE of the best one -- a statistical tie on training --
+   --  the one with the highest held-out score is saved. Works with or
+   --  without legs (with legs the scores are the pair's composites).
+   Select_Top : constant Integer := GEM.Getenv ("SELECT_TOP", 0);
+   Select_Tie : constant Long_Float := GEM.Getenv ("SELECT_TIE", 0.01);
+   Max_Clients : constant := 512;
+   type Score_List is array (1 .. Max_Clients) of Long_Float;
+
+   function Assign_Leg (L : Natural) return Boolean is
+   begin
+      GEM.Set_Leg (L);
+      return True;
+   end Assign_Leg;
+
    --  Compare model output against reference tidal data (dLOD - day length)
    --  Used for validation rather than optimization - generates CSV files
    --  showing how well the tidal reconstruction matches reference data.
    function CompareRef
      (LP : in Long_Periods; AP : in Long_Periods_Amp_Phase;
-      Year_Correction : in Long_Float; Rho : in Long_Float := 1.0)
+      Year_Correction : in Long_Float; Rho : in Long_Float := 1.0;
+      ZTau : in Long_Float := 1.0; ZDist : in Long_Float := 1.0;
+      ZTilt : in Long_Float := 0.0; SsaA : in Long_Float := 0.0;
+      SsaP : in Long_Float := 0.0)
       return Long_Float
    is
       dLOD_dat : String := GEM.Getenv ("DLOD_DAT", "../dlod3.dat");
@@ -95,7 +130,9 @@ package body GEM.LTE.Primitives.Solution is
         Tide_Sum
           (Template => Ref, Constituents => AP, Periods => LP,
            Ref_Time => Ref_Time, Scaling => 1.0, Cos_Phase => False,
-           Year_Len => Year_Length (Year_Correction), Rho => Rho);
+           Year_Len => Year_Length (Year_Correction), Rho => Rho,
+           ZTau => ZTau, ZDist => ZDist, ZTilt => ZTilt, SsaA => SsaA,
+           SsaP => SsaP);
       --  TIDES=ZONAL: Tide_Sum returns the generator for both calls, so
       --  the gate compares the generator directly with the observed dLOD.
       if GEM.Zonal.On then
@@ -129,7 +166,8 @@ package body GEM.LTE.Primitives.Solution is
    --  coordination via the Monitor. Uses large stack (1GB) for deep
    --  recursive calculations and large data arrays.
    task type Thread
-     (CPU : System.Multiprocessors.CPU; N_Tides, N_Modulations : Integer) is
+     (CPU : System.Multiprocessors.CPU; N_Tides, N_Modulations : Integer;
+      Leg, Pair, Index : Natural) is
       pragma CPU (CPU);
       pragma Storage_Size (1_000_000_000);
       entry Start;
@@ -142,18 +180,26 @@ package body GEM.LTE.Primitives.Solution is
    procedure Start
      (N_Tides, N_Modulations : in Integer; Number_of_Threads : Positive := 1)
    is
-      TA : array (1 .. Number_of_Threads) of Thread_Access;
+      --  Paired legs need an even number of tasks (at least one pair)
+      NT : constant Positive :=
+        (if Paired
+         then Integer'Max (2, Number_of_Threads - Number_of_Threads mod 2)
+         else Number_of_Threads);
+      TA : array (1 .. NT) of Thread_Access;
       use System.Multiprocessors;
       Num : constant Positive := System.Task_Info.Number_Of_Processors;
       CPU : Positive;
    begin
       GNAT.Ctrl_C.Install_Handler (Handler => GEM.LTE.Primitives.Stop'Access);
-      for I in 1 .. Number_of_Threads loop
+      Active_Threads := NT;
+      for I in 1 .. NT loop
          CPU := I mod Num + 1;
          TA (I) :=
            new Thread
              (CPU => CPU_Range (CPU), N_Tides => N_Tides,
-              N_Modulations => N_Modulations);
+              N_Modulations => N_Modulations,
+              Leg => (if Paired then 2 - I mod 2 else 0),
+              Pair => (if Paired then (I + 1) / 2 else 0), Index => I);
          TA (I).Start;
          delay 0.1; -- let them gradually start up
       end loop;
@@ -254,7 +300,22 @@ package body GEM.LTE.Primitives.Solution is
          Cycle : out Long_Integer;  -- and the cycle count it is on
          Validate_Live : out Long_Float); -- see Check's own comment
       procedure Stop;
+      --  TEST_ONLY: each worker calls this once when it has finished (scored,
+      --  saved, printed). When all have, the program is halted and the
+      --  main thread's Status call released, so a test run ends by itself
+      --  instead of waiting to be killed.
+      procedure Test_Done;
       procedure Reset;
+      --  The task currently holding the best score (for a follower, which
+      --  never calls Check itself, to learn whether its pair leads).
+      procedure Leader (Client : out Integer);
+      --  SELECT_TOP: every search reports its kept candidate's training and
+      --  held-out scores once, when it stops; Selected then tells each
+      --  task (a follower asks for its leader) whether its candidate is
+      --  the one to save. It blocks until all searches have reported.
+      procedure Final_Report
+        (Client : in Integer; Train, Held_Out : in Long_Float);
+      entry Selected (Client : in Integer; Yes : out Boolean);
 
       --  VALIDATE lockbox (see Dipole_Model's own use of it): each thread
       --  calls this exactly once, when it stops searching, handing over
@@ -302,6 +363,11 @@ package body GEM.LTE.Primitives.Solution is
       Best_OOB : Long_Float := Worst_Case;
       Client_Index : Integer := 1;
       Waiting : Boolean := True; -- triggers status only if value changes
+      Tests_Done : Natural := 0;
+      Fin_Train : Score_List := (others => Long_Float'First);
+      Fin_Held : Score_List := (others => Long_Float'First);
+      Reports : Natural := 0;
+      Chosen : Integer := 0;
       Best_Client : Integer := -1;
       Best_Count : Long_Integer := 0;
 
@@ -433,6 +499,81 @@ package body GEM.LTE.Primitives.Solution is
            False; -- necesary to allow a clean exit when program halted
       end Stop;
 
+      procedure Test_Done is
+      begin
+         Tests_Done := Tests_Done + 1;
+         if Tests_Done >=
+           (if Active_Threads > 0 then Active_Threads
+            else Validate_Thread_Count)
+         then
+            GEM.LTE.Primitives.Stop;
+            Waiting := False;
+         end if;
+      end Test_Done;
+
+      procedure Leader (Client : out Integer) is
+      begin
+         Client := Best_Client;
+      end Leader;
+
+      procedure Final_Report
+        (Client : in Integer; Train, Held_Out : in Long_Float) is
+      begin
+         if Client in Score_List'Range then
+            Fin_Train (Client) := Train;
+            Fin_Held (Client) := Held_Out;
+         end if;
+         Reports := Reports + 1;
+      end Final_Report;
+
+      entry Selected (Client : in Integer; Yes : out Boolean)
+        when Reports >= (if Paired then Active_Threads / 2 else Active_Threads)
+      is
+      begin
+         if Chosen = 0 then
+            declare
+               Top : Long_Float := Long_Float'First;
+               Used : array (Score_List'Range) of Boolean := (others => False);
+               Pick : Integer;
+            begin
+               for I in Score_List'Range loop
+                  Top := Long_Float'Max (Top, Fin_Train (I));
+               end loop;
+               Text_IO.Put_Line
+                 ("SELECT_TOP" & Integer'Max (1, Select_Top)'Img &
+                  ": best training score" &
+                  Top'Img & ", tie width" & Select_Tie'Img);
+               for N in 1 .. Integer'Max (1, Select_Top) loop
+                  Pick := 0;
+                  for I in Score_List'Range loop
+                     if not Used (I) and then Fin_Train (I) > Long_Float'First
+                       and then Fin_Train (I) >= Top - Select_Tie
+                       and then (Pick = 0
+                                 or else Fin_Train (I) > Fin_Train (Pick))
+                     then
+                        Pick := I;
+                     end if;
+                  end loop;
+                  exit when Pick = 0;
+                  Used (Pick) := True;
+                  Text_IO.Put_Line
+                    ("   candidate" & Pick'Img & ": training" &
+                     Fin_Train (Pick)'Img & ", held out" &
+                     Fin_Held (Pick)'Img);
+                  if Chosen = 0 or else Fin_Held (Pick) > Fin_Held (Chosen)
+                  then
+                     Chosen := Pick;
+                  end if;
+               end loop;
+               if Chosen = 0 then
+                  Chosen := -1;  -- nothing to save
+               end if;
+               Text_IO.Put_Line ("   selected" & Chosen'Img);
+            end;
+         end if;
+         Yes := Client = Chosen;
+      end Selected;
+
       --  Reset best metric tracking (used in alternating exclude mode)
       procedure Reset is
       begin
@@ -541,12 +682,119 @@ package body GEM.LTE.Primitives.Solution is
       end if;
    end Status;
 
+   --  Exchange: one per pair of leg tasks (LEGS = 2). The leader posts each
+   --  candidate (Propose) before evaluating it on its own leg; the follower
+   --  takes it (Fetch), evaluates it on the other leg and posts its score
+   --  (Answer). Result hands the leader the composite of the two scores,
+   --  weighted by each leg's LEG_WEIGHT, and Verdict hands the follower the
+   --  same number, so both tasks make the same accept/reject decision and
+   --  keep the same candidate.
+   protected type Exchange is
+      procedure Propose
+        (D : in Shared.Param_S; H : in Ns; Threshold : in Long_Float);
+      entry Fetch
+        (D : out Shared.Param_S; H : out Ns; Threshold : out Long_Float;
+         Quit : out Boolean);
+      procedure Answer (Score, OOB, Weight : in Long_Float);
+      entry Result
+        (Score, OOB, Weight : in Long_Float;
+         Composite, Composite_OOB : out Long_Float);
+      entry Verdict (Composite : out Long_Float);
+      procedure Close;          -- leader has finished: release the follower
+      procedure Follower_Gone;  -- follower has failed: leader carries on alone
+   private
+      Cand : Final_Param_P := null;
+      HB : Ns (1 .. 100) := (others => 0);
+      Thr : Long_Float := 0.0;
+      Have_Candidate, Answered, Decided, Closed, Gone : Boolean := False;
+      S2, P2, W2, Comp : Long_Float := 0.0;
+   end Exchange;
+
+   protected body Exchange is
+      procedure Propose
+        (D : in Shared.Param_S; H : in Ns; Threshold : in Long_Float) is
+      begin
+         if Cand = null then
+            Cand := new Shared.Param_S'(D);
+         else
+            Cand.all := D;
+         end if;
+         HB (1 .. H'Length) := H;
+         Thr := Threshold;
+         Have_Candidate := True;
+      end Propose;
+
+      entry Fetch
+        (D : out Shared.Param_S; H : out Ns; Threshold : out Long_Float;
+         Quit : out Boolean)
+        when Have_Candidate or Closed is
+      begin
+         if Have_Candidate then
+            D := Cand.all;
+            H := HB (1 .. H'Length);
+            Threshold := Thr;
+            Quit := False;
+            Have_Candidate := False;
+         else
+            Threshold := 0.0;
+            Quit := True;
+         end if;
+      end Fetch;
+
+      procedure Answer (Score, OOB, Weight : in Long_Float) is
+      begin
+         S2 := Score;
+         P2 := OOB;
+         W2 := Weight;
+         Answered := True;
+      end Answer;
+
+      entry Result
+        (Score, OOB, Weight : in Long_Float;
+         Composite, Composite_OOB : out Long_Float)
+        when Answered or Gone is
+      begin
+         if Answered and then Weight + W2 > 0.0 then
+            Composite := (Weight * Score + W2 * S2) / (Weight + W2);
+            Composite_OOB := (Weight * OOB + W2 * P2) / (Weight + W2);
+         else
+            Composite := Score;
+            Composite_OOB := OOB;
+         end if;
+         Comp := Composite;
+         Answered := False;
+         Decided := True;
+      end Result;
+
+      entry Verdict (Composite : out Long_Float) when Decided or Closed is
+      begin
+         Composite := Comp;
+         Decided := False;
+      end Verdict;
+
+      procedure Close is
+      begin
+         Closed := True;
+      end Close;
+
+      procedure Follower_Gone is
+      begin
+         Gone := True;
+      end Follower_Gone;
+   end Exchange;
+
+   Max_Pairs : constant := 256;
+   Exchanges : array (1 .. Max_Pairs) of Exchange;
+
    -----------------------------------
    --  Thread body: Continuously runs Dipole_Model optimization
    --  Optional ALTERNATE mode switches between include/exclude training
    --  data on each iteration (for validation testing)
    -----------------------------------
    task body Thread is
+      --  Must come first: the settings read below are the leg's own.
+      Leg_Assigned : constant Boolean := Assign_Leg (Thread.Leg);
+      pragma Unreferenced (Leg_Assigned);
       ID : Integer;
       Name : String :=
         GEM.Getenv (Name => "CLIMATE_INDEX", Default => "nino4.dat");
@@ -554,14 +802,25 @@ package body GEM.LTE.Primitives.Solution is
         GEM.Getenv (Name => "SPLIT_TRAINING", Default => False);
       Exclude : Boolean := GEM.Getenv ("EXCLUDE", False);
    begin
-      Monitor.Client (ID);
-      Text_IO.Put_Line (Name & " for Thread #" & ID'Img & Thread.CPU'Img);
+      if Paired then
+         ID := Thread.Index;  -- leader 2p-1 and follower 2p of pair p
+         Text_IO.Put_Line
+           (Name & " for Thread #" & ID'Img & Thread.CPU'Img & " leg" &
+            Thread.Leg'Img & " pair" & Thread.Pair'Img &
+            (if Exclude then " excluding" else " training on") & " " &
+            GEM.Getenv ("TRAIN_START", "start") & " .. " &
+            GEM.Getenv ("TRAIN_END", "end") & " sampling " &
+            GEM.Getenv ("SAMPLING", "12.0"));
+      else
+         Monitor.Client (ID);
+         Text_IO.Put_Line (Name & " for Thread #" & ID'Img & Thread.CPU'Img);
+      end if;
       accept Start;
       loop
          Dipole_Model
            (N_Tides => Thread.N_Tides, N_Modulations => Thread.N_Modulations,
             ID => ID, File_Name => Name, Split_Training => Split,
-            Exclude => Exclude);
+            Exclude => Exclude, Leg => Thread.Leg, Pair => Thread.Pair);
          exit when not Alternate;
          Exclude := not Exclude;
          Monitor.Reset;
@@ -611,8 +870,16 @@ package body GEM.LTE.Primitives.Solution is
    procedure Dipole_Model
      (N_Tides, N_Modulations : in Integer; ID : in Integer := 0;
       File_Name : in String := "nino4.dat";
-      Split_Training : in Boolean := False; Exclude : in Boolean := False)
+      Split_Training : in Boolean := False; Exclude : in Boolean := False;
+      Leg : in Natural := 0; Pair : in Natural := 0)
    is
+      --  LEGS: role of this task in its pair (both False without legs)
+      Leader : constant Boolean := Paired and then Leg = 1;
+      Follower : constant Boolean := Paired and then Leg = 2;
+      Leg_Weight : constant Long_Float := GEM.Getenv ("LEG_WEIGHT", 1.0);
+      Results_File : constant String := "lte_results" & GEM.Leg_Tag & ".csv";
+      Follower_Quit : Boolean := False;
+      Pair_Threshold : Long_Float := 0.0;
       package LEF renames Ada.Numerics.Long_Elementary_Functions;
 
       -- Helper function to parse NH: supports "6" (count) or "1 1 1 1 1 1" (list)
@@ -670,6 +937,12 @@ package body GEM.LTE.Primitives.Solution is
       RMS_Metric : constant Boolean := GEM.Getenv ("METRIC", "CC") = "RMS";
       ZC_Metric : constant Boolean := GEM.Getenv ("METRIC", "CC") = "ZC";
       FT_Metric : constant Boolean := GEM.Getenv ("METRIC", "CC") = "FT";
+      --  METRIC=FB: band-limited spectral correlation (see FB_CC), cycles/year
+      FB_Metric : constant Boolean := GEM.Getenv ("METRIC", "CC") = "FB";
+      FB_Lo : constant Long_Float := GEM.Getenv ("FB_LO", 0.5);
+      FB_Hi : constant Long_Float := GEM.Getenv ("FB_HI", 1.0);
+      FB_Lo2 : constant Long_Float := GEM.Getenv ("FB_LO2", 0.0);
+      FB_Hi2 : constant Long_Float := GEM.Getenv ("FB_HI2", 0.0);
       DTW_Metric : constant Boolean := GEM.Getenv ("METRIC", "CC") = "DTW";
       Winding_Metric : constant Boolean := GEM.Getenv ("METRIC", "CC") = "W";
       CID_Metric : constant Boolean := GEM.Getenv ("METRIC", "CC") = "CID";
@@ -684,6 +957,15 @@ package body GEM.LTE.Primitives.Solution is
       DTW_Window : constant Integer :=
         GEM.Getenv ("DTW", 1); -- 100 is about ~5% of the time-series length
       Sampling_Per_Year : constant Long_Float := GEM.Getenv ("SAMPLING", 12.0);
+      --  SAMPLING /= 12 (2026-10-10): data on the grid year + i / SAMPLING.
+      --  SPY is the number of samples in the year: the impulse slot wraps at
+      --  SPY and the lag term IR reaches back SPY samples (one year). The
+      --  integrator's leak mA and friction mP are per MONTH in the .p file;
+      --  Step_Scale converts them to per sample, so a monthly fit gives the
+      --  same manifold at any sampling. With SAMPLING = 12 nothing changes.
+      SPY : constant Integer := Integer (Sampling_Per_Year);
+      Monthly : constant Boolean := SPY = 12;
+      Step_Scale : constant Long_Float := 12.0 / Sampling_Per_Year;
       Filter : constant Long_Float := GEM.Getenv ("FILTER", 0.333_333_33);
       MLR_On : constant Boolean := GEM.Getenv ("MLR", False); -- wrong name
       Forcing_Only : constant Boolean := GEM.Getenv ("FORCING", False);
@@ -703,9 +985,26 @@ package body GEM.LTE.Primitives.Solution is
       Local_Max : constant Boolean := GEM.Getenv ("LOCAL", False);
       Lock_Tidal : constant Boolean := GEM.Getenv ("LOCKT", False);
       Lock_T_Amp : constant Boolean := GEM.Getenv ("LOCKA", False);
+      --  ZONAL_ADJ: which of the ZONAL adjustables the search may move, a
+      --  list of names from "ztau zdist ztilt ssa" (default none: they stay
+      --  at their .p values, so TIDES=ZONAL behaves as before).
+      Zonal_Adj : constant String := GEM.Getenv ("ZONAL_ADJ", "");
+      Free_ZTau : constant Boolean := Ada.Strings.Fixed.Index (Zonal_Adj, "ztau") > 0;
+      Free_ZDist : constant Boolean := Ada.Strings.Fixed.Index (Zonal_Adj, "zdist") > 0;
+      Free_ZTilt : constant Boolean := Ada.Strings.Fixed.Index (Zonal_Adj, "ztilt") > 0;
+      Free_Ssa : constant Boolean := Ada.Strings.Fixed.Index (Zonal_Adj, "ssa") > 0;
+      Sv_ZTau, Sv_ZDist, Sv_ZTilt, Sv_SsaA, Sv_SsaP : Long_Float := 0.0;
       --  IMPULSE_MOD12: see Impulse_Delta (impulse month taken modulo the year).
       --  default on under TIDES=ZONAL, so the semiannual (delA) impulse can fire
       Impulse_Mod12 : constant Boolean := GEM.Getenv ("IMPULSE_MOD12", GEM.Zonal.On);
+      --  IMPULSE_EXACT (default FALSE, 2026-10-10): the tide that an impulse
+      --  picks up is evaluated at the impulse's own date, year + frac (|delB|)
+      --  (and half a year later for the asym impulse), instead of at the date
+      --  of the sample the impulse falls on. The impulse still lands on the
+      --  nearest sample, but its size no longer depends on how the data are
+      --  sampled, so one .p gives the same manifold for monthly, 5-day or
+      --  daily data. Delta impulses with the constituent table only.
+      Impulse_Exact : constant Boolean := GEM.Getenv ("IMPULSE_EXACT", False);
       --  Constrains ltep (the "winding"/LT modulation period) entries to
       --  snap to the nearest value in a caller-supplied canonical set
       --  (backbone harmonics/subharmonics) after each Markov step that
@@ -841,6 +1140,8 @@ package body GEM.LTE.Primitives.Solution is
             Raw_Score := DER_CC (X, Y);
          elsif FT_Metric then
             Raw_Score := FT_CC (X, Y, Z);
+         elsif FB_Metric then
+            Raw_Score := FB_CC (X, Y, FB_Lo, FB_Hi, FB_Lo2, FB_Hi2);
          elsif Winding_Metric then
             Raw_Score := (Winding_Agreement (X, Y, Z) + CC(X,Y))/2.0;
          elsif DTW_Metric then
@@ -932,7 +1233,7 @@ package body GEM.LTE.Primitives.Solution is
       begin
          if Trunc = DPos then
             Value := D.B.DelA;
-         elsif Trunc = (DPos + Integer (Sampling_Per_Year) / 2) mod 12 then
+         elsif Trunc = (DPos + Integer (Sampling_Per_Year) / 2) mod SPY then
             Value := D.B.Asym;
          else
             Value := 0.0;
@@ -993,7 +1294,7 @@ package body GEM.LTE.Primitives.Solution is
            (if Impulse_Mod12
             then Integer ((abs (D.B.DelB) * Sampling_Per_Year)) mod Integer (Sampling_Per_Year)
             else Integer ((abs (D.B.DelB) * Sampling_Per_Year)));
-         DPos2 : Integer := (DPos + Integer (Sampling_Per_Year) / 2) mod 12;
+         DPos2 : Integer := (DPos + Integer (Sampling_Per_Year) / 2) mod SPY;
       begin
          if Trunc = DPos2-1 then
             if D.B.DelA < 0.0 then
@@ -1489,9 +1790,9 @@ package body GEM.LTE.Primitives.Solution is
         GEM.LTE.Primitives.Param_B_Overlay.Overlay_Size (D.B.NLP, D.B.NLT);
       
       -- Reduced size for Walker search based on NM (only search used LT entries)
-      -- Size = 19 scalars + (NLP * 2) LPAP + NM LT entries
+      -- Size = 25 scalars + (NLP * 2) LPAP + NM LT entries
       Size_Shared : constant Positive :=
-        GEM.Getenv ("DSIZE", 19 + (D.B.NLP * 2) + NM);
+        GEM.Getenv ("DSIZE", 25 + (D.B.NLP * 2) + NM);
 
       package Walker is new GEM.Random_Descent
         (Fixed => Is_Fixed, Set_Range => Size_Shared,
@@ -1500,7 +1801,7 @@ package body GEM.LTE.Primitives.Solution is
       Set, Keep, Set0 : Walker.LF_Array (1 .. Size_Shared);
 
       --  ltep occupies exactly the last NM entries of Set (matches
-      --  Param_B_Overlay.First_LT_Index (D.B.NLP) = 19 + NLP*2 =
+      --  Param_B_Overlay.First_LT_Index (D.B.NLP) = 25 + NLP*2 =
       --  Size_Shared - NM + 1, confirmed against that package). Only
       --  used when Lock_Winding is set -- see the population loop right
       --  after this procedure's `begin` and the snap call after each
@@ -1562,6 +1863,9 @@ package body GEM.LTE.Primitives.Solution is
       --  the reported trend/accel/windings came from the LAST candidate
       --  evaluated, which may have been rejected. Restored after the loop.
       Keep_Trend, Keep_Accel, Keep_Aero : Long_Float := 0.0;
+      --  Training and held-out scores of the kept candidate (SELECT_TOP)
+      Keep_CC, Keep_P : Long_Float := 0.0;
+      Final_Reported : Boolean := False;
       Keep_M : Modulations (1 .. NM + NH);
       Keep_MAP : Modulations_Amp_Phase (1 .. NM + NH);
       Annual_Cycle : Annual_Harmonics;
@@ -1608,6 +1912,77 @@ package body GEM.LTE.Primitives.Solution is
          end loop;
          return Result;
       end Jerked_Tidal_Factors;
+
+      --  mB (2026-10-10): second-order shaping of the impulse response. The
+      --  impulses pass through a second real pole R2 before the integrator,
+      --     G(i) = (1 - R2) * Raw(i) + R2 * G(i-1),
+      --  so together with the integrator's own pole 1 - mA the response to an
+      --  impulse is  (1 - R2) / ((1 - (1-mA) z^-1) (1 - R2 z^-1)):  the plateau
+      --  is reached along an exponential of time constant -1 / ln (mB) months
+      --  instead of in one step, and then declines at the mA / mP rate as
+      --  before. Both poles are real, so it cannot ring; mB = 1 - mA is the
+      --  critically damped case (a double pole). The factor 1 - R2 keeps the
+      --  plateau height what it was. mB is per MONTH like mA and mP
+      --  (R2 = mB ** (12 / SAMPLING)); |mB| is used and held below 1.
+      --  mB = 0 (the default, and a value the search never leaves): no change.
+      function Shape_Impulses (Raw : Data_Pairs) return Data_Pairs is
+         use Ada.Numerics.Long_Elementary_Functions;
+      begin
+         if D.B.mB = 0.0 then
+            return Raw;
+         end if;
+         declare
+            B : constant Long_Float := Long_Float'Min (abs D.B.mB, 0.9999);
+            R2 : constant Long_Float := (if Monthly then B else B ** Step_Scale);
+            G : Data_Pairs := Raw;
+         begin
+            G (G'First).Value := (1.0 - R2) * Raw (Raw'First).Value;
+            for I in G'First + 1 .. G'Last loop
+               G (I).Value := (1.0 - R2) * Raw (I).Value + R2 * G (I - 1).Value;
+            end loop;
+            return G;
+         end;
+      end Shape_Impulses;
+
+      --  IMPULSE_EXACT: a copy of the template in which every sample that
+      --  carries an impulse has its date moved to the exact impulse date
+      --  (at most half a sample away); Restore_Dates puts the sample dates
+      --  back on the tide values computed from it.
+      function Exact_Template (T : Data_Pairs) return Data_Pairs is
+      begin
+         if not Impulse_Exact or else GEM.Zonal.On or else not Impulse_Only then
+            return T;
+         end if;
+         declare
+            R : Data_Pairs := T;
+            Tau : constant Long_Float :=
+              abs D.B.DelB - Long_Float'Floor (abs D.B.DelB);
+            F, D1, D2 : Long_Float;
+         begin
+            for I in T'Range loop
+               if Impulse (T (I).Date) /= 0.0 then
+                  F := T (I).Date - Long_Float'Floor (T (I).Date);
+                  D1 := Tau - F;
+                  D1 := D1 - Long_Float'Rounding (D1);
+                  D2 := Tau + 0.5 - F;
+                  D2 := D2 - Long_Float'Rounding (D2);
+                  R (I).Date := T (I).Date + (if abs D1 <= abs D2 then D1 else D2);
+               end if;
+            end loop;
+            return R;
+         end;
+      end Exact_Template;
+
+      function Restore_Dates (R, T : Data_Pairs) return Data_Pairs is
+         X : Data_Pairs := R;
+      begin
+         if Impulse_Exact then
+            for I in X'Range loop
+               X (I).Date := T (I).Date;
+            end loop;
+         end if;
+         return X;
+      end Restore_Dates;
 
       function Calc_Forcing return Data_Pairs is
          F : Data_Pairs := Forcing;
@@ -1656,13 +2031,15 @@ package body GEM.LTE.Primitives.Solution is
                    (Data_Records, Initial_Conditions_Date, Sampling_Per_Year);
                Extended_Impulses : constant Data_Pairs :=
                  Impulse_Amplify
-                   (Raw =>
+                   (Raw => Restore_Dates (
                       Tide_Sum
-                        (Template => Extended_Template,
+                        (Template => Exact_Template (Extended_Template),
                          Constituents => Jerked_Tidal_Factors,
                          Periods => D.A.LP, Ref_Time => 0.0, Scaling => 0.0,
                          Year_Len => Year_Length (D.B.Year), Integ => D.B.ShiftT,
-                         Lod => Lod_Term, Rho => D.B.rho),
+                         Lod => Lod_Term, Rho => D.B.rho,
+                         ZTau => D.B.ztau, ZDist => D.B.zdist, ZTilt => D.B.ztilt,
+                         SsaA => D.B.ssaA, SsaP => D.B.ssaP), Extended_Template),
                     Offset => 0.0, Ramp => 0.0,
                     Start => Extended_Template (Extended_Template'First).Date);
                --  Start_Index searches for the first Date STRICTLY
@@ -1682,8 +2059,11 @@ package body GEM.LTE.Primitives.Solution is
                --  back an extra row.
                Extended_F : constant Data_Pairs :=
                  IIR
-                   (Raw => Extended_Impulses, lagA => der,
-                    lagC => D.B.mP, iA => D.B.init,
+                   (Raw => Shape_Impulses (Extended_Impulses),
+                    lagA => (if Monthly then der
+                             else 1.0 - (1.0 - der) * Step_Scale),
+                    lagC => (if Monthly then D.B.mP else D.B.mP * Step_Scale),
+                    iA => D.B.init,
                     Start => Initial_Conditions_Date - 0.1 / Sampling_Per_Year);
             begin
                for I in Data_Records'Range loop
@@ -1693,19 +2073,24 @@ package body GEM.LTE.Primitives.Solution is
          else
             Impulses :=
               Impulse_Amplify
-                (Raw =>
+                (Raw => Restore_Dates (
                    Tide_Sum
-                     (Template => Data_Records, Constituents => Jerked_Tidal_Factors,
+                     (Template => Exact_Template (Data_Records), Constituents => Jerked_Tidal_Factors,
                       Periods => D.A.LP, Ref_Time => 0.0, Scaling => 0.0,
                       Year_Len => Year_Length (D.B.Year), Integ => D.B.ShiftT,
-                         Lod => Lod_Term, Rho => D.B.rho),
+                         Lod => Lod_Term, Rho => D.B.rho,
+                         ZTau => D.B.ztau, ZDist => D.B.zdist, ZTilt => D.B.ztilt,
+                         SsaA => D.B.ssaA, SsaP => D.B.ssaP), Data_Records),
                  Offset => 0.0, Ramp => 0.0,
                  Start => Data_Records (Data_Records'First).Date);
 
                F :=
                  IIR
-                   (Raw => Impulses, lagA => der, -- lagB => D.B.mA,
-                    lagC => D.B.mP, iA => D.B.init, -- iB => 0.0, iC => 0.0,
+                   (Raw => Shape_Impulses (Impulses),
+                    lagA => (if Monthly then der
+                             else 1.0 - (1.0 - der) * Step_Scale),
+                    lagC => (if Monthly then D.B.mP else D.B.mP * Step_Scale),
+                    iA => D.B.init, -- iB => 0.0, iC => 0.0,
                     Start => Initial_Conditions_Date);
          end if;
 
@@ -1769,14 +2154,26 @@ package body GEM.LTE.Primitives.Solution is
       loop
          Counter := Counter + 1;
          delay 0.0; -- context switching point if multi-processing not avilable
-         
+
+         --  LEGS: the follower evaluates the candidate its leader posts, and
+         --  judges it against the leader's own current best.
+         if Follower then
+            Exchanges (Pair).Fetch (D, Harms, Pair_Threshold, Follower_Quit);
+            exit when Follower_Quit;
+            Old_CC := Pair_Threshold;
+         end if;
+
          GEM.LTE.Year_Adjustment (D.B.Year, D.A.LP);
          if not Modulations_Are_Valid then
             raise Constraint_Error with "Loaded LT modulation is below MIN_LT";
          end if;
 
          -- Tidal constituents summed, amplified by impulse, and LTE modulated
-         Forcing := Calc_Forcing;
+         --  (a pair leader does this further down, after posting the
+         --  candidate, so that both legs are evaluated at the same time)
+         if not Leader then
+            Forcing := Calc_Forcing;
+         end if;
 
          M (1 .. NM) := D.B.LT (1 .. NM);
          if Lock_Freq then
@@ -1850,7 +2247,12 @@ package body GEM.LTE.Primitives.Solution is
                   "attempts, resetting");
             end if;
          end;
-         
+
+         if Leader then
+            Exchanges (Pair).Propose (D, Harms, Old_CC);
+            Forcing := Calc_Forcing;
+         end if;
+
          if MLR_On or not (Forcing_Only or Is_Minimum_Entropy) then
             if Climate_Trend then
                Secular_Trend := 1.0;
@@ -1862,9 +2264,9 @@ package body GEM.LTE.Primitives.Solution is
                declare
                   Side : constant Side_Mask := IR_Mask (Data_Records);
                begin
-                  for I in reverse Data_Records'First + 12 .. Data_Records'Last loop
-                     if Side (I - 12) then
-                        DR (I).Value := Data_Records (I).Value + D.B.IR*Data_Records (I - 12).Value;
+                  for I in reverse Data_Records'First + SPY .. Data_Records'Last loop
+                     if Side (I - SPY) then
+                        DR (I).Value := Data_Records (I).Value + D.B.IR*Data_Records (I - SPY).Value;
                      end if;
                   end loop;
                end;
@@ -2007,9 +2409,9 @@ package body GEM.LTE.Primitives.Solution is
                   declare
                      Side : constant Side_Mask := IR_Mask (Model);
                   begin
-                     for I in reverse Model'First + 12 .. Model'Last loop
-                        if Side (I - 12) then
-                           Model (I).Value := Model (I).Value - D.B.IR*Model (I - 12).Value;
+                     for I in reverse Model'First + SPY .. Model'Last loop
+                        if Side (I - SPY) then
+                           Model (I).Value := Model (I).Value - D.B.IR*Model (I - SPY).Value;
                         end if;
                      end loop;
                   end;
@@ -2129,6 +2531,20 @@ package body GEM.LTE.Primitives.Solution is
             end if;
          end if;
 
+         --  LEGS: the score from here on is the pair's composite.
+         if Leader then
+            declare
+               C, P : Long_Float;
+            begin
+               Exchanges (Pair).Result (CorrCoeff, CorrCoeffP, Leg_Weight, C, P);
+               CorrCoeff := C;
+               CorrCoeffP := P;
+            end;
+         elsif Follower then
+            Exchanges (Pair).Answer (CorrCoeff, CorrCoeffP, Leg_Weight);
+            Exchanges (Pair).Verdict (CorrCoeff);
+         end if;
+
          --  BUG FIX (ordering): this accept/reject block used to run
          --  AFTER "register the results with a monitor" below, so on
          --  every iteration Live_Validate_Score was computed from
@@ -2169,9 +2585,11 @@ package body GEM.LTE.Primitives.Solution is
             Keep_Trend := Secular_Trend;
             Keep_Accel := Accel;
             Keep_Aero := Aero;
+            Keep_CC := CorrCoeff;
+            Keep_P := CorrCoeffP;
             Keep_M := M;
             Keep_MAP := MAP;
-            if Catchup then  -- save it for other threads to reset from
+            if Catchup and then not Follower then  -- save it for other threads to reset from
                GEM.LTE.Primitives.Shared.Put (D);
             end if;
             Harms_Keep := Harms;
@@ -2210,7 +2628,11 @@ package body GEM.LTE.Primitives.Solution is
               (if Validate and then Ever_Accepted
                then Validate_Metric (KeepModel) else 0.0);
          begin
-            if Split_Training then
+            if Follower then
+               Best := False;
+               Percentage := 100;
+               Monitor.Leader (Best_Client);
+            elsif Split_Training then
                Monitor.Check
                  (CorrCoeffTest, CorrCoeff, ID, Counter, Live_Validate_Score,
                   Best, Best_Client, Percentage);
@@ -2225,8 +2647,9 @@ package body GEM.LTE.Primitives.Solution is
             Counter := 1; -- no use penalizing thread in the lead
          end if;
 
-         if Singular or
-           ((not Best) and Counter > Maximum_Loops and Percentage < Threshold)
+         if not Follower and then
+           (Singular or
+            ((not Best) and Counter > Maximum_Loops and Percentage < Threshold))
          then
             Text_IO.Put_Line ("Resetting" & ID'Img & Percentage'Img & "%");
             if Catchup then
@@ -2238,7 +2661,8 @@ package body GEM.LTE.Primitives.Solution is
             Old_CC := 0.0;
          end if;
 
-         exit when Halted;
+         --  A follower stops only when its leader has (Fetch reports it)
+         exit when Halted and then not Follower;
 
          Progress_Cycle := Long_Float (Counter);
          -- This slowly oscillates to change the size of the step to hopefully
@@ -2252,9 +2676,13 @@ package body GEM.LTE.Primitives.Solution is
          end if;
          if Test_Only then
             exit;
+         elsif Follower then
+            null;  -- the next candidate comes from the leader
          elsif Vary_Initial then
             Walker.Markov (D.B.init, Keep_Initial_Value, Spread, Init_Value0);
          else
+            Sv_ZTau := D.B.ztau; Sv_ZDist := D.B.zdist; Sv_ZTilt := D.B.ztilt;
+            Sv_SsaA := D.B.ssaA; Sv_SsaP := D.B.ssaP;
             if Lock_Tidal then
                declare
                   DBLAP : constant Amp_Phases := D.B.LPAP;
@@ -2274,6 +2702,10 @@ package body GEM.LTE.Primitives.Solution is
             else
                Walker.Markov (Set, Keep, Spread, Set0);
             end if;
+            if not Free_ZTau then D.B.ztau := Sv_ZTau; end if;
+            if not Free_ZDist then D.B.zdist := Sv_ZDist; end if;
+            if not Free_ZTilt then D.B.ztilt := Sv_ZTilt; end if;
+            if not Free_Ssa then D.B.ssaA := Sv_SsaA; D.B.ssaP := Sv_SsaP; end if;
             if Lock_Winding then
                --  Markov perturbs exactly one Set index per call; this
                --  finds whichever one changed (if any) within the ltep
@@ -2298,6 +2730,11 @@ package body GEM.LTE.Primitives.Solution is
 
       end loop;
       Monitor.Stop;
+      if Leader then
+         Exchanges (Pair).Close;
+      elsif Follower then
+         Monitor.Leader (Best_Client);
+      end if;
       if Ever_Accepted then
          --  Report the KEPT candidate's regression outputs, matching
          --  KeepModel/DKeep (see Keep_Trend's declaration).
@@ -2355,7 +2792,7 @@ package body GEM.LTE.Primitives.Solution is
       declare
          Save_Now : Boolean;
       begin
-         if Validate and not Test_Only then
+         if Validate and not Test_Only and not Paired then
             declare
                Am_I_Last : Boolean;
             begin
@@ -2403,7 +2840,24 @@ package body GEM.LTE.Primitives.Solution is
             --  a deadlocked thread's own KeepModel is untouched raw Data,
             --  so it must never be the one saved even if (in some
             --  Ratio-weighted edge case) it still ended up as Best_Client.
-            Save_Now := Ever_Accepted and then (Test_Only or Best_Client = ID);
+            --  With legs the choice is always made centrally (SELECT_TOP 0
+            --  acts as 1 = best training score), so that the leader and the
+            --  follower of one and the same pair save: each task deciding
+            --  for itself could leave the two leg files from different pairs.
+            if (Select_Top > 0 or else Paired) and then not Test_Only then
+               if not Follower then
+                  Final_Reported := True;
+                  Monitor.Final_Report
+                    (ID, (if Ever_Accepted then Keep_CC else Long_Float'First),
+                     Keep_P);
+               end if;
+               Monitor.Selected ((if Follower then ID - 1 else ID), Save_Now);
+               Save_Now := Save_Now and then Ever_Accepted;
+            else
+               Save_Now := Ever_Accepted and then
+                 (Test_Only
+                  or Best_Client = (if Follower then ID - 1 else ID));
+            end if;
             if Ever_Accepted then
                --  As in the VALIDATE branch above: report and save the
                --  KEPT candidate, not the live last-tried one (the final
@@ -2522,8 +2976,11 @@ package body GEM.LTE.Primitives.Solution is
 
          Fingerprint ("save  ", DKeep, KeepModel, Forcing, M, Harms_Keep,
                       Secular_Trend, Aero, Old_CC, ID);
-         GEM.LTE.Primitives.Shared.Save (DKeep);
-         Save (KeepModel, Data_Records, Forcing, IR => D.B.IR);    -- saves to file
+         if not Follower then  -- one parameter file, written by the leader
+            GEM.LTE.Primitives.Shared.Save (DKeep);
+         end if;
+         Save (KeepModel, Data_Records, Forcing, File_Name => Results_File,
+               IR => D.B.IR);    -- saves to file
 
          if Validate then
             --  VALIDATE=TRUE: print exactly the same three numbers the
@@ -2576,8 +3033,17 @@ package body GEM.LTE.Primitives.Solution is
             Put_CC (CorrCoeff, CorrCoeffP, Counter, ID);
          end if;
 
+         if Paired then
+            --  the score the pair was accepted on (both legs combined)
+            Text_IO.Put ("COMPOSITE");
+            Ada.Long_Float_Text_IO.Put (Old_CC, Fore => 4, Aft => 10, Exp => 0);
+            Text_IO.Put_Line ("  leg" & Leg'Img & " pair" & Pair'Img);
+         end if;
+
          CorrCoeff :=
-           CompareRef (DKeep.A.LP, DKeep.B.LPAP, DKeep.B.Year, DKeep.B.rho);
+           CompareRef (DKeep.A.LP, DKeep.B.LPAP, DKeep.B.Year, DKeep.B.rho,
+                       DKeep.B.ztau, DKeep.B.zdist, DKeep.B.ztilt,
+                       DKeep.B.ssaA, DKeep.B.ssaP);
          Put (CorrCoeff, ":dLOD:   ");
          Put (Year_Length (DKeep.B.Year), ":Yr: " & File_Name);
          Save_Mutex.Release (ID);
@@ -2586,10 +3052,26 @@ package body GEM.LTE.Primitives.Solution is
          null; -- Text_IO.Put_Line("Exited " & ID'Img);
       end if;
       end;
+      if Test_Only then
+         Monitor.Test_Done;
+      end if;
 
    exception
       when E : others =>
          Save_Mutex.Release (ID);
+         if Leader then
+            Exchanges (Pair).Close;
+         elsif Follower then
+            Exchanges (Pair).Follower_Gone;
+         end if;
+         if (Select_Top > 0 or else Paired) and then not Test_Only
+           and then not Follower and then not Final_Reported
+         then
+            Monitor.Final_Report (ID, Long_Float'First, 0.0);
+         end if;
+         if Test_Only then
+            Monitor.Test_Done;
+         end if;
          Text_IO.Put_Line
            ("Solution err: " & Ada.Exceptions.Exception_Information (E));
          -- The following may need a debug-specifi compiler switch to activate

@@ -13,6 +13,14 @@ package GEM is
    function Getenv (Name : in String; Default : in Boolean) return Boolean;
 
    procedure Setenv (Name : in String; Value : in String);
+
+   --  LEGS: a worker task can be given a leg number (1 or 2). Getenv, when
+   --  called from that task, then looks first in the leg's own response file
+   --  "<executable>.resp.<leg>", then in the common response file, then in
+   --  the environment. Leg 0 (the default for every task) is the old lookup.
+   procedure Set_Leg (L : in Natural);
+   function Leg return Natural;
+   function Leg_Tag return String;  -- "" for leg 0, else ".1" / ".2"
    procedure Clear (Name : in String);
 
    -- List of integers from "1 2 4 6" etc

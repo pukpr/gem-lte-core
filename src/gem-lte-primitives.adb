@@ -159,6 +159,11 @@ package body GEM.LTE.Primitives is
    Dither_On : constant Boolean :=
      Long_Float'(GEM.Getenv ("ANNUAL_DITHER", 0.0)) /= 0.0;
 
+   --  SAMPLING (samples per year, default 12 = monthly data): the lag term
+   --  IR reaches back one year, i.e. Year_Lag samples (12 for monthly data).
+   --  Read where it is used (not once at package level) so that a worker
+   --  task on a leg with its own SAMPLING gets its own value.
+
    function Month_Of (Date : Long_Float) return Integer is
      (Integer (Long_Float'Floor ((Date - Long_Float'Floor (Date)) * 12.0
                                  + 0.5)) mod 12);
@@ -792,7 +797,10 @@ package body GEM.LTE.Primitives is
       Periods : in Long_Periods; Ref_Time : in Long_Float := 0.0;
       Scaling : in Long_Float := 1.0; Cos_Phase : in Boolean := True;
       Year_Len : in Long_Float := Year_Length; Integ : in Long_Float := 0.0;
-      Lod : in Long_Float := 0.0; Rho : in Long_Float := 1.0) return Data_Pairs
+      Lod : in Long_Float := 0.0; Rho : in Long_Float := 1.0;
+      ZTau : in Long_Float := 1.0; ZDist : in Long_Float := 1.0;
+      ZTilt : in Long_Float := 0.0; SsaA : in Long_Float := 0.0;
+      SsaP : in Long_Float := 0.0) return Data_Pairs
    is
       Res : Data_Pairs := Template;
       pragma Unreferenced (Ref_Time);
@@ -809,7 +817,8 @@ package body GEM.LTE.Primitives is
             declare
                F : constant GEM.Zonal.LF_Vec := GEM.Zonal.Forcing_Series
                  (T, (if Tide_Legacy then 0.0 else Integ),
-                  (if Tide_Legacy then 0.0 else Year_Len), Lod);
+                  (if Tide_Legacy then 0.0 else Year_Len), Lod,
+                  ZTau, ZDist, ZTilt, SsaA, SsaP);
             begin
                for I in Res'Range loop
                   Res (I).Value := F (I);
@@ -1667,6 +1676,83 @@ package body GEM.LTE.Primitives is
       return DTW_Distance (Model_S, Data_S, 9);
    end FT_CC;
 
+   function FB_CC
+     (Model, Data : in Data_Pairs; Lo, Hi : in Long_Float;
+      Lo2, Hi2 : in Long_Float := 0.0) return Long_Float
+   is
+      use Ada.Numerics.Long_Elementary_Functions;
+      Two_Pi : constant Long_Float := 2.0 * Ada.Numerics.Pi;
+      N : constant Integer := Data'Length;
+      T0 : constant Long_Float := Data (Data'First).Date;
+      Span : constant Long_Float := Data (Data'Last).Date - T0;
+      type Vec is array (1 .. N) of Long_Float;
+      W, CB, SB, C, S, D, M : Vec;
+      Num, DD, MM : Long_Float := 0.0;
+
+      --  weighted series with its mean and linear trend removed
+      procedure Prepare (X : in Data_Pairs; V : out Vec) is
+         Sx, Sy, Sxx, Sxy, U, A, B : Long_Float := 0.0;
+      begin
+         for I in 1 .. N loop
+            U := X (X'First + I - 1).Date - T0;
+            Sx := Sx + U; Sy := Sy + X (X'First + I - 1).Value;
+            Sxx := Sxx + U * U; Sxy := Sxy + U * X (X'First + I - 1).Value;
+         end loop;
+         B := (Long_Float (N) * Sxy - Sx * Sy) / (Long_Float (N) * Sxx - Sx * Sx);
+         A := (Sy - B * Sx) / Long_Float (N);
+         for I in 1 .. N loop
+            U := X (X'First + I - 1).Date - T0;
+            V (I) := W (I) * (X (X'First + I - 1).Value - A - B * U);
+         end loop;
+      end Prepare;
+
+      procedure Band (F_Lo, F_Hi : in Long_Float) is
+         K_Lo : constant Integer := Integer (Long_Float'Ceiling (F_Lo * Span));
+         K_Hi : constant Integer := Integer (Long_Float'Floor (F_Hi * Span));
+         Dc, Ds, Mc, Ms, Cn : Long_Float;
+      begin
+         if K_Hi < K_Lo or else K_Lo < 1 then
+            return;
+         end if;
+         for I in 1 .. N loop   -- phase at the first bin; later bins by rotation
+            C (I) := Cos (Two_Pi * Long_Float (K_Lo) * (Data (Data'First + I - 1).Date - T0) / Span);
+            S (I) := Sin (Two_Pi * Long_Float (K_Lo) * (Data (Data'First + I - 1).Date - T0) / Span);
+         end loop;
+         for K in K_Lo .. K_Hi loop
+            Dc := 0.0; Ds := 0.0; Mc := 0.0; Ms := 0.0;
+            for I in 1 .. N loop
+               Dc := Dc + D (I) * C (I); Ds := Ds + D (I) * S (I);
+               Mc := Mc + M (I) * C (I); Ms := Ms + M (I) * S (I);
+               Cn := C (I) * CB (I) - S (I) * SB (I);
+               S (I) := S (I) * CB (I) + C (I) * SB (I);
+               C (I) := Cn;
+            end loop;
+            Num := Num + Dc * Mc + Ds * Ms;
+            DD := DD + Dc * Dc + Ds * Ds;
+            MM := MM + Mc * Mc + Ms * Ms;
+         end loop;
+      end Band;
+   begin
+      if N < 8 or else Span <= 0.0 or else Model'Length /= N then
+         return 0.0;
+      end if;
+      for I in 1 .. N loop
+         W (I) := 0.5 * (1.0 - Cos (Two_Pi * (Data (Data'First + I - 1).Date - T0) / Span));
+         CB (I) := Cos (Two_Pi * (Data (Data'First + I - 1).Date - T0) / Span);
+         SB (I) := Sin (Two_Pi * (Data (Data'First + I - 1).Date - T0) / Span);
+      end loop;
+      Prepare (Data, D);
+      Prepare (Model, M);
+      Band (Lo, Hi);
+      if Hi2 > Lo2 then
+         Band (Lo2, Hi2);
+      end if;
+      if DD <= 0.0 or else MM <= 0.0 then
+         return 0.0;
+      end if;
+      return Num / Sqrt (DD * MM);
+   end FB_CC;
+
    -- Hoyer_Spectral_Peak
    --
     function Hoyer_Spectral_Peak (Model, Data, Forcing : in Data_Pairs) return Long_Float is
@@ -1761,6 +1847,8 @@ package body GEM.LTE.Primitives is
          --  the actual fit (IR included) is never altered.
          Uncompensated_Mode : constant Boolean :=
            GEM.Getenv ("UNCOMPENSATED", False);
+         Year_Lag : constant Integer :=
+           Integer (Long_Float'(GEM.Getenv ("SAMPLING", 12.0)));
          Model_Spec : Data_Pairs := Model;
          Data_Spec : Data_Pairs := Data;
       begin
@@ -1781,13 +1869,13 @@ package body GEM.LTE.Primitives is
                " Skipping for the saved spectrum.");
          end if;
          if Uncompensated_Mode and then IR /= 0.0 and then abs (IR) < 1.0 then
-            for I in Model'First + 12 .. Model'Last loop
+            for I in Model'First + Year_Lag .. Model'Last loop
                Model_Spec (I).Value :=
-                 Model (I).Value + IR * Model_Spec (I - 12).Value;
+                 Model (I).Value + IR * Model_Spec (I - Year_Lag).Value;
             end loop;
-            for I in Data'First + 12 .. Data'Last loop
+            for I in Data'First + Year_Lag .. Data'Last loop
                Data_Spec (I).Value :=
-                 Data (I).Value + IR * Data (I - 12).Value;
+                 Data (I).Value + IR * Data (I - Year_Lag).Value;
             end loop;
             declare
                Num, Den : Long_Float := 0.0;
@@ -2035,6 +2123,8 @@ package body GEM.LTE.Primitives is
       --  unchanged) so the original DR-based approach stays available.
       Uncompensated_Mode : constant Boolean :=
         GEM.Getenv ("UNCOMPENSATED", False);
+      Year_Lag : constant Integer :=
+        Integer (Long_Float'(GEM.Getenv ("SAMPLING", 12.0)));
    begin
       Annual := (0.0, 0.0, 0.0, 0.0);
       --  The Accel column below is (Date - Forcing (First).Date)**2;
@@ -2136,9 +2226,9 @@ package body GEM.LTE.Primitives is
          begin
             if Uncompensated_Mode and then IR /= 0.0 then
                for J in 1 .. Num_Coefficients loop
-                  for Row in reverse 13 .. Last - First + 1 loop
+                  for Row in reverse Year_Lag + 1 .. Last - First + 1 loop
                      Pass1_Matrix (Row, J) :=
-                       Pass1_Matrix (Row, J) - IR * Pass1_Matrix (Row - 12, J);
+                       Pass1_Matrix (Row, J) - IR * Pass1_Matrix (Row - Year_Lag, J);
                   end loop;
                end loop;
             end if;
@@ -2178,9 +2268,9 @@ package body GEM.LTE.Primitives is
       --  single-term approximation of L^{-1} on the target side.
       if Uncompensated_Mode and then IR /= 0.0 then
          for J in 1 .. Num_Coefficients loop
-            for Row in reverse 13 .. Last - First + 1 loop
+            for Row in reverse Year_Lag + 1 .. Last - First + 1 loop
                Factors_Matrix (Row, J) :=
-                 Factors_Matrix (Row, J) - IR * Factors_Matrix (Row - 12, J);
+                 Factors_Matrix (Row, J) - IR * Factors_Matrix (Row - Year_Lag, J);
             end loop;
          end loop;
       end if;

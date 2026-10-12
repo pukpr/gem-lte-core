@@ -83,7 +83,8 @@ BASE_OVERRIDES = {
     "TRAIN_END": "2005",
     "TRAIN_START": "2000",
     "TREND": "true",
-    "ZONE": "FALSE",
+    "BZONE": "FALSE",
+    "ZONE": "FALSE",     # older name of BZONE, kept for earlier plot.py copies
     "NUMBER_OF_PROCESSORS": "2",  # REVERTED to 2 (was dropped to 1 out of
                                   # caution about a memory-kill issue that
                                   # turned out to be caused by
@@ -599,6 +600,13 @@ def read_backbone(cell_dir: Path) -> float | None:
         p = json.loads((cell_dir / "lt.exe.p").read_text())
         resp = read_resp_dict(cell_dir / "lt.exe.resp")
         nm = int(float(resp.get("NM", len(p["ltep"]))))
+        # LAYER>0 (two-stage manifold, Oct 2026): ltep = [layer k1 ~0.021,
+        # tidal Bessel k ~0.232, regressed windings ~4, 6, ...].  The
+        # physical anchor that must not alias-drift is the Bessel k in
+        # slot 1, not the last slot (a regressed winding, ~4, which the
+        # 0.1..2.5 range would always reject).
+        if int(float(resp.get("LAYER", "0"))) > 0 and len(p["ltep"]) >= 2:
+            return p["ltep"][1]
         return p["ltep"][nm - 1]
     except (FileNotFoundError, KeyError, IndexError, ValueError):
         return None

@@ -20,7 +20,7 @@
 --    - Ensures portability across platforms
 --
 --  FIELD INDICES IN OVERLAY ARRAY:
---    Scalars (19 fields; 19 = rho):
+--    Scalars (25 fields; 19 = rho, 20..24 = ztau, zdist, ztilt, ssaA, ssaP, 25 = mB):
 --      1. Offset    7. DelB      13. Year    
 --      2. bg        8. Asym      14. mA      
 --      3. ImpA      9. Ann1      15. mP      
@@ -29,8 +29,8 @@
 --      6. DelA     12. Sem2      18. IR      
 --
 --    Arrays (variable size):
---      20..20+NLP*2-1: LPAP (each constituent = 2 floats: Amplitude, Phase)
---      20+NLP*2..end:  LT modulations
+--      26..26+NLP*2-1: LPAP (each constituent = 2 floats: Amplitude, Phase)
+--      26+NLP*2..end:  LT modulations
 --
 --  USAGE:
 --    Size := Param_B_Overlay.Overlay_Size (D.NLP, D.NLT);
@@ -83,8 +83,14 @@ package GEM.LTE.Primitives.Param_B_Overlay is
    ShiftT_Index  : constant := 17;
    Init_Index    : constant := 18;
    Rho_Index     : constant := 19;
+   ZTau_Index    : constant := 20;
+   ZDist_Index   : constant := 21;
+   ZTilt_Index   : constant := 22;
+   SsaA_Index    : constant := 23;
+   SsaP_Index    : constant := 24;
+   MB_Index      : constant := 25;
    
-   Scalar_Field_Count : constant := 19;
+   Scalar_Field_Count : constant := 25;
    
    --  Calculate overlay array size for given discriminants
    --  Formula: Scalar_Fields + (NLP * 2) + NLT

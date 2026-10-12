@@ -43,6 +43,7 @@ with Text_IO;
 with Ada.Integer_Text_IO;
 with Ada.Long_Float_Text_IO;
 with Ada.Directories;
+with Ada.Task_Attributes;
 
 package body GEM is
 
@@ -62,7 +63,9 @@ package body GEM is
       ANNUAL_DITHER, ANNUAL_DITHER_PHASE, ANNUAL_DITHER_STAGE,
       TIDES, ZONAL_KAPPA, ZONAL_TAU, ZONAL_WSUN, ZONAL_ECC, ZONAL_EVECT,
       ZONAL_VAR, ZONAL_ANNEQ, ZONAL_INCL, IMPULSE_MOD12, TIDE_LEGACY,
-      HYBRID_LAMBDA, LOD_TERM, ZONAL_RHO );
+      HYBRID_LAMBDA, LOD_TERM, ZONAL_RHO, ZONAL_ADJ, ZONAL_SIDEREAL, ZONAL_SIDEREAL_SUN, TROPICAL, IMPULSE_EXACT,
+      FB_LO, FB_HI, FB_LO2, FB_HI2, LEGS, LEG_WEIGHT,
+      SELECT_TOP, SELECT_TIE );
 
    type Option_Pair is record
       Name, Value : Ada.Command_Line.Response_File.String_Access;
@@ -70,6 +73,25 @@ package body GEM is
 
    type Options_list is array (Options) of Option_Pair;
    OL : Options_list;  -- Parsed response file parameters
+
+   --  Leg-specific response files (<executable>.resp.1, .resp.2) and the
+   --  per-task leg number that selects one of them in Getenv.
+   Max_Legs : constant := 2;
+   OL_Leg : array (1 .. Max_Legs) of Options_list;
+   package Leg_Attr is new Ada.Task_Attributes (Natural, 0);
+
+   procedure Set_Leg (L : in Natural) is
+   begin
+      Leg_Attr.Set_Value (L);
+   end Set_Leg;
+
+   function Leg return Natural is (Leg_Attr.Value);
+
+   function Leg_Tag return String is
+      L : constant Natural := Leg_Attr.Value;
+   begin
+      return (if L = 0 then "" else "." & Character'Val (Character'Pos ('0') + L));
+   end Leg_Tag;
 
    --  TODO: Can remove - Original idea was to directly rename Environment_Variables.Value
    --  but this prevented debugging and didn't support response file/command-line precedence.
@@ -98,6 +120,20 @@ package body GEM is
             return "TRUE";
          end if;
       end loop;
+      -- A task assigned to a leg looks in that leg's response file first
+      declare
+         L : constant Natural := Leg_Attr.Value;
+      begin
+         if L in 1 .. Max_Legs then
+            for EV in Options loop
+               if OL_Leg (L) (EV).Name /= null
+                 and then OL_Leg (L) (EV).Name.all = Name
+               then
+                  return OL_Leg (L) (EV).Value.all;
+               end if;
+            end loop;
+         end if;
+      end;
       -- Look for any parameters parsed from response file
       for EV in Options loop
          if OL (EV).Name /= null and then OL (EV).Name.all = Name then
@@ -253,9 +289,49 @@ package body GEM is
          Text_IO.Put_Line (FN & " not found");
    end Read_Response_File;
 
+   --  Leg response files: same format as the common one; a missing file is
+   --  simply a leg with no settings of its own.
+   procedure Read_Leg_Response_Files is
+      use type Ada.Command_Line.Response_File.String_Access;
+   begin
+      for Lg in 1 .. Max_Legs loop
+         declare
+            FN : constant String :=
+              Ada.Directories.Simple_Name (Ada.Command_Line.Command_Name) &
+              ".resp." & Character'Val (Character'Pos ('0') + Lg);
+         begin
+            declare
+               L : constant Ada.Command_Line.Response_File.Argument_List :=
+                 Ada.Command_Line.Response_File.Arguments_From (FN);
+            begin
+               Text_IO.Put_Line ("LEG RESPONSE FILE " & FN);
+               for I in L'First .. L'Last / 2 loop
+                  for EV in Options loop
+                     if EV'Image = L (2 * I - 1).all then
+                        OL_Leg (Lg) (EV).Name := L (2 * I - 1);
+                        OL_Leg (Lg) (EV).Value := L (2 * I);
+                     end if;
+                  end loop;
+               end loop;
+               for EV in Options loop
+                  if OL_Leg (Lg) (EV).Name /= null then
+                     Text_IO.Put_Line
+                       ("  " & OL_Leg (Lg) (EV).Name.all & " " &
+                        OL_Leg (Lg) (EV).Value.all);
+                  end if;
+               end loop;
+            end;
+         exception
+            when Ada.Command_Line.Response_File.File_Does_Not_Exist =>
+               null;
+         end;
+      end loop;
+   end Read_Leg_Response_Files;
+
 begin
 
    --  Package initialization: Load response file at startup
    Read_Response_File;
+   Read_Leg_Response_Files;
 
 end GEM;

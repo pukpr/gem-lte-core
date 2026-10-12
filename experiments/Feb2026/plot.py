@@ -16,7 +16,9 @@ display = sys.argv[5]
 
 # Get the directory where the script itself is located
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-ZONE_ENABLED = os.environ.get("ZONE", "FALSE").strip().upper() == "TRUE"
+# BZONE = Brillouin-zone folding of the forcing by the base winding (not the
+# ZONAL tide mode). The older name ZONE is still read if BZONE is not set.
+ZONE_ENABLED = os.environ.get("BZONE", os.environ.get("ZONE", "FALSE")).strip().upper() == "TRUE"
 
 
 def load_zone_factor(target_dir):
@@ -96,7 +98,11 @@ def fold_to_zone(values, factor):
 img_path = os.path.join(BASE_DIR, 'locs', f"{identifier}_loc.png")
 
 # Read the PNG file (replace with your file name)
-img = mpimg.imread(img_path)
+if os.path.isfile(img_path):
+    img = mpimg.imread(img_path)
+else:
+    img = np.ones((1, 1, 3), dtype=np.float32)
+   
 # img = mpimg.imread('locs/' + identifier + '_loc.png')
 
 # Load main data
@@ -283,18 +289,86 @@ axs[1,1].legend(loc='upper left')
 if zone_factor is not None:
     axs[1,1].set_ylim(0.0, 1.0)
 
+# ── Analytical mode: harmonic spectrum of the phase-folded modulation ──
+# When BZONE is enabled, the windings seen in the LTE Modulation panel are
+# integer harmonics of the base winding k (last ltep entry).  This panel
+# decomposes the compensated data and model into Fourier components at
+# h·k (h = 1, 2, …) so the dominant harmonic (often 3rd or 6th for
+# Kaplan quad SSTs) is immediately visible.
+if zone_factor is not None:
+    k = zone_factor
+    # Use the same IR-compensated / matched series as the modulation panel
+    y_data = data_matched.copy()
+    y_model = model_demod_scaled.copy()
 
-# Bottom right chart: Power Spectrum (log/log). NOTE: still IR-contaminated
-# (model_psd is precomputed upstream, in the Forcing-domain "modulation on
-# latent" sense, from the IR-included Model) -- fixing this properly needs
-# to happen where that PSD is actually built, on the Ada side, not here.
-axs[2,1].loglog(freq.iloc[:-10], model_psd.iloc[:-10], linewidth=1, color='red', label='Model PSD')
-axs[2,1].loglog(freq.iloc[:-10], data_psd.iloc[:-10], linewidth=1, color='blue', label='Data PSD', alpha=0.7)
-axs[2,1].set_title('Power Spectrum, modulation on latent')
-axs[2,1].set_xlabel('Frequency (per level)')
-axs[2,1].set_ylabel('Power')
-axs[2,1].set_xlim(left=0.1)
-axs[2,1].legend(loc='lower left')
+    # Remove the secular/low-winding background so only the periodic part
+    # tied to the base phase remains.  Regress out 1, F, t, t² and any
+    # low-winding terms (we do not know klow here, but they are ≪ k so
+    # they leak only slightly into the low-h bins).
+    tt = time - time[0]
+    X_bg = np.column_stack([np.ones_like(time), forcing_values, tt, tt ** 2])
+    # Also regress out sin/cos at the base k and a few low harmonics to
+    # isolate each harmonic's contribution cleanly.
+    n_harm = 12
+    # Build a full design matrix: background + all harmonics up to n_harm
+    X_full_cols = list(X_bg.T)
+    for h in range(1, n_harm + 1):
+        arg = 2.0 * np.pi * h * k * forcing_values
+        X_full_cols.append(np.sin(arg))
+        X_full_cols.append(np.cos(arg))
+    X_full = np.column_stack(X_full_cols)
+    n_bg = X_bg.shape[1]
+
+    # Fit on the full record (simple least-squares)
+    c_data = np.linalg.lstsq(X_full, y_data, rcond=None)[0]
+    c_model = np.linalg.lstsq(X_full, y_model, rcond=None)[0]
+
+    # Harmonic amplitudes (A_h = sqrt(a² + b²))
+    hamps_data = []
+    hamps_model = []
+    h_labels = []
+    for h in range(1, n_harm + 1):
+        a_d, b_d = c_data[n_bg + 2 * (h - 1)], c_data[n_bg + 2 * (h - 1) + 1]
+        a_m, b_m = c_model[n_bg + 2 * (h - 1)], c_model[n_bg + 2 * (h - 1) + 1]
+        hamps_data.append(np.sqrt(a_d ** 2 + b_d ** 2))
+        hamps_model.append(np.sqrt(a_m ** 2 + b_m ** 2))
+        # Label: show the "zone period" = 1/(h·k) in F-units, and h
+        h_labels.append(f"h={h}\n(1/{h*k:.2g})")
+
+    # Replace the power-spectrum subplot with the harmonic spectrum
+    axs[2, 1].clear()
+    x_h = np.arange(1, n_harm + 1)
+    width = 0.35
+    axs[2, 1].bar(x_h - width / 2, hamps_data, width, label="Data (IR-matched)",
+                  color="blue", alpha=0.7)
+    axs[2, 1].bar(x_h + width / 2, hamps_model, width, label="Model (IR-decomp)",
+                  color="red", alpha=0.7)
+    axs[2, 1].set_xticks(x_h)
+    axs[2, 1].set_xticklabels(h_labels, fontsize=7)
+    axs[2, 1].set_title("Harmonic spectrum of the zone-folded modulation")
+    axs[2, 1].set_xlabel("Harmonic of base winding k")
+    axs[2, 1].set_ylabel("Amplitude")
+    axs[2, 1].legend(loc="upper right", fontsize=7)
+    # Annotate the dominant harmonic
+    dom_h_data = int(np.argmax(hamps_data) + 1)
+    dom_h_model = int(np.argmax(hamps_model) + 1)
+    axs[2, 1].text(0.02, 0.98,
+                   f"Dominant harmonic:\n  Data  h={dom_h_data}\n  Model h={dom_h_model}",
+                   transform=axs[2, 1].transAxes, fontsize=8, va="top",
+                   bbox=dict(boxstyle="round", facecolor="wheat", alpha=0.8))
+    axs[2, 1].grid(True, axis="y", ls=":", lw=0.4, alpha=0.5)
+else:
+    # Bottom right chart: Power Spectrum (log/log). NOTE: still IR-contaminated
+    # (model_psd is precomputed upstream, in the Forcing-domain "modulation on
+    # latent" sense, from the IR-included Model) -- fixing this properly needs
+    # to happen where that PSD is actually built, on the Ada side, not here.
+    axs[2,1].loglog(freq.iloc[:-10], model_psd.iloc[:-10], linewidth=1, color='red', label='Model PSD')
+    axs[2,1].loglog(freq.iloc[:-10], data_psd.iloc[:-10], linewidth=1, color='blue', label='Data PSD', alpha=0.7)
+    axs[2,1].set_title('Power Spectrum, modulation on latent')
+    axs[2,1].set_xlabel('Frequency (per level)')
+    axs[2,1].set_ylabel('Power')
+    axs[2,1].set_xlim(left=0.1)
+    axs[2,1].legend(loc='lower left')
 
 #axs[2,1].text(0.02, 0.02, metrics, transform=axs[2,1].transAxes,
 #            fontsize=6, verticalalignment='bottom', horizontalalignment='left',

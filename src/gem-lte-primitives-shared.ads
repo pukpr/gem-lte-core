@@ -32,6 +32,12 @@ package GEM.LTE.Primitives.Shared is
       shiftT : Long_Float;   -- Starting time correction
       init : Long_Float;   -- Initial value
       rho : Long_Float;   -- TIDES=BLEND: weight of the Meeus generator (1 = pure ZONAL)
+      ztau : Long_Float;   -- ZONAL: multiplier on ZONAL_TAU, the generator's time offset (1 = unchanged)
+      zdist : Long_Float;   -- ZONAL: Moon's distance evaluated ZONAL_TAU * ztau * (zdist - 1) days later than its declination
+      ztilt : Long_Float;   -- ZONAL: response tilt, line amplitude * (1 + ztilt * (1 - (Mf period / period)**2))
+      ssaA : Long_Float;   -- ZONAL: amplitude of a free Ssa (182.621 d) line added to the generator
+      ssaP : Long_Float;   -- ZONAL: phase of that line
+      mB : Long_Float;   -- second pole of the impulse response (0 = first order as before; see Shape_Impulses)
 
       LPAP : Long_Periods_Amp_Phase (1 .. NLP);
       LT : Modulations (1 .. NLT);
@@ -44,10 +50,10 @@ package GEM.LTE.Primitives.Shared is
    --  in the random descent optimization algorithm.
    --
    --  STRUCTURE (for NLP=29, NLT=11):
-   --    - 19 scalar Long_Float fields (Offset through rho)
+   --    - 25 scalar Long_Float fields (Offset through mB)
    --    - LPAP array: NLP Amp_Phase records = NLP * 2 Long_Floats (58 floats)
    --    - LT array: NLT Long_Floats (11 floats)
-   --    TOTAL: 19 + 58 + 11 = 88 Long_Float values
+   --    TOTAL: 25 + 58 + 11 = 94 Long_Float values
    --
    --  SIZE CALCULATION:
    --    With GNAT compiler, unconstrained arrays have dope information (bounds)

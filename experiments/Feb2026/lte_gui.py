@@ -350,6 +350,10 @@ def plot_lpap_amplitudes_all(subdirs_info: list) -> None:
     horizontal bar charts overlaid on one axes, so amplitude scatter across
     datasets can be visualised.
 
+    When there are more than 50 datasets, switches to a scatter plot
+    (period on x-axis, amplitude on y-axis, one point per dataset per period)
+    because overlaid bars become illegible.
+
     Parameters
     ----------
     subdirs_info : list of (subdir_path: str, label: str)
@@ -367,10 +371,33 @@ def plot_lpap_amplitudes_all(subdirs_info: list) -> None:
     if not all_data:
         raise ValueError("No valid datasets found in any subdirectory.")
 
-    # Build a union of all unique periods and map each to a y-position.
+    n_datasets = len(all_data)
+
+    # ── Scatter mode for many datasets (> 50) ──────────────────────
+    if n_datasets > 150:
+        _plot_lpap_amplitudes_scatter(all_data)
+        return
+
+    # ── Bar-chart mode (<= 50 datasets) ────────────────────────────
+    # Round periods to 5 significant digits so that tiny floating-point
+    # differences between datasets do not create duplicate categories.
+    def _round_sig5(x):
+        if x == 0:
+            return 0.0
+        from math import log10, floor
+        digits = 5 - 1 - floor(log10(abs(x)))
+        digits = max(0, digits)
+        return round(x, digits)
+
+    all_data_rounded = []
+    for periods, amplitudes, label in all_data:
+        r = [(_round_sig5(p), a) for p, a in zip(periods, amplitudes)]
+        all_data_rounded.append((r, label))
+
+    # Build a union of all unique (rounded) periods and map each to a y-position.
     all_periods_set: set = set()
-    for periods, _, _ in all_data:
-        all_periods_set.update(periods)
+    for rounded, _ in all_data_rounded:
+        all_periods_set.update(p for p, _ in rounded)
     all_periods = sorted(all_periods_set)
 
     n = len(all_periods)
@@ -380,11 +407,12 @@ def plot_lpap_amplitudes_all(subdirs_info: list) -> None:
 
     fig, ax = plt.subplots(figsize=(10, max(4, 0.35 * n)))
 
-    n_total = max(len(all_data), 1)
+    n_total = max(len(all_data_rounded), 1)
     colors  = plt.cm.tab20(np.linspace(0, 1, n_total))
 
-    for i, (periods, amplitudes, label) in enumerate(all_data):
-        ys = [y_pos_map[p] for p in periods]
+    for i, (rounded, label) in enumerate(all_data_rounded):
+        ys = [y_pos_map[p] for p, _ in rounded]
+        amplitudes = [a for _, a in rounded]
         ax.barh(
             ys, amplitudes,
             align="center",
@@ -408,6 +436,74 @@ def plot_lpap_amplitudes_all(subdirs_info: list) -> None:
         return f"{x:.{digits}f}"
 
     from matplotlib.ticker import FuncFormatter
+    ax.xaxis.set_major_formatter(FuncFormatter(_sig5))
+
+    ax.set_xlabel("Amplitude (a.u.)")
+    ax.set_title(
+        f"All datasets — tidal amplitude spectrum ({n_datasets} datasets)",
+        fontsize=11,
+    )
+    ax.grid(True, axis="x", ls=":", lw=0.4, alpha=0.6)
+    fig.tight_layout()
+    plt.show()
+
+
+def _plot_lpap_amplitudes_scatter(all_data: list) -> None:
+    """
+    Dot-plot of tidal amplitude spectra for many datasets, keeping the
+    same horizontal-bar category layout (periods on y-axis, amplitude on
+    x-axis) but using small dots instead of bars so overlays remain legible.
+    """
+    from matplotlib.ticker import FuncFormatter
+
+    # Round periods to 5 significant digits so that tiny floating-point
+    # differences between datasets do not create duplicate categories.
+    def _round_sig5(x):
+        if x == 0:
+            return 0.0
+        from math import log10, floor
+        digits = 5 - 1 - floor(log10(abs(x)))
+        digits = max(0, digits)
+        return round(x, digits)
+
+    all_data_rounded = []
+    for periods, amplitudes, label in all_data:
+        r = [(_round_sig5(p), a) for p, a in zip(periods, amplitudes)]
+        all_data_rounded.append((r, label))
+
+    # Build a union of all unique (rounded) periods and map each to a y-position.
+    all_periods_set: set = set()
+    for rounded, _ in all_data_rounded:
+        all_periods_set.update(p for p, _ in rounded)
+    all_periods = sorted(all_periods_set)
+
+    n = len(all_periods)
+    y_pos_map = {p: i for i, p in enumerate(all_periods)}
+    y_pos     = np.arange(n)
+    labels    = [f"{p:.5g} d" for p in all_periods]
+
+    fig, ax = plt.subplots(figsize=(14, max(4, 0.35 * n)))
+
+    n_total = max(len(all_data_rounded), 1)
+    colors  = plt.cm.tab20(np.linspace(0, 1, min(n_total, 20)))
+
+    for i, (rounded, label) in enumerate(all_data_rounded):
+        color = colors[i % 20]
+        for p, a in rounded:
+            ax.scatter(a, y_pos_map[p], color=color, s=10, alpha=0.5, edgecolors="none")
+
+    ax.set_yticks(y_pos)
+    ax.set_yticklabels(labels, fontsize=8)
+    ax.invert_yaxis()
+
+    def _sig5(x, _pos):
+        if x == 0:
+            return "0"
+        from math import log10, floor
+        digits = 5 - 1 - floor(log10(abs(x)))
+        digits = max(0, digits)
+        return f"{x:.{digits}f}"
+
     ax.xaxis.set_major_formatter(FuncFormatter(_sig5))
 
     ax.set_xlabel("Amplitude (a.u.)")
@@ -770,7 +866,7 @@ class App(tk.Tk):
             variable=self.sim_var,
         )
         calibrate_menu.add_checkbutton(
-            label="zone",
+            label="bzone",
             variable=self.zone_var,
             command=self._sync_calibrate_envs,
         )
@@ -798,7 +894,10 @@ class App(tk.Tk):
         os.environ["DLOD_REF"] = self._dlod_ref_value()
         os.environ["LOCKT"] = "TRUE" if self.tidal_phase_var.get() else "FALSE"
         os.environ["LOCKA"] = "TRUE" if self.tidal_amplitude_var.get() else "FALSE"
-        os.environ["ZONE"] = "TRUE" if self.zone_var.get() else "FALSE"
+        # BZONE (Brillouin-zone folding); ZONE is the older name, still set
+        # so earlier copies of plot.py keep working
+        os.environ["BZONE"] = "TRUE" if self.zone_var.get() else "FALSE"
+        os.environ["ZONE"] = os.environ["BZONE"]
 
     def _dlod_ref_value(self) -> str:
         return "TRUE" if self.lod_var.get() else "FALSE"
@@ -1325,7 +1424,8 @@ class App(tk.Tk):
         env["DLOD_REF"] = self._dlod_ref_value()
         env["LOCKT"] = "TRUE" if self.tidal_phase_var.get() else "FALSE"
         env["LOCKA"] = "TRUE" if self.tidal_amplitude_var.get() else "FALSE"
-        env["ZONE"] = "TRUE" if self.zone_var.get() else "FALSE"
+        env["BZONE"] = "TRUE" if self.zone_var.get() else "FALSE"
+        env["ZONE"] = env["BZONE"]
 
         # Same overrides this method just set on `env`, WITHOUT the rest of
         # the inherited ambient environment (PATH, HOME, ...) -- a script
@@ -1335,7 +1435,7 @@ class App(tk.Tk):
         override_keys = (
             "METRIC", "TIMEOUT", "TRAIN_START", "TRAIN_END", "CLIMATE_INDEX",
             "IDATE", "EXCLUDE", "TREND", "F9", "TEST_ONLY", "DLOD_REF",
-            "LOCKT", "LOCKA", "ZONE",
+            "LOCKT", "LOCKA", "BZONE", "ZONE",
         )
         overrides = {key: env[key] for key in override_keys}
         try:
@@ -1357,18 +1457,24 @@ class App(tk.Tk):
 
         plot_path = (run_dir.parent / "plot.py").resolve()
         if not plot_path.exists():
-            messagebox.showerror(
-                "Missing plot.py",
-                f"Could not find plot.py at:\n{plot_path}"
-            )
-            return
+            script_dir = Path(__file__).resolve().parent
+            fallback_path = script_dir / "plot.py"
+            if fallback_path.exists():
+                plot_path = fallback_path.resolve()
+            else:
+                messagebox.showerror(
+                    "Missing plot.py",
+                    f"Could not find plot.py at:\n{plot_path}\nor\n{fallback_path}"
+                )
+                return
 
         begin = self.interval_begin_var.get().strip()
         end   = self.interval_end_var.get().strip()
 
         if IS_WINDOWS:
             env = os.environ.copy()
-            env["ZONE"] = "TRUE" if self.zone_var.get() else "FALSE"
+            env["BZONE"] = "TRUE" if self.zone_var.get() else "FALSE"
+            env["ZONE"] = env["BZONE"]
             cmd = [PYTHON, str(plot_path), index, "Feb2026", begin, end, "0"]
             _open_terminal(cmd, run_dir, env)
             return
@@ -1382,7 +1488,8 @@ class App(tk.Tk):
         def _run() -> None:
             env = os.environ.copy()
             env["MPLBACKEND"] = "Agg"  # non-interactive; prevents any window
-            env["ZONE"] = "TRUE" if self.zone_var.get() else "FALSE"
+            env["BZONE"] = "TRUE" if self.zone_var.get() else "FALSE"
+            env["ZONE"] = env["BZONE"]
             cmd = [PYTHON, str(plot_path), index, "Feb2026", begin, end, "0"]
             try:
                 result = subprocess.run(
@@ -1411,9 +1518,17 @@ class App(tk.Tk):
             messagebox.showerror("No selection", str(e))
             return
 
-        pngs = list(run_dir.glob("*.png"))
+        index = run_dir.name.strip().strip('"').strip("'")
+        pngs = [
+            path
+            for path in run_dir.glob("*.png")
+            if path.name == "lte_results.png" or path.name.startswith(f"{index}site")
+        ]
         if not pngs:
-            messagebox.showinfo("No PNG", "No PNG found in selected directory.")
+            messagebox.showinfo(
+                "No PNG",
+                "No recognized plot PNG found in selected directory. Run plot to create one.",
+            )
             return
 
         pngs.sort(key=lambda p: p.stat().st_mtime, reverse=True)

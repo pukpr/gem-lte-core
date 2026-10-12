@@ -62,7 +62,10 @@ package GEM.LTE.Primitives is
       Periods : in Long_Periods; Ref_Time : in Long_Float := 0.0;
       Scaling : in Long_Float := 1.0; Cos_Phase : in Boolean := True;
       Year_Len : in Long_Float := Year_Length; Integ : in Long_Float := 0.0;
-      Lod : in Long_Float := 0.0; Rho : in Long_Float := 1.0) return Data_Pairs;
+      Lod : in Long_Float := 0.0; Rho : in Long_Float := 1.0;
+      ZTau : in Long_Float := 1.0; ZDist : in Long_Float := 1.0;
+      ZTilt : in Long_Float := 0.0; SsaA : in Long_Float := 0.0;
+      SsaP : in Long_Float := 0.0) return Data_Pairs;
 
    --  Accel_Ref (default Long_Float'First, a sentinel meaning "use
    --  Forcing'First's own date", today's exact behavior): the calendar
@@ -184,6 +187,16 @@ package GEM.LTE.Primitives is
 
    -- Correlation coefficient on spectrum
    function FT_CC (Model, Data, Forcing : in Data_Pairs) return Long_Float;
+
+   --  METRIC=FB: correlation of the complex Fourier spectra of Model and Data
+   --  (amplitude and phase) over the frequency band Lo .. Hi, plus Lo2 .. Hi2
+   --  when Hi2 > Lo2; frequencies in cycles per unit of Date (per year).
+   --  Hann taper, mean and linear trend removed, bins spaced 1 / record span.
+   --  Lets a search use only one band of the data (frequency-domain
+   --  cross-validation); no effect unless METRIC=FB.
+   function FB_CC
+     (Model, Data : in Data_Pairs; Lo, Hi : in Long_Float;
+      Lo2, Hi2 : in Long_Float := 0.0) return Long_Float;
 
    -- Hoyer Peakedness
    function Hoyer_Spectral_Peak (Model, Data, Forcing : in Data_Pairs) return Long_Float;

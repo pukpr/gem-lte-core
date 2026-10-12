@@ -239,6 +239,12 @@ package body GEM.LTE.Primitives.Shared is
          Set_Field (Obj, "shfT", Create (D.B.shiftT));
          Set_Field (Obj, "init", Create (D.B.init));
          Set_Field (Obj, "rho", Create (D.B.rho));
+         Set_Field (Obj, "ztau", Create (D.B.ztau));
+         Set_Field (Obj, "zdist", Create (D.B.zdist));
+         Set_Field (Obj, "ztilt", Create (D.B.ztilt));
+         Set_Field (Obj, "ssaA", Create (D.B.ssaA));
+         Set_Field (Obj, "ssaP", Create (D.B.ssaP));
+         Set_Field (Obj, "mb", Create (D.B.mB));
          
          -- LPAP array (tidal constituents) - only in primary file
          if Include_LPAP then
@@ -331,7 +337,7 @@ package body GEM.LTE.Primitives.Shared is
       use GNATCOLL.JSON;
       FN : constant String :=
         Ada.Directories.Simple_Name (Ada.Command_Line.Command_Name) &
-        ".windings.json";
+        ".windings" & GEM.Leg_Tag & ".json";
       Obj      : constant JSON_Value := Create_Object;
       K_Arr    : JSON_Array          := Empty_Array;
       Manifold : constant JSON_Value := Create_Object;
@@ -460,6 +466,12 @@ package body GEM.LTE.Primitives.Shared is
       Set_Field (Manifold, "mp", Create (B.mP));
       Set_Field (Manifold, "shiftT", Create (B.shiftT));
       Set_Field (Manifold, "rho", Create (B.rho));
+      Set_Field (Manifold, "ztau", Create (B.ztau));
+      Set_Field (Manifold, "zdist", Create (B.zdist));
+      Set_Field (Manifold, "ztilt", Create (B.ztilt));
+      Set_Field (Manifold, "ssaA", Create (B.ssaA));
+      Set_Field (Manifold, "ssaP", Create (B.ssaP));
+      Set_Field (Manifold, "mb", Create (B.mB));
       Set_Field (Manifold, "impA", Create (B.ImpA));
       Set_Field (Manifold, "impB", Create (B.ImpB));
       Set_Field (Manifold, "offs", Create (B.Offset));
@@ -800,6 +812,14 @@ package body GEM.LTE.Primitives.Shared is
       D.B.init := Get_Float_Field (Data, "init", D.B.init);
       --  absent in older files: 1.0 = pure Meeus generator
       D.B.rho := Get_Float_Field (Data, "rho", 1.0);
+      --  ZONAL adjustables, absent in older files: neutral values
+      D.B.ztau := Get_Float_Field (Data, "ztau", 1.0);
+      D.B.zdist := Get_Float_Field (Data, "zdist", 1.0);
+      D.B.ztilt := Get_Float_Field (Data, "ztilt", 0.0);
+      D.B.ssaA := Get_Float_Field (Data, "ssaA", 0.0);
+      D.B.ssaP := Get_Float_Field (Data, "ssaP", 0.0);
+      --  second pole of the impulse response, absent in older files: 0 = off
+      D.B.mB := Get_Float_Field (Data, "mb", 0.0);
       if Include_LPAP then
          Read_JSON_LPAP (Data, "LPAP", D);
          Read_JSON_LPAP (Data, "lpap", D);
@@ -924,6 +944,12 @@ package body GEM.LTE.Primitives.Shared is
       Put (D.B.shiftT, " :shiftT:", NL);
       Put (D.B.init, " :init:", NL);
       Put (D.B.rho, " :rho:", NL);
+      Put (D.B.ztau, " :ztau:", NL);
+      Put (D.B.zdist, " :zdist:", NL);
+      Put (D.B.ztilt, " :ztilt:", NL);
+      Put (D.B.ssaA, " :ssaA:", NL);
+      Put (D.B.ssaP, " :ssaP:", NL);
+      Put (D.B.mB, " :mB:", NL);
       Ada.Text_IO.Put_Line ("---- Tidal ----");
       for I in D.B.LPAP'Range loop
          Put (D.A.LP (I), ", ");

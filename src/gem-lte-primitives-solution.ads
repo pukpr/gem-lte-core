@@ -12,7 +12,8 @@ package GEM.LTE.Primitives.Solution is
    procedure Dipole_Model
      (N_Tides, N_Modulations : in Integer; ID : in Integer := 0;
       File_Name : in String := "nino4.dat";
-      Split_Training : in Boolean := False; Exclude : in Boolean := False);
+      Split_Training : in Boolean := False; Exclude : in Boolean := False;
+      Leg : in Natural := 0; Pair : in Natural := 0);
 
    -- Should also add interfaces such as
    -- 1. Load default parameter set, using streaming format

@@ -30,4 +30,7 @@ __pycache__/
 dlod_ref.dat
 dlod_compare.csv
 *.npz
-
+run.out
+lte_run.bat
+# leg response files (lt.exe.resp.1, lt.exe.resp.2) are settings, not backups
+!lt.exe.resp.[0-9]
