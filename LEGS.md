@@ -7,6 +7,12 @@ legs' scores.
 
 Added 2026-10-12. Without `LEGS`, the program behaves exactly as before (output bit-identical).
 
+**More than two legs.** `LEGS N` (2 to 9) runs groups of N tasks: one leader on leg 1 and a follower
+on each of legs 2 to N, with settings from `lt.exe.resp.1` to `lt.exe.resp.N` and outputs
+`lte_results.1.csv` to `lte_results.N.csv`. The composite is the weighted mean over all N legs, and
+`NUMBER_OF_PROCESSORS` is rounded down to a multiple of N. Everything below written for two legs
+applies unchanged.
+
 ## Files
 
 | File | Purpose |
@@ -113,6 +119,8 @@ ulimit -s 65536
 | One series, leg 1 trains 1992–2005, leg 2 trains outside it | Each leg file identical to its single run; composite equals the mean of the two single scores |
 | 5-day leg plus monthly leg | Each leg file identical to its single run; composite equals the mean |
 | 90 s paired search, 4 pairs | Exits by itself, composite rises, no errors |
+| Three legs, one series, three intervals | Each leg file identical to its single run; composite equals the mean of the three |
+| 60 s three-leg search, 3 groups | Exits by itself, three leg files written, no errors |
 | Re-run of the saved `lt.exe.p` | Both leg files reproduced to 8e-7 |
 
 ## Limits

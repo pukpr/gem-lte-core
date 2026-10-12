@@ -20,7 +20,7 @@ def run(name, binary, common, legs=None, test=True, timeout=60, threads=2, pfile
     d = H / name; shutil.rmtree(d, ignore_errors=True); d.mkdir()
     for f in ("soi_lag_5.dat",): shutil.copy(R / "daily" / f, d / f)
     shutil.copy(R / "monthly/soi_lag_m.dat", d / "soi_lag_m.dat"); shutil.copy(R / "daily/dlod_ref.dat", d / "dlod_ref.dat"); shutil.copy(pfile or (R / "start.p"), d / "lt.exe.p"); os.symlink(binary, d / "lt.exe"); os.symlink(E / "Feb2026/dlod3.dat", H / "dlod3.dat") if not (H / "dlod3.dat").exists() else None
-    (d / "lt.exe.resp").write_text(RESP0 + resp_text(common) + ("LEGS                           2\n" if legs else ""))
+    (d / "lt.exe.resp").write_text(RESP0 + resp_text(common) + (f"LEGS                           {len(legs)}\n" if legs else ""))
     for i, L in enumerate(legs or [], 1): (d / f"lt.exe.resp.{i}").write_text(resp_text(L))
     env = {**os.environ, **ENV0, "TEST_ONLY": "TRUE" if test else "FALSE", "TIMEOUT": str(timeout), "NUMBER_OF_PROCESSORS": str(threads)}; t0 = time.time()
     try: p = subprocess.run("ulimit -s 65536; ./lt.exe", shell=True, cwd=d, env=env, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=timeout + 240); out = p.stdout + p.stderr
@@ -49,6 +49,11 @@ if "T3" in which:
     a, sa = single("5in", {**D5, **IN}); b, sb = single("m_out", {**DM, **OUT}); d, out, dt = run("t3", NEW, {}, legs=[{**D5, **IN}, {**DM, **OUT}])
     print(f"T3 5-day leg + monthly leg: leg 1 vs single 5-day {cmp(res(d, '.1'), a)}; leg 2 vs single monthly {cmp(res(d, '.2'), b)}")
     print(f"   single training scores {sa[0]:.5f} (inside) and {sb[1]:.5f} (outside), mean {0.5 * (sa[0] + sb[1]):.5f}; composite shown {status(out)[-1:]}; exited in {dt:.0f} s", flush=True)
+if "T5" in which:
+    LATE = dict(TRAIN_START="2005", TRAIN_END="2026", EXCLUDE="FALSE"); a, sa = single("5in", {**D5, **IN}); b, sb = single("5out", {**D5, **OUT}); c, sc = single("5late", {**D5, **LATE}); d, out, dt = run("t5", NEW, D5, legs=[IN, OUT, LATE], threads=3)
+    print(f"T5 three legs, one series, three intervals: leg 1 {cmp(res(d, '.1'), a)}; leg 2 {cmp(res(d, '.2'), b)}; leg 3 {cmp(res(d, '.3'), c)}")
+    print(f"   single training scores {sa[0]:.5f}, {sb[1]:.5f}, {sc[0]:.5f}, mean {(sa[0] + sb[1] + sc[0]) / 3:.5f}; composite shown {status(out)[-1:]}; exited in {dt:.0f} s", flush=True)
+    d, out, dt = run("t5s", NEW, D5, legs=[IN, OUT, LATE], test=False, timeout=60, threads=9); st = status(out); print(f"   three-leg search, 9 tasks (3 groups), 60 s: exited in {dt:.0f} s{' *** HUNG ***' if 'DID NOT EXIT' in out else ''}; composite at save {st[-1:]}; leg files written: {[f.name for f in sorted(d.glob('lte_results.*.csv'))]}; errors {len(re.findall('Solution err', out))}")
 if "T4" in which:
     d, out, dt = run("t4", NEW, D5, legs=[IN, OUT], test=False, timeout=90, threads=8); st = status(out); a1, a2 = res(d, ".1"), res(d, ".2")
     print(f"T4 paired search, 8 tasks (4 pairs), 90 s: exited in {dt:.0f} s{' *** HUNG ***' if 'DID NOT EXIT' in out else ''}; composite {st[0]:.5f} -> {st[-1]:.5f} over {len(st)} reports; errors in output: {len(re.findall('Solution err', out))}")

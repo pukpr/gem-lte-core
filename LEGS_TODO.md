@@ -42,8 +42,8 @@ not an issue.
 8. **`VALIDATE`, `ALTERNATE`, `SPLIT_TRAINING`** with legs; **`TIDES ZONAL`** forcing cache with two
    time grids.
 9. **Plot scripts and `lte_gui.py`**: accept `lte_results.1.csv` / `.2.csv`.
-10. **More than two legs** (three or more indices on one manifold): the `Exchange` generalizes to one
-    leader and several followers.
+10. Done 2026-10-12 (`LEGS N`, 2 to 9). ~~**More than two legs** (three or more indices on one manifold): the `Exchange` generalizes to one
+    leader and several followers.~~
 
 ## Next experiment
 

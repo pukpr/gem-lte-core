@@ -76,7 +76,7 @@ package body GEM is
 
    --  Leg-specific response files (<executable>.resp.1, .resp.2) and the
    --  per-task leg number that selects one of them in Getenv.
-   Max_Legs : constant := 2;
+   Max_Legs : constant := 9;
    OL_Leg : array (1 .. Max_Legs) of Options_list;
    package Leg_Attr is new Ada.Task_Attributes (Natural, 0);
 

@@ -80,7 +80,16 @@ package body GEM.LTE.Primitives.Solution is
    --  rejects on. One parameter file is saved; results and windings are
    --  saved per leg (lte_results.1.csv, lte_results.2.csv, ...).
    --  Default 0: no legs, everything as before.
-   Paired : constant Boolean := Integer'(GEM.Getenv ("LEGS", 0)) = 2;
+   --  LEGS = N (2 .. 9) generalizes the pair to a group of N tasks: one
+   --  leader on leg 1 and a follower on each of legs 2 .. N, with settings
+   --  from "<exe>.resp.1" .. "<exe>.resp.N". The composite is the
+   --  LEG_WEIGHT-weighted mean over all N legs.
+   Max_Group : constant := 9;
+   Legs_N : constant Integer :=
+     Integer'Min (Max_Group, Integer'(GEM.Getenv ("LEGS", 0)));
+   Paired : constant Boolean := Legs_N >= 2;
+   Group : constant Positive := Integer'Max (1, Legs_N);
+   subtype Follower_Leg is Integer range 2 .. Max_Group;
    Active_Threads : Natural := 0;  -- set by Start
 
    --  SELECT_TOP = N (default 0 = off, the old rule: the search with the best
@@ -183,7 +192,8 @@ package body GEM.LTE.Primitives.Solution is
       --  Paired legs need an even number of tasks (at least one pair)
       NT : constant Positive :=
         (if Paired
-         then Integer'Max (2, Number_of_Threads - Number_of_Threads mod 2)
+         then Integer'Max
+                (Group, Number_of_Threads - Number_of_Threads mod Group)
          else Number_of_Threads);
       TA : array (1 .. NT) of Thread_Access;
       use System.Multiprocessors;
@@ -198,8 +208,9 @@ package body GEM.LTE.Primitives.Solution is
            new Thread
              (CPU => CPU_Range (CPU), N_Tides => N_Tides,
               N_Modulations => N_Modulations,
-              Leg => (if Paired then 2 - I mod 2 else 0),
-              Pair => (if Paired then (I + 1) / 2 else 0), Index => I);
+              Leg => (if Paired then (I - 1) mod Group + 1 else 0),
+              Pair => (if Paired then (I - 1) / Group + 1 else 0),
+              Index => I);
          TA (I).Start;
          delay 0.1; -- let them gradually start up
       end loop;
@@ -527,7 +538,8 @@ package body GEM.LTE.Primitives.Solution is
       end Final_Report;
 
       entry Selected (Client : in Integer; Yes : out Boolean)
-        when Reports >= (if Paired then Active_Threads / 2 else Active_Threads)
+        when Reports >=
+          (if Paired then Active_Threads / Group else Active_Threads)
       is
       begin
          if Chosen = 0 then
@@ -689,25 +701,31 @@ package body GEM.LTE.Primitives.Solution is
    --  weighted by each leg's LEG_WEIGHT, and Verdict hands the follower the
    --  same number, so both tasks make the same accept/reject decision and
    --  keep the same candidate.
+   type Flags is array (Follower_Leg) of Boolean;
+   type Leg_Scores is array (Follower_Leg) of Long_Float;
+
    protected type Exchange is
       procedure Propose
         (D : in Shared.Param_S; H : in Ns; Threshold : in Long_Float);
-      entry Fetch
+      entry Fetch (Follower_Leg)
         (D : out Shared.Param_S; H : out Ns; Threshold : out Long_Float;
          Quit : out Boolean);
-      procedure Answer (Score, OOB, Weight : in Long_Float);
+      procedure Answer (L : in Follower_Leg; Score, OOB, Weight : in Long_Float);
       entry Result
         (Score, OOB, Weight : in Long_Float;
          Composite, Composite_OOB : out Long_Float);
-      entry Verdict (Composite : out Long_Float);
-      procedure Close;          -- leader has finished: release the follower
-      procedure Follower_Gone;  -- follower has failed: leader carries on alone
+      entry Verdict (Follower_Leg) (Composite : out Long_Float);
+      procedure Close;          -- leader has finished: release the followers
+      procedure Follower_Gone (L : in Follower_Leg);  -- that follower failed
    private
       Cand : Final_Param_P := null;
       HB : Ns (1 .. 100) := (others => 0);
       Thr : Long_Float := 0.0;
-      Have_Candidate, Answered, Decided, Closed, Gone : Boolean := False;
-      S2, P2, W2, Comp : Long_Float := 0.0;
+      Have, Answered, Decided, Gone : Flags := (others => False);
+      Closed : Boolean := False;
+      Pending : Natural := 0;  -- followers that have not yet answered
+      SF, PF, WF : Leg_Scores := (others => 0.0);
+      Comp : Long_Float := 0.0;
    end Exchange;
 
    protected body Exchange is
@@ -721,55 +739,78 @@ package body GEM.LTE.Primitives.Solution is
          end if;
          HB (1 .. H'Length) := H;
          Thr := Threshold;
-         Have_Candidate := True;
+         Pending := 0;
+         for L in 2 .. Group loop
+            if not Gone (L) then
+               Have (L) := True;
+               Answered (L) := False;
+               Pending := Pending + 1;
+            end if;
+         end loop;
       end Propose;
 
-      entry Fetch
+      entry Fetch (for L in Follower_Leg)
         (D : out Shared.Param_S; H : out Ns; Threshold : out Long_Float;
          Quit : out Boolean)
-        when Have_Candidate or Closed is
+        when Have (L) or Closed is
       begin
-         if Have_Candidate then
+         if Have (L) then
             D := Cand.all;
             H := HB (1 .. H'Length);
             Threshold := Thr;
             Quit := False;
-            Have_Candidate := False;
+            Have (L) := False;
          else
             Threshold := 0.0;
             Quit := True;
          end if;
       end Fetch;
 
-      procedure Answer (Score, OOB, Weight : in Long_Float) is
+      procedure Answer (L : in Follower_Leg; Score, OOB, Weight : in Long_Float)
+      is
       begin
-         S2 := Score;
-         P2 := OOB;
-         W2 := Weight;
-         Answered := True;
+         SF (L) := Score;
+         PF (L) := OOB;
+         WF (L) := Weight;
+         if not Answered (L) then
+            Answered (L) := True;
+            Pending := Pending - 1;
+         end if;
       end Answer;
 
       entry Result
         (Score, OOB, Weight : in Long_Float;
          Composite, Composite_OOB : out Long_Float)
-        when Answered or Gone is
+        when Pending = 0 is
+         W : Long_Float := Weight;
+         S : Long_Float := Weight * Score;
+         P : Long_Float := Weight * OOB;
       begin
-         if Answered and then Weight + W2 > 0.0 then
-            Composite := (Weight * Score + W2 * S2) / (Weight + W2);
-            Composite_OOB := (Weight * OOB + W2 * P2) / (Weight + W2);
+         for L in 2 .. Group loop
+            if Answered (L) and then not Gone (L) then
+               W := W + WF (L);
+               S := S + WF (L) * SF (L);
+               P := P + WF (L) * PF (L);
+            end if;
+         end loop;
+         if W > 0.0 then
+            Composite := S / W;
+            Composite_OOB := P / W;
          else
             Composite := Score;
             Composite_OOB := OOB;
          end if;
          Comp := Composite;
-         Answered := False;
-         Decided := True;
+         for L in 2 .. Group loop
+            Decided (L) := True;
+         end loop;
       end Result;
 
-      entry Verdict (Composite : out Long_Float) when Decided or Closed is
+      entry Verdict (for L in Follower_Leg) (Composite : out Long_Float)
+        when Decided (L) or Closed is
       begin
          Composite := Comp;
-         Decided := False;
+         Decided (L) := False;
       end Verdict;
 
       procedure Close is
@@ -777,9 +818,13 @@ package body GEM.LTE.Primitives.Solution is
          Closed := True;
       end Close;
 
-      procedure Follower_Gone is
+      procedure Follower_Gone (L : in Follower_Leg) is
       begin
-         Gone := True;
+         Gone (L) := True;
+         Have (L) := False;
+         if not Answered (L) and then Pending > 0 then
+            Pending := Pending - 1;
+         end if;
       end Follower_Gone;
    end Exchange;
 
@@ -803,7 +848,7 @@ package body GEM.LTE.Primitives.Solution is
       Exclude : Boolean := GEM.Getenv ("EXCLUDE", False);
    begin
       if Paired then
-         ID := Thread.Index;  -- leader 2p-1 and follower 2p of pair p
+         ID := Thread.Index;  -- group p: leader first, then its followers
          Text_IO.Put_Line
            (Name & " for Thread #" & ID'Img & Thread.CPU'Img & " leg" &
             Thread.Leg'Img & " pair" & Thread.Pair'Img &
@@ -875,7 +920,8 @@ package body GEM.LTE.Primitives.Solution is
    is
       --  LEGS: role of this task in its pair (both False without legs)
       Leader : constant Boolean := Paired and then Leg = 1;
-      Follower : constant Boolean := Paired and then Leg = 2;
+      Follower : constant Boolean := Paired and then Leg >= 2;
+      Leader_ID : constant Integer := (if Follower then ID - (Leg - 1) else ID);
       Leg_Weight : constant Long_Float := GEM.Getenv ("LEG_WEIGHT", 1.0);
       Results_File : constant String := "lte_results" & GEM.Leg_Tag & ".csv";
       Follower_Quit : Boolean := False;
@@ -2158,7 +2204,8 @@ package body GEM.LTE.Primitives.Solution is
          --  LEGS: the follower evaluates the candidate its leader posts, and
          --  judges it against the leader's own current best.
          if Follower then
-            Exchanges (Pair).Fetch (D, Harms, Pair_Threshold, Follower_Quit);
+            Exchanges (Pair).Fetch (Leg)
+              (D, Harms, Pair_Threshold, Follower_Quit);
             exit when Follower_Quit;
             Old_CC := Pair_Threshold;
          end if;
@@ -2541,8 +2588,8 @@ package body GEM.LTE.Primitives.Solution is
                CorrCoeffP := P;
             end;
          elsif Follower then
-            Exchanges (Pair).Answer (CorrCoeff, CorrCoeffP, Leg_Weight);
-            Exchanges (Pair).Verdict (CorrCoeff);
+            Exchanges (Pair).Answer (Leg, CorrCoeff, CorrCoeffP, Leg_Weight);
+            Exchanges (Pair).Verdict (Leg) (CorrCoeff);
          end if;
 
          --  BUG FIX (ordering): this accept/reject block used to run
@@ -2851,12 +2898,11 @@ package body GEM.LTE.Primitives.Solution is
                     (ID, (if Ever_Accepted then Keep_CC else Long_Float'First),
                      Keep_P);
                end if;
-               Monitor.Selected ((if Follower then ID - 1 else ID), Save_Now);
+               Monitor.Selected (Leader_ID, Save_Now);
                Save_Now := Save_Now and then Ever_Accepted;
             else
                Save_Now := Ever_Accepted and then
-                 (Test_Only
-                  or Best_Client = (if Follower then ID - 1 else ID));
+                 (Test_Only or Best_Client = Leader_ID);
             end if;
             if Ever_Accepted then
                --  As in the VALIDATE branch above: report and save the
@@ -3062,7 +3108,7 @@ package body GEM.LTE.Primitives.Solution is
          if Leader then
             Exchanges (Pair).Close;
          elsif Follower then
-            Exchanges (Pair).Follower_Gone;
+            Exchanges (Pair).Follower_Gone (Leg);
          end if;
          if (Select_Top > 0 or else Paired) and then not Test_Only
            and then not Follower and then not Final_Reported
