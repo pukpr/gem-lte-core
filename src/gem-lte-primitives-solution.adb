@@ -715,6 +715,10 @@ package body GEM.LTE.Primitives.Solution is
         (Score, OOB, Weight : in Long_Float;
          Composite, Composite_OOB : out Long_Float);
       entry Verdict (Follower_Leg) (Composite : out Long_Float);
+      --  LEG_COMMON: the leader's regressed amplitudes and phases for this
+      --  candidate, for the followers to apply to the common windings.
+      procedure Post_Amps (A : in Modulations_Amp_Phase);
+      entry Get_Amps (Follower_Leg) (A : out Modulations_Amp_Phase);
       procedure Close;          -- leader has finished: release the followers
       procedure Follower_Gone (L : in Follower_Leg);  -- that follower failed
    private
@@ -722,6 +726,8 @@ package body GEM.LTE.Primitives.Solution is
       HB : Ns (1 .. 100) := (others => 0);
       Thr : Long_Float := 0.0;
       Have, Answered, Decided, Gone : Flags := (others => False);
+      Amps_Ready : Flags := (others => False);
+      AB : Modulations_Amp_Phase (1 .. 400) := (others => (0.0, 0.0));
       Closed : Boolean := False;
       Pending : Natural := 0;  -- followers that have not yet answered
       SF, PF, WF : Leg_Scores := (others => 0.0);
@@ -812,6 +818,19 @@ package body GEM.LTE.Primitives.Solution is
          Composite := Comp;
          Decided (L) := False;
       end Verdict;
+
+      procedure Post_Amps (A : in Modulations_Amp_Phase) is
+      begin
+         AB (1 .. A'Length) := A;
+         Amps_Ready := (others => True);
+      end Post_Amps;
+
+      entry Get_Amps (for L in Follower_Leg) (A : out Modulations_Amp_Phase)
+        when Amps_Ready (L) or Closed is
+      begin
+         A := AB (1 .. A'Length);
+         Amps_Ready (L) := False;
+      end Get_Amps;
 
       procedure Close is
       begin
@@ -923,6 +942,30 @@ package body GEM.LTE.Primitives.Solution is
       Follower : constant Boolean := Paired and then Leg >= 2;
       Leader_ID : constant Integer := (if Follower then ID - (Leg - 1) else ID);
       Leg_Weight : constant Long_Float := GEM.Getenv ("LEG_WEIGHT", 1.0);
+      --  LEG_IR (set in a leg's own response file, meant for follower legs):
+      --  this leg uses the given one-year lag coefficient instead of the
+      --  shared, searched IR. The lag term is Model(t) - IR * Model(t - 1 yr),
+      --  so LEG_IR 1.0 makes the leg the one-year difference of its response.
+      --  LEG_COMMON = H (default 0 = off), for legs that are the same index:
+      --  a follower does not regress the harmonics above H itself; it applies
+      --  the amplitudes and phases the leader regressed on its own leg
+      --  (times this leg's LEG_SCALE), and regresses only the remaining
+      --  terms on what is left of its data. Its score then says how well
+      --  the leader's fast response holds on this leg.
+      Common_Split : constant Integer := GEM.Getenv ("LEG_COMMON", 0);
+      Leg_Scale : constant Long_Float := GEM.Getenv ("LEG_SCALE", 1.0);
+      --  LEG_SCORE FAST (a follower with LEG_COMMON): the leg is scored on
+      --  the leader's fast part alone -- the metric between that part of
+      --  the model and the data with the leg's own remaining model removed,
+      --  over the leg's training interval -- instead of on the whole model.
+      --  It measures whether the fast response calibrated on the leader's
+      --  leg is present, relative to the manifold, on this leg.
+      Fast_Score : constant Boolean :=
+        Follower and then Common_Split > 0
+        and then GEM.Getenv ("LEG_SCORE", "FULL") = "FAST";
+      Has_Leg_IR : constant Boolean := GEM.Getenv ("LEG_IR", "") /= "";
+      Leg_IR : constant Long_Float :=
+        (if Has_Leg_IR then GEM.Getenv ("LEG_IR", 0.0) else 0.0);
       Results_File : constant String := "lte_results" & GEM.Leg_Tag & ".csv";
       Follower_Quit : Boolean := False;
       Pair_Threshold : Long_Float := 0.0;
@@ -1911,6 +1954,19 @@ package body GEM.LTE.Primitives.Solution is
       Keep_Trend, Keep_Accel, Keep_Aero : Long_Float := 0.0;
       --  Training and held-out scores of the kept candidate (SELECT_TOP)
       Keep_CC, Keep_P : Long_Float := 0.0;
+      Own_Score, Keep_Own : Long_Float := 0.0;  -- this leg's own score
+      --  LEG_SCORE FAST work space
+      MAP_Use : Modulations_Amp_Phase (1 .. NM + NH);
+      Model_Low : Data_Pairs := Data_Records;
+      Model_Full : Data_Pairs := Data_Records;
+      --  The one-sided lag mask of the full model, reused for the pass
+      --  without the fast part so that the fast part is a LINEAR piece of
+      --  the model. (With a mask of its own, that pass differed from the
+      --  full model by lagged slow terms as well, and a search on the fast
+      --  score exploited it by driving IR to -2 and -3.)
+      Full_Side : Side_Mask (Data_Records'Range) := (others => True);
+      Save_Model : Data_Pairs := Data_Records;
+      Save_Data : Data_Pairs := Data_Records;
       Final_Reported : Boolean := False;
       Keep_M : Modulations (1 .. NM + NH);
       Keep_MAP : Modulations_Amp_Phase (1 .. NM + NH);
@@ -2209,6 +2265,9 @@ package body GEM.LTE.Primitives.Solution is
             exit when Follower_Quit;
             Old_CC := Pair_Threshold;
          end if;
+         if Has_Leg_IR then
+            D.B.IR := Leg_IR;
+         end if;
 
          GEM.LTE.Year_Adjustment (D.B.Year, D.A.LP);
          if not Modulations_Are_Valid then
@@ -2359,11 +2418,79 @@ package body GEM.LTE.Primitives.Solution is
                  (if Layer > 0 and then NM >= 3 and then Layer_K <= 0.0
                   then 3
                   elsif Layer > 0 and then NM >= 2 then 2 else 1);
-               RM : constant Modulations (1 .. NM + NH - Lo + 1) :=
-                 M (Lo .. NM + NH);
-               RMAP : Modulations_Amp_Phase (1 .. NM + NH - Lo + 1) :=
-                 MAP (Lo .. NM + NH);
+               --  LEG_COMMON: Idx lists the windings this task regresses; the
+               --  others (harmonics above the split, on a follower) take the
+               --  leader's amplitudes. Without it Idx is simply Lo .. NM+NH.
+               Use_Common : constant Boolean := Follower and then Common_Split > 0;
+               Idx : array (1 .. NM + NH) of Integer := (others => 0);
+               N_Reg : Natural := 0;
+               Lead : Modulations_Amp_Phase (1 .. NM + NH) := MAP;
             begin
+            if Use_Common then
+               Exchanges (Pair).Get_Amps (Leg) (Lead);
+            end if;
+            for J in Lo .. NM + NH loop
+               if Use_Common and then J > NM
+                 and then Harms (J - NM) > Common_Split
+               then
+                  MAP (J) := (Amplitude => Leg_Scale * Lead (J).Amplitude,
+                              Phase => Lead (J).Phase);
+               else
+                  N_Reg := N_Reg + 1;
+                  Idx (N_Reg) := J;
+               end if;
+            end loop;
+            --  With LEG_SCORE FAST the slow terms are regressed on the data as
+            --  they are, NOT on the data less the leader's fast part: the
+            --  slow model must not be able to react to the fast part, or a
+            --  fast part of runaway amplitude (near-collinear windings on
+            --  the leader's leg) is partly cancelled by it and then
+            --  correlates with what is left by construction. Searches did
+            --  exploit exactly that.
+            if Use_Common and then N_Reg < NM + NH - Lo + 1
+              and then not Fast_Score
+            then
+               --  Take the leader's fast part out of the regression target
+               declare
+                  NC : constant Integer := NM + NH - Lo + 1 - N_Reg;
+                  CM : Modulations (1 .. NC);
+                  CA : Modulations_Amp_Phase (1 .. NC);
+                  K : Natural := 0;
+               begin
+                  for J in Lo .. NM + NH loop
+                     if J > NM and then Harms (J - NM) > Common_Split then
+                        K := K + 1;
+                        CM (K) := M (J);
+                        CA (K) := MAP (J);
+                     end if;
+                  end loop;
+                  declare
+                     HP : constant Data_Pairs :=
+                       LTE (Forcing => Forcing, Wave_Numbers => CM,
+                            Amp_Phase => CA, NonLin => NonLin,
+                            Accel_Ref => Accel_Ref);
+                  begin
+                     for I in DR'Range loop
+                        --  compensated: the target is the pre-lag series;
+                        --  uncompensated: it is the data, i.e. after the lag
+                        if Uncompensated and then I - SPY >= DR'First then
+                           DR (I).Value := DR (I).Value -
+                             (HP (I).Value - D.B.IR * HP (I - SPY).Value);
+                        else
+                           DR (I).Value := DR (I).Value - HP (I).Value;
+                        end if;
+                     end loop;
+                  end;
+               end;
+            end if;
+            declare
+               RM : Modulations (1 .. N_Reg);
+               RMAP : Modulations_Amp_Phase (1 .. N_Reg);
+            begin
+            for R in 1 .. N_Reg loop
+               RM (R) := M (Idx (R));
+               RMAP (R) := MAP (Idx (R));
+            end loop;
             Regression_Factors
               (Data_Records =>
                  (if Coverage < 1.0 then Coverage_Region (DR)
@@ -2390,7 +2517,10 @@ package body GEM.LTE.Primitives.Solution is
                Alpha => Alpha,
                M_Min => M_Min
             );
-            MAP (Lo .. NM + NH) := RMAP;
+            for R in 1 .. N_Reg loop
+               MAP (Idx (R)) := RMAP (R);
+            end loop;
+            end;
             --  Zero amplitude for the windings that are not regressors
             --  (layer, and Bessel with NM >= 3): LTE (given the full
             --  arrays) then adds nothing for them, and the windings JSON
@@ -2398,6 +2528,9 @@ package body GEM.LTE.Primitives.Solution is
             for J in 1 .. Lo - 1 loop
                MAP (J) := (Amplitude => 0.0, Phase => 0.0);
             end loop;
+            if Leader and then Common_Split > 0 then
+               Exchanges (Pair).Post_Amps (MAP);
+            end if;
             end;
             if Climate_Trend and then not Singular then
                D.B.Ann1 := Annual_Cycle.Ann1;
@@ -2410,6 +2543,17 @@ package body GEM.LTE.Primitives.Solution is
          end if;
 
          CorrCoeff := 0.0;
+         --  One pass normally. With LEG_SCORE FAST pass 1 builds the full
+         --  model and pass 2 the model without the leader's fast part.
+         for Pass in 1 .. (if Fast_Score then 2 else 1) loop
+            MAP_Use := MAP (1 .. NM + NH);
+            if Pass = 2 then
+               for J in NM + 1 .. NM + NH loop
+                  if Harms (J - NM) > Common_Split then
+                     MAP_Use (J) := (Amplitude => 0.0, Phase => 0.0);
+                  end if;
+               end loop;
+            end if;
             if Forcing_Only or (Is_Minimum_Entropy and not MLR_On) then
                Model := Forcing;
             else
@@ -2418,7 +2562,7 @@ package body GEM.LTE.Primitives.Solution is
                    (Forcing => Forcing,
                     Wave_Numbers =>
                       M (1 .. NM+NH), --D.B.Lt(1..NM),
-                    Amp_Phase => MAP (1 .. NM+NH), --D.A.LTAP,
+                    Amp_Phase => MAP_Use, --D.A.LTAP,
                     Offset => D.A.level, 
                     K0 => D.A.k0, 
                     Trend => Secular_Trend,
@@ -2454,8 +2598,12 @@ package body GEM.LTE.Primitives.Solution is
                -- Delay differential
                if D.B.IR /= 0.0 then
                   declare
-                     Side : constant Side_Mask := IR_Mask (Model);
+                     Side : constant Side_Mask :=
+                       (if Pass = 2 then Full_Side else IR_Mask (Model));
                   begin
+                     if Fast_Score and then Pass = 1 then
+                        Full_Side := Side;
+                     end if;
                      for I in reverse Model'First + SPY .. Model'Last loop
                         if Side (I - SPY) then
                            Model (I).Value := Model (I).Value - D.B.IR*Model (I - SPY).Value;
@@ -2486,7 +2634,27 @@ package body GEM.LTE.Primitives.Solution is
                     1.0 - 2.0 * Filter, Filter);
             end if;
 
+            if Fast_Score and then Pass = 1 then
+               Model_Full := Model;
+            elsif Pass = 2 then
+               Model_Low := Model;
+               Model := Model_Full;
+            end if;
+         end loop;
+
             -- pragma Debug ( Dump(Model, Data_Records, Run_Time) );
+
+            --  LEG_SCORE FAST: score the fast part against the data less
+            --  the rest of the model (restored after the scoring below)
+            if Fast_Score then
+               Save_Model := Model;
+               Save_Data := Data_Records;
+               for I in Model'Range loop
+                  Model (I).Value := Save_Model (I).Value - Model_Low (I).Value;
+                  Data_Records (I).Value :=
+                    Save_Data (I).Value - Model_Low (I).Value;
+               end loop;
+            end if;
 
             if Coverage < 1.0 then
                -- COVERAGE: fit was on Coverage_Region (the leading fraction
@@ -2578,6 +2746,13 @@ package body GEM.LTE.Primitives.Solution is
             end if;
          end if;
 
+         if Fast_Score then
+            Model := Save_Model;
+            Data_Records := Save_Data;
+         end if;
+
+         Own_Score := CorrCoeff;
+
          --  LEGS: the score from here on is the pair's composite.
          if Leader then
             declare
@@ -2633,6 +2808,7 @@ package body GEM.LTE.Primitives.Solution is
             Keep_Accel := Accel;
             Keep_Aero := Aero;
             Keep_CC := CorrCoeff;
+            Keep_Own := Own_Score;
             Keep_P := CorrCoeffP;
             Keep_M := M;
             Keep_MAP := MAP;
@@ -3083,7 +3259,10 @@ package body GEM.LTE.Primitives.Solution is
             --  the score the pair was accepted on (both legs combined)
             Text_IO.Put ("COMPOSITE");
             Ada.Long_Float_Text_IO.Put (Old_CC, Fore => 4, Aft => 10, Exp => 0);
-            Text_IO.Put_Line ("  leg" & Leg'Img & " pair" & Pair'Img);
+            Text_IO.Put ("  leg" & Leg'Img & " pair" & Pair'Img & "  own" &
+                         (if Fast_Score then " (fast part)" else "") & ":");
+            Ada.Long_Float_Text_IO.Put (Keep_Own, Fore => 3, Aft => 6, Exp => 0);
+            Text_IO.New_Line;
          end if;
 
          CorrCoeff :=

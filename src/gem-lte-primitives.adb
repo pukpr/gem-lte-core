@@ -107,10 +107,26 @@ package body GEM.LTE.Primitives is
    --  ALPHA_GAIN (default 2.0 = doubling) sets the factor.
    Alpha_Boost : constant Long_Float := GEM.Getenv ("ALPHA_GAIN", 2.0);
 
+   --  With legs, ALPHA_GAIN may be set in a leg's own response file. The
+   --  values are read once here (the gain is used per sample, too often for
+   --  a lookup each time) and picked by the calling task's leg number.
+   type Leg_Gains is array (0 .. 9) of Long_Float;
+   function Read_Leg_Gains return Leg_Gains is
+      G : Leg_Gains := (others => Alpha_Boost);
+   begin
+      for L in 1 .. 9 loop
+         GEM.Set_Leg (L);
+         G (L) := GEM.Getenv ("ALPHA_GAIN", Alpha_Boost);
+      end loop;
+      GEM.Set_Leg (0);
+      return G;
+   end Read_Leg_Gains;
+   Leg_Boost : constant Leg_Gains := Read_Leg_Gains;
+
    function Alpha_Gain (F, M_Min, Alpha : Long_Float) return Long_Float is
    begin
       if Alpha > 0.0 and then F - M_Min <= Alpha * abs M_Min then
-         return Alpha_Boost;
+         return Leg_Boost (Integer'Min (9, GEM.Leg));
       else
          return 1.0;
       end if;

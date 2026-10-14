@@ -51,6 +51,31 @@ Works with or without legs. Default 0: the search with the best training score s
   short held-out interval raises that score by selection (about 0.85 of its standard deviation for
   N = 3). Treat the saved held-out score as a tie-breaker, not as a test.
 
+## Legs that are the same index: `LEG_COMMON`
+
+For two different indices each leg regresses its own amplitudes and phases, which is right. For two
+samplings or two intervals of the SAME index it leaves open whether one response fits both. These
+settings close that gap.
+
+- **`LEG_COMMON H`** (common file; default 0 = off). A follower does not regress the harmonics above
+  `H` itself. It applies the amplitudes and phases the leader regressed on its own leg, and regresses
+  only the remaining terms (level, slope, annual, slow winding, base, harmonics up to `H`) on what is
+  left of its data.
+- **`LEG_SCALE`** (leg file; default 1.0) multiplies the leader's amplitudes on that leg, for series
+  in different units.
+- **`LEG_SCORE FAST`** (leg file; default `FULL`). The leg is scored on the leader's fast part alone:
+  the metric between that part of the model and the data less the leg's own remaining model, over the
+  leg's interval. The composite then rewards a manifold on which the fast response calibrated on leg 1
+  is present on the other legs.
+- At save each leg prints its own score beside `COMPOSITE`.
+- With two identical legs the follower reproduces the leader's model to 1e-14 (a least-squares
+  identity), which is the built-in check.
+- Use `ALPHA 0` and `NONLIN 1.0` with it.
+
+Other per-leg settings added for particular indices: **`LEG_IR`** (the leg's own one-year lag
+coefficient; `1.0` with `UNCOMPENSATED TRUE` makes the leg the one-year difference of its response, as
+for NAO against AMO) and **`ALPHA_GAIN`** (positive-side gain, now readable per leg).
+
 ## Examples
 
 One series, two intervals:
