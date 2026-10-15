@@ -1,0 +1,29 @@
+{
+ "engine": "lte",
+ "index": "qbo50",
+ "run_dir": "experiments/Feb2026/qbo50",
+ "env": {
+  "TRAIN_START": "1880",
+  "TRAIN_END": "1885",
+  "METRIC": "CC",
+  "IDATE": "1920.9",
+  "EXCLUDE": "true",
+  "TREND": "true",
+  "F9": "1",
+  "DLOD_REF": "TRUE",
+  "CLIMATE_INDEX": "qbo50.dat"
+ },
+ "sampling": 12,
+ "data_start": 1953.0,
+ "data_end": 2024.25,
+ "n_data": 856,
+ "horizon_end": 2029.25,
+ "r_train": 0.7441515385420985,
+ "r_holdout": null,
+ "r_all": 0.7441515385420985,
+ "extension_max_dev_over_std": 0.0,
+ "fingerprint": "a91aa5edac50dd2eb5920848cf7c2351575d3c9d1066d3b6d82451ed6c7b3bb3",
+ "issued_utc": "2026-10-15T19:18:04+00:00",
+ "issued_year": 2026.787981181664,
+ "git_rev": "0bc994810f5a8db8371aed73bfbb39c196d49af3"
+}

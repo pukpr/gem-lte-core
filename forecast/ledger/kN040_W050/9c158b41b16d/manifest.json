@@ -1,0 +1,29 @@
+{
+ "engine": "lte",
+ "index": "kN040_W050",
+ "run_dir": "experiments/Feb2026/kN040_W050",
+ "env": {
+  "TRAIN_START": "2000.0",
+  "TRAIN_END": "2005.0",
+  "METRIC": "CC",
+  "IDATE": "1880.0",
+  "EXCLUDE": "TRUE",
+  "TREND": "true",
+  "F9": "1",
+  "DLOD_REF": "TRUE",
+  "CLIMATE_INDEX": "kN040_W050.dat"
+ },
+ "sampling": 12,
+ "data_start": 1950.0,
+ "data_end": 2023.0,
+ "n_data": 877,
+ "horizon_end": 2028.0,
+ "r_train": 0.7781798429800119,
+ "r_holdout": 0.2594283683211228,
+ "r_all": 0.7719366156327874,
+ "extension_max_dev_over_std": 0.0,
+ "fingerprint": "9c158b41b16de6581742226f68b1ba9af5909f224aec6d89086711571d9332c0",
+ "issued_utc": "2026-10-15T19:18:12+00:00",
+ "issued_year": 2026.7879814278012,
+ "git_rev": "0bc994810f5a8db8371aed73bfbb39c196d49af3"
+}

@@ -1,0 +1,33 @@
+{
+ "engine": "lte",
+ "index": "nino4",
+ "run_dir": "experiments/Feb2026/nino4",
+ "env": {
+  "TRAIN_START": "2000",
+  "TRAIN_END": "2005",
+  "METRIC": "CC",
+  "IDATE": "1880.0",
+  "EXCLUDE": "true",
+  "TREND": "true",
+  "F9": "1",
+  "DLOD_REF": "TRUE",
+  "CLIMATE_INDEX": "nino4.dat",
+  "LOCKA": "FALSE",
+  "LOCKT": "FALSE",
+  "TEST_ONLY": "false",
+  "ZONE": "FALSE"
+ },
+ "sampling": 12,
+ "data_start": 1880.0,
+ "data_end": 2024.166667,
+ "n_data": 1731,
+ "horizon_end": 2029.166667,
+ "r_train": 0.2769279523287052,
+ "r_holdout": -0.014086299516158309,
+ "r_all": 0.2766118936669618,
+ "extension_max_dev_over_std": 0.0,
+ "fingerprint": "d9ae951e4f7eeeec11ea30903202f80390de1282a5456dbfd1b0f93ab5eeba50",
+ "issued_utc": "2026-10-15T19:18:05+00:00",
+ "issued_year": 2026.7879812278054,
+ "git_rev": "0bc994810f5a8db8371aed73bfbb39c196d49af3"
+}
