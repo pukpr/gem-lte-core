@@ -1,0 +1,2 @@
+data_end,engine,issue,issued,target,post_data_n,post_data_r,post_data_rmse,post_data_rmse_ar1,post_data_rmse_climatology,post_data_rmse_persistence,post_data_ss_ar1,post_data_ss_climatology,post_data_ss_persistence,post_issue_n,r_holdout,r_train
+2023.0000,lte,609103e7c556,2026-10-15T19:18:12+00:00,kN040_W070,44,0.1033,1.1879,0.4494,0.4554,0.4897,-5.9873,-5.8031,-4.8836,0,0.3164,0.7976

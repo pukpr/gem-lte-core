@@ -1,0 +1,33 @@
+{
+ "engine": "lte",
+ "index": "pdo",
+ "run_dir": "experiments/Feb2026/pdo",
+ "env": {
+  "TRAIN_START": "2000",
+  "TRAIN_END": "2005",
+  "METRIC": "CC",
+  "IDATE": "1880.0",
+  "EXCLUDE": "true",
+  "TREND": "true",
+  "F9": "1",
+  "DLOD_REF": "TRUE",
+  "CLIMATE_INDEX": "pdo.dat",
+  "LOCKA": "FALSE",
+  "LOCKT": "FALSE",
+  "TEST_ONLY": "false",
+  "ZONE": "FALSE"
+ },
+ "sampling": 12,
+ "data_start": 1880.0,
+ "data_end": 2022.083333,
+ "n_data": 1706,
+ "horizon_end": 2027.083333,
+ "r_train": 0.20423970910468814,
+ "r_holdout": -0.1999706479759682,
+ "r_all": 0.20560298465075985,
+ "extension_max_dev_over_std": 1.5266625633825265e-08,
+ "fingerprint": "156547986fce5856c1b4971cbbaa5daf5652aa30cede1a1a73632eaf1b3e3a94",
+ "issued_utc": "2026-10-15T19:18:05+00:00",
+ "issued_year": 2026.787981211017,
+ "git_rev": "0bc994810f5a8db8371aed73bfbb39c196d49af3"
+}

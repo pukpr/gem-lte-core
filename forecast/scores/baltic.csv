@@ -1,0 +1,2 @@
+data_end,engine,issue,issued,target,post_data_n,post_data_r,post_data_rmse,post_data_rmse_ar1,post_data_rmse_climatology,post_data_rmse_persistence,post_data_ss_ar1,post_data_ss_climatology,post_data_ss_persistence,post_issue_n,r_holdout,r_train
+2025.5000,lte,66447b667b2a,2026-10-15T19:18:19+00:00,baltic,4,-0.5880,11.4677,3.8754,1.8279,4.0142,-7.7562,-38.3603,-7.1612,0,0.8711,0.6913
