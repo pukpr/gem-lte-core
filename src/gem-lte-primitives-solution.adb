@@ -984,7 +984,30 @@ package body GEM.LTE.Primitives.Solution is
          end if;
       end Parse_NH;
 
-      Data_Records : Data_Pairs := Make_Data (File_Name);
+      --  FORECAST_YEARS (default 0 = off): the record is extended that many
+      --  years past its last sample, on the data's own sampling step, with
+      --  zero values. The model and manifold are computed over the extended
+      --  grid and saved, so lte_results.csv carries a projection; the
+      --  regression, the data smoother and the scores use only the real
+      --  samples (up to Real_Last). Used by the forecast ledger.
+      Forecast_Years : constant Long_Float := GEM.Getenv ("FORECAST_YEARS", 0.0);
+      function Extend_Forecast (D : Data_Pairs) return Data_Pairs is
+         SPY_F : constant Long_Float := GEM.Getenv ("SAMPLING", 12.0);
+         N : constant Natural := Natural (Long_Float'Floor (Forecast_Years * SPY_F + 0.5));
+         R : Data_Pairs (D'First .. D'Last + N);
+      begin
+         R (D'Range) := D;
+         for K in 1 .. N loop
+            R (D'Last + K) := (Date => D (D'Last).Date + Long_Float (K) / SPY_F, Value => 0.0);
+         end loop;
+         if N > 0 then
+            Text_IO.Put_Line ("FORECAST" & N'Img & " samples beyond the data end");
+         end if;
+         return R;
+      end Extend_Forecast;
+      Real_Records : constant Data_Pairs := Make_Data (File_Name);
+      Real_Last : constant Integer := Real_Records'Last;
+      Data_Records : Data_Pairs := Extend_Forecast (Real_Records);
       DR : Data_Pairs := Data_Records;
 
       function Impulse (Time : Long_Float) return Long_Float;
@@ -1649,7 +1672,9 @@ package body GEM.LTE.Primitives.Solution is
       Counter : Long_Integer := -1;
 
       function Find_Index (Time : in Long_Float) return Integer is
-         Index : Integer;
+         --  a time before the first record maps to the first record
+         --  (it was left uninitialized, e.g. TRAIN_START 1880 on a 1953 record)
+         Index : Integer := Data_Records'First;
       begin
          for I in Data_Records'Range loop
             exit when Data_Records (I).Date > Time; -- Finding indices at time
@@ -1661,7 +1686,7 @@ package body GEM.LTE.Primitives.Solution is
       TS : Long_Float :=
         GEM.Getenv ("TRAIN_START", Data_Records (Data_Records'First).Date);
       TE : Long_Float :=
-        GEM.Getenv ("TRAIN_END", Data_Records (Data_Records'Last).Date);
+        GEM.Getenv ("TRAIN_END", Data_Records (Real_Last).Date);
 
       First : Integer := Find_Index (TS);
       Last : Integer := Find_Index (TE);
@@ -2240,7 +2265,8 @@ package body GEM.LTE.Primitives.Solution is
       Walker.Reset;
       if Filter9Pt > 0 then
          for F in 1 .. Filter9Pt loop
-            Data_Records := Filter9Point (Data_Records);
+            Data_Records (Data_Records'First .. Real_Last) :=
+              Filter9Point (Data_Records (Data_Records'First .. Real_Last));
          end loop;
       end if;
       Text_IO.Put_Line ("Catchup mode enabled:" & Boolean'Image (Catchup));
@@ -2495,11 +2521,11 @@ package body GEM.LTE.Primitives.Solution is
               (Data_Records =>
                  (if Coverage < 1.0 then Coverage_Region (DR)
                   elsif Enclosing then Lower_Region (DR)
-                  else Excluded (DR)), -- Time series
+                  else Excluded (DR (DR'First .. Real_Last))), -- Time series
                Forcing =>
                  (if Coverage < 1.0 then Coverage_Region (Forcing)
                   elsif Enclosing then Lower_Region (Forcing)
-                  else Excluded (Forcing)),  -- Value @ Time
+                  else Excluded (Forcing (Forcing'First .. Real_Last))),  -- Value @ Time
                NM => RM'Length, -- # modulations
                DBLT => RM, --D.B.LT,
                DALTAP => RMAP, --D.A.LTAP,
@@ -3184,7 +3210,7 @@ package body GEM.LTE.Primitives.Solution is
                   Interval_Start => Forcing (First).Date,
                   Interval_End   => Forcing (Last).Date,
                   Record_Start   => Data_Records (Data_Records'First).Date,
-                  Record_End     => Data_Records (Data_Records'Last).Date,
+                  Record_End     => Data_Records (Real_Last).Date,
                   Exclude        => Exclude,
                   Enclosing      => Enclosing,
                   Coverage       => Coverage,

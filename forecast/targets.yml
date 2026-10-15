@@ -1,9 +1,12 @@
 # GEM-LTE forecast ledger: target registry.
 #
-# engine: lte        frozen fit in experiments/Feb2026/<dir>/ projected forward
+# engine: lte        frozen fit projected forward by the Ada solver (lt.exe, FORECAST_YEARS):
+#                    dir: <name> = experiments/Feb2026/<name>/, or legs_dir: <repo path> + leg: N
+#                    for a multi-leg run (scored on leg N, all legs run together)
 #         tidal_lod  LOD-calibrated tidal constituents, refit monthly on IERS LOD
 #         alias_cw   Chandler wobble forced-aliasing model, refit monthly
 # source: live observation fetcher in sources.py (kind + kwargs)
+# env:       extra lt.exe environment for this fit (applied last, part of the issue id)
 # calibrate: map live obs onto the committed .dat units by linear fit over
 #            the pre-data-end overlap (default true for lte targets)
 # A new index = one new block here; a new fit = commit lt.exe.p/.resp/.dat.
@@ -20,18 +23,19 @@ targets:
     horizon_years: 1
     calibrate: false
     source: {kind: longpaddock_soi_daily, column: SOI}
-  qbo30:    {engine: lte, dir: qbo30, source: {kind: kit_qbo, level: 30}}
-  qbo50:    {engine: lte, dir: qbo50, source: {kind: kit_qbo, level: 50}}
-  qbo70_daily:                     # slot: daily ERA5 70 hPa fit (not yet public)
-    engine: lte
-    dir: qbo70_daily
-    horizon_years: 1
-    calibrate: false
-    enabled: false
-    source: {kind: kit_qbo, level: 70}
+  # QBO: two-leg runs (LEGS 2), KIT monthly + ERA5 5-day at 0N 0E on one manifold; the 5-day
+  # leg carries the high windings. Scored on the monthly KIT leg against the live KIT feed;
+  # every leg's projection is kept in the issue (leg1.csv, leg2.csv). TIDE_LEGACY is set in
+  # each run's lte_run.sh. qbo70: qbo70_point0E chosen over legs/qbo70_5_m (2026-10-15) --
+  # identical data, but the point0E fit uses the 30/50 hPa configuration and scores higher
+  # (KIT leg held out +0.50 vs +0.07). Its ERA leg ends 2020.45 (no newer 70 hPa ERA series yet).
+  qbo30:    {engine: lte, legs_dir: experiments/Oct2026_generator/legs/qbo30_point0E, leg: 1, source: {kind: kit_qbo, level: 30}}
+  qbo50:    {engine: lte, legs_dir: experiments/Oct2026_generator/legs/qbo50_point0E, leg: 1, source: {kind: kit_qbo, level: 50}}
+  qbo70:    {engine: lte, legs_dir: experiments/Oct2026_generator/legs/qbo70_point0E, leg: 1, source: {kind: kit_qbo, level: 70}}
 
   # ---- ocean basin indices ------------------------------------------------
-  amo:   {engine: lte, dir: amo,   source: {kind: year_table, url: "https://psl.noaa.gov/data/correlation/amon.us.long.data",
+  # AMO deferred (2026-10-15): NOAA's AMO series ends in 2023, so there is nothing current to score against.
+  amo:   {engine: lte, dir: amo, enabled: false, source: {kind: year_table, url: "https://psl.noaa.gov/data/correlation/amon.us.long.data",
                                             urls: ["https://psl.noaa.gov/data/correlation/amon.us.data",
                                                    "https://psl.noaa.gov/data/correlation/amon.us.long.data",
                                                    "https://www.psl.noaa.gov/data/correlation/amon.us.long.data"]}}
@@ -43,15 +47,18 @@ targets:
   # Kaplan Extended SST v2 stops at 2023-01, so live scoring uses ERSSTv5
   # box means on the same boxes, linearly calibrated to the Kaplan .dat over
   # the pre-2023 overlap.  Switch kind back to kaplan_box if PSL resumes it.
+  # Kaplan quads deferred (2026-10-15): Kaplan Extended SST v2 ends 2023-01.
   kaplan:
     engine: lte
+    enabled: false
     glob: "k[NS][0-9][0-9][0-9]_[EW][0-9][0-9][0-9]"
     regex: "k[NS]\\d{3}_[EW]\\d{3}"
     source: {kind: ersst_box}
 
   # ---- sea level ----------------------------------------------------------
   baltic: {engine: lte, dir: baltic, deseasonalize: true, source: {kind: psmsl_rlr, bbox: [53.5, 66.0, 9.5, 30.5]}}
-  brest:  {engine: lte, dir: brest,  deseasonalize: true, source: {kind: psmsl_rlr, stations: [1]}}
+  # Brest set aside for now (2026-10-15).
+  brest:  {engine: lte, dir: brest, enabled: false, deseasonalize: true, source: {kind: psmsl_rlr, stations: [1]}}
   # add other MSL sites as:  <dir>: {engine: lte, dir: <dir>, deseasonalize: true, source: {kind: psmsl_rlr, stations: [<PSMSL id>, ...]}}
 
   # ---- Earth rotation -----------------------------------------------------

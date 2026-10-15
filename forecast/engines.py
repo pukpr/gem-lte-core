@@ -1,8 +1,8 @@
 """Forecast engines for the GEM-LTE ledger.
 
 lte          Frozen LTE fit: experiments/Feb2026/<dir>/{lt.exe.p, lt.exe.resp,
-             <idx>.dat, lte_run.sh} run through lte_forward.forward() on a date
-             grid extended past the end of the data.  Nothing is refit: the
+             <idx>.dat, lte_run.sh} run by the Ada solver itself (lt.exe, test
+             mode, FORECAST_YEARS) on a date grid extended past the end of the data.  Nothing is refit: the
              tidal forcing is deterministic, so the projection beyond the data
              is a pure out-of-sample prediction of the committed parameter set.
 
@@ -23,6 +23,7 @@ import importlib.util
 import json
 import os
 import shlex
+import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -38,11 +39,27 @@ RUN_DEFAULTS = {"TRAIN_START": "1880", "TRAIN_END": "1885", "METRIC": "CC",
                 "F9": "1", "DLOD_REF": "TRUE"}
 
 
-def _load_lte_forward():
-    spec = importlib.util.spec_from_file_location("lte_forward", FEB / "lte_forward.py")
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    return mod
+def lte_binary() -> Path:
+    """The Ada solver: $LTE_EXE, else experiments/Feb2026/lt.exe, else the gprbuild output enso_opt."""
+    for p in (os.environ.get("LTE_EXE"), FEB / "lt.exe", FEB / "enso_opt"):
+        if p and Path(p).exists():
+            return Path(p).resolve()
+    raise FileNotFoundError("no LTE binary: build with `gprbuild -P lte.gpr enso_opt` or set LTE_EXE")
+
+
+def read_resp(path: Path) -> dict:
+    """lt.exe.resp as GEM.Read_Response_File sees it: KEY VALUE pairs, quoted values kept whole, later keys win."""
+    out = {}
+    if not path.exists():
+        return out
+    for line in path.read_text().splitlines():
+        line = line.strip()
+        if not line or line.startswith(("#", "-")):
+            continue
+        parts = shlex.split(line)
+        if len(parts) >= 2:
+            out[parts[0]] = " ".join(parts[1:])
+    return out
 
 
 def sha256_files(paths):
@@ -54,10 +71,11 @@ def sha256_files(paths):
     return h.hexdigest()
 
 
-def run_config(run_dir: Path, index: str):
-    """Reproduce the exact lte_run.sh / lte_gui.py run environment."""
-    lf = _load_lte_forward()
-    resp = lf.read_resp(run_dir / "lt.exe.resp")
+def run_config(run_dir: Path, index: str, extra_env: dict | None = None):
+    """Reproduce the exact lte_run.sh / lte_gui.py run environment; extra_env (the
+    target's `env:` in targets.yml, e.g. TIDE_LEGACY for fits made before the
+    2026-10-06 tide fix) is applied last."""
+    resp = read_resp(run_dir / "lt.exe.resp")
     env = dict(RUN_DEFAULTS)
     for k in ("TRAIN_START", "TRAIN_END", "EXCLUDE", "TREND", "F9", "METRIC"):
         if k in resp:
@@ -66,104 +84,154 @@ def run_config(run_dir: Path, index: str):
     if sh.exists():
         for line in sh.read_text().splitlines():
             if line.startswith("export "):
-                k, _, v = line[7:].partition("=")
-                env[k.strip()] = v.strip().strip('"')
-    env.pop("TIMEOUT", None)
+                for item in shlex.split(line[7:]):
+                    k, _, v = item.partition("=")
+                    env[k.strip()] = v.strip()
+    for k in ("TIMEOUT", "TEST_ONLY", "NUMBER_OF_PROCESSORS"):
+        env.pop(k, None)
+    env.update({k: str(v) for k, v in (extra_env or {}).items()})
     env.setdefault("CLIMATE_INDEX", f"{index}.dat")
-    return lf, resp, env
+    return resp, env
 
 
-def lte_fingerprint(run_dir: Path, index: str):
-    files = [run_dir / "lt.exe.p", run_dir / "lt.exe.resp", run_dir / f"{index}.dat",
-             run_dir / "lte_run.sh", FEB / "lte_forward.py", Path(__file__)]
-    return sha256_files(files)
+def lte_layout(t: dict):
+    """Run directory, leg number (None for a single fit) and the data file scored, for an
+    lte target.  `dir: <name>` is experiments/Feb2026/<name>/<name>.dat; `legs_dir: <path>`
+    (repo-relative) is a multi-leg run (LEGS N, lt.exe.resp.1..N) scored on leg `leg`."""
+    if "legs_dir" in t:
+        run_dir = REPO / t["legs_dir"]
+        leg = int(t.get("leg", 1))
+        dat = run_dir / read_resp(run_dir / f"lt.exe.resp.{leg}")["CLIMATE_INDEX"]
+        return run_dir, leg, dat
+    run_dir = FEB / t["dir"]
+    return run_dir, None, run_dir / f"{t['dir']}.dat"
 
 
-def lte_project(run_dir: Path, index: str, horizon_years: float = 5.0):
-    """Return dict(dates, model, data, segment, meta)."""
-    lf, resp, env = run_config(run_dir, index)
-    dat = run_dir / env["CLIMATE_INDEX"]
+def _run_files(run_dir: Path):
+    """Files lt.exe reads from the run directory: parameters, settings (with every leg's),
+    the data of every leg (or of the single fit), the dLOD reference."""
+    resp = read_resp(run_dir / "lt.exe.resp")
+    n_legs = int(float(resp.get("LEGS", 0)))
+    files = [run_dir / "lt.exe.p", run_dir / "lt.exe.resp"]   # dlod_ref.dat is an lt.exe output
+    for k in range(1, n_legs + 1):
+        rk = run_dir / f"lt.exe.resp.{k}"
+        files += [rk, run_dir / read_resp(rk)["CLIMATE_INDEX"]]
+    return n_legs, files
+
+
+def lte_fingerprint(run_dir: Path, index: str | None, extra_env: dict | None = None):
+    n_legs, files = _run_files(run_dir)
+    if not n_legs:
+        files.append(run_dir / f"{index}.dat")
+    # the solver is identified by its source, not its bytes, so a CI build and a local
+    # build of the same commit give the same issue id
+    files += [run_dir / "lte_run.sh", Path(__file__), REPO / "lte.gpr"]
+    files += sorted((REPO / "src").glob("*.ad[bs]"))
+    h = sha256_files(files)
+    if extra_env:
+        h = hashlib.sha256((h + json.dumps(extra_env, sort_keys=True)).encode()).hexdigest()
+    return h
+
+
+def _run_lt(run_dir: Path, env: dict, dat: Path | None, forecast_years: float) -> dict:
+    """One TEST_ONLY run of lt.exe on a scratch copy of run_dir.  Returns {leg: array} of
+    lte_results(.N).csv (date, model, data as fitted, manifold, ...); leg 0 = single fit."""
+    n_legs, files = _run_files(run_dir)
+    if dat is not None:
+        files.append(dat)
+    with tempfile.TemporaryDirectory() as td:
+        td = Path(td); wd = td / "run"; wd.mkdir()
+        for f in files:
+            if f.exists():
+                (wd / f.name).write_bytes(f.read_bytes())
+        (td / "lt.exe").symlink_to(lte_binary())
+        if (FEB / "dlod3.dat").exists():
+            for where in (td, wd):
+                (where / "dlod3.dat").symlink_to((FEB / "dlod3.dat").resolve())
+        full = {**os.environ, **{k: str(v) for k, v in env.items()},
+                "TEST_ONLY": "TRUE", "TIMEOUT": "120",
+                "NUMBER_OF_PROCESSORS": str(max(1, n_legs)), "FORECAST_YEARS": f"{forecast_years:g}"}
+        if dat is not None:
+            full["CLIMATE_INDEX"] = dat.name
+        r = subprocess.run("ulimit -s 65536 2>/dev/null; ../lt.exe", shell=True, cwd=wd, env=full,
+                           stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=1800)
+        names = {k: f"lte_results.{k}.csv" for k in range(1, n_legs + 1)} if n_legs else {0: "lte_results.csv"}
+        out = {}
+        for k, n in names.items():
+            if not (wd / n).exists():
+                raise RuntimeError(f"lt.exe produced no {n} for {run_dir.name}:\n{r.stdout[-2000:]}")
+            out[k] = np.loadtxt(wd / n, delimiter=",")
+        return out
+
+
+def lte_project(run_dir: Path, index: str | None, horizon_years: float = 5.0,
+                extra_env: dict | None = None, leg: int | None = None):
+    """Return dict(dates, model, data, segment, meta), computed by the Ada lt.exe itself.
+
+    lt.exe is run in test mode (nothing is fitted or searched) with FORECAST_YEARS set:
+    it extends the date grid past the last sample on the data's own step, computes the
+    manifold and the model there, and keeps the extension out of the regression, the
+    data smoother and the scores. A second run without the extension checks that the
+    fit on the real samples is unchanged.
+
+    For a multi-leg run (leg = N) all legs are run together, as they were fitted; leg N is
+    the one scored, and every leg's projection is returned in `legs` for the record."""
+    resp, env = run_config(run_dir, index or "", extra_env)
+    if leg is not None:
+        env.pop("CLIMATE_INDEX", None)
+        lresp = read_resp(run_dir / f"lt.exe.resp.{leg}")
+        dat = run_dir / lresp["CLIMATE_INDEX"]
+        sampling = float(lresp.get("SAMPLING", resp.get("SAMPLING", 12)))
+        ext_all = _run_lt(run_dir, env, None, horizon_years)
+        ref_all = _run_lt(run_dir, env, None, 0.0)
+        ext, ref = ext_all[leg], ref_all[leg]
+    else:
+        dat = run_dir / env["CLIMATE_INDEX"]
+        sampling = float(resp.get("SAMPLING", env.get("SAMPLING", 12)))
+        ext_all = _run_lt(run_dir, env, dat, horizon_years); ref_all = _run_lt(run_dir, env, dat, 0.0)
+        ext, ref = ext_all[0], ref_all[0]
     raw = np.loadtxt(dat)
     dates, data = raw[:, 0], raw[:, 1]
-    sampling = int(float(resp.get("SAMPLING", 12)))
-    step = 1.0 / sampling
-    n_fut = int(round(horizon_years * sampling))
-    fut = dates[-1] + step * np.arange(1, n_fut + 1)
-    ext = np.column_stack([np.r_[dates, fut], np.r_[data, np.zeros(n_fut)]])
-
-    # Edge-hold the data smoother so the appended zeros (which the Ada
-    # regression already ignores: data == 0 is dropped) do not bleed into
-    # the last real samples via Filter9Point.
     n_real = len(dates)
-    orig_f9 = lf.filter9point
+    if len(ref) != n_real or not np.allclose(ext[:n_real, 0], dates, atol=1e-6):
+        raise RuntimeError(f"{run_dir.name}: lt.exe rows do not match the data file ({len(ref)} vs {n_real})")
+    all_d, model = ext[:, 0], ext[:, 1]
+    data_f = ref[:, 2]                      # the data as lt.exe fitted it (after its F9 passes)
+    # the extension must not alter the fit; the last few samples may legitimately move,
+    # since the model's own smoother now sees values beyond the edge
+    devs = []
+    for k in ref_all:
+        n_k = len(ref_all[k]); kk = max(n_k - 4, 1)
+        devs.append(float(np.max(np.abs(ext_all[k][:kk, 1] - ref_all[k][:kk, 1])) /
+                          (float(np.std(ref_all[k][:kk, 1])) or 1.0)))
 
-    def f9_edge(v):
-        if len(v) == len(ext) and np.all(v[n_real:] == 0.0):
-            w = v.copy(); w[n_real:] = v[n_real - 1]
-            r = orig_f9(w); r[n_real:] = 0.0; r[n_real - 1] = orig_f9(v[:n_real])[-1]
-            return r
-        return orig_f9(v)
-
-    lf.filter9point = f9_edge
-    params = json.loads((run_dir / "lt.exe.p").read_text())
-    saved_env = {k: os.environ.get(k) for k in env}
-    cwd = os.getcwd()
-    try:
-        with tempfile.TemporaryDirectory() as td:
-            ext_path = Path(td) / dat.name
-            np.savetxt(ext_path, ext, fmt="%.6f\t%.8g")
-            # Ada/GEM.Getenv precedence: lt.exe.resp > environment > default,
-            # so the run environment goes into os.environ, not overrides.
-            os.environ.update({k: str(v) for k, v in env.items()})
-            overrides = {"CLIMATE_INDEX": str(ext_path)}
-            os.chdir(run_dir)
-            r_ext = lf.forward(lf.Config(resp, overrides), params)
-            lf.filter9point = orig_f9
-            overrides["CLIMATE_INDEX"] = str(dat)
-            r_ref = lf.forward(lf.Config(resp, overrides), params)
-    finally:
-        os.chdir(cwd)
-        lf.filter9point = orig_f9
-        for k, v in saved_env.items():
-            if v is None:
-                os.environ.pop(k, None)
-            else:
-                os.environ[k] = v
-
-    model = r_ext["model"]
-    # Interior agreement check: the extension must not alter the fit
-    # (ignore the last ~4 samples, which the symmetric model smoother
-    # legitimately updates now that forcing exists beyond the edge).
-    k = max(n_real - 4, 1)
-    dev = float(np.max(np.abs(model[:k] - r_ref["model"][:k])))
-    scale = float(np.std(r_ref["model"][:k])) or 1.0
-
-    eff = {**env, **{k: v for k, v in resp.items() if k in env}}
-    meta_env = eff
+    eff = {**env, **{kk: v for kk, v in resp.items() if kk in env}}
     ts, te = float(eff["TRAIN_START"]), float(eff["TRAIN_END"])
     exclude = str(eff["EXCLUDE"]).lower() in ("true", "t", "1")
-    all_d = ext[:, 0]
     seg = np.where(all_d > dates[-1], "post_data",
                    np.where((all_d >= ts) & (all_d <= te),
                             "holdout" if exclude else "train",
                             "train" if exclude else "outside_train"))
-    # holdout skill on the committed data (cross-validation interval)
-    data_f = data.copy()
-    for _ in range(int(float(eff.get("F9", 1)))):
-        data_f = orig_f9(data_f)
     hmask = (dates >= ts) & (dates <= te)
     tmask = ~hmask if exclude else hmask
+    ok = data_f != 0                        # lt.exe drops zero-valued samples
     def _r(m):
+        m = m & ok
         return float(np.corrcoef(model[:n_real][m], data_f[m])[0, 1]) if m.sum() > 3 else None
-    meta = dict(engine="lte", index=index, run_dir=str(run_dir.relative_to(REPO)),
-                env=meta_env, sampling=sampling, data_start=float(dates[0]),
-                data_end=float(dates[-1]), n_data=int(n_real),
+    meta = dict(engine="lte", solver=str(lte_binary().name), index=dat.stem,
+                run_dir=str(run_dir.relative_to(REPO)), leg=leg, data_file=dat.name,
+                env=eff, sampling=sampling,
+                data_start=float(dates[0]), data_end=float(dates[-1]), n_data=int(n_real),
                 horizon_end=float(all_d[-1]),
                 r_train=_r(tmask), r_holdout=_r(hmask), r_all=_r(np.ones(n_real, bool)),
-                extension_max_dev_over_std=dev / scale)
-    return dict(dates=all_d, model=model, data=np.r_[data, np.full(n_fut, np.nan)],
-                data_filtered=np.r_[data_f, np.full(n_fut, np.nan)],
-                segment=seg, meta=meta)
+                extension_max_dev_over_std=max(devs))
+    n_fut = len(all_d) - n_real
+    out = dict(dates=all_d, model=model, data=np.r_[data, np.full(n_fut, np.nan)],
+               data_filtered=np.r_[data_f, np.full(n_fut, np.nan)],
+               segment=seg, meta=meta)
+    if leg is not None:
+        out["legs"] = {k: v[:, :2] for k, v in ext_all.items()}
+    return out
 
 
 # ---------------------------------------------------------------------------

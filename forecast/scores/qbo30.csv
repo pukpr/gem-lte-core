@@ -1,2 +1,2 @@
-data_end,engine,issue,issued,target,post_data_n,post_data_r,post_data_rmse,post_data_rmse_ar1,post_data_rmse_climatology,post_data_rmse_persistence,post_data_ss_ar1,post_data_ss_climatology,post_data_ss_persistence,post_issue_n,r_holdout,r_train
-2024.2500,lte,8a5c5ecbb226,2026-10-15T19:18:04+00:00,qbo30,28,-0.8539,0.8545,0.5221,0.4601,0.5685,-1.6795,-2.4497,-1.2593,0,,0.8060
+data_end,engine,issue,issued,target,post_data_n,post_issue_n,r_holdout,r_train
+2026.6667,lte,d5c551229093,2026-10-15T22:24:12+00:00,qbo30,0,0,0.8431,0.8617

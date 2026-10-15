@@ -1,2 +1,2 @@
 data_end,engine,issue,issued,target,post_data_n,post_data_r,post_data_rmse,post_data_rmse_ar1,post_data_rmse_climatology,post_data_rmse_persistence,post_data_ss_ar1,post_data_ss_climatology,post_data_ss_persistence,post_issue_n,r_holdout,r_train
-2024.1667,lte,d9ae951e4f7e,2026-10-15T19:18:05+00:00,nino4,29,0.5125,0.4537,0.6977,0.5436,0.8878,0.5770,0.3034,0.7388,0,-0.0141,0.2769
+2024.1667,lte,2669440ecfdf,2026-10-15T22:25:39+00:00,nino4,29,-0.0899,0.5594,0.6977,0.5436,0.8878,0.3571,-0.0588,0.6030,0,0.8234,0.7082

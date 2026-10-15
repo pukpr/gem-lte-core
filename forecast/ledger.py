@@ -126,7 +126,7 @@ def observe(targets, only=None):
         if t["engine"] == "lte" and t.get("calibrate", True):
             # map live obs onto the committed .dat units (anomaly base,
             # scaling) using overlap that predates the committed data end
-            dat = np.loadtxt(E.FEB / t["dir"] / f"{t['dir']}.dat")
+            dat = np.loadtxt(E.lte_layout(t)[2])
             key = {round(a, 3): b for a, b in dat}
             pairs = [(x, key[round(a, 3)]) for a, x in zip(d, v) if round(a, 3) in key]
             if len(pairs) >= 24:
@@ -174,6 +174,9 @@ def _write_issue(name, issue_id, proj, extra, forecast_only=False):
         w.writerow(["date", "model", "segment"])
         for a, m, s in zip(proj["dates"], proj["model"], proj["segment"]):
             w.writerow([f"{a:.6f}", f"{m:.8g}", s])
+    for k, arr in proj.get("legs", {}).items():   # every leg of a multi-leg run, for the record
+        np.savetxt(out / f"leg{k}.csv", arr, fmt=["%.6f", "%.8g"], delimiter=",",
+                   header="date,model", comments="")
     meta = {**proj["meta"], **extra,
             "issued_utc": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
             "issued_year": now_year(), "git_rev": git_rev()}
@@ -187,12 +190,15 @@ def issue(targets, only=None):
             continue
         try:
             if t["engine"] == "lte":
-                run_dir = E.FEB / t["dir"]
+                run_dir, leg, _ = E.lte_layout(t)
                 if not (run_dir / "lt.exe.p").exists():
                     print(f"[issue] {name}: no committed fit at {run_dir} (pending)")
                     continue
-                fp = E.lte_fingerprint(run_dir, t["dir"])
-                proj = E.lte_project(run_dir, t["dir"], t.get("horizon_years", 5))
+                fp = E.lte_fingerprint(run_dir, t.get("dir"), t.get("env"))
+                if leg is not None:
+                    fp = E.hashlib.sha256(f"{fp}:leg{leg}".encode()).hexdigest()
+                proj = E.lte_project(run_dir, t.get("dir"), t.get("horizon_years", 5),
+                                     t.get("env"), leg)
                 new = _write_issue(name, fp[:12], proj, {"fingerprint": fp})
             elif t["engine"] in ("tidal_lod", "alias_cw"):
                 ym = dt.date.today().strftime("%Y-%m")  # refit once per month
@@ -360,7 +366,7 @@ def report(targets):
             hindcasts[name] = hind
         if not live:
             continue
-        r = live[-1]
+        r = max(live, key=lambda x: x.get("issued") or "")  # most recently issued, not last by hash order
         c = cal.get(name, {}).get("r")
         r["cal"] = "" if c is None else (f"{c:.2f}" + (" LOW" if c < 0.9 else ""))
         groups.setdefault(t["group"], []).append(r)

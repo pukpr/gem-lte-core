@@ -1,12 +1,24 @@
 name: forecast-ledger
 
-# Weekly: fetch live observations, issue a frozen projection for any fit
-# whose fingerprint (lt.exe.p, lt.exe.resp, .dat, lte_run.sh, lte_forward.py,
-# engines.py) changed, refit LOD / Chandler monthly, score every projection
-# against observations and persistence / AR1 / climatology baselines, and
-# commit the results.  Git history is the timestamp.
-# DISABLED 2026-10-15: this version projects with lte_forward.py, which does not
-# reproduce the fits. Replaced by the Ada (lt.exe) engine. Manual runs only until then.
+# Weekly: fetch live observations, issue a frozen projection for any fit whose
+# fingerprint changed (run files, src/, lte.gpr, engines.py), refit LOD /
+# Chandler monthly, score every projection against observations and
+# persistence / AR1 / climatology baselines, and commit the results.  Git
+# history is the timestamp.  LTE projections are computed by the Ada solver
+# (lt.exe, TEST_ONLY + FORECAST_YEARS), built here from src/.
+#
+# Manual runs only until the fits the ledger reads are committed (forecast/README.md,
+# "To do: running it as a GitHub Action"). Then enable the schedule and push triggers:
+#   schedule:
+#     - cron: "17 13 * * 1"        # Mondays 13:17 UTC
+#   push:
+#     branches: [master]
+#     paths:
+#       - "experiments/Feb2026/**/lt.exe.p"
+#       - "experiments/Oct2026_generator/legs/qbo*_point0E/lt.exe.p"
+#       - "src/**"
+#       - "forecast/engines.py"
+#       - "forecast/targets.yml"
 on:
   workflow_dispatch:
     inputs:
@@ -24,7 +36,7 @@ concurrency:
 
 jobs:
   ledger:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04            # GNAT 13, as used for the local fits
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
@@ -34,6 +46,18 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install numpy pyyaml netCDF4
+      - name: Install GNAT
+        run: sudo apt-get update -q && sudo apt-get install -y -q gnat gprbuild
+      - uses: actions/cache@v4
+        with:
+          path: |
+            obj
+            experiments/Feb2026/enso_opt
+          key: lt-${{ runner.os }}-${{ hashFiles('src/**', 'lte.gpr') }}
+      - name: Build lt.exe
+        run: |
+          gprbuild -P lte.gpr enso_opt -j0
+          echo "LTE_EXE=$PWD/experiments/Feb2026/enso_opt" >> "$GITHUB_ENV"
       - uses: actions/cache@v4
         with:
           path: forecast/.cache
@@ -41,6 +65,7 @@ jobs:
           restore-keys: obs-cache-
       - name: Run ledger
         run: |
+          ulimit -s 65536 || ulimit -s unlimited || true
           T="${{ github.event.inputs.targets }}"
           if [ -n "$T" ]; then python3 forecast/ledger.py all -t $T
           else python3 forecast/ledger.py all; fi
