@@ -1,0 +1,75 @@
+# GEM-LTE forecast ledger: target registry.
+#
+# engine: lte        frozen fit in experiments/Feb2026/<dir>/ projected forward
+#         tidal_lod  LOD-calibrated tidal constituents, refit monthly on IERS LOD
+#         alias_cw   Chandler wobble forced-aliasing model, refit monthly
+# source: live observation fetcher in sources.py (kind + kwargs)
+# calibrate: map live obs onto the committed .dat units by linear fit over
+#            the pre-data-end overlap (default true for lte targets)
+# A new index = one new block here; a new fit = commit lt.exe.p/.resp/.dat.
+
+defaults:
+  horizon_years: 5
+
+targets:
+  # ---- atmospheric dipoles / oscillations --------------------------------
+  soi:      {engine: lte, dir: soi, source: {kind: longpaddock_soi_monthly}}
+  soi_daily:                       # slot for the daily fit (Metrology Matters,
+    engine: lte                    # 2026-10-15). Activates once
+    dir: soi_daily                 # experiments/Feb2026/soi_daily/lt.exe.p exists.
+    horizon_years: 1
+    calibrate: false
+    source: {kind: longpaddock_soi_daily, column: SOI}
+  qbo30:    {engine: lte, dir: qbo30, source: {kind: kit_qbo, level: 30}}
+  qbo50:    {engine: lte, dir: qbo50, source: {kind: kit_qbo, level: 50}}
+  qbo70_daily:                     # slot: daily ERA5 70 hPa fit (not yet public)
+    engine: lte
+    dir: qbo70_daily
+    horizon_years: 1
+    calibrate: false
+    enabled: false
+    source: {kind: kit_qbo, level: 70}
+
+  # ---- ocean basin indices ------------------------------------------------
+  amo:   {engine: lte, dir: amo,   source: {kind: year_table, url: "https://psl.noaa.gov/data/correlation/amon.us.long.data",
+                                            urls: ["https://psl.noaa.gov/data/correlation/amon.us.data",
+                                                   "https://psl.noaa.gov/data/correlation/amon.us.long.data",
+                                                   "https://www.psl.noaa.gov/data/correlation/amon.us.long.data"]}}
+  pdo:   {engine: lte, dir: pdo,   source: {kind: year_table, url: "https://www.ncei.noaa.gov/pub/data/cmb/ersst/v5/index/ersst.v5.pdo.dat"}}
+  nino4: {engine: lte, dir: nino4, source: {kind: cpc_sstoi, column: NINO4_ANOM}}
+  nino34: {engine: lte, dir: nino34, source: {kind: cpc_sstoi, column: NINO34_ANOM}}
+
+  # every fitted 20-degree Kaplan SST quad (kN000_W130, kS020_E070, ...).
+  # Kaplan Extended SST v2 stops at 2023-01, so live scoring uses ERSSTv5
+  # box means on the same boxes, linearly calibrated to the Kaplan .dat over
+  # the pre-2023 overlap.  Switch kind back to kaplan_box if PSL resumes it.
+  kaplan:
+    engine: lte
+    glob: "k[NS][0-9][0-9][0-9]_[EW][0-9][0-9][0-9]"
+    regex: "k[NS]\\d{3}_[EW]\\d{3}"
+    source: {kind: ersst_box}
+
+  # ---- sea level ----------------------------------------------------------
+  baltic: {engine: lte, dir: baltic, deseasonalize: true, source: {kind: psmsl_rlr, bbox: [53.5, 66.0, 9.5, 30.5]}}
+  brest:  {engine: lte, dir: brest,  deseasonalize: true, source: {kind: psmsl_rlr, stations: [1]}}
+  # add other MSL sites as:  <dir>: {engine: lte, dir: <dir>, deseasonalize: true, source: {kind: psmsl_rlr, stations: [<PSMSL id>, ...]}}
+
+  # ---- Earth rotation -----------------------------------------------------
+  lod:
+    engine: tidal_lod
+    donor: amo                     # lt.exe.p whose LOD-calibrated lpap set is used
+    train_years: 12
+    horizon_years: 1
+    source: {kind: iers_eop, column: LOD}
+  chandler_x:
+    engine: alias_cw
+    component: x
+    train_years: 24
+    horizon_years: 2
+    source: {kind: iers_eop, column: x}
+  chandler_y:
+    engine: alias_cw
+    component: y
+    train_years: 24
+    horizon_years: 2
+    source: {kind: iers_eop, column: y}

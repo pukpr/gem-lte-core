@@ -1,0 +1,15 @@
+{
+ "engine": "alias_cw",
+ "component": "y",
+ "chandler_period_days": 432.7567772785059,
+ "train_years": 24,
+ "data_end": 2022.703642100796,
+ "horizon_end": 2024.7023142158976,
+ "amp_cw_arcsec": 0.076316271375829,
+ "amp_annual_arcsec": 0.094180884415379,
+ "r_train": 0.8784518605234081,
+ "hindcast_origin": 2022.703642100796,
+ "issued_utc": "2026-10-15T19:18:26+00:00",
+ "issued_year": 2026.7879818888266,
+ "git_rev": "0bc994810f5a8db8371aed73bfbb39c196d49af3"
+}
