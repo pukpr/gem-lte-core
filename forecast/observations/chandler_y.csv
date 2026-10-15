@@ -1,4 +1,4 @@
-"# fetched_utc=2026-10-15T19:18:03.543040+00:00 calibration: value = 1*raw + 0 (n=0, r=nan)"
+"# fetched_utc=2026-10-15T20:58:33.064382+00:00 calibration: value = 1*raw + 0 (n=0, r=nan)"
 date,raw,value
 1962.000000,0.213,0.213
 1962.002738,0.2141,0.2141

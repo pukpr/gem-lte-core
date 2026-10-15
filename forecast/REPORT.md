@@ -1,6 +1,6 @@
 # GEM-LTE forecast ledger
 
-Updated 2026-10-15 19:18 UTC. Latest frozen projection per target. `ss_*` = 1 - MSE(model)/MSE(baseline); positive beats the baseline. post_data = after the committed .dat ends (never fitted); post_issue = after the ledger timestamp (strictly ex-ante).
+Updated 2026-10-15 20:58 UTC. Latest frozen projection per target. `ss_*` = 1 - MSE(model)/MSE(baseline); positive beats the baseline. post_data = after the committed .dat ends (never fitted); post_issue = after the ledger timestamp (strictly ex-ante).
 
 `obs cal r` = correlation of the live feed with the committed .dat over their overlap; LOW (< 0.9) means the live feed is not the same series and post-data scores for that target are not yet meaningful.
 
