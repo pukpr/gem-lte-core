@@ -1,0 +1,30 @@
+-FSTART                         0.1
+FLIP                           0.0015
+SPREAD_MIN                     0.0000001
+SPREAD_MAX                     0.15
+MAXH                           300
+-NH                             "1 1 1 1 1 1 1 1 1"
+NH                             "1 1 1 1 1 1 1 1 1 1 1 1 1 1 1"
+NH                             "1 1 1 1 1 1 1 1 1 1 1 1 1"
+YEAR                           0.00405305
+-DLOD_REF                       TRUE
+-LOCKT                          FALSE
+-LOCKF                          TRUE
+DECAY                          48.0
+DTW                            2
+IDATE                          1860.0
+THRESHOLD_ACTION               CATCHUP
+PART                           FALSE
+FILTER                         0.0
+JERK                           0.0
+-CAL_LOD                        -0.0002
+INIT_DATE                      1860.0
+STRICT_IDATE                   TRUE
+NM                             2
+ACCEL                          FALSE
+IMPULSE_MOD12                  TRUE
+IR_SIDE                        1
+NONLIN                         1.0
+IMPULSE_EXACT                  TRUE
+LEGS                           2
+SELECT_TOP                     3
