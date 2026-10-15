@@ -5,20 +5,15 @@ name: forecast-ledger
 # engines.py) changed, refit LOD / Chandler monthly, score every projection
 # against observations and persistence / AR1 / climatology baselines, and
 # commit the results.  Git history is the timestamp.
+# DISABLED 2026-10-15: this version projects with lte_forward.py, which does not
+# reproduce the fits. Replaced by the Ada (lt.exe) engine. Manual runs only until then.
 on:
-  schedule:
-    - cron: "17 13 * * 1"        # Mondays 13:17 UTC
   workflow_dispatch:
     inputs:
       targets:
         description: "space-separated target or group names (blank = all)"
         required: false
         default: ""
-  push:
-    branches: [master]
-    paths:
-      - "experiments/Feb2026/**/lt.exe.p"
-      - "forecast/targets.yml"
 
 permissions:
   contents: write
