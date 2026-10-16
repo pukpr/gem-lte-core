@@ -1,0 +1,32 @@
+{
+ "engine": "lte",
+ "solver": "enso_opt",
+ "index": "soi",
+ "run_dir": "experiments/Feb2026/soi",
+ "leg": null,
+ "data_file": "soi.dat",
+ "env": {
+  "TRAIN_START": "1880",
+  "TRAIN_END": "1885",
+  "METRIC": "CC",
+  "IDATE": "1880.0",
+  "EXCLUDE": "true",
+  "TREND": "true",
+  "F9": "1",
+  "DLOD_REF": "TRUE",
+  "CLIMATE_INDEX": "soi.dat"
+ },
+ "sampling": 12.0,
+ "data_start": 1880.0,
+ "data_end": 2026.583333,
+ "n_data": 1760,
+ "horizon_end": 2031.583333,
+ "r_train": 0.49705938415802214,
+ "r_holdout": 0.4385239894578566,
+ "r_all": 0.49545898300361857,
+ "extension_max_dev_over_std": 0.0,
+ "fingerprint": "2f4a34bc3fe75f675268d2d2804874f6afdd5c4dca61365f2d1836617d148711",
+ "issued_utc": "2026-10-16T00:02:44+00:00",
+ "issued_year": 2026.78852243264,
+ "git_rev": "3dc80b6792fc77db20bda7189b4582c34bcd0c12"
+}
