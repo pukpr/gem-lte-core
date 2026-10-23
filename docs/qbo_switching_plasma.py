@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """One-panel schematic: the QBO as a switched (AC) toroidal plasma (2026-10-22). See qbo_switching_plasma.md.
-Time scale 1 yr -> 1 s. The probe trace is the comb device of qbo_tokamak.py (pulses -> integrator -> threshold).
+Timing in years (the real QBO time scale). The probe trace is the comb device of qbo_tokamak.py (pulses -> integrator -> threshold).
     python3 qbo_switching_plasma.py  -> qbo_switching_plasma.png
 """
 import json
@@ -36,8 +36,8 @@ def arrow(a, b, col=INK):
     ax.add_patch(FancyArrowPatch(a, b, arrowstyle="-|>", mutation_scale=18, color=col, lw=2))
 
 
-box(0.3, 3.3, 3.6, 2.6, "1  SWITCH  (the Sun)", "fires twice per cycle,\nflipping polarity each time\n(+, −, +, −, …)\n\n2 pulses per second", "#fde7c2")
-box(0.3, 0.3, 3.6, 2.6, "2  MODULATOR  (the Moon)", "sets each pulse's height:\nMoon above / below the\nSun's plane (ecliptic)\n\n13.42 cycles per second", "#dbe9f8")
+box(0.3, 3.3, 3.6, 2.6, "1  SWITCH  (the Sun)", "fires twice per cycle,\nflipping polarity each time\n(+, −, +, −, …)\n\n2 pulses per year", "#fde7c2")
+box(0.3, 0.3, 3.6, 2.6, "2  MODULATOR  (the Moon)", "sets each pulse's height:\nMoon above / below the\nSun's plane (ecliptic)\n\n13.42 cycles per year", "#dbe9f8")
 arrow((3.95, 1.6), (4.9, 3.0)); arrow((3.95, 4.6), (4.9, 3.6))
 # capacitor + H-bridge glyph
 ax.add_patch(FancyBboxPatch((4.95, 2.35), 1.9, 1.9, boxstyle="round,pad=0.05,rounding_size=0.1", fc="#eef0e6", ec=INK, lw=1.2))
@@ -68,19 +68,19 @@ ax.text(cx, 0.55, "3  RING PLASMA  (the equatorial stratosphere)\nflow around th
 ax.add_patch(plt.Circle((cx + 2.3, cy + 0.15), 0.12, fc=GREEN, ec=INK)); ax.text(cx + 2.45, cy + 0.42, "probe", fontsize=9, color=GREEN)
 arrow((cx + 2.45, cy), (13.1, cy), GREEN)
 ax.text(14.55, 4.7, "probe reads a\nreversing square wave", ha="center", fontsize=10, color=INK)
-ax.text(14.55, 0.9, "period = 2.37 s\n(1 s = 1 yr: the QBO's\n28-month period)", ha="center", fontsize=10, color=INK, weight="bold")
+ax.text(14.55, 0.9, "period = 2.37 yr\n(the QBO's\n28-month period)", ha="center", fontsize=10, color=INK, weight="bold")
 ins = fig.add_axes([0.82, 0.52, 0.17, 0.17]); ins.axis("off")
 u = model("COMB", X, "threshold")[2][30]; m = (TG >= 1990) & (TG < 2005)
 ins.plot(TG[m] - 1990, u[m], color=GREEN, lw=1.8); ins.axhline(0, color=MUTED, lw=0.5)
 
 # bottom strip: the arithmetic
 ax2 = fig.add_axes([0.03, 0.02, 0.94, 0.25]); ax2.axis("off")
-ax2.text(0, 0.95, "Why 2.37 s: stroboscopic beating, no tuning", fontsize=12, color=INK, weight="bold", va="top")
+ax2.text(0, 0.95, "Why 2.37 yr: stroboscopic beating, no tuning", fontsize=12, color=INK, weight="bold", va="top")
 ax2.text(0, 0.72,
-         "The modulator runs at 13.42 cycles per second. Flipping the sign at every pulse shifts it to 14.42; sampled twice a second, "
-         "14.42 folds down to\n14.42 − 14 = 0.42 cycles per second, "
-         "a 2.37-s beat (the wagon-wheel effect of a strobe). If the switch did not flip\npolarity the beat would be 1.73 s; "
-         "if the modulator followed the Moon's declination instead of its latitude it would be 2.72 s. Only the latitude with a "
+         "The modulator runs at 13.42 cycles per year. Flipping the sign at every pulse shifts it to 14.42; sampled twice a year, "
+         "14.42 folds down to\n14.42 − 14 = 0.42 cycles per year, "
+         "a 2.37-yr beat (the wagon-wheel effect of a strobe). If the switch did not flip\npolarity the beat would be 1.73 yr; "
+         "if the modulator followed the Moon's declination instead of its latitude it would be 2.72 yr. Only the latitude with a "
          "polarity-flipping\nswitch gives the observed QBO period.", fontsize=10, color=INK, va="top", linespacing=1.45)
 ax2.text(0, 0.06, "Each ingredient exists in laboratory devices: polarity-switched (AC) tokamaks, reversed-field pinches whose edge field reverses "
          "by itself, oscillating-field current drive,\nand a rotating-annulus fluid experiment that reproduces descending QBO reversals. "
