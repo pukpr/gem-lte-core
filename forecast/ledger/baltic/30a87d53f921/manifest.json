@@ -1,0 +1,32 @@
+{
+ "engine": "lte",
+ "solver": "enso_opt",
+ "index": "baltic",
+ "run_dir": "experiments/Feb2026/baltic",
+ "leg": null,
+ "data_file": "baltic.dat",
+ "env": {
+  "TRAIN_START": "1880",
+  "TRAIN_END": "1885",
+  "METRIC": "CC",
+  "IDATE": "1880.0",
+  "EXCLUDE": "true",
+  "TREND": "true",
+  "F9": "1",
+  "DLOD_REF": "TRUE",
+  "CLIMATE_INDEX": "baltic.dat"
+ },
+ "sampling": 12.0,
+ "data_start": 1880.5,
+ "data_end": 2025.5,
+ "n_data": 1741,
+ "horizon_end": 2030.5,
+ "r_train": 0.5918616870886825,
+ "r_holdout": 0.010898635250249354,
+ "r_all": 0.5764511764442574,
+ "extension_max_dev_over_std": 0.0,
+ "fingerprint": "30a87d53f921d3130e5d108ebc605aa2cf9b837912da2d5a0a5465d1c39d8b44",
+ "issued_utc": "2026-10-16T00:05:08+00:00",
+ "issued_year": 2026.7885270045842,
+ "git_rev": "3dc80b6792fc77db20bda7189b4582c34bcd0c12"
+}
