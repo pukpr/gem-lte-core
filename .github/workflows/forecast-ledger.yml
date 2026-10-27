@@ -16,6 +16,7 @@ name: forecast-ledger
 #     paths:
 #       - "experiments/Feb2026/**/lt.exe.p"
 #       - "experiments/Oct2026_generator/legs/qbo*_point0E/lt.exe.p"
+#       - "experiments/Oct2026_generator/legs/qbo9_kit_era70full_ex2015_2021/lt.exe.p"
 #       - "src/**"
 #       - "forecast/engines.py"
 #       - "forecast/targets.yml"

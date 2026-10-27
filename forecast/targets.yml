@@ -32,6 +32,15 @@ targets:
   qbo30:    {engine: lte, legs_dir: experiments/Oct2026_generator/legs/qbo30_point0E, leg: 1, source: {kind: kit_qbo, level: 30}}
   qbo50:    {engine: lte, legs_dir: experiments/Oct2026_generator/legs/qbo50_point0E, leg: 1, source: {kind: kit_qbo, level: 50}}
   qbo70:    {engine: lte, legs_dir: experiments/Oct2026_generator/legs/qbo70_point0E, leg: 1, source: {kind: kit_qbo, level: 70}}
+  # QBO, nine legs on one manifold (2026-10-27): KIT monthly 70/50/40/30/20/15 hPa (legs 1-6) + ERA5 5-day
+  # at 0N 0E, 00 UTC, 30/50/70 hPa (legs 7-9); 2015-2021 (the 2016 and 2020 disruptions) held out on every leg,
+  # scored as the `holdout` segment. Each KIT leg is scored against the live KIT feed at its level. See the run's RESULTS.md.
+  qbo9_70: {engine: lte, legs_dir: experiments/Oct2026_generator/legs/qbo9_kit_era70full_ex2015_2021, leg: 1, source: {kind: kit_qbo, level: 70}}
+  qbo9_50: {engine: lte, legs_dir: experiments/Oct2026_generator/legs/qbo9_kit_era70full_ex2015_2021, leg: 2, source: {kind: kit_qbo, level: 50}}
+  qbo9_40: {engine: lte, legs_dir: experiments/Oct2026_generator/legs/qbo9_kit_era70full_ex2015_2021, leg: 3, source: {kind: kit_qbo, level: 40}}
+  qbo9_30: {engine: lte, legs_dir: experiments/Oct2026_generator/legs/qbo9_kit_era70full_ex2015_2021, leg: 4, source: {kind: kit_qbo, level: 30}}
+  qbo9_20: {engine: lte, legs_dir: experiments/Oct2026_generator/legs/qbo9_kit_era70full_ex2015_2021, leg: 5, source: {kind: kit_qbo, level: 20}}
+  qbo9_15: {engine: lte, legs_dir: experiments/Oct2026_generator/legs/qbo9_kit_era70full_ex2015_2021, leg: 6, source: {kind: kit_qbo, level: 15}}
 
   # ---- ocean basin indices ------------------------------------------------
   # AMO deferred (2026-10-15): NOAA's AMO series ends in 2023, so there is nothing current to score against.
