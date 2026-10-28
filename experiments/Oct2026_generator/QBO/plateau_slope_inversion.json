@@ -1,0 +1,47 @@
+{
+ "10": {
+  "spearman_sigma_vs_abs_slope": 0.040968929063271174,
+  "p_perm": 0.2846666666666667,
+  "spearman_sigma_vs_u": -0.06516324335229443,
+  "C_fit": 0.3913526335599867,
+  "C_fit_null_mean": 0.36813094108903066,
+  "C_fit_null_max": 0.4178283838068151,
+  "sigma_ratio_sd": 0.4834828244556113
+ },
+ "20": {
+  "spearman_sigma_vs_abs_slope": 0.14572689480890266,
+  "p_perm": 0.206,
+  "spearman_sigma_vs_u": -0.22583263209211482,
+  "C_fit": 0.3591237715396363,
+  "C_fit_null_mean": 0.3717030841104271,
+  "C_fit_null_max": 0.4221384638722823,
+  "sigma_ratio_sd": 0.45185676756088217
+ },
+ "30": {
+  "spearman_sigma_vs_abs_slope": -0.1133659582953965,
+  "p_perm": 0.9166666666666666,
+  "spearman_sigma_vs_u": -0.023090014612846706,
+  "C_fit": 0.44216921366840817,
+  "C_fit_null_mean": 0.3825172067129984,
+  "C_fit_null_max": 0.41518811497811714,
+  "sigma_ratio_sd": 0.5871558940462814
+ },
+ "50": {
+  "spearman_sigma_vs_abs_slope": 0.1271118532373397,
+  "p_perm": 0.09833333333333333,
+  "spearman_sigma_vs_u": 0.03625178995469837,
+  "C_fit": 0.38029610412329845,
+  "C_fit_null_mean": 0.3782634921720588,
+  "C_fit_null_max": 0.4182935799409346,
+  "sigma_ratio_sd": 0.41899653696401906
+ },
+ "70": {
+  "spearman_sigma_vs_abs_slope": -0.25480720098284665,
+  "p_perm": 0.9876666666666667,
+  "spearman_sigma_vs_u": -0.12293199845749903,
+  "C_fit": 0.4210958238312539,
+  "C_fit_null_mean": 0.37410450429777264,
+  "C_fit_null_max": 0.4171884484006814,
+  "sigma_ratio_sd": 0.5622302481453246
+ }
+}

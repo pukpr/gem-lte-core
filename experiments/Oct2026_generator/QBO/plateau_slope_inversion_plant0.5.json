@@ -1,0 +1,11 @@
+{
+ "30": {
+  "spearman_sigma_vs_abs_slope": 0.5240246313278148,
+  "p_perm": 0.0,
+  "spearman_sigma_vs_u": -0.21305006344897118,
+  "C_fit": 0.5764267436753935,
+  "C_fit_null_mean": 0.4054571372838417,
+  "C_fit_null_max": 0.42984341216565064,
+  "sigma_ratio_sd": 0.4889882455515624
+ }
+}

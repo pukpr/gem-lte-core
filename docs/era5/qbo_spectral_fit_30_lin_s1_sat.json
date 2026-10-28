@@ -1,0 +1,15 @@
+{
+ "level_hPa": 30,
+ "rho": -0.6564986865378885,
+ "Ti_yr": 4.865901937659595,
+ "k": 3.483069975431484,
+ "d_deg": 192.1878633026756,
+ "tau_months": 2.8516020155975887,
+ "A_ms": 22.2391205041778,
+ "response": "sat",
+ "G": 19.99998783405894,
+ "b": -0.20508602618631477,
+ "criterion": "lin",
+ "misfit": 0.4449741471488061,
+ "note": "fitted to amplitude spectrum only; time domain not used"
+}

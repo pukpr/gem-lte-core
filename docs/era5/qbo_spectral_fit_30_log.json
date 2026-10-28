@@ -1,0 +1,12 @@
+{
+ "level_hPa": 30,
+ "rho": -0.4961842905028081,
+ "Ti_yr": 2.1673871660304256,
+ "k": 52.813000843707776,
+ "d_deg": 201.73935043344417,
+ "tau_months": 4.550606316327927,
+ "A_ms": 32.61251354132566,
+ "criterion": "log",
+ "misfit": 0.22959689574595962,
+ "note": "fitted to amplitude spectrum only; time domain not used"
+}

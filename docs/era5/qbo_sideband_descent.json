@@ -1,0 +1,65 @@
+{
+ "10": {
+  "tau_months": 0.0,
+  "winding_pred_deg": -0.0,
+  "winding_meas_deg": 0.0,
+  "winding_sd_deg": 53.5670469475574,
+  "lower_over_upper_obs": 0.09466361150475475,
+  "model_A": 0.05985077091267434,
+  "model_B": 0.05985077091267447
+ },
+ "15": {
+  "tau_months": 2.0,
+  "winding_pred_deg": -120.0,
+  "winding_meas_deg": -103.16276339470494,
+  "winding_sd_deg": 68.49126948060353,
+  "lower_over_upper_obs": 1.2294939801583218,
+  "model_A": 1.2615713101580226,
+  "model_B": 1.550137482750422
+ },
+ "20": {
+  "tau_months": 4.0,
+  "winding_pred_deg": -240.0,
+  "winding_meas_deg": -216.44080984796625,
+  "winding_sd_deg": 56.07873539145038,
+  "lower_over_upper_obs": 1.5714253837342798,
+  "model_A": 1.634614674615802,
+  "model_B": 1.9412914968392603
+ },
+ "30": {
+  "tau_months": 6.0,
+  "winding_pred_deg": -360.0,
+  "winding_meas_deg": -343.0661268889791,
+  "winding_sd_deg": 56.1009778670255,
+  "lower_over_upper_obs": 0.109672612719617,
+  "model_A": 0.09114989366887037,
+  "model_B": 0.05985077091267454
+ },
+ "40": {
+  "tau_months": 9.0,
+  "winding_pred_deg": -540.0,
+  "winding_meas_deg": -501.81386975632347,
+  "winding_sd_deg": 36.0050794503096,
+  "lower_over_upper_obs": 2.8028938046781136,
+  "model_A": 5.067896536611598,
+  "model_B": 16.708222546691207
+ },
+ "50": {
+  "tau_months": 11.0,
+  "winding_pred_deg": -660.0,
+  "winding_meas_deg": -489.42067809341466,
+  "winding_sd_deg": 60.2315080961294,
+  "lower_over_upper_obs": 1.8137125845542716,
+  "model_A": 0.7098564651977655,
+  "model_B": 0.6451040705277911
+ },
+ "70": {
+  "tau_months": 14.0,
+  "winding_pred_deg": -840.0,
+  "winding_meas_deg": -583.8357366691052,
+  "winding_sd_deg": 83.98366817828473,
+  "lower_over_upper_obs": 1.216602846294335,
+  "model_A": 1.2642034311778303,
+  "model_B": 1.5501374827504233
+ }
+}

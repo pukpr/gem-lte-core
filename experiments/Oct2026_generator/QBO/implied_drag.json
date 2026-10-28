@@ -1,0 +1,154 @@
+{
+ "tau_inf": {
+  "levels": {
+   "70": {
+    "G_model_vs_obs_train": 0.3861135479114135,
+    "G_model_vs_obs_held": 0.3999631435842126,
+    "G_vs_shear_obs": 0.6634277257953572,
+    "G_vs_shear_model": 0.5250203304804537,
+    "rms_G_obs_m_s_day": 0.07420453073368197,
+    "rms_G_model_m_s_day": 0.04815577339538607
+   },
+   "50": {
+    "G_model_vs_obs_train": 0.4845933733893096,
+    "G_model_vs_obs_held": 0.36729756009731623,
+    "G_vs_shear_obs": 0.7565292571685518,
+    "G_vs_shear_model": 0.4939430145361667,
+    "rms_G_obs_m_s_day": 0.12662872363912414,
+    "rms_G_model_m_s_day": 0.09982521639156751
+   },
+   "40": {
+    "G_model_vs_obs_train": 0.5918147592012412,
+    "G_model_vs_obs_held": 0.5030399478106053,
+    "G_vs_shear_obs": 0.807247659421176,
+    "G_vs_shear_model": 0.5720741399151226,
+    "rms_G_obs_m_s_day": 0.1467118687453087,
+    "rms_G_model_m_s_day": 0.12412132402953979
+   },
+   "30": {
+    "G_model_vs_obs_train": 0.5972038539550667,
+    "G_model_vs_obs_held": 0.636383223108999,
+    "G_vs_shear_obs": 0.7851213392042865,
+    "G_vs_shear_model": 0.6257813541358908,
+    "rms_G_obs_m_s_day": 0.1593667652683529,
+    "rms_G_model_m_s_day": 0.1404793314374262
+   },
+   "20": {
+    "G_model_vs_obs_train": 0.504519153134612,
+    "G_model_vs_obs_held": 0.5780812212998185,
+    "G_vs_shear_obs": 0.7870270367459633,
+    "G_vs_shear_model": 0.5987734784680239,
+    "rms_G_obs_m_s_day": 0.1688714199861321,
+    "rms_G_model_m_s_day": 0.14993888261950641
+   },
+   "15": {
+    "G_model_vs_obs_train": 0.4363387589684712,
+    "G_model_vs_obs_held": 0.4576956228677141,
+    "G_vs_shear_obs": 0.7145529882764516,
+    "G_vs_shear_model": 0.5501407034799891,
+    "rms_G_obs_m_s_day": 0.1664411321843786,
+    "rms_G_model_m_s_day": 0.1518592004582317
+   }
+  },
+  "asymmetry": {
+   "obs": {
+    "mean_G_in_westerly_shear": 0.10966756630155423,
+    "mean_G_in_easterly_shear": -0.07768854959122501,
+    "p95_westerly_accel": 0.3250526349126473,
+    "p05_easterly_accel": -0.2276189802910104,
+    "ratio_west_to_east": 1.4280559314388817
+   },
+   "model": {
+    "mean_G_in_westerly_shear": 0.0822492464775948,
+    "mean_G_in_easterly_shear": -0.047172008768046454,
+    "p95_westerly_accel": 0.21202822458361942,
+    "p05_easterly_accel": -0.20508478921002277,
+    "ratio_west_to_east": 1.033856413244212
+   }
+  },
+  "F70_obs_rms_mPa": 0.6152724752975064,
+  "F70_model_rms_mPa": 0.5646380504538656,
+  "F70_obs_p95_mPa": 1.1217214232434587,
+  "F70_obs_p05_mPa": -0.8806490026175215,
+  "F70_model_p95_mPa": 0.9262132025960719,
+  "F70_model_p05_mPa": -0.862991069266776,
+  "F70_model_vs_obs_train": 0.6466583571493462,
+  "F70_model_vs_obs_held": 0.5423608267849569
+ },
+ "tau_1yr": {
+  "levels": {
+   "70": {
+    "G_model_vs_obs_train": 0.4029304399560595,
+    "G_model_vs_obs_held": 0.4054606988680633,
+    "G_vs_shear_obs": 0.6947222262984141,
+    "G_vs_shear_model": 0.5888892348110034,
+    "rms_G_obs_m_s_day": 0.0760381317853745,
+    "rms_G_model_m_s_day": 0.04939418985179529
+   },
+   "50": {
+    "G_model_vs_obs_train": 0.5041433297103604,
+    "G_model_vs_obs_held": 0.38469368032712786,
+    "G_vs_shear_obs": 0.8334633008574499,
+    "G_vs_shear_model": 0.6166767748623603,
+    "rms_G_obs_m_s_day": 0.13118504574571516,
+    "rms_G_model_m_s_day": 0.10288187663402817
+   },
+   "40": {
+    "G_model_vs_obs_train": 0.6092734064336585,
+    "G_model_vs_obs_held": 0.5144290682400422,
+    "G_vs_shear_obs": 0.8505111891518845,
+    "G_vs_shear_model": 0.6581808755859434,
+    "rms_G_obs_m_s_day": 0.15261337124779661,
+    "rms_G_model_m_s_day": 0.1284626521625755
+   },
+   "30": {
+    "G_model_vs_obs_train": 0.6169369566197604,
+    "G_model_vs_obs_held": 0.6368422255466615,
+    "G_vs_shear_obs": 0.8274442436487298,
+    "G_vs_shear_model": 0.6745664172566798,
+    "rms_G_obs_m_s_day": 0.16640417865051105,
+    "rms_G_model_m_s_day": 0.1456412926955015
+   },
+   "20": {
+    "G_model_vs_obs_train": 0.5253825017583457,
+    "G_model_vs_obs_held": 0.5844879382399826,
+    "G_vs_shear_obs": 0.7817561160607552,
+    "G_vs_shear_model": 0.5634827874712233,
+    "rms_G_obs_m_s_day": 0.17697146415260132,
+    "rms_G_model_m_s_day": 0.1547697349863851
+   },
+   "15": {
+    "G_model_vs_obs_train": 0.45750938587792195,
+    "G_model_vs_obs_held": 0.4637001176367668,
+    "G_vs_shear_obs": 0.7585015516121143,
+    "G_vs_shear_model": 0.5482871791760491,
+    "rms_G_obs_m_s_day": 0.1749480783625788,
+    "rms_G_model_m_s_day": 0.1562093243151249
+   }
+  },
+  "asymmetry": {
+   "obs": {
+    "mean_G_in_westerly_shear": 0.11375823199972945,
+    "mean_G_in_easterly_shear": -0.1005340988940736,
+    "p95_westerly_accel": 0.3056138910385756,
+    "p05_easterly_accel": -0.25922403011983575,
+    "ratio_west_to_east": 1.1789566379987784
+   },
+   "model": {
+    "mean_G_in_westerly_shear": 0.07786607940302408,
+    "mean_G_in_easterly_shear": -0.06358598646604657,
+    "p95_westerly_accel": 0.20498945014306544,
+    "p05_easterly_accel": -0.22854872095780038,
+    "ratio_west_to_east": 0.8969179494157618
+   }
+  },
+  "F70_obs_rms_mPa": 0.6447408549266069,
+  "F70_model_rms_mPa": 0.5857854738913749,
+  "F70_obs_p95_mPa": 1.0919066939108129,
+  "F70_obs_p05_mPa": -1.030667778838319,
+  "F70_model_p95_mPa": 0.9160420420382296,
+  "F70_model_p05_mPa": -0.9695703749167961,
+  "F70_model_vs_obs_train": 0.664730345356163,
+  "F70_model_vs_obs_held": 0.5568646131248566
+ }
+}

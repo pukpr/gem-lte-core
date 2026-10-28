@@ -14,4 +14,6 @@ disruption +0.58. The altitude ranking and the other findings are unchanged; see
 
 **Correction (2026-10-27):** the descent is reproduced (model lags behind 15 hPa of 1 / 3 / 6 / 8 / 12 months against
 observed 1 / 4 / 7 / 9 / 12 at 20 / 30 / 40 / 50 / 70 hPa). A delayed common model does not beat the per-leg
-phase-adjusted fits held out. See `../qbo9_kit_era_ex2015_2021/RESULTS.md`.
+phase-adjusted fits held out. See `../qbo9_kit_era_ex2015_2021/RESULTS.md`. Summing lags between adjacent levels
+instead (low-pass 200 d) gives 7.0 months from 15 to 70 hPa in the model against 10.3 observed: the model descends at
+about 70 % of the observed rate (`../../QBO/winding_lags.py`).

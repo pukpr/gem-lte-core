@@ -4,12 +4,16 @@ shared windings, the per-leg amplitudes by harmonic, and a plot. usage: leg_scor
 import json, sys, numpy as np, matplotlib
 matplotlib.use("Agg"); import matplotlib.pyplot as plt
 H0, H1 = 2000.0, 2005.0
-X0 = 1880.0; OUTPNG = "legs.png"
+X0 = None; OUTPNG = "legs.png"   # X0 None: start at the decade of the earliest leg's first sample
 if "--from" in sys.argv: i = sys.argv.index("--from"); X0 = float(sys.argv[i + 1]); del sys.argv[i:i + 2]
 if "--out" in sys.argv: i = sys.argv.index("--out"); OUTPNG = sys.argv[i + 1]; del sys.argv[i:i + 2]
 if "--held" in sys.argv: i = sys.argv.index("--held"); H0, H1 = float(sys.argv[i + 1]), float(sys.argv[i + 2]); del sys.argv[i:i + 3]
 d = sys.argv[1] if len(sys.argv) > 1 else "."; names = sys.argv[2:] if len(sys.argv) > 3 else ["leg 1", "leg 2"]; NL = len(names); cc = lambda a, b: float(np.corrcoef(a, b)[0, 1]); z = lambda v: (v - v.mean()) / v.std()
 fig, ax = plt.subplots(NL, 1, figsize=(17, 4 * NL), facecolor="#fcfcfb"); F = []
+if X0 is None:
+    def _start(k):
+        a = np.loadtxt(f"{d}/lte_results.{k}.csv", delimiter=","); nz = a[a[:, 2] != 0, 0]; return float(nz[0]) if len(nz) else float(a[0, 0])
+    X0 = 10.0 * np.floor(min(_start(k) for k in range(1, NL + 1)) / 10.0)
 for i, name in enumerate(names):
     a = np.loadtxt(f"{d}/lte_results.{i + 1}.csv", delimiter=","); a = a[np.abs(a[:, 2]) > 0] if (a[:60, 2] == 0).all() else a; t = a[:, 0]; g = (t >= H0) & (t < H1); g2 = (t >= 2000) & (t < 2005); F.append(a[:, [0, 3]])
     dq = lambda v: v - np.polyval(np.polyfit(t[~g], v[~g], 2), t); trend_only = cc(np.polyval(np.polyfit(t[~g], a[~g, 2], 2), t)[~g], a[~g, 2])
