@@ -180,6 +180,16 @@ package body GEM.LTE.Primitives is
    --  Read where it is used (not once at package level) so that a worker
    --  task on a leg with its own SAMPLING gets its own value.
 
+   function IR_Lag_Samples return Integer is
+      S : constant Long_Float := GEM.Getenv ("SAMPLING", 12.0);
+      Months : constant Long_Float := GEM.Getenv ("IR_LAG", 12.0);
+   begin
+      if Months = 12.0 then
+         return Integer (S);   -- one year: the original expression
+      end if;
+      return Integer'Max (1, Integer (Months * S / 12.0));
+   end IR_Lag_Samples;
+
    function Month_Of (Date : Long_Float) return Integer is
      (Integer (Long_Float'Floor ((Date - Long_Float'Floor (Date)) * 12.0
                                  + 0.5)) mod 12);
@@ -261,6 +271,11 @@ package body GEM.LTE.Primitives is
    --  (and its phases) use sin, and the jerk term without the Amplitude
    --  factor. Default (FALSE): sin throughout, jerk scaled by Amplitude.
    Tide_Legacy : constant Boolean := GEM.Getenv ("TIDE_LEGACY", False);
+   --  LOD_FLOOR (cycles/year, default 0 = off): damping floor on the
+   --  LOD_TERM line factor, Lod / Freq -> Lod / sqrt (Freq**2 + Floor**2)
+   --  (sign of Freq kept). LOD_TERM / Freq is a Coriolis-like f/omega gain;
+   --  without a floor it multiplies the 18.6-yr line ~500x more than Mf.
+   Lod_Floor : constant Long_Float := GEM.Getenv ("LOD_FLOOR", 0.0);
    Min_Entropy : constant Boolean := GEM.Getenv ("METRIC", "") = "ME";
    Linear_Step : constant Boolean := GEM.Getenv ("STEP", True);
    Every_N_Line : constant Integer := GEM.Getenv ("EVERY", 1);
@@ -606,9 +621,13 @@ package body GEM.LTE.Primitives is
       Res : Data_Pairs := Template;
       One : constant Long_Float := 1.0;
       Partition : constant Integer := 7; -- 4
-      --  LOD factor per line: Lod / Freq (the jerk is Integ * Freq)
+      --  LOD factor per line: Lod / Freq (the jerk is Integ * Freq),
+      --  capped by LOD_FLOOR for the long-period lines
       function Lod_F (Freq : Long_Float) return Long_Float is
-        (if Lod = 0.0 or else Freq = 0.0 then 0.0 else Lod / Freq);
+        (if Lod = 0.0 or else Freq = 0.0 then 0.0
+         elsif Lod_Floor = 0.0 then Lod / Freq
+         else Lod / (Freq * Ada.Numerics.Long_Elementary_Functions.Sqrt
+                       (1.0 + (Lod_Floor / Freq)**2)));
    begin
       for I in Template'Range loop
          Time := Template (I).Date + Ref_Time;
@@ -926,7 +945,7 @@ package body GEM.LTE.Primitives is
       Amp_Phase : in Modulations_Amp_Phase;
       Offset, K0, Trend, Accel : in Long_Float := 0.0;
       NonLin : in Long_Float := 1.0;
-      Annual : in Annual_Harmonics := (0.0, 0.0, 0.0, 0.0);
+      Annual : in Annual_Harmonics := (0.0, 0.0, 0.0, 0.0, others => <>);
       Third : in Long_Float := 0.0;
       Accel_Ref : in Long_Float := Long_Float'First;
       Aero : in Long_Float := 0.0;
@@ -1016,6 +1035,10 @@ package body GEM.LTE.Primitives is
                      + Annual.Ann2 * Cos(2.0 * Pi * Res (I).Date) 
                      + Annual.Semi1 * Sin(4.0 * Pi * Res (I).Date) 
                      + Annual.Semi2 * Cos(4.0 * Pi * Res (I).Date);
+            if Annual.CW_Freq /= 0.0 then
+               LF := LF + Annual.CW1 * Sin(2.0 * Pi * Annual.CW_Freq * Res (I).Date)
+                        + Annual.CW2 * Cos(2.0 * Pi * Annual.CW_Freq * Res (I).Date);
+            end if;
             Res (I).Value := LF;
          end;
       end loop;
@@ -1863,8 +1886,7 @@ package body GEM.LTE.Primitives is
          --  the actual fit (IR included) is never altered.
          Uncompensated_Mode : constant Boolean :=
            GEM.Getenv ("UNCOMPENSATED", False);
-         Year_Lag : constant Integer :=
-           Integer (Long_Float'(GEM.Getenv ("SAMPLING", 12.0)));
+         Year_Lag : constant Integer := IR_Lag_Samples;
          Model_Spec : Data_Pairs := Model;
          Data_Spec : Data_Pairs := Data;
       begin
@@ -2091,7 +2113,8 @@ package body GEM.LTE.Primitives is
       IR : in Long_Float := 0.0;
       NonLin : in Long_Float := 1.0;
       Alpha : in Long_Float := 0.0;
-      M_Min : in Long_Float := 0.0)
+      M_Min : in Long_Float := 0.0;
+      CW_Freq : in Long_Float := 0.0)
    is
 
       use Ada.Numerics.Long_Elementary_Functions;
@@ -2113,11 +2136,16 @@ package body GEM.LTE.Primitives is
       Base : constant Integer := 2 + NM * 2;
       Add_Trend : Integer :=
         (if Trend then (if Accel_On then 6 else 5) else 0);
+      --  Optional CW pair (CW_Freq > 0): CW_Col cos, CW_Col + 1 sin, right
+      --  after the trend columns; absent, the layout is unchanged.
+      CW_On : constant Boolean := CW_Freq /= 0.0;
+      CW_Col : constant Integer := Base + Add_Trend + 1;
+      Add_CW : constant Integer := (if CW_On then 2 else 0);
       --  Optional aerosol column, always the last one when AERO is set.
       Aero_Col : constant Integer :=
-        (if Aero_On then Base + Add_Trend + 1 else 0);
+        (if Aero_On then Base + Add_Trend + Add_CW + 1 else 0);
       Num_Coefficients : constant Integer :=
-        Base + Add_Trend + Boolean'Pos (Aero_On);
+        Base + Add_Trend + Add_CW + Boolean'Pos (Aero_On);
       RData : Vector (1 .. Last - First + 1);
       Factors_Matrix : Matrix (1 .. Last - First + 1, 1 .. Num_Coefficients);
       Value : Long_Float;
@@ -2139,10 +2167,9 @@ package body GEM.LTE.Primitives is
       --  unchanged) so the original DR-based approach stays available.
       Uncompensated_Mode : constant Boolean :=
         GEM.Getenv ("UNCOMPENSATED", False);
-      Year_Lag : constant Integer :=
-        Integer (Long_Float'(GEM.Getenv ("SAMPLING", 12.0)));
+      Year_Lag : constant Integer := IR_Lag_Samples;
    begin
-      Annual := (0.0, 0.0, 0.0, 0.0);
+      Annual := (0.0, 0.0, 0.0, 0.0, others => <>);
       --  The Accel column below is (Date - Forcing (First).Date)**2;
       --  returned so the caller evaluates the model around the SAME date
       --  (Trend's meaning depends on it: rate(t) = Trend +
@@ -2184,6 +2211,12 @@ package body GEM.LTE.Primitives is
                Factors_Matrix (I - First + 1, Base + 6) :=
                  (Forcing (I).Date - Forcing (First).Date)**2;
             end if;
+         end if;
+         if CW_On then
+            Factors_Matrix (I - First + 1, CW_Col) :=
+              Cos (2.0 * Pi * CW_Freq * Forcing (I).Date);
+            Factors_Matrix (I - First + 1, CW_Col + 1) :=
+              Sin (2.0 * Pi * CW_Freq * Forcing (I).Date);
          end if;
          if Aero_On then
             Factors_Matrix (I - First + 1, Aero_Col) :=
@@ -2323,6 +2356,11 @@ package body GEM.LTE.Primitives is
                Accel := 0.0;
             end if;
             Aero := (if Aero_On then Coefficients (Aero_Col) else 0.0);
+            if CW_On then
+               Annual.CW1 := Coefficients (CW_Col + 1);
+               Annual.CW2 := Coefficients (CW_Col);
+               Annual.CW_Freq := CW_Freq;
+            end if;
             Singular := False;
          end if;
       end;

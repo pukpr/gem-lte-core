@@ -11,6 +11,12 @@ package GEM.LTE.Primitives is
    -- corresponding to a climate index such as ENSO
    function Make_Data (Name : in String) return Data_Pairs;
 
+   --  IR_LAG (months, default 12): how far back the lag term IR reaches,
+   --  in samples of the current SAMPLING. Unset or 12 gives one year,
+   --  exactly as before (Integer (SAMPLING)); e.g. 6 or 9 test a
+   --  delayed-oscillator delay that is not commensurate with the year.
+   function IR_Lag_Samples return Integer;
+
    -- Save results
    procedure Save
      (Model, Data, Forcing : in Data_Pairs;
@@ -97,7 +103,7 @@ package GEM.LTE.Primitives is
       Amp_Phase : in Modulations_Amp_Phase;
       Offset, K0, Trend, Accel : in Long_Float := 0.0;
       NonLin : in Long_Float := 1.0;
-      Annual : in Annual_Harmonics := (0.0, 0.0, 0.0, 0.0);
+      Annual : in Annual_Harmonics := (0.0, 0.0, 0.0, 0.0, others => <>);
       Third : in Long_Float := 0.0;
       Accel_Ref : in Long_Float := Long_Float'First;
       Aero : in Long_Float := 0.0;
@@ -149,7 +155,10 @@ package GEM.LTE.Primitives is
       --  squares optimal for it. p = 1.0 is the ordinary sin/cos basis.
       NonLin : in Long_Float := 1.0;
       Alpha : in Long_Float := 0.0;   -- see LTE
-      M_Min : in Long_Float := 0.0);
+      M_Min : in Long_Float := 0.0;
+      --  CW_Freq > 0.0 (cycles/yr): two more columns, sin/cos (2 pi CW_Freq t),
+      --  returned as Annual.CW1/CW2 with Annual.CW_Freq set; 0.0 = no columns.
+      CW_Freq : in Long_Float := 0.0);
 
    --
    -- Utility procedures

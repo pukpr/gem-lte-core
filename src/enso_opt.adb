@@ -50,8 +50,8 @@ procedure ENSO_Opt is  -- gprbuild lte.gpr enso_opt -largs -Wl, --stack=40000000
          Asym => 0.0, Ann1 => 0.0, Ann2 => 0.0, Sem1 => 0.0, Sem2 => 0.0,
          Year => 0.0, IR => 0.0, mA => 0.0, mP => 0.0, shiftT => 0.000_00,
          init => 0.006_3, rho => 1.0, ztau => 1.0, zdist => 1.0, ztilt => 0.0,
-         ssaA => 0.0, ssaP => 0.0, mB => 0.0),
-      C => (others => 0));
+         ssaA => 0.0, ssaP => 0.0, mB => 0.0, bg2 => 0.0, delC => 0.0),
+      C => (others => 0), CW1 => 0.0, CW2 => 0.0);
 
 begin
    --  Stack size limit is now raised by the launcher (ulimit -s unlimited)

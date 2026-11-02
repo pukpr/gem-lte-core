@@ -89,8 +89,10 @@ package GEM.LTE.Primitives.Param_B_Overlay is
    SsaA_Index    : constant := 23;
    SsaP_Index    : constant := 24;
    MB_Index      : constant := 25;
+   BG2_Index     : constant := 26;
+   DelC_Index    : constant := 27;
    
-   Scalar_Field_Count : constant := 25;
+   Scalar_Field_Count : constant := 27;
    
    --  Calculate overlay array size for given discriminants
    --  Formula: Scalar_Fields + (NLP * 2) + NLT

@@ -1076,6 +1076,8 @@ package body GEM.LTE.Primitives.Solution is
       --  Step_Scale converts them to per sample, so a monthly fit gives the
       --  same manifold at any sampling. With SAMPLING = 12 nothing changes.
       SPY : constant Integer := Integer (Sampling_Per_Year);
+      --  how far back the IR lag term reaches (IR_LAG months; one year = SPY by default)
+      IR_Lag : constant Integer := IR_Lag_Samples;
       Monthly : constant Boolean := SPY = 12;
       Step_Scale : constant Long_Float := 12.0 / Sampling_Per_Year;
       Filter : constant Long_Float := GEM.Getenv ("FILTER", 0.333_333_33);
@@ -1428,15 +1430,31 @@ package body GEM.LTE.Primitives.Solution is
          return Value;
       end Impulse_Delta_Smear;
 
-      function Impulse (Time : Long_Float) return Long_Float is
-         Value : Long_Float;
+      function Impulse_Base (Time : Long_Float) return Long_Float is
       begin
          if Impulse_Only then
-            Value := Impulse_Delta (Time);
+            return Impulse_Delta (Time);
          else
-            Value := Impulse_Delta_Smear (Time);
+            return Impulse_Delta_Smear (Time);
          end if;
-         return Value;
+      end Impulse_Base;
+
+      --  delC (2026-10-31): DelA and Asym of the same sign make a true
+      --  semi-annual impulse pair (DelB month and six months later). delC
+      --  adds a copy of that pair shifted by a quarter year and always
+      --  scaled by -|delC| (opposite sign to the pair). The sign of delC
+      --  picks the direction: delC > 0 delays the copy by 3 months
+      --  (-|delC|*DelA at DelB + 3, -|delC|*Asym at DelB + 9), delC < 0 makes
+      --  it precede by 3 months (-|delC|*DelA at DelB - 3, -|delC|*Asym at
+      --  DelB + 3). Inert when delC = 0.0 (the default for every existing fit).
+      function Impulse (Time : Long_Float) return Long_Float is
+      begin
+         if D.B.delC = 0.0 then
+            return Impulse_Base (Time);
+         else
+            return Impulse_Base (Time) - abs D.B.delC *
+              Impulse_Base (Time - Long_Float'Copy_Sign (0.25, D.B.delC));
+         end if;
       end Impulse;
 
 --      function Annual_Add
@@ -1904,9 +1922,9 @@ package body GEM.LTE.Primitives.Solution is
         GEM.LTE.Primitives.Param_B_Overlay.Overlay_Size (D.B.NLP, D.B.NLT);
       
       -- Reduced size for Walker search based on NM (only search used LT entries)
-      -- Size = 25 scalars + (NLP * 2) LPAP + NM LT entries
+      -- Size = Scalar_Field_Count (26) scalars + (NLP * 2) LPAP + NM LT entries
       Size_Shared : constant Positive :=
-        GEM.Getenv ("DSIZE", 25 + (D.B.NLP * 2) + NM);
+        GEM.Getenv ("DSIZE", GEM.LTE.Primitives.Param_B_Overlay.Scalar_Field_Count + (D.B.NLP * 2) + NM);
 
       package Walker is new GEM.Random_Descent
         (Fixed => Is_Fixed, Set_Range => Size_Shared,
@@ -1915,7 +1933,7 @@ package body GEM.LTE.Primitives.Solution is
       Set, Keep, Set0 : Walker.LF_Array (1 .. Size_Shared);
 
       --  ltep occupies exactly the last NM entries of Set (matches
-      --  Param_B_Overlay.First_LT_Index (D.B.NLP) = 25 + NLP*2 =
+      --  Param_B_Overlay.First_LT_Index (D.B.NLP) = 26 + NLP*2 =
       --  Size_Shared - NM + 1, confirmed against that package). Only
       --  used when Lock_Winding is set -- see the population loop right
       --  after this procedure's `begin` and the snap call after each
@@ -2093,6 +2111,13 @@ package body GEM.LTE.Primitives.Solution is
                   D1 := D1 - Long_Float'Rounding (D1);
                   D2 := Tau + 0.5 - F;
                   D2 := D2 - Long_Float'Rounding (D2);
+                  if D.B.delC /= 0.0 then
+                     --  the quarter-year copies (see Impulse): the nearest
+                     --  quarter-shifted date if closer
+                     D1 := (if abs D1 <= abs D2 then D1 else D2);
+                     D2 := Tau + 0.25 - F;
+                     D2 := D2 - Long_Float'Rounding (D2 * 2.0) / 2.0;
+                  end if;
                   R (I).Date := T (I).Date + (if abs D1 <= abs D2 then D1 else D2);
                end if;
             end loop;
@@ -2396,9 +2421,9 @@ package body GEM.LTE.Primitives.Solution is
                declare
                   Side : constant Side_Mask := IR_Mask (Data_Records);
                begin
-                  for I in reverse Data_Records'First + SPY .. Data_Records'Last loop
-                     if Side (I - SPY) then
-                        DR (I).Value := Data_Records (I).Value + D.B.IR*Data_Records (I - SPY).Value;
+                  for I in reverse Data_Records'First + IR_Lag .. Data_Records'Last loop
+                     if Side (I - IR_Lag) then
+                        DR (I).Value := Data_Records (I).Value + D.B.IR*Data_Records (I - IR_Lag).Value;
                      end if;
                   end loop;
                end;
@@ -2424,7 +2449,10 @@ package body GEM.LTE.Primitives.Solution is
             elsif Has_Friction then
                Forcing := Frictional(Forcing, D.B.ImpA, D.B.ImpB, 0.0);
             elsif NM = 1 then
-               Forcing := Bessel(Forcing, D.B.ImpA, D.B.ImpB, M(NM)*(1.0-D.B.BG), 0.0, D.B.Offset, D.B.bg);
+               --  bg scales the winding (1 - bg); the 2k cosine term has its
+               --  own coefficient bg2 (2026-11-02; it used to be bg as well,
+               --  so a .p without bg2 loads bg2 = bg and reproduces).
+               Forcing := Bessel(Forcing, D.B.ImpA, D.B.ImpB, M(NM)*(1.0-D.B.BG), 0.0, D.B.Offset, D.B.bg2);
             else
                if Lock_Freq then
                   Forcing := Bessel(Forcing, D.B.ImpA, D.B.ImpB, M(NM-1), M(NM), D.B.Offset, D.B.bg);
@@ -2499,9 +2527,9 @@ package body GEM.LTE.Primitives.Solution is
                      for I in DR'Range loop
                         --  compensated: the target is the pre-lag series;
                         --  uncompensated: it is the data, i.e. after the lag
-                        if Uncompensated and then I - SPY >= DR'First then
+                        if Uncompensated and then I - IR_Lag >= DR'First then
                            DR (I).Value := DR (I).Value -
-                             (HP (I).Value - D.B.IR * HP (I - SPY).Value);
+                             (HP (I).Value - D.B.IR * HP (I - IR_Lag).Value);
                         else
                            DR (I).Value := DR (I).Value - HP (I).Value;
                         end if;
@@ -2541,7 +2569,14 @@ package body GEM.LTE.Primitives.Solution is
                IR => D.B.IR,
                NonLin => NonLin,
                Alpha => Alpha,
-               M_Min => M_Min
+               M_Min => M_Min,
+               --  cw1 /= 0 in the .p switches the CW pair on (see Param_S)
+               CW_Freq =>
+                 (if D.CW1 /= 0.0 then
+                    Year_Length (D.B.Year) / (GEM.LTE.Draconic / 2.0)
+                    - Long_Float'Floor
+                        (Year_Length (D.B.Year) / (GEM.LTE.Draconic / 2.0))
+                  else 0.0)
             );
             for R in 1 .. N_Reg loop
                MAP (Idx (R)) := RMAP (R);
@@ -2563,6 +2598,10 @@ package body GEM.LTE.Primitives.Solution is
                D.B.Ann2 := Annual_Cycle.Ann2;
                D.B.Sem1 := Annual_Cycle.Semi1;
                D.B.Sem2 := Annual_Cycle.Semi2;
+            end if;
+            if Annual_Cycle.CW_Freq /= 0.0 and then not Singular then
+               D.CW1 := Annual_Cycle.CW1;
+               D.CW2 := Annual_Cycle.CW2;
             end if;
          else
             Singular := False;
@@ -2630,9 +2669,9 @@ package body GEM.LTE.Primitives.Solution is
                      if Fast_Score and then Pass = 1 then
                         Full_Side := Side;
                      end if;
-                     for I in reverse Model'First + SPY .. Model'Last loop
-                        if Side (I - SPY) then
-                           Model (I).Value := Model (I).Value - D.B.IR*Model (I - SPY).Value;
+                     for I in reverse Model'First + IR_Lag .. Model'Last loop
+                        if Side (I - IR_Lag) then
+                           Model (I).Value := Model (I).Value - D.B.IR*Model (I - IR_Lag).Value;
                         end if;
                      end loop;
                   end;

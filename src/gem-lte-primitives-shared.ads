@@ -38,6 +38,8 @@ package GEM.LTE.Primitives.Shared is
       ssaA : Long_Float;   -- ZONAL: amplitude of a free Ssa (182.621 d) line added to the generator
       ssaP : Long_Float;   -- ZONAL: phase of that line
       mB : Long_Float;   -- second pole of the impulse response (0 = first order as before; see Shape_Impulses)
+      bg2 : Long_Float;   -- NM=1 Bessel: coefficient of the 2k cosine term (was bg, which also scales k; = bg when absent)
+      delC : Long_Float;   -- quarter-year copy of the DelA/Asym impulses at -|delC|; sign = delay (+) or lead (-) (0 = off; see Impulse)
 
       LPAP : Long_Periods_Amp_Phase (1 .. NLP);
       LT : Modulations (1 .. NLT);
@@ -50,10 +52,10 @@ package GEM.LTE.Primitives.Shared is
    --  in the random descent optimization algorithm.
    --
    --  STRUCTURE (for NLP=29, NLT=11):
-   --    - 25 scalar Long_Float fields (Offset through mB)
+   --    - 27 scalar Long_Float fields (Offset through delC)
    --    - LPAP array: NLP Amp_Phase records = NLP * 2 Long_Floats (58 floats)
    --    - LT array: NLT Long_Floats (11 floats)
-   --    TOTAL: 25 + 58 + 11 = 94 Long_Float values
+   --    TOTAL: 27 + 58 + 11 = 96 Long_Float values
    --
    --  SIZE CALCULATION:
    --    With GNAT compiler, unconstrained arrays have dope information (bounds)
@@ -81,6 +83,12 @@ package GEM.LTE.Primitives.Shared is
       A : Param_A (NLP, NLT);
       B : Param_B (NLP, NLT);
       C : Ns (1 .. Max_Harmonics) := (others => 0);
+      --  cw1/cw2 (2026-10-29): the regression's sin/cos coefficients at the
+      --  CW alias frequency frac (Year / (Draconic / 2)) ~ 0.844 /yr, like
+      --  ann1/ann2 at 1 /yr. Kept outside B so the random walk never sees
+      --  them (they are regression outputs). cw1 = 0 in the .p (the
+      --  default when absent) = no CW columns, model unchanged.
+      CW1, CW2 : Long_Float := 0.0;
    end record;
 
    -- don't think this is necessary but watch for cases where the

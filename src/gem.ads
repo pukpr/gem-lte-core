@@ -36,6 +36,11 @@ package GEM is
    type Annual_Harmonics is
       record
          Ann1, Ann2, Semi1, Semi2 : Long_Float;
+         --  CW (2026-10-29): sin/cos pair at CW_Freq cycles/yr, the annual
+         --  alias of the draconic fortnight, frac (Year / (Draconic / 2))
+         --  ~ 0.844 /yr = Chandler wobble. CW_Freq = 0.0 means no CW
+         --  columns in the regression and no CW term in LTE.
+         CW1, CW2, CW_Freq : Long_Float := 0.0;
       end record;
 
 end GEM;

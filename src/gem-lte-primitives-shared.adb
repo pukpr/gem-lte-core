@@ -232,6 +232,8 @@ package body GEM.LTE.Primitives.Shared is
          Set_Field (Obj, "ann2", Create (D.B.Ann2));
          Set_Field (Obj, "sem1", Create (D.B.Sem1));
          Set_Field (Obj, "sem2", Create (D.B.Sem2));
+         Set_Field (Obj, "cw1", Create (D.CW1));
+         Set_Field (Obj, "cw2", Create (D.CW2));
          Set_Field (Obj, "year", Create (D.B.Year));
          Set_Field (Obj, "IR", Create (D.B.IR));
          Set_Field (Obj, "ma", Create (D.B.mA));
@@ -245,6 +247,8 @@ package body GEM.LTE.Primitives.Shared is
          Set_Field (Obj, "ssaA", Create (D.B.ssaA));
          Set_Field (Obj, "ssaP", Create (D.B.ssaP));
          Set_Field (Obj, "mb", Create (D.B.mB));
+         Set_Field (Obj, "bg2", Create (D.B.bg2));
+         Set_Field (Obj, "delC", Create (D.B.delC));
          
          -- LPAP array (tidal constituents) - only in primary file
          if Include_LPAP then
@@ -472,6 +476,8 @@ package body GEM.LTE.Primitives.Shared is
       Set_Field (Manifold, "ssaA", Create (B.ssaA));
       Set_Field (Manifold, "ssaP", Create (B.ssaP));
       Set_Field (Manifold, "mb", Create (B.mB));
+      Set_Field (Manifold, "bg2", Create (B.bg2));
+      Set_Field (Manifold, "delC", Create (B.delC));
       Set_Field (Manifold, "impA", Create (B.ImpA));
       Set_Field (Manifold, "impB", Create (B.ImpB));
       Set_Field (Manifold, "offs", Create (B.Offset));
@@ -801,6 +807,9 @@ package body GEM.LTE.Primitives.Shared is
       D.B.Ann2 := Get_Float_Field (Data, "ann2", D.B.Ann2);
       D.B.Sem1 := Get_Float_Field (Data, "sem1", D.B.Sem1);
       D.B.Sem2 := Get_Float_Field (Data, "sem2", D.B.Sem2);
+      --  CW alias pair, absent in older files: 0 = off
+      D.CW1 := Get_Float_Field (Data, "cw1", 0.0);
+      D.CW2 := Get_Float_Field (Data, "cw2", 0.0);
       D.B.Year := Get_Float_Field (Data, "year", D.B.Year);
       D.B.IR :=
         Get_Float_Field (Data, "IR", Get_Float_Field (Data, "ir", D.B.IR));
@@ -820,6 +829,11 @@ package body GEM.LTE.Primitives.Shared is
       D.B.ssaP := Get_Float_Field (Data, "ssaP", 0.0);
       --  second pole of the impulse response, absent in older files: 0 = off
       D.B.mB := Get_Float_Field (Data, "mb", 0.0);
+      --  quarter-year impulse copy, absent in older files: 0 = off
+      D.B.delC := Get_Float_Field (Data, "delC", 0.0);
+      --  NM=1 Bessel 2k cosine coefficient, split from bg (2026-11-02). Absent in
+      --  older files: take bg, which is what that term used, so they reproduce.
+      D.B.bg2 := Get_Float_Field (Data, "bg2", D.B.bg);
       if Include_LPAP then
          Read_JSON_LPAP (Data, "LPAP", D);
          Read_JSON_LPAP (Data, "lpap", D);
@@ -937,6 +951,8 @@ package body GEM.LTE.Primitives.Shared is
       Put (D.B.Ann2, ":ann2:", NL);
       Put (D.B.Sem1, ":sem1:", NL);
       Put (D.B.Sem2, ":sem2:", NL);
+      Put (D.CW1, ":cw1:", NL);
+      Put (D.CW2, ":cw2:", NL);
       Put (D.B.Year, ":year:", NL);
       Put (D.B.IR, ":IR:", NL);
       Put (D.B.mA, " :mA:", NL);
@@ -950,6 +966,8 @@ package body GEM.LTE.Primitives.Shared is
       Put (D.B.ssaA, " :ssaA:", NL);
       Put (D.B.ssaP, " :ssaP:", NL);
       Put (D.B.mB, " :mB:", NL);
+      Put (D.B.bg2, " :bg2:", NL);
+      Put (D.B.delC, " :delC:", NL);
       Ada.Text_IO.Put_Line ("---- Tidal ----");
       for I in D.B.LPAP'Range loop
          Put (D.A.LP (I), ", ");
