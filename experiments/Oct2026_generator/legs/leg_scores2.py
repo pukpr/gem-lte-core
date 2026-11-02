@@ -22,7 +22,7 @@ for i, name in enumerate(names):
     A.set_title(f"{name}: train {cc(a[~g, 1], a[~g, 2]):+.3f}, held out {H0:g}-{H1:g} {cc(a[g, 1], a[g, 2]):+.3f}", loc="left", fontsize=11); A.legend(frameon=False, fontsize=9, ncol=2); A.set_xlim(X0, max(2023, float(t[-1])))
     for s in ("top", "right"): A.spines[s].set_visible(False)
 print("manifold of each leg against leg 1: " + ", ".join(f"{cc(np.interp(F[i][:, 0], F[0][:, 0], F[0][:, 1])[F[i][:, 0] <= F[0][-1, 0]], F[i][F[i][:, 0] <= F[0][-1, 0], 1]):.5f}" for i in range(1, NL)))
-W = [json.load(open(f"{d}/lt.exe.windings.{i}.json")) for i in range(1, NL + 1)]; K = [k for k, _, _ in W[0]["k_amp_phase"]]; base = K[1]
+W = [json.load(open(f"{d}/lt.exe.windings.{i}.json")) for i in range(1, NL + 1)]; K = [k for k, _, _ in W[0]["k_amp_phase"]]; base = K[1] if len(K) > 1 else K[0]   # no harmonics: slow winding only
 print(f"shared windings: slow {K[0]:+.4f}, base {base:.4f}; amplitude (phase in degrees) by harmonic:")
 for j in np.argsort(np.abs(K)): print(f"   {('slow' if j == 0 else 'h' + str(round(K[j] / base))):>5s}  " + "   ".join(f"{names[i]} {W[i]['k_amp_phase'][j][1]:6.3f} ({np.degrees(W[i]['k_amp_phase'][j][2]):+5.0f})" for i in range(NL)))
 fig.savefig(f"{d}/{OUTPNG}", dpi=100, bbox_inches="tight", facecolor="#fcfcfb"); print(f"plot: {d}/{OUTPNG}")
