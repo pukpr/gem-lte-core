@@ -1,0 +1,409 @@
+<title>Draconic Crest</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: two matched 3-D stages (oblique vs parallel front) over their surf diagrams, then the equinox-gated record, then the argument. */
+:root {
+  --bg: #f3f4f6; --panel: #ffffff; --fg: #1a2130; --muted: #5a6476; --rule: #d8dce3;
+  --stage: #0e1420; --stage-fg: #c8d1e2;
+  --shore: #b5640a;   /* tropical / declination front */
+  --crest: #0a7c84;   /* draconic / ecliptic-latitude front */
+  --hot: #ffcf4a;     /* ring contact glow */
+  --f-display: "Newsreader", Georgia, serif;
+  --f-body: "IBM Plex Sans", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0c1018; --panel: #141a26; --fg: #e2e7f0; --muted: #98a3b6; --rule: #273041;
+  --stage: #070a11; --shore: #f09c3a; --crest: #39c4c4; --hot: #ffd85e; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0c1018; --panel: #141a26; --fg: #e2e7f0; --muted: #98a3b6; --rule: #273041;
+  --stage: #070a11; --shore: #f09c3a; --crest: #39c4c4; --hot: #ffd85e; color-scheme: dark }
+body { background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 15px; line-height: 1.55; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 26px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 20px; }
+h1 { font-family: var(--f-display); font-weight: 600; font-size: clamp(28px, 4vw, 40px); margin: 0; text-wrap: balance; }
+h2 { font-family: var(--f-display); font-weight: 600; font-size: 22px; margin: 0; text-wrap: balance; }
+.lede { color: var(--muted); max-width: 72ch; margin: 6px 0 0; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 820px) { .pair { grid-template-columns: 1fr; } }
+.col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.col h3 { margin: 0; font-size: 15px; font-weight: 600; }
+.col h3 .tag { font-family: var(--f-mono); font-weight: 500; font-size: 12px; margin-left: 6px; }
+.col .sub { margin: 0; font-size: 13px; color: var(--muted); }
+.stage { position: relative; background: var(--stage); border-radius: 10px; overflow: hidden; aspect-ratio: 4 / 3; max-width: 100%; }
+.stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.hud { position: absolute; left: 12px; top: 10px; font-family: var(--f-mono); font-size: 12px; color: var(--stage-fg); line-height: 1.6; pointer-events: none; }
+.meter { position: absolute; left: 12px; right: 12px; bottom: 12px; display: flex; align-items: center; gap: 10px; font-family: var(--f-mono); font-size: 12px; color: var(--stage-fg); pointer-events: none; }
+.meter .bar { flex: 1; height: 8px; border-radius: 4px; background: rgba(255,255,255,.12); overflow: hidden; }
+.meter .fill { height: 100%; width: 0; background: var(--hot); border-radius: 4px; }
+.gate { position: absolute; right: 12px; top: 10px; font-family: var(--f-mono); font-size: 12px; padding: 3px 10px; border-radius: 999px; background: var(--hot); color: #111; opacity: 0; transition: opacity .2s; pointer-events: none; }
+.surf { background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 10px 12px 8px; }
+.surf canvas { width: 100%; height: 150px; display: block; }
+.surf .cap { font-size: 12px; color: var(--muted); margin: 4px 0 0; }
+.controls { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; font-size: 13px; color: var(--muted); }
+.controls label { display: flex; align-items: center; gap: 8px; }
+button { font: 500 13px var(--f-body); color: var(--fg); background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; padding: 6px 14px; cursor: pointer; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--crest); outline-offset: 2px; }
+.val { font-family: var(--f-mono); color: var(--fg); min-width: 7ch; font-variant-numeric: tabular-nums; }
+.record { background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 14px 10px; }
+.record p { margin: 2px 0 8px; font-size: 13px; color: var(--muted); max-width: 80ch; }
+.record canvas { width: 100%; height: 260px; display: block; }
+.prose { max-width: 70ch; display: flex; flex-direction: column; gap: 12px; }
+.prose p { margin: 0; }
+.shore { color: var(--shore); } .crest { color: var(--crest); }
+@media (prefers-reduced-motion: reduce) { .gate { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Draconic Crest</h1>
+    <p class="lede">A wave whose crest arrives parallel to the beach breaks along its whole length at once. An oblique crest breaks point by point, so the beach never takes the full blow.
+      The gold ring is the equatorial stratosphere where the QBO lives. On the left, the <span class="shore">tropical (declination) front</span> is tied to the Moon's overhead point and cuts the ring at two spots that run around it.
+      On the right, the <span class="crest">draconic front</span> is the Moon's height above the ecliptic. It does not depend on longitude, so it meets every point of the ring at the same instant.
+      The Sun and the seasons are shown in both views: the summer hemisphere greens, the winter one snows. The gate opens at the equinoxes, when the Sun's ray lies in the plane of the ring.
+      The white circle is the Moon's real orbit. <b>Hold the ecliptic level</b> turns the view so the Sun's path is flat: Earth, its ring and the fronts then show their 23.4° tilt, and the Moon's orbit lies within 5.1° of the Sun's path.</p>
+  </header>
+
+  <div class="controls">
+    <button id="play" type="button">Pause</button>
+    <button id="toNode" type="button">Next draconic crossing</button>
+    <button id="toEqx" type="button">Next equinox</button>
+    <button id="frame" type="button" aria-pressed="false">Hold the ecliptic level</button>
+    <label for="speed">Days per second <input id="speed" type="range" min="0" max="100" value="30"><span class="val" id="speedv"></span></label>
+    <span class="val" id="clock"></span>
+  </div>
+
+  <div class="pair">
+    <div class="col">
+      <h3 class="shore">Oblique front<span class="tag">tropical 27.322 d</span></h3>
+      <p class="sub">Tilted by the Moon's declination and swept around once per lunar day (24.8 h).</p>
+      <div class="stage"><canvas id="sL" aria-label="Oblique tropical front cutting the equatorial ring at two moving points"></canvas>
+        <div class="hud" id="hudL"></div><div class="gate" id="gateL">equinox gate open</div>
+        <div class="meter"><span>ring hit</span><div class="bar"><div class="fill" id="fillL"></div></div><span id="pctL">0%</span></div></div>
+      <div class="surf"><canvas id="tL"></canvas><p class="cap">Surf diagram, last 30 days (newest at top) across the ring's 360° of longitude. Each streak is one point of the ring being hit, then the next.</p></div>
+    </div>
+    <div class="col">
+      <h3 class="crest">Parallel front<span class="tag">draconic 27.212 d</span></h3>
+      <p class="sub">Rises and falls with the Moon's latitude above the ecliptic, ±5.1° (height exaggerated).</p>
+      <div class="stage"><canvas id="sR" aria-label="Parallel draconic front passing through the whole equatorial ring at once"></canvas>
+        <div class="hud" id="hudR"></div><div class="gate" id="gateR">equinox gate open</div>
+        <div class="meter"><span>ring hit</span><div class="bar"><div class="fill" id="fillR"></div></div><span id="pctR">0%</span></div></div>
+      <div class="surf"><canvas id="tR"></canvas><p class="cap">Same diagram. Each crossing is a full-width band: the whole ring hit together, every 13.6 days.</p></div>
+    </div>
+  </div>
+
+  <div class="record">
+    <h2>What the equinox gate keeps</h2>
+    <p>Twice a year the Sun crosses the equator and the gate opens. Each bar is the front's signed value at that moment. The parallel front builds a clean 2.37-year oscillation, the period the QBO actually has. The oblique front's samples make a 2.72-year pattern that the QBO does not show.</p>
+    <canvas id="rec"></canvas>
+  </div>
+
+  <section class="prose">
+    <h2>Why the textbook strength is too low</h2>
+    <p>Tidal tables measure the force at the shore: the instantaneous tidal potential at a point. In that potential a pure 27.212-day line is exactly zero, and in the next-order term it is about 1/60 of the main terms, so the draconic force looks negligible.</p>
+    <p>Measured along the crest, the draconic swing is sin 5.145° = 0.090, the same size as the Mf term (0.079) in the same units. Because it arrives at every longitude at once, the gate captures all of it in one blow instead of a running series of small ones. That is the physical assumption of the model: the ring responds to the Moon's latitude from the Sun's plane, gated at the equinoxes. The 2.37-year period the QBO picks is the evidence for it.</p>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(() => {
+  const D2R = Math.PI / 180, EPS = 23.4393 * D2R, INC = 5.145 * D2R, YEAR = 365.2422, J2000 = 2000.0, LDAY = 1.035050;
+  const Fdeg = t => 93.272 + 360 / 27.212221 * t;
+  const Odeg = t => 125.045 - 360 / 6798.38 * t;
+  const Lsun = t => 280.466 + 360 / YEAR * t;
+  function moon(t) {
+    const F = Fdeg(t) * D2R, O = Odeg(t) * D2R;
+    const x0 = Math.cos(F), y0 = Math.sin(F) * Math.cos(INC), z0 = Math.sin(F) * Math.sin(INC);
+    const ye = x0 * Math.sin(O) + y0 * Math.cos(O), ze = z0;
+    const Z = ye * Math.sin(EPS) + ze * Math.cos(EPS);
+    return { dec: Math.asin(Z) / D2R, beta: Math.asin(ze) / D2R };
+  }
+  // equatorial unit vector of the Moon at argument of latitude F (deg) on the orbit of time t, in scene axes
+  function orbitPoint(t, Fd) {
+    const F = Fd * D2R, O = Odeg(t) * D2R;
+    const x0 = Math.cos(F), y0 = Math.sin(F) * Math.cos(INC), z0 = Math.sin(F) * Math.sin(INC);
+    const xe = x0 * Math.cos(O) - y0 * Math.sin(O), ye = x0 * Math.sin(O) + y0 * Math.cos(O), ze = z0;
+    const X = xe, Y = ye * Math.cos(EPS) - ze * Math.sin(EPS), Z = ye * Math.sin(EPS) + ze * Math.cos(EPS);
+    return new THREE.Vector3(X, Z, -Y);
+  }
+  const subLon = t => -360 * t / LDAY;                 // Moon's overhead longitude, degrees
+  const sunMod = t => ((Lsun(t) % 360) + 360) % 360;
+  const gateOpen = t => { const m = sunMod(t) % 180; return Math.min(m, 180 - m) < 2.5; };
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const HB = 0.09;   // ring tube half-height in scene units
+  const BSCALE = 0.11; // scene units per degree of beta
+
+  // ---------- two matched 3-D stages ----------
+  function makeStage(id, kind) {
+    const canvas = document.getElementById(id);
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    const scene = new THREE.Scene();
+    const world = new THREE.Group(); scene.add(world);
+    const camera = new THREE.PerspectiveCamera(38, 4 / 3, 0.1, 100);
+    camera.position.set(0, 3.1, 6.2);
+    const controls = new THREE.OrbitControls(camera, canvas);
+    controls.enableDamping = true; controls.enablePan = false; controls.minDistance = 3.5; controls.maxDistance = 14;
+    const eg = new THREE.SphereGeometry(1, 48, 32);
+    const elat = new Float32Array(eg.attributes.position.count);
+    for (let i = 0; i < elat.length; i++) elat[i] = Math.asin(Math.max(-1, Math.min(1, eg.attributes.position.getY(i))));
+    const ecol = new Float32Array(elat.length * 3); eg.setAttribute('color', new THREE.BufferAttribute(ecol, 3));
+    const earth = new THREE.Mesh(eg, new THREE.MeshBasicMaterial({ vertexColors: true }));
+    world.add(earth);
+    // the Sun, its ray to Earth, and the sub-solar point
+    const sun = new THREE.Mesh(new THREE.SphereGeometry(0.3, 24, 16), new THREE.MeshBasicMaterial({ color: 0xffc83d }));
+    world.add(sun);
+    const rayG = new THREE.BufferGeometry(); rayG.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3));
+    const ray = new THREE.Line(rayG, new THREE.LineDashedMaterial({ color: 0xffc83d, dashSize: 0.12, gapSize: 0.1, transparent: true, opacity: 0.75 }));
+    world.add(ray);
+    const subsolar = new THREE.Mesh(new THREE.SphereGeometry(0.06, 12, 8), new THREE.MeshBasicMaterial({ color: 0xffe27a }));
+    world.add(subsolar);
+    const grid = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.SphereGeometry(1.002, 12, 6)), new THREE.LineBasicMaterial({ color: 0x86a6d0, transparent: true, opacity: 0.25 }));
+    earth.add(grid);
+    const axis = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, -1.6, 0), new THREE.Vector3(0, 1.6, 0)]), new THREE.LineBasicMaterial({ color: 0x8899aa, transparent: true, opacity: 0.5 }));
+    world.add(axis);
+    // the QBO ring
+    const tg = new THREE.TorusGeometry(1.75, HB, 14, 240);
+    const n = tg.attributes.position.count, ang = new Float32Array(n), col = new Float32Array(n * 3);
+    for (let i = 0; i < n; i++) { const x = tg.attributes.position.getX(i), y = tg.attributes.position.getY(i); ang[i] = Math.atan2(y, x); }
+    tg.setAttribute('color', new THREE.BufferAttribute(col, 3));
+    const ring = new THREE.Mesh(tg, new THREE.MeshBasicMaterial({ vertexColors: true }));
+    ring.rotation.x = Math.PI / 2; world.add(ring);
+    // the front: a translucent sheet
+    const sheetMat = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.22, side: THREE.DoubleSide, depthWrite: false });
+    const sheet = new THREE.Mesh(new THREE.CircleGeometry(3.0, 96), sheetMat);
+    const edge = new THREE.Line(new THREE.BufferGeometry().setFromPoints(Array.from({ length: 129 }, (_, k) => new THREE.Vector3(3 * Math.cos(k / 128 * 2 * Math.PI), 3 * Math.sin(k / 128 * 2 * Math.PI), 0))), new THREE.LineBasicMaterial({ transparent: true, opacity: 0.7 }));
+    sheet.add(edge);
+    const spin = new THREE.Group(); spin.add(sheet); world.add(spin);
+    // the equinox gate halo
+    const halo = new THREE.Mesh(new THREE.TorusGeometry(1.75, HB * 2.6, 10, 200), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }));
+    halo.rotation.x = Math.PI / 2; world.add(halo);
+    // the Moon and its orbit (true 5.145 deg tilt to the ecliptic, nodes regressing)
+    const moonOrbitG = new THREE.BufferGeometry(); moonOrbitG.setAttribute('position', new THREE.BufferAttribute(new Float32Array(129 * 3), 3));
+    const moonOrbit = new THREE.Line(moonOrbitG, new THREE.LineBasicMaterial({ color: 0xd6dbe4, transparent: true, opacity: 0.55 }));
+    world.add(moonOrbit);
+    const moonM = new THREE.Mesh(new THREE.SphereGeometry(0.13, 20, 12), new THREE.MeshBasicMaterial({ color: 0xe6e6e6 }));
+    world.add(moonM);
+    // the Sun's yearly path: the ecliptic
+    const eclG = new THREE.BufferGeometry().setFromPoints(Array.from({ length: 161 }, (_, k) => { const a = k / 160 * 2 * Math.PI; return new THREE.Vector3(Math.cos(a), Math.sin(a) * Math.sin(EPS), -Math.sin(a) * Math.cos(EPS)).multiplyScalar(3.9); }));
+    const ecl = new THREE.Line(eclG, new THREE.LineDashedMaterial({ color: 0xffc83d, dashSize: 0.18, gapSize: 0.12, transparent: true, opacity: 0.5 }));
+    ecl.computeLineDistances(); world.add(ecl);
+    const resize = () => { const w = canvas.clientWidth, h = canvas.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); };
+    new ResizeObserver(resize).observe(canvas); resize();
+    return { kind, world, moonOrbitG, moonM, renderer, scene, camera, controls, earth, eg, elat, ecol, sun, ray, rayG, subsolar, ring, tg, ang, col, sheet, sheetMat, edge, spin, halo };
+  }
+  const L = makeStage('sL', 'oblique'), R = makeStage('sR', 'parallel');
+  // keep the two cameras in step
+  let syncing = false;
+  function link(a, b) { a.controls.addEventListener('change', () => { if (syncing) return; syncing = true; b.camera.position.copy(a.camera.position); b.controls.target.copy(a.controls.target); b.controls.update(); syncing = false; }); }
+  link(L, R); link(R, L);
+
+  let cBase, cHot, cShore, cCrest;
+  function applyTheme() {
+    cBase = new THREE.Color('#6b5a2a'); cHot = new THREE.Color(css('--hot'));
+    cShore = new THREE.Color(css('--shore')); cCrest = new THREE.Color(css('--crest'));
+    [L, R].forEach(S => { S.scene.background = new THREE.Color(css('--stage')); S.halo.material.color = cHot; });
+    L.sheetMat.color = cShore; L.edge.material.color = cShore; R.sheetMat.color = cCrest; R.edge.material.color = cCrest;
+  }
+  applyTheme();
+
+  // ---------- state ----------
+  let t = (2026.0 - J2000) * YEAR, playing = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const sp = document.getElementById('speed');
+  const speedOf = v => +(0.05 * Math.pow(10, v / 50)).toPrecision(2);   // 0.05 .. 5 d/s
+  let speed = speedOf(+sp.value);
+  const showSpeed = () => document.getElementById('speedv').textContent = speed + ' d/s';
+  showSpeed(); sp.oninput = () => { speed = speedOf(+sp.value); showSpeed(); };
+  const playBtn = document.getElementById('play');
+  playBtn.textContent = playing ? 'Pause' : 'Play';
+  playBtn.onclick = () => { playing = !playing; playBtn.textContent = playing ? 'Pause' : 'Play'; };
+  document.getElementById('toNode').onclick = () => { let b0 = moon(t + 0.5).beta, tt = t + 0.5; while (true) { const b1 = moon(tt + 0.05).beta; if (b0 * b1 <= 0) break; b0 = b1; tt += 0.05; } t = tt - 1.0; };
+  let eclipticLevel = false, tilt = 0;
+  const frameBtn = document.getElementById('frame');
+  frameBtn.onclick = () => { eclipticLevel = !eclipticLevel; frameBtn.setAttribute('aria-pressed', eclipticLevel); frameBtn.textContent = eclipticLevel ? 'Hold the equator level' : 'Hold the ecliptic level'; };
+  document.getElementById('toEqx').onclick = () => { let tt = t + 3; while (!gateOpen(tt)) tt += 0.25; t = tt - 3; };
+
+  function paintRing(S, glowAt) {
+    let hit = 0; const n = S.ang.length;
+    for (let i = 0; i < n; i++) {
+      const g = glowAt(S.ang[i]); if (g > 0.5) hit++;
+      const c = cBase.clone().lerp(cHot, Math.min(1, g));
+      S.col[i * 3] = c.r; S.col[i * 3 + 1] = c.g; S.col[i * 3 + 2] = c.b;
+    }
+    S.tg.attributes.color.needsUpdate = true;
+    return hit / n;
+  }
+  // seasons: summer hemisphere greens, winter hemisphere snows from the pole down
+  const OCEAN = new THREE.Color('#2f5f9e'), GREEN = new THREE.Color('#3f9a3a'), DORMANT = new THREE.Color('#7d7356'), SNOW = new THREE.Color('#f4f7fb');
+  function paintSeasons(S, f) {          // f = +1 northern midsummer, -1 northern midwinter
+    for (let i = 0; i < S.elat.length; i++) {
+      const lat = S.elat[i] / D2R, a = Math.abs(lat), hs = lat >= 0 ? f : -f;
+      let c;
+      if (a < 14) c = OCEAN;
+      else {
+        const snowline = hs >= 0 ? 78 - 6 * hs : 72 + 44 * hs;   // 72° in spring/autumn, 28° at midwinter
+        if (a >= snowline) c = SNOW;
+        else c = DORMANT.clone().lerp(GREEN, Math.max(0, 0.35 + 0.65 * hs));
+        if (a < 20) c = OCEAN.clone().lerp(c, (a - 14) / 6);
+      }
+      S.ecol[i * 3] = c.r; S.ecol[i * 3 + 1] = c.g; S.ecol[i * 3 + 2] = c.b;
+    }
+    S.eg.attributes.color.needsUpdate = true;
+  }
+  function placeSun(S, t) {
+    const Ls = Lsun(t) * D2R, X = Math.cos(Ls), Y = Math.sin(Ls) * Math.cos(EPS), Z = Math.sin(Ls) * Math.sin(EPS);
+    const dir = new THREE.Vector3(X, Z, -Y).normalize();
+    S.sun.position.copy(dir.clone().multiplyScalar(3.9));
+    S.subsolar.position.copy(dir.clone().multiplyScalar(1.01));
+    S.rayG.attributes.position.array.set([S.sun.position.x, S.sun.position.y, S.sun.position.z, S.subsolar.position.x, S.subsolar.position.y, S.subsolar.position.z]);
+    S.rayG.attributes.position.needsUpdate = true; S.ray.computeLineDistances();
+  }
+  function placeMoon(S, t) {
+    const a = S.moonOrbitG.attributes.position.array;
+    for (let k = 0; k <= 128; k++) { const v = orbitPoint(t, k / 128 * 360).multiplyScalar(2.75); a.set([v.x, v.y, v.z], k * 3); }
+    S.moonOrbitG.attributes.position.needsUpdate = true;
+    S.moonM.position.copy(orbitPoint(t, Fdeg(t)).multiplyScalar(2.75));
+  }
+  const seasonName = t => { const l = sunMod(t); return l < 90 ? 'N spring · S autumn' : l < 180 ? 'N summer · S winter' : l < 270 ? 'N autumn · S spring' : 'N winter · S summer'; };
+  const wrapd = a => { a = ((a + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI; return a; };
+
+  function update() {
+    const m = moon(t), phi = subLon(t) * D2R;
+    // oblique: sheet through the centre, tilted by the declination, spun with the Moon's overhead point
+    L.spin.rotation.y = phi; L.sheet.rotation.set(-Math.PI / 2 + m.dec * D2R, 0, 0);
+    L.earth.rotation.y = 0;
+    const thetaC = -phi, W = 7 * D2R;
+    const fL = paintRing(L, a => { const d1 = wrapd(a - thetaC), d2 = wrapd(a - thetaC - Math.PI); return Math.exp(-(d1 * d1) / (W * W)) + Math.exp(-(d2 * d2) / (W * W)); });
+    // parallel: horizontal sheet at height beta
+    const h = m.beta * BSCALE;
+    R.spin.rotation.y = 0; R.sheet.rotation.set(-Math.PI / 2, 0, 0); R.sheet.position.y = h;
+    const gR = Math.exp(-(h * h) / (HB * HB));
+    const fR = paintRing(R, () => gR);
+    const sdec = Math.asin(Math.sin(EPS) * Math.sin(Lsun(t) * D2R)), fs = Math.sin(sdec) / Math.sin(EPS);
+    [L, R].forEach(S => { paintSeasons(S, fs); placeSun(S, t); placeMoon(S, t); });
+    const goal = eclipticLevel ? -EPS : 0;
+    tilt += (goal - tilt) * (matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 0.08);
+    [L, R].forEach(S => S.world.rotation.x = tilt);
+    const open = gateOpen(t);
+    [L, R].forEach(S => S.halo.material.opacity = open ? 0.35 : 0);
+    document.getElementById('gateL').style.opacity = open ? 1 : 0;
+    document.getElementById('gateR').style.opacity = open ? 1 : 0;
+    document.getElementById('fillL').style.width = (fL * 100).toFixed(0) + '%';
+    document.getElementById('pctL').textContent = (fL * 100).toFixed(0).padStart(3) + '%';
+    document.getElementById('fillR').style.width = (fR * 100).toFixed(0) + '%';
+    document.getElementById('pctR').textContent = (fR * 100).toFixed(0).padStart(3) + '%';
+    document.getElementById('hudL').innerHTML = `declination ${m.dec.toFixed(1).padStart(6)}°<br>overhead lon ${(((subLon(t) % 360) + 540) % 360 - 180).toFixed(0).padStart(5)}°`;
+    document.getElementById('hudR').innerHTML = `latitude β ${m.beta.toFixed(2).padStart(6)}°<br>above the ecliptic`;
+    const sline = `<br>Sun ${(sdec / D2R).toFixed(1).padStart(5)}° · ${seasonName(t)}`;
+    document.getElementById('hudL').innerHTML += sline; document.getElementById('hudR').innerHTML += sline;
+    const yr = J2000 + t / YEAR, d = new Date(Date.UTC(2000, 0, 1, 12) + t * 864e5);
+    document.getElementById('clock').textContent = d.toISOString().slice(0, 10);
+  }
+
+  // ---------- surf diagrams ----------
+  function prep(c) {
+    const w = c.clientWidth, h = c.clientHeight, r = Math.min(devicePixelRatio, 2);
+    if (c.width !== Math.round(w * r) || c.height !== Math.round(h * r)) { c.width = Math.round(w * r); c.height = Math.round(h * r); }
+    const g = c.getContext('2d'); g.setTransform(r, 0, 0, r, 0, 0); g.clearRect(0, 0, w, h); return { g, w, h };
+  }
+  const SPAN = 30;
+  function surfFrame(g, w, h, pad) {
+    g.strokeStyle = css('--rule'); g.fillStyle = css('--muted'); g.font = '11px "IBM Plex Mono", monospace'; g.lineWidth = 1;
+    g.strokeRect(pad.l, pad.t, w - pad.l - pad.r, h - pad.t - pad.b);
+    g.textAlign = 'center'; [0, 90, 180, 270, 360].forEach(v => g.fillText(v + '°', pad.l + v / 360 * (w - pad.l - pad.r), h - 4));
+    g.textAlign = 'right'; g.fillText('now', pad.l - 4, pad.t + 9); g.fillText('-30 d', pad.l - 4, h - pad.b);
+  }
+  function surfL() {
+    const { g, w, h } = prep(document.getElementById('tL')), pad = { l: 40, r: 6, t: 4, b: 16 };
+    surfFrame(g, w, h, pad);
+    const X = a => pad.l + a / 360 * (w - pad.l - pad.r), Y = dt => pad.t + dt / SPAN * (h - pad.t - pad.b);
+    g.strokeStyle = css('--shore'); g.lineWidth = 1.4;
+    for (const off of [0, 180]) {
+      g.beginPath(); let prev = null;
+      for (let k = 0; k <= SPAN * 60; k++) {
+        const dt = k / 60, a = (((-subLon(t - dt) + off) % 360) + 360) % 360;
+        if (prev !== null && Math.abs(a - prev) > 180) g.moveTo(X(a), Y(dt)); else if (prev === null) g.moveTo(X(a), Y(dt)); else g.lineTo(X(a), Y(dt));
+        prev = a;
+      }
+      g.stroke();
+    }
+    gateMarks(g, w, h, pad, Y);
+  }
+  function surfR() {
+    const { g, w, h } = prep(document.getElementById('tR')), pad = { l: 40, r: 6, t: 4, b: 16 };
+    const Y = dt => pad.t + dt / SPAN * (h - pad.t - pad.b), rows = 300;
+    g.fillStyle = css('--crest');
+    for (let k = 0; k < rows; k++) {
+      const dt = k / rows * SPAN, hh = moon(t - dt).beta * BSCALE, a = Math.exp(-(hh * hh) / (HB * HB));
+      if (a > 0.02) { g.globalAlpha = a; g.fillRect(pad.l, Y(dt), w - pad.l - pad.r, (h - pad.t - pad.b) / rows + 0.6); }
+    }
+    g.globalAlpha = 1; surfFrame(g, w, h, pad); gateMarks(g, w, h, pad, Y);
+  }
+  function gateMarks(g, w, h, pad, Y) {
+    g.fillStyle = css('--hot'); g.globalAlpha = 0.35;
+    for (let k = 0; k < SPAN * 4; k++) { const dt = k / 4; if (gateOpen(t - dt)) g.fillRect(pad.l - 6, Y(dt), 4, (h - pad.t - pad.b) / (SPAN * 4) + 0.5); }
+    g.globalAlpha = 1;
+  }
+
+  // ---------- equinox-gated record ----------
+  const tV0 = (360 - 280.466) / (360 / YEAR), samp = [];
+  for (let n = Math.floor((1984 - J2000) * 2); n <= Math.ceil((2030 - J2000) * 2); n++) {
+    const tt = tV0 + n * YEAR / 2, s = n % 2 === 0 ? 1 : -1, m = moon(tt);
+    samp.push({ yr: J2000 + tt / YEAR, tt, d: s * m.dec, b: s * m.beta });
+  }
+  const md = Math.max(...samp.map(s => Math.abs(s.d))), mb = Math.max(...samp.map(s => Math.abs(s.b)));
+  function fit(key, scale, P) {
+    let a = 0, bb = 0, cc = 0, sy = 0, cy = 0;
+    samp.forEach(s => { const x = s.yr, y = s[key] / scale, si = Math.sin(2 * Math.PI * x / P), co = Math.cos(2 * Math.PI * x / P); a += si * si; bb += si * co; cc += co * co; sy += si * y; cy += co * y; });
+    const det = a * cc - bb * bb, A = (sy * cc - cy * bb) / det, B = (cy * a - sy * bb) / det;
+    return x => A * Math.sin(2 * Math.PI * x / P) + B * Math.cos(2 * Math.PI * x / P);
+  }
+  const fD = fit('b', mb, 1 / 0.42199), fT = fit('d', md, 1 / 0.36834);
+  function record() {
+    const { g, w, h } = prep(document.getElementById('rec')), pad = { l: 92, r: 8, t: 10, b: 20 };
+    const lo = 1984, hi = 2030, X = x => pad.l + (x - lo) / (hi - lo) * (w - pad.l - pad.r);
+    const rowH = (h - pad.t - pad.b) / 2, Yc = [pad.t + rowH * 0.5, pad.t + rowH * 1.5], amp = rowH * 0.42;
+    g.font = '11px "IBM Plex Mono", monospace'; g.fillStyle = css('--muted'); g.strokeStyle = css('--rule'); g.lineWidth = 1;
+    g.textAlign = 'center'; for (let y = 1985; y <= hi; y += 5) g.fillText(y, X(y), h - 4);
+    Yc.forEach(y => { g.beginPath(); g.moveTo(pad.l, y); g.lineTo(w - pad.r, y); g.stroke(); });
+    g.textAlign = 'right'; g.font = '12px "IBM Plex Sans", sans-serif';
+    g.fillStyle = css('--crest'); g.fillText('parallel', pad.l - 8, Yc[0] - 2); g.fillStyle = css('--muted'); g.fillText('2.370 yr', pad.l - 8, Yc[0] + 13);
+    g.fillStyle = css('--shore'); g.fillText('oblique', pad.l - 8, Yc[1] - 2); g.fillStyle = css('--muted'); g.fillText('2.715 yr', pad.l - 8, Yc[1] + 13);
+    const now = J2000 + t / YEAR, bw = Math.max(2, (w - pad.l - pad.r) / ((hi - lo) * 2) * 0.55);
+    [[0, 'b', mb, fD, '--crest'], [1, 'd', md, fT, '--shore']].forEach(([r, key, sc, f, col]) => {
+      const c = css(col);
+      g.globalAlpha = 0.5; g.strokeStyle = c; g.lineWidth = 1.3; g.beginPath();
+      for (let k = 0; k <= 600; k++) { const x = lo + (hi - lo) * k / 600, y = Yc[r] - f(x) * amp; k ? g.lineTo(X(x), y) : g.moveTo(X(x), y); }
+      g.stroke(); g.globalAlpha = 1;
+      samp.forEach(s => {
+        if (s.yr < lo || s.yr > hi) return;
+        const v = s[key] / sc, past = s.yr <= now;
+        g.fillStyle = c; g.globalAlpha = past ? 1 : 0.18;
+        const y0 = Yc[r], y1 = Yc[r] - v * amp; g.fillRect(X(s.yr) - bw / 2, Math.min(y0, y1), bw, Math.max(1, Math.abs(y1 - y0)));
+      });
+      g.globalAlpha = 1;
+    });
+    g.strokeStyle = css('--muted'); g.setLineDash([3, 3]); g.beginPath(); g.moveTo(X(now), pad.t); g.lineTo(X(now), h - pad.b); g.stroke(); g.setLineDash([]);
+  }
+
+  function drawAll2D() { surfL(); surfR(); record(); }
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { applyTheme(); drawAll2D(); });
+  new MutationObserver(() => { applyTheme(); drawAll2D(); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  addEventListener('resize', drawAll2D);
+
+  let last = performance.now(), tick2d = 0;
+  function frame(now) {
+    const dt = Math.min((now - last) / 1000, 0.1); last = now;
+    if (playing) t += dt * speed;
+    update();
+    [L, R].forEach(S => { S.controls.update(); S.renderer.render(S.scene, S.camera); });
+    if (now - tick2d > 150) { drawAll2D(); tick2d = now; }
+    requestAnimationFrame(frame);
+  }
+  update(); drawAll2D(); requestAnimationFrame(frame);
+})();
+</script>
