@@ -10,7 +10,7 @@ ENVELOPE (amplitude), not in any phase. Three quantities, as the lag of each lev
                   modulation of wave amplitude (which descends with the shear zones) is removed
 Daily data: ERA5 0N 0E 00 UTC (get_era5_point.py), levels 10 (if present) 20 30 50 70 hPa; lags from adjacent pairs,
 over the whole record and over six ~8-yr blocks (spread). Peak lags refined by a parabola through the maximum.
-Hourly data: ERA5 hourly u at 30 and 50 hPa, 5S-5N at all 72 longitudes (../../../docs/era5/data, half-year files,
+Hourly data: ERA5 hourly u at 10, 30, 50, 70 hPa (adjacent pairs; panel c shows 30-50), 5S-5N at all 72 longitudes (../../../docs/era5/data, half-year files,
 1999-2016 as they exist); cross-correlation averaged over grid points, per half-year and pooled. Group transit between
 adjacent levels is expected to be under a day, which only the hourly data can resolve. The hourly data also allow a
 Kelvin-wave space-time filter (eastward zonal wavenumbers 1-3, periods 4-20 d); its envelope is the modulus of the
@@ -72,9 +72,8 @@ for a, b in zip(LV[:-1], LV[1:]):
         blocks = [peak(*ccf(xa[s:e], xb[s:e], M))[0] for s, e in zip(edges[:-1], edges[1:])]
         daily[name][(a, b)] = {"lag_d": float(whole[0]), "r": float(whole[1]), "block_lags_d": [float(v) for v in blocks]}
 
-# ---- hourly 30 <-> 50 hPa
+# ---- hourly, adjacent pairs 10 <-> 30, 30 <-> 50, 50 <-> 70 hPa (panel c shows 30 <-> 50)
 KEYS = ("wave phase", "wave envelope", "Kelvin phase", "Kelvin envelope")
-hourly = {k: [] for k in KEYS}; pooled = {k: [] for k in KEYS}; used = []
 
 
 def kelvin(x, nlon=72, kmax=3, p0=20, p1=4):
@@ -86,22 +85,33 @@ def kelvin(x, nlon=72, kmax=3, p0=20, p1=4):
     keep = (k >= 1) & (k <= kmax) & (f <= -1.0 / p0) & (f >= -1.0 / p1)
     z = 2 * np.fft.ifft2(np.where(keep, X, 0), axes=(0, 2)).reshape(nt, -1)
     return z.real, filt(np.abs(z), "high", 24, 60)
-for f30 in sorted(HOURLY.glob("era5_u30_hourly_*.nc")):
-    f50 = HOURLY / f30.name.replace("u30", "u50")
-    if not f50.exists():
-        continue
-    xs = []
-    for f in (f30, f50):
-        d = nc.Dataset(f); la = np.asarray(d.variables["latitude"][:]); j = np.abs(la) <= 5.01
-        xs.append(np.asarray(d.variables["u"][:, 0, j, :], float).reshape(len(d.variables["valid_time"]), -1))
-    if len(xs[0]) != len(xs[1]) or len(xs[0]) < 24 * 150:
-        continue
-    used.append(f30.name.split("_")[-1][:-3]); cut = slice(24 * 10, -24 * 10)
-    _, w30, e30 = series(xs[0], 24, 60); _, w50, e50 = series(xs[1], 24, 60)
-    k30, ke30 = kelvin(xs[0]); k50, ke50 = kelvin(xs[1])
-    for name, x, y in (("wave phase", w30, w50), ("wave envelope", e30, e50), ("Kelvin phase", k30, k50), ("Kelvin envelope", ke30, ke50)):
-        L, c = ccf(x[cut], y[cut], 96); hourly[name].append(float(peak(L, c)[0])); pooled[name].append(c)
-hourly_pooled = {k: (np.arange(-96, 97), np.mean(v, 0)) for k, v in pooled.items() if v}
+
+
+def hourly_pair(up, lo):
+    """Per-half-year and pooled cross-correlation of the hourly 5S-5N field at level lo behind level up."""
+    hr = {k: [] for k in KEYS}; po = {k: [] for k in KEYS}; us = []
+    for fa in sorted(HOURLY.glob(f"era5_u{up}_hourly_*.nc")):
+        fb = HOURLY / fa.name.replace(f"u{up}_", f"u{lo}_")
+        if not fb.exists():
+            continue
+        xs = []
+        for f in (fa, fb):
+            d = nc.Dataset(f); la = np.asarray(d.variables["latitude"][:]); j = np.abs(la) <= 5.01
+            xs.append(np.asarray(d.variables["u"][:, 0, j, :], float).reshape(len(d.variables["valid_time"]), -1))
+        if len(xs[0]) != len(xs[1]) or len(xs[0]) < 24 * 150:
+            continue
+        us.append(fa.name.split("_")[-1][:-3]); cut = slice(24 * 10, -24 * 10)
+        _, wa, ea = series(xs[0], 24, 60); _, wb, eb = series(xs[1], 24, 60)
+        ka, kea = kelvin(xs[0]); kb, keb = kelvin(xs[1])
+        for name, x, y in (("wave phase", wa, wb), ("wave envelope", ea, eb), ("Kelvin phase", ka, kb), ("Kelvin envelope", kea, keb)):
+            L, c = ccf(x[cut], y[cut], 96); hr[name].append(float(peak(L, c)[0])); po[name].append(c)
+    return hr, {k: (np.arange(-96, 97), np.mean(v, 0)) for k, v in po.items() if v}, us
+
+
+PAIRS = [(a, b) for a, b in ((10, 30), (30, 50), (50, 70))
+         if any(HOURLY.glob(f"era5_u{a}_hourly_*.nc")) and any(HOURLY.glob(f"era5_u{b}_hourly_*.nc"))]
+HP = {p: hourly_pair(*p) for p in PAIRS}
+hourly, hourly_pooled, used = HP[(30, 50)]
 
 # ---- figure
 fig, ax = plt.subplots(1, 3, figsize=(17, 6.2), facecolor=SURF, gridspec_kw=dict(width_ratios=[1, 1, 1.15], wspace=0.28))
@@ -151,14 +161,17 @@ a.set_facecolor(SURF); a.tick_params(colors=MUTED)
 fig.savefig(HERE / "updown_lags.png", dpi=110, facecolor=SURF, bbox_inches="tight")
 
 out = {"daily_levels": LV, "daily": {n: {f"{a}->{b}": v for (a, b), v in d.items()} for n, d in daily.items()},
-       "hourly_30_50": {"half_years": used, "peak_lags_h": hourly,
-                        "pooled_peak_h": {k: float(peak(*v)[0]) for k, v in hourly_pooled.items()},
-                        "pooled_peak_r": {k: float(peak(*v)[1]) for k, v in hourly_pooled.items()}}}
+       **{f"hourly_{a}_{b}": {"half_years": us, "peak_lags_h": hr,
+                               "pooled_peak_h": {k: float(peak(*v)[0]) for k, v in po.items()},
+                               "pooled_peak_r": {k: float(peak(*v)[1]) for k, v in po.items()}}
+          for (a, b), (hr, po, us) in HP.items()}}
 json.dump(out, open(HERE / "updown_lags.json", "w"), indent=1)
 print("lag of lower level behind upper (+ = downward, - = upward)")
 for n, d in daily.items():
     print(f"  {n:14s} " + "  ".join(f"{a}->{b}: {v['lag_d']:+6.1f} d (r {v['r']:.2f}, blocks {min(v['block_lags_d']):+.1f}..{max(v['block_lags_d']):+.1f})" for (a, b), v in d.items()))
-for k, v in hourly.items():
-    print(f"  hourly 30->50 {k:14s} pooled {out['hourly_30_50']['pooled_peak_h'][k]:+.1f} h (r {out['hourly_30_50']['pooled_peak_r'][k]:.2f}), per half-year median {np.median(v):+.1f} h, "
-          f"{sum(x < 0 for x in v)}/{len(v)} negative")
+for (a, b), (hr, po, us) in HP.items():
+    for k, v in hr.items():
+        o = out[f"hourly_{a}_{b}"]
+        print(f"  hourly {a}->{b} {k:14s} pooled {o['pooled_peak_h'][k]:+.1f} h (r {o['pooled_peak_r'][k]:.2f}), per half-year median {np.median(v):+.1f} h, "
+              f"{sum(x < 0 for x in v)}/{len(v)} negative ({len(us)} half-years)")
 print("wrote updown_lags.png")

@@ -1,11 +1,11 @@
-# Phase down, energy up? (`updown_lags.py` → `updown_lags.png`, `updown_lags.json`, 2026-10-27)
+# Phase down, energy up? (`updown_lags.py` → `updown_lags.png`, `updown_lags.json`, 2026-10-27; all levels 2026-11-02)
 
 **The question.** If the QBO's descent is a phase pattern and the physical driving is upward, what shows the upward
 part? Phase cannot: any phase lag is just a filter property. What carries energy is the wave **envelope** (amplitude).
 
 **Data.**
 - **Daily:** ERA5 0N 0E 00 UTC at 10/20/30/50/70 hPa.
-- **Hourly:** ERA5 u at 30 and 50 hPa, 5S–5N, all 72 longitudes, 32 half-years in 1999–2016 (`docs/era5/data`; 2003 and 2012 still downloading).
+- **Hourly:** ERA5 u at 10, 30, 50 and 70 hPa, 5S–5N, all 72 longitudes, all 36 half-years of 1999–2016 (`docs/era5/data`).
 
 **Sign convention.** Lag of the lower level behind the upper level; positive = downward, negative = upward.
 
@@ -15,16 +15,21 @@ part? Phase cannot: any phase lag is just a filter property. What carries energy
 | 4–20 d wave phase, daily | +2.2 d (0.21) | +1.5 d (0.36) | +2.2 d (0.22) | +2.4 d (0.44) |
 | 4–20 d wave envelope, daily | −0.3 d (0.11) | +0.3 d (0.21) | −0.5 d (0.16) | +1.0 d (0.30) |
 
-Hourly, 30→50 hPa:
+Hourly, adjacent pairs (36 half-years each; log-pressure spacing 7.7, 3.6 and 2.4 km):
 
-| quantity | pooled peak | r | half-years upward |
+| quantity | 10→30 | 30→50 | 50→70 |
 |---|---|---|---|
-| 4–20 d phase, all waves | +61 h | 0.21 | 0/32 |
-| 4–20 d envelope, all waves | +6 h | 0.13 | 11/32 |
-| **Kelvin phase** (eastward k = 1–3, 4–20 d) | **+75 h** | 0.31 | 3/32 |
-| **Kelvin envelope** | **−6 h** | **0.38** | **24/32** (binomial p ≈ 0.004) |
+| 4–20 d phase, all waves | (+96 h, r 0.02: no peak in ±96 h) | +59 h (0.23), 0/36 up | +48 h (0.40), 0/36 up |
+| 4–20 d envelope, all waves | −0 h (0.06), 17/36 up | +4 h (0.14), 13/36 up | +14 h (0.22), 1/36 up |
+| **Kelvin phase** (eastward k = 1–3, 4–20 d) | −74 h (0.28)\* | **+74 h** (0.33), 3/36 up | **+56 h** (0.51), 0/36 up |
+| **Kelvin envelope** | **−8 h** (0.25), **25/36 up** (p 0.01) | **−7 h** (0.40), **27/36 up** (p 0.002) | **−4 h** (0.46), **24/36 up** (p 0.03) |
 
-(Rerun 2026-10-27 with 32 half-years. The first run used 24 and gave Kelvin envelope −8 h, r 0.40, 18/24 upward, p ≈ 0.01.)
+p: one-sided binomial on the half-year count. \*10→30 spans two level gaps, so the Kelvin phase lag should be about
++130–150 h, beyond the ±96 h search window; −74 h is most likely that lag folded by one ~6-day wave period, not upward
+phase.
+
+History: 30→50 Kelvin envelope −8 h (r 0.40, 18/24 upward) with 24 half-years, −6 h (0.38, 24/32) with 32 (2026-10-27),
+−7 h (0.40, 27/36) with all 36 (2026-11-02, when the 10 and 70 hPa pairs were added).
 
 ## Reading
 
@@ -34,13 +39,18 @@ Hourly, 30→50 hPa:
   Kelvin and gravity waves, downward phase is the signature of upward group velocity.
 - **The envelope is where "upward" shows, and only once the waves are isolated.**
   - With all 4–20 d variance at one point, the envelope lag is zero within its noise (daily and hourly).
-  - With the Kelvin space-time filter, the envelope correlation triples (0.13 → 0.38) and its peak moves to −6 h:
-    50 hPa amplitude leads 30 hPa, in 24 of 32 half-years.
-  - In the same filtered field the phase goes the other way (+75 h). Panel c shows this opposite tilt, which is the
+  - With the Kelvin space-time filter, the envelope correlation triples (0.14 → 0.40) and its peak moves to −7 h:
+    50 hPa amplitude leads 30 hPa, in 27 of 36 half-years.
+  - In the same filtered field the phase goes the other way (+74 h). Panel c shows this opposite tilt, which is the
     visual answer: the energy rises while the phase descends.
+  - **The same holds at every level pair** (2026-11-02): the Kelvin envelope leads from below at 10→30 (−8 h),
+    30→50 (−7 h) and 50→70 (−4 h), each in 24–27 of 36 half-years, and the Kelvin phase descends at 30→50 and 50→70
+    in at least 33 of 36 half-years. The unfiltered envelope stays near zero or slightly downward (50→70 +14 h),
+    so the upward signal needs the Kelvin isolation at every level.
 - **Caveat on the size.** For a non-dispersive hydrostatic Kelvin wave, the group and phase speeds have equal
-  magnitude, so the envelope lag should be about −75 h, not −6 h. The sign agrees with theory; the size is about a
-  tenth of the expectation.
+  magnitude, so the envelope lag should mirror the phase lag (about −74 h at 30→50, −56 h at 50→70), not −7 h and
+  −4 h. The sign agrees with theory at all three pairs; the size is about a tenth of the expectation at each.
+  Per km the envelope lag is also not uniform (1.1 h/km at 10→30, 1.9 at 30→50, 1.6 at 50→70).
 
   Possible reasons, untested:
   - wave packets that arrive horizontally from the convective sources reach both levels at nearly the same time;
@@ -59,7 +69,7 @@ output to compare with the Kelvin envelope here.
 
 ## Next
 
-- Rerun when the hourly 10/70 hPa winds and the daily 10 hPa point series are in.
+- ~~Rerun when the hourly 10/70 hPa winds and the daily 10 hPa point series are in.~~ Done 2026-11-02 (table above).
 - Vertical momentum flux (u′w′, or the Eliassen–Palm form) needs hourly T and ω, which have not been requested.
 
 # Accommodating the flux: tests (a) and (c) (2026-10-27)

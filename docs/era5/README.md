@@ -24,7 +24,7 @@ reproduce them (table below). The 1987b–1988 downloads stalled in the CDS queu
 | `antisym_lunar.py` | antisymmetric (0–20N minus 20S–0) k=1 diurnal lunar lines and nodal satellites; k=0 antisymmetric draconic control |
 | `l2_check.py` | migrating lunar L2 (westward k=2 M2): amplitude vs classical value, N2/M2, per-UTC-hour window dependence |
 | `kmix_test.py` | S2 x M2 products by wavenumber (westward k = 0, 2, 4): physical quadratic mixing vs analysis-window multiplication |
-| `strat_tides.py` | same tidal-line analysis for surface pressure and hourly u, v at 70/50/30/10 hPa (partial results below: sp, u30, u50; u70/u10/v downloading) |
+| `strat_tides.py` | same tidal-line analysis for surface pressure and hourly u, v at 70/50/30/10 hPa (full 1999–2016 run below) |
 | `fetch_uv.py` | ERA5 hourly u, v at 70/50/30/10 hPa, 20S–20N, 5°, one level per request |
 | `qbo_sideband_rules.py` | QBO 2 ± q sideband selection by level (KIT radiosondes 70–10 hPa, 1953–2026): seasonal amplitude vs timing modulation, bootstrap |
 | `qbo_sideband_descent.py` | why the 2 ± q mix swaps between 30 and 70 hPa: calendar-locked timing gate + descending response (delay from lag correlation) |
@@ -373,25 +373,47 @@ same spectrum-only fitting):
 Next targets in order: timing (phase wandering / slips at the right times); direction-dependent transition speed
 (hysteresis rather than a symmetric switch); the 2 − q suppression at 30 hPa.
 
-## Tides from the surface into the QBO levels (`strat_tides.py`, partial run, 2026-10-27)
+## Tides from the surface into the QBO levels (`strat_tides.py`, full run, 2026-11-02)
 
-This run covers surface pressure and hourly u at 30 and 50 hPa, 1999–2016, 20S–20N. For u, 32 of 36 half-years are in; 2003 and 2012 are still downloading. Output is `strat_tides_1999_2016.json`. Each value below is amplitude/noise (SNR) in the cos(lat)-weighted equatorially symmetric component.
+Surface pressure and hourly u and v at 70, 50, 30 and 10 hPa, 1999–2016 (all 36 half-years of every field), 20S–20N.
+Output is `strat_tides_1999_2016.json`, log `strat_tides_1999_2016_all.log`. Each value is amplitude/noise (SNR) in the
+cos(lat)-weighted equatorially symmetric component. (The 2026-10-27 partial run had sp, u30 and u50 with 32 half-years;
+its u30/u50 values moved by at most ~15%.)
 
-| line | sp | u30 | u50 |
-|---|---|---|---|
-| k = 0 Mf / Mm / MSf | 0.9 / 1.4 / 0.2 | 0.8 / 1.0 / 0.3 | 0.2 / 0.3 / 0.4 |
-| k = 0 Mtm / MSm | 1.0 / 0.5 | 0.9 / 1.3 | 1.8 / 0.7 |
-| westward k = 2 S2 / M2 | 487 / 53 | 141 / 51 | 166 / 35 |
-| westward k = 2 M2/S2 amplitude | 0.050 | 0.087 | 0.074 |
-| eastward k = 2 S2+MSf / S4+MSf | 11.7 / 20.1 | 4.6 / 2.5 | 3.5 / 1.6 |
-| seam step excess (09\|10, 21\|22 UTC) | 4.0× / 4.3× | 5.1× / 5.0× | 6.5× / 6.2× |
+| line | sp | u70 | u50 | u30 | u10 |
+|---|---|---|---|---|---|
+| k = 0 Mf / Mm / MSf | 0.9 / 1.4 / 0.2 | 0.5 / 0.8 / 0.6 | 0.5 / 0.3 / 0.8 | 1.2 / 1.1 / 0.5 | 1.2 / 0.5 / 0.9 |
+| k = 0 Mtm / MSm | 1.0 / 0.5 | 0.3 / 0.6 | 0.8 / 0.8 | 0.7 / 0.9 | 0.9 / 1.3 |
+| westward k = 2 S2 / M2 | 487 / 53 | 188 / 27 | 194 / 38 | 154 / 57 | 145 / 54 |
+| westward k = 2 M2/S2 amplitude | 0.050 | 0.067 | 0.075 | 0.088 | 0.132 |
+| eastward k = 2 S2+MSf / S4+MSf | 11.7 / 20.1 | 2.1 / 2.0 | 3.5 / 1.9 | 5.4 / 2.7 | 3.8 / 1.0 |
+| seam step excess (09\|10, 21\|22 UTC) | 4.0× / 4.3× | 6.5× / 6.3× | 6.5× / 6.2× | 5.3× / 5.1× | 4.8× / 5.1× |
 
-- **No zonal-mean lunar long-period line at the QBO levels.** Mf, Mm and MSf at k = 0 are at noise (SNR ≤ 1.4) at the surface, 30 and 50 hPa. The draconic and tropical controls are also at noise. So hourly ERA5 does not carry the k = 0 Mf forcing as a direct spectral line. Mtm at 50 hPa (1.8, and 2.0 antisymmetric) is marginal, given the many candidate lines.
-- **The migrating lunar semidiurnal tide does reach the stratosphere.** Westward k = 2 M2 has SNR 51 at 30 hPa and 35 at 50 hPa. Its ratio to S2 rises from 0.05 at the surface to 0.07–0.09 aloft. IFS has no lunar forcing, so this M2 comes from the assimilated observations (see "Lunar signals in ERA5 are observational").
-- **The ±MSf sidebands weaken with height.** The eastward k = 2 S2+MSf / S4+MSf family that marks the 4D-Var seams in surface pressure (12–20) drops to 2–5 at 30/50 hPa. The seam step excess is larger aloft (5–6.5×), so these sidebands should still be treated as assimilation artifacts.
-- **Diurnal lunar O1 is weak everywhere** (SNR ≤ 2 in u). K1 and S1 are strong, as expected for solar thermal tides.
+Meridional wind v:
 
-Rerun when u at 70/10 hPa and v at all levels are in: `python3 strat_tides.py 1999 2016`.
+| line | v70 | v50 | v30 | v10 |
+|---|---|---|---|---|
+| k = 0 Mf / Mm / MSf | 0.8 / 1.1 / 0.5 | 1.1 / 1.1 / 0.8 | 0.7 / 1.6 / 0.4 | 0.5 / 0.6 / 1.3 |
+| westward k = 2 S2 / M2 | 16 / 1.5 | 24 / 0.6 | 29 / 2.9 | 20 / 5.4 |
+| westward k = 1 S1 / K1 | 14 / 27 | 7 / 42 | 2 / 37 | 18 / 26 |
+| seam step excess | 9.1× / 9.4× | 8.1× / 7.8× | 6.1× / 6.2× | 5.7× / 5.8× |
+
+- **No zonal-mean lunar long-period line at any QBO level, in u or v.** Mf, Mm, MSf, Mtm and MSm at k = 0 stay at
+  noise from 70 to 10 hPa (symmetric SNR ≤ 1.9; the largest antisymmetric value, Mtm at u70, is 2.6), the same as the
+  draconic and tropical controls. With ~100 line × field × symmetry tests, nothing stands out. Hourly ERA5 does not
+  carry the k = 0 Mf forcing as a direct spectral line at any level.
+- **The migrating lunar semidiurnal tide reaches 10 hPa and grows relative to the solar one with height.** Westward
+  k = 2 M2 has SNR 27–57 in u at every level, and M2/S2 rises steadily: 0.050 at the surface, 0.067 at 70 hPa,
+  0.075, 0.088, and 0.132 at 10 hPa. IFS has no lunar forcing, so this M2 comes from the assimilated observations (see
+  "Lunar signals in ERA5 are observational").
+- **In v the semidiurnal M2 is weak** (SNR ≤ 5.4, largest at 10 hPa), while the westward k = 1 diurnal K1 is strong
+  (27–42), larger than S1: the diurnal tide is mostly in the meridional wind, as expected for the propagating diurnal
+  mode.
+- **The ±MSf sidebands weaken with height.** The eastward k = 2 S2+MSf / S4+MSf family that marks the 4D-Var seams in
+  surface pressure (12–20) is 1–5 in u and ≤ 1.1 in v. The seam step excess is larger aloft (5–9×), largest in v, so
+  these sidebands should still be treated as assimilation artifacts.
+- **Diurnal lunar O1 is weak in u** (SNR ≤ 1.8 in every component at every level). In v it reaches 4.8–5.9 in its
+  strongest component at 70–30 hPa (2.7 at 10 hPa), marginal given the number of lines searched; in surface pressure 6.7.
 
 ## Caveats and follow-ups
 
