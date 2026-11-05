@@ -158,7 +158,10 @@ package GEM.LTE.Primitives is
       M_Min : in Long_Float := 0.0;
       --  CW_Freq > 0.0 (cycles/yr): two more columns, sin/cos (2 pi CW_Freq t),
       --  returned as Annual.CW1/CW2 with Annual.CW_Freq set; 0.0 = no columns.
-      CW_Freq : in Long_Float := 0.0);
+      CW_Freq : in Long_Float := 0.0;
+      --  TS_Freq /= 0.0: the same for the TESS pair (Annual.TS1/TS2/TS_Freq),
+      --  columns right after the CW pair; 0.0 = no columns.
+      TS_Freq : in Long_Float := 0.0);
 
    --
    -- Utility procedures
@@ -206,6 +209,10 @@ package GEM.LTE.Primitives is
    function FB_CC
      (Model, Data : in Data_Pairs; Lo, Hi : in Long_Float;
       Lo2, Hi2 : in Long_Float := 0.0) return Long_Float;
+
+   --  power-spectrum correlation over Lo .. Hi cycles/year (phase-blind)
+   function FP_CC
+     (Model, Data : in Data_Pairs; Lo, Hi : in Long_Float) return Long_Float;
 
    -- Hoyer Peakedness
    function Hoyer_Spectral_Peak (Model, Data, Forcing : in Data_Pairs) return Long_Float;

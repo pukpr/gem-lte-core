@@ -41,6 +41,10 @@ package GEM is
          --  ~ 0.844 /yr = Chandler wobble. CW_Freq = 0.0 means no CW
          --  columns in the regression and no CW term in LTE.
          CW1, CW2, CW_Freq : Long_Float := 0.0;
+         --  TESS (2026-11-05): a second per-leg sin/cos pair at TS_Freq
+         --  cycles/yr, the signed annual alias of a tesseral (diurnal)
+         --  line, TESS_PERIOD days (OO1 0.9294206 -> ~59 yr). 0.0 = off.
+         TS1, TS2, TS_Freq : Long_Float := 0.0;
       end record;
 
 end GEM;

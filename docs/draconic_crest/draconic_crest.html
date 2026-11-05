@@ -9,16 +9,18 @@
   --shore: #b5640a;   /* tropical / declination front */
   --crest: #0a7c84;   /* draconic / ecliptic-latitude front */
   --hot: #ffcf4a;     /* ring contact glow */
+  --warm: #d8432c;    /* ENSO hot impulse */
+  --cool: #2c74d8;    /* ENSO cool impulse */
   --f-display: "Newsreader", Georgia, serif;
   --f-body: "IBM Plex Sans", system-ui, sans-serif;
   --f-mono: "IBM Plex Mono", ui-monospace, monospace;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #0c1018; --panel: #141a26; --fg: #e2e7f0; --muted: #98a3b6; --rule: #273041;
-  --stage: #070a11; --shore: #f09c3a; --crest: #39c4c4; --hot: #ffd85e; color-scheme: dark } }
+  --stage: #070a11; --shore: #f09c3a; --crest: #39c4c4; --hot: #ffd85e; --warm: #ff6a4d; --cool: #5a9cff; color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #0c1018; --panel: #141a26; --fg: #e2e7f0; --muted: #98a3b6; --rule: #273041;
-  --stage: #070a11; --shore: #f09c3a; --crest: #39c4c4; --hot: #ffd85e; color-scheme: dark }
+  --stage: #070a11; --shore: #f09c3a; --crest: #39c4c4; --hot: #ffd85e; --warm: #ff6a4d; --cool: #5a9cff; color-scheme: dark }
 body { background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 15px; line-height: 1.55; }
 .wrap { max-width: 1180px; margin: 0 auto; padding-block: 26px 56px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
@@ -52,6 +54,8 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--crest); out
 .record canvas { width: 100%; height: 260px; display: block; }
 .prose { max-width: 70ch; display: flex; flex-direction: column; gap: 12px; }
 .prose p { margin: 0; }
+.modenote { margin: 0; font-size: 13.5px; color: var(--fg); background: var(--panel); border: 1px solid var(--rule); border-radius: 8px; padding: 8px 12px; max-width: 90ch; }
+button[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
 .shore { color: var(--shore); } .crest { color: var(--crest); }
 @media (prefers-reduced-motion: reduce) { .gate { transition: none; } }
 </style>
@@ -71,9 +75,12 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--crest); out
     <button id="toNode" type="button">Next draconic crossing</button>
     <button id="toEqx" type="button">Next equinox</button>
     <button id="frame" type="button" aria-pressed="false">Hold the ecliptic level</button>
-    <label for="speed">Days per second <input id="speed" type="range" min="0" max="100" value="30"><span class="val" id="speedv"></span></label>
+    <button id="cwMode" type="button" aria-pressed="false">Chandler wobble</button>
+    <button id="ensoMode" type="button" aria-pressed="false">ENSO: Pacific gate</button>
+    <label for="speed">Days per second <input id="speed" type="range" min="0" max="100" value="35"><span class="val" id="speedv"></span></label>
     <span class="val" id="clock"></span>
   </div>
+  <p class="modenote" id="modeNote"></p>
 
   <div class="pair">
     <div class="col">
@@ -95,8 +102,8 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--crest); out
   </div>
 
   <div class="record">
-    <h2>What the equinox gate keeps</h2>
-    <p>Twice a year the Sun crosses the equator and the gate opens. Each bar is the front's signed value at that moment. The parallel front builds a clean 2.37-year oscillation, the period the QBO actually has. The oblique front's samples make a 2.72-year pattern that the QBO does not show.</p>
+    <h2 id="recTitle">What the equinox gate keeps</h2>
+    <p id="recText">Twice a year the Sun crosses the equator and the gate opens. Each bar is the front's signed value at that moment. The parallel front builds a clean 2.37-year oscillation, the period the QBO actually has. The oblique front's samples make a 2.72-year pattern that the QBO does not show.</p>
     <canvas id="rec"></canvas>
   </div>
 
@@ -153,7 +160,8 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--crest); out
     for (let i = 0; i < elat.length; i++) elat[i] = Math.asin(Math.max(-1, Math.min(1, eg.attributes.position.getY(i))));
     const ecol = new Float32Array(elat.length * 3); eg.setAttribute('color', new THREE.BufferAttribute(ecol, 3));
     const earth = new THREE.Mesh(eg, new THREE.MeshBasicMaterial({ vertexColors: true }));
-    world.add(earth);
+    const body = new THREE.Group(); world.add(body);   // Earth, axis and ring: tilts in the wobble mode
+    body.add(earth);
     // the Sun, its ray to Earth, and the sub-solar point
     const sun = new THREE.Mesh(new THREE.SphereGeometry(0.3, 24, 16), new THREE.MeshBasicMaterial({ color: 0xffc83d }));
     world.add(sun);
@@ -165,14 +173,14 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--crest); out
     const grid = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.SphereGeometry(1.002, 12, 6)), new THREE.LineBasicMaterial({ color: 0x86a6d0, transparent: true, opacity: 0.25 }));
     earth.add(grid);
     const axis = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, -1.6, 0), new THREE.Vector3(0, 1.6, 0)]), new THREE.LineBasicMaterial({ color: 0x8899aa, transparent: true, opacity: 0.5 }));
-    world.add(axis);
+    body.add(axis);
     // the QBO ring
     const tg = new THREE.TorusGeometry(1.75, HB, 14, 240);
     const n = tg.attributes.position.count, ang = new Float32Array(n), col = new Float32Array(n * 3);
     for (let i = 0; i < n; i++) { const x = tg.attributes.position.getX(i), y = tg.attributes.position.getY(i); ang[i] = Math.atan2(y, x); }
     tg.setAttribute('color', new THREE.BufferAttribute(col, 3));
     const ring = new THREE.Mesh(tg, new THREE.MeshBasicMaterial({ vertexColors: true }));
-    ring.rotation.x = Math.PI / 2; world.add(ring);
+    ring.rotation.x = Math.PI / 2; body.add(ring);
     // the front: a translucent sheet
     const sheetMat = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.22, side: THREE.DoubleSide, depthWrite: false });
     const sheet = new THREE.Mesh(new THREE.CircleGeometry(3.0, 96), sheetMat);
@@ -181,7 +189,15 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--crest); out
     const spin = new THREE.Group(); spin.add(sheet); world.add(spin);
     // the equinox gate halo
     const halo = new THREE.Mesh(new THREE.TorusGeometry(1.75, HB * 2.6, 10, 200), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }));
-    halo.rotation.x = Math.PI / 2; world.add(halo);
+    halo.rotation.x = Math.PI / 2; body.add(halo);
+    // pole path for the wobble mode (vertex colours fade from old to new)
+    const trailN = 300, trailG = new THREE.BufferGeometry();
+    trailG.setAttribute('position', new THREE.BufferAttribute(new Float32Array(trailN * 3), 3));
+    trailG.setAttribute('color', new THREE.BufferAttribute(new Float32Array(trailN * 3), 3));
+    const trail = new THREE.Line(trailG, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.95 }));
+    trail.visible = false; world.add(trail);
+    const tip = new THREE.Mesh(new THREE.SphereGeometry(0.05, 12, 8), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+    tip.visible = false; world.add(tip);
     // the Moon and its orbit (true 5.145 deg tilt to the ecliptic, nodes regressing)
     const moonOrbitG = new THREE.BufferGeometry(); moonOrbitG.setAttribute('position', new THREE.BufferAttribute(new Float32Array(129 * 3), 3));
     const moonOrbit = new THREE.Line(moonOrbitG, new THREE.LineBasicMaterial({ color: 0xd6dbe4, transparent: true, opacity: 0.55 }));
@@ -194,7 +210,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--crest); out
     ecl.computeLineDistances(); world.add(ecl);
     const resize = () => { const w = canvas.clientWidth, h = canvas.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); };
     new ResizeObserver(resize).observe(canvas); resize();
-    return { kind, world, moonOrbitG, moonM, renderer, scene, camera, controls, earth, eg, elat, ecol, sun, ray, rayG, subsolar, ring, tg, ang, col, sheet, sheetMat, edge, spin, halo };
+    return { kind, world, body, trail, trailG, trailN, tip, moonOrbitG, moonM, renderer, scene, camera, controls, earth, eg, elat, ecol, sun, ray, rayG, subsolar, ring, tg, ang, col, sheet, sheetMat, edge, spin, halo };
   }
   const L = makeStage('sL', 'oblique'), R = makeStage('sR', 'parallel');
   // keep the two cameras in step
@@ -214,7 +230,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--crest); out
   // ---------- state ----------
   let t = (2026.0 - J2000) * YEAR, playing = !matchMedia('(prefers-reduced-motion: reduce)').matches;
   const sp = document.getElementById('speed');
-  const speedOf = v => +(0.05 * Math.pow(10, v / 50)).toPrecision(2);   // 0.05 .. 5 d/s
+  const speedOf = v => +(0.05 * Math.pow(10, v / 100 * 3)).toPrecision(2);   // 0.05 .. 50 d/s
   let speed = speedOf(+sp.value);
   const showSpeed = () => document.getElementById('speedv').textContent = speed + ' d/s';
   showSpeed(); sp.oninput = () => { speed = speedOf(+sp.value); showSpeed(); };
@@ -225,6 +241,25 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--crest); out
   let eclipticLevel = false, tilt = 0;
   const frameBtn = document.getElementById('frame');
   frameBtn.onclick = () => { eclipticLevel = !eclipticLevel; frameBtn.setAttribute('aria-pressed', eclipticLevel); frameBtn.textContent = eclipticLevel ? 'Hold the equator level' : 'Hold the ecliptic level'; };
+  let mode = 'qbo', wob = 0;
+  const cwBtn = document.getElementById('cwMode'), ensoBtn = document.getElementById('ensoMode');
+  const NOTES = {
+    qbo: 'QBO view. The equinox gate opens twice a year and keeps the whole-ring draconic crest, so the ring oscillates every 2.37 years.',
+    cw: 'Chandler wobble view (tilt exaggerated about 200,000×: the real pole moves about 0.2 arcseconds, some 6 m on the ground). The annual gate samples the half-draconic 13.606-day cycle; its phase 2F − 26L advances 0.844 cycles a year, a 433-day wobble. The annual wobble follows the Sun (L). The two beat every 6.4 years, visible as the pole path swelling and shrinking.',
+    enso: 'ENSO view (abstract). The gate is local: once a year in September, and only over the Pacific sector of the ring. A local gate sees the tropical front as it passes that longitude, so it samples the Mf (13.661-day) strength, not the draconic crest. Mf aliased once a year repeats every 3.80 years. Red is a hot impulse, blue a cool one; the sector holds its state until the next September.'
+  };
+  function setMode(m) {
+    mode = mode === m ? 'qbo' : m;
+    cwBtn.setAttribute('aria-pressed', mode === 'cw'); ensoBtn.setAttribute('aria-pressed', mode === 'enso');
+    document.getElementById('modeNote').textContent = NOTES[mode];
+    const T = { qbo: ['What the equinox gate keeps', 'Twice a year the Sun crosses the equator and the gate opens. Each bar is the front\'s signed value at that moment. The parallel front builds a clean 2.37-year oscillation, the period the QBO actually has. The oblique front\'s samples make a 2.72-year pattern that the QBO does not show.'],
+      cw: ['The wobble the annual gate builds', 'One axis of the pole path, 1984–2030. The Chandler term is locked to the aliased half-draconic phase 2F − 26L (433 days); the annual term is locked to the Sun. Their sum beats every 6.4 years.'],
+      enso: ['What the September Pacific gate keeps', 'One impulse a year. Top: the Mf strength the local gate samples, red hot and blue cool, with the 3.80-year alias. Bottom, faint: the draconic value at the same moments, which a local gate does not single out.'] }[mode];
+    document.getElementById('recTitle').textContent = T[0]; document.getElementById('recText').textContent = T[1];
+    [L, R].forEach(S => { S.trail.visible = mode === 'cw'; S.tip.visible = mode === 'cw'; });
+    drawAll2D();
+  }
+  cwBtn.onclick = () => setMode('cw'); ensoBtn.onclick = () => setMode('enso');
   document.getElementById('toEqx').onclick = () => { let tt = t + 3; while (!gateOpen(tt)) tt += 0.25; t = tt - 3; };
 
   function paintRing(S, glowAt) {
@@ -269,6 +304,19 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--crest); out
     S.moonM.position.copy(orbitPoint(t, Fdeg(t)).multiplyScalar(2.75));
   }
   const seasonName = t => { const l = sunMod(t); return l < 90 ? 'N spring · S autumn' : l < 180 ? 'N summer · S winter' : l < 270 ? 'N autumn · S spring' : 'N winter · S summer'; };
+  // Chandler + annual pole offset (radians, exaggerated): Chandler phase locked to 2F - 26L, annual to L
+  const AC = 0.14, AA = 0.07;
+  function pole(t) {
+    const pc = (2 * Fdeg(t) - 26 * Lsun(t)) * D2R, pa = Lsun(t) * D2R;
+    return { x: AC * Math.cos(pc) + AA * Math.cos(pa), z: AC * Math.sin(pc) + AA * Math.sin(pa), pc, pa };
+  }
+  // ENSO: September (Sun at 175 deg) gate over the Pacific sector; impulse = Mf strength sin^2(dec) about its mean
+  const ensoGate = t => Math.abs(sunMod(t) - 175) < 2.5;
+  const MF_MEAN = 0.0792;
+  const mfKick = t => { const d = moon(t).dec * D2R; return (Math.sin(d) ** 2 - MF_MEAN) / MF_MEAN; };
+  const tS0 = (175 - 280.466 + 360) / (360 / YEAR);
+  function lastEnsoKick(t) { const n = Math.floor((t - tS0) / YEAR); const tt = tS0 + n * YEAR; return { tt, k: mfKick(tt) }; }
+  const inPacific = a => { const d = ((a / D2R) % 360 + 360) % 360; return d >= 90 && d <= 200; };   // ring angle 90-200 = lon 160E-90W
   const wrapd = a => { a = ((a + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI; return a; };
 
   function update() {
@@ -283,15 +331,45 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--crest); out
     R.spin.rotation.y = 0; R.sheet.rotation.set(-Math.PI / 2, 0, 0); R.sheet.position.y = h;
     const gR = Math.exp(-(h * h) / (HB * HB));
     const fR = paintRing(R, () => gR);
+    if (mode === 'enso') {
+      const k = lastEnsoKick(t), since = (t - k.tt) / YEAR, flash = Math.exp(-since * 25);
+      const cE = new THREE.Color(css(k.k >= 0 ? '--warm' : '--cool')), strength = Math.min(1, 0.35 + 0.5 * Math.abs(k.k) + 0.6 * flash);
+      const grey = new THREE.Color('#9a9a9a');
+      for (let i = 0; i < L.ang.length; i++) if (inPacific(L.ang[i])) {
+        const c = new THREE.Color(L.col[i * 3], L.col[i * 3 + 1], L.col[i * 3 + 2]).lerp(cE, strength);
+        L.col[i * 3] = c.r; L.col[i * 3 + 1] = c.g; L.col[i * 3 + 2] = c.b;
+        const c2 = new THREE.Color(R.col[i * 3], R.col[i * 3 + 1], R.col[i * 3 + 2]).lerp(grey, 0.45);
+        R.col[i * 3] = c2.r; R.col[i * 3 + 1] = c2.g; R.col[i * 3 + 2] = c2.b;
+      }
+      L.tg.attributes.color.needsUpdate = true; R.tg.attributes.color.needsUpdate = true;
+    }
+    wob += ((mode === 'cw' ? 1 : 0) - wob) * 0.06;
+    const P = pole(t);
+    [L, R].forEach(S => S.body.rotation.set(P.z * wob, 0, -P.x * wob));
+    if (mode === 'cw') {
+      const cNew = new THREE.Color(css('--hot')), cOld = new THREE.Color(css('--stage'));
+      [L, R].forEach(S => {
+        const pa = S.trailG.attributes.position.array, ca = S.trailG.attributes.color.array;
+        for (let k = 0; k < S.trailN; k++) {
+          const tk = t - (S.trailN - 1 - k) * 8, q = pole(tk), v = new THREE.Vector3(q.x * wob, 1, q.z * wob).normalize().multiplyScalar(1.62);
+          pa.set([v.x, v.y, v.z], k * 3);
+          const c = cOld.clone().lerp(cNew, 0.15 + 0.85 * k / (S.trailN - 1)); ca.set([c.r, c.g, c.b], k * 3);
+        }
+        S.trailG.attributes.position.needsUpdate = true; S.trailG.attributes.color.needsUpdate = true;
+        S.tip.position.set(pa[(S.trailN - 1) * 3], pa[(S.trailN - 1) * 3 + 1], pa[(S.trailN - 1) * 3 + 2]);
+      });
+    }
     const sdec = Math.asin(Math.sin(EPS) * Math.sin(Lsun(t) * D2R)), fs = Math.sin(sdec) / Math.sin(EPS);
     [L, R].forEach(S => { paintSeasons(S, fs); placeSun(S, t); placeMoon(S, t); });
     const goal = eclipticLevel ? -EPS : 0;
     tilt += (goal - tilt) * (matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 0.08);
     [L, R].forEach(S => S.world.rotation.x = tilt);
-    const open = gateOpen(t);
-    [L, R].forEach(S => S.halo.material.opacity = open ? 0.35 : 0);
-    document.getElementById('gateL').style.opacity = open ? 1 : 0;
-    document.getElementById('gateR').style.opacity = open ? 1 : 0;
+    const open = mode === 'enso' ? ensoGate(t) : gateOpen(t);
+    [L, R].forEach(S => S.halo.material.opacity = open && mode !== 'enso' ? 0.35 : 0);
+    const gl = document.getElementById('gateL'), gr = document.getElementById('gateR');
+    if (mode === 'enso') { const k = mfKick(t); gl.textContent = 'September Pacific gate: ' + (k >= 0 ? 'hot' : 'cool'); gr.textContent = 'local gate: no whole-ring advantage'; }
+    else { gl.textContent = gr.textContent = 'equinox gate open'; }
+    gl.style.opacity = open ? 1 : 0; gr.style.opacity = open ? 1 : 0;
     document.getElementById('fillL').style.width = (fL * 100).toFixed(0) + '%';
     document.getElementById('pctL').textContent = (fL * 100).toFixed(0).padStart(3) + '%';
     document.getElementById('fillR').style.width = (fR * 100).toFixed(0) + '%';
@@ -300,6 +378,12 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--crest); out
     document.getElementById('hudR').innerHTML = `latitude β ${m.beta.toFixed(2).padStart(6)}°<br>above the ecliptic`;
     const sline = `<br>Sun ${(sdec / D2R).toFixed(1).padStart(5)}° · ${seasonName(t)}`;
     document.getElementById('hudL').innerHTML += sline; document.getElementById('hudR').innerHTML += sline;
+    if (mode === 'cw') {
+      const deg = a => (((a / D2R) % 360) + 360) % 360;
+      const wl = `<br>Chandler phase 2F−26L ${deg(P.pc).toFixed(0).padStart(4)}°<br>annual phase L ${deg(P.pa).toFixed(0).padStart(4)}°`;
+      document.getElementById('hudL').innerHTML += wl; document.getElementById('hudR').innerHTML += wl;
+    }
+    if (mode === 'enso') { const k = lastEnsoKick(t); document.getElementById('hudL').innerHTML += `<br>last impulse ${new Date(Date.UTC(2000, 0, 1, 12) + k.tt * 864e5).toISOString().slice(0, 7)}: ${k.k >= 0 ? 'hot' : 'cool'} ${k.k.toFixed(2)}`; }
     const yr = J2000 + t / YEAR, d = new Date(Date.UTC(2000, 0, 1, 12) + t * 864e5);
     document.getElementById('clock').textContent = d.toISOString().slice(0, 10);
   }
@@ -319,7 +403,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--crest); out
   }
   function surfL() {
     const { g, w, h } = prep(document.getElementById('tL')), pad = { l: 40, r: 6, t: 4, b: 16 };
-    surfFrame(g, w, h, pad);
+    pacificBand(g, w, h, pad); surfFrame(g, w, h, pad);
     const X = a => pad.l + a / 360 * (w - pad.l - pad.r), Y = dt => pad.t + dt / SPAN * (h - pad.t - pad.b);
     g.strokeStyle = css('--shore'); g.lineWidth = 1.4;
     for (const off of [0, 180]) {
@@ -341,9 +425,20 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--crest); out
       const dt = k / rows * SPAN, hh = moon(t - dt).beta * BSCALE, a = Math.exp(-(hh * hh) / (HB * HB));
       if (a > 0.02) { g.globalAlpha = a; g.fillRect(pad.l, Y(dt), w - pad.l - pad.r, (h - pad.t - pad.b) / rows + 0.6); }
     }
-    g.globalAlpha = 1; surfFrame(g, w, h, pad); gateMarks(g, w, h, pad, Y);
+    g.globalAlpha = 1; pacificBand(g, w, h, pad); surfFrame(g, w, h, pad); gateMarks(g, w, h, pad, Y);
+  }
+  function pacificBand(g, w, h, pad) {
+    if (mode !== 'enso') return;
+    const X = a => pad.l + a / 360 * (w - pad.l - pad.r);
+    g.fillStyle = css('--muted'); g.globalAlpha = 0.14; g.fillRect(X(90), pad.t, X(200) - X(90), h - pad.t - pad.b); g.globalAlpha = 1;
+    g.fillStyle = css('--muted'); g.font = '11px "IBM Plex Sans", sans-serif'; g.textAlign = 'center'; g.fillText('Pacific', (X(90) + X(200)) / 2, pad.t + 12);
   }
   function gateMarks(g, w, h, pad, Y) {
+    if (mode === 'enso') {
+      g.globalAlpha = 0.5;
+      for (let k = 0; k < SPAN * 4; k++) { const dt = k / 4; if (ensoGate(t - dt)) { g.fillStyle = css(mfKick(t - dt) >= 0 ? '--warm' : '--cool'); g.fillRect(pad.l - 6, Y(dt), 4, (h - pad.t - pad.b) / (SPAN * 4) + 0.5); } }
+      g.globalAlpha = 1; return;
+    }
     g.fillStyle = css('--hot'); g.globalAlpha = 0.35;
     for (let k = 0; k < SPAN * 4; k++) { const dt = k / 4; if (gateOpen(t - dt)) g.fillRect(pad.l - 6, Y(dt), 4, (h - pad.t - pad.b) / (SPAN * 4) + 0.5); }
     g.globalAlpha = 1;
@@ -363,7 +458,59 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--crest); out
     return x => A * Math.sin(2 * Math.PI * x / P) + B * Math.cos(2 * Math.PI * x / P);
   }
   const fD = fit('b', mb, 1 / 0.42199), fT = fit('d', md, 1 / 0.36834);
+  // September samples for the ENSO view
+  const sep = [];
+  for (let n = Math.floor((1984 - J2000)); n <= Math.ceil(2030 - J2000); n++) { const tt = tS0 + n * YEAR; sep.push({ yr: J2000 + tt / YEAR, mf: mfKick(tt), b: moon(tt).beta }); }
+  const mfMax = Math.max(...sep.map(s => Math.abs(s.mf))), bMax = Math.max(...sep.map(s => Math.abs(s.b)));
+  function fitArr(arr, key, scale, P) {
+    let a = 0, bb = 0, cc = 0, sy = 0, cy = 0;
+    arr.forEach(s => { const x = s.yr, y = s[key] / scale, si = Math.sin(2 * Math.PI * x / P), co = Math.cos(2 * Math.PI * x / P); a += si * si; bb += si * co; cc += co * co; sy += si * y; cy += co * y; });
+    const det = a * cc - bb * bb, A = (sy * cc - cy * bb) / det, B = (cy * a - sy * bb) / det;
+    return x => A * Math.sin(2 * Math.PI * x / P) + B * Math.cos(2 * Math.PI * x / P);
+  }
+  const fMf = fitArr(sep, 'mf', mfMax, 1 / 0.26346), fSepB = fitArr(sep, 'b', bMax, 1 / 0.42199);
+  function recordAxes(g, w, h, pad, lo, hi, labels) {
+    const X = x => pad.l + (x - lo) / (hi - lo) * (w - pad.l - pad.r);
+    const rowH = (h - pad.t - pad.b) / 2, Yc = [pad.t + rowH * 0.5, pad.t + rowH * 1.5], amp = rowH * 0.42;
+    g.font = '11px "IBM Plex Mono", monospace'; g.fillStyle = css('--muted'); g.strokeStyle = css('--rule'); g.lineWidth = 1;
+    g.textAlign = 'center'; for (let y = 1985; y <= hi; y += 5) g.fillText(y, X(y), h - 4);
+    Yc.forEach(y => { g.beginPath(); g.moveTo(pad.l, y); g.lineTo(w - pad.r, y); g.stroke(); });
+    g.textAlign = 'right'; g.font = '12px "IBM Plex Sans", sans-serif';
+    labels.forEach(([a, b, col], r) => { g.fillStyle = css(col); g.fillText(a, pad.l - 8, Yc[r] - 2); g.fillStyle = css('--muted'); g.fillText(b, pad.l - 8, Yc[r] + 13); });
+    return { X, Yc, amp };
+  }
+  function curve(g, X, f, lo, hi, y0, amp, col, alpha, lw) {
+    g.globalAlpha = alpha; g.strokeStyle = css(col); g.lineWidth = lw; g.beginPath();
+    for (let k = 0; k <= 1200; k++) { const x = lo + (hi - lo) * k / 1200, y = y0 - f(x) * amp; k ? g.lineTo(X(x), y) : g.moveTo(X(x), y); }
+    g.stroke(); g.globalAlpha = 1;
+  }
+  function recordCW() {
+    const { g, w, h } = prep(document.getElementById('rec')), pad = { l: 92, r: 8, t: 10, b: 20 }, lo = 1984, hi = 2030;
+    const { X, Yc, amp } = recordAxes(g, w, h, pad, lo, hi, [['components', 'Chandler, annual', '--crest'], ['pole x', '6.4-yr beat', '--fg']]);
+    const toT = yr => (yr - J2000) * YEAR, now = J2000 + t / YEAR, S = AC + AA;
+    curve(g, X, yr => AC * Math.cos(pole(toT(yr)).pc) / S, lo, hi, Yc[0], amp, '--crest', 0.9, 1.2);
+    curve(g, X, yr => AA * Math.cos(pole(toT(yr)).pa) / S, lo, hi, Yc[0], amp, '--hot', 0.9, 1.2);
+    curve(g, X, yr => pole(toT(yr)).x / S, lo, Math.min(hi, now), Yc[1], amp, '--fg', 1, 1.4);
+    curve(g, X, yr => pole(toT(yr)).x / S, Math.min(hi, now), hi, Yc[1], amp, '--fg', 0.2, 1.4);
+    g.strokeStyle = css('--muted'); g.setLineDash([3, 3]); g.beginPath(); g.moveTo(X(now), pad.t); g.lineTo(X(now), h - pad.b); g.stroke(); g.setLineDash([]);
+  }
+  function recordENSO() {
+    const { g, w, h } = prep(document.getElementById('rec')), pad = { l: 92, r: 8, t: 10, b: 20 }, lo = 1984, hi = 2030;
+    const { X, Yc, amp } = recordAxes(g, w, h, pad, lo, hi, [['Mf at gate', '3.80 yr', '--warm'], ['draconic', 'not selected', '--crest']]);
+    const now = J2000 + t / YEAR, bw = Math.max(3, (w - pad.l - pad.r) / (hi - lo) * 0.5);
+    curve(g, X, fMf, lo, hi, Yc[0], amp, '--fg', 0.4, 1.3);
+    sep.forEach(s => { if (s.yr < lo || s.yr > hi) return; const v = s.mf / mfMax, y1 = Yc[0] - v * amp;
+      g.fillStyle = css(v >= 0 ? '--warm' : '--cool'); g.globalAlpha = s.yr <= now ? 1 : 0.2; g.fillRect(X(s.yr) - bw / 2, Math.min(Yc[0], y1), bw, Math.max(1, Math.abs(y1 - Yc[0]))); });
+    g.globalAlpha = 1;
+    curve(g, X, fSepB, lo, hi, Yc[1], amp, '--crest', 0.25, 1.2);
+    sep.forEach(s => { if (s.yr < lo || s.yr > hi) return; const v = s.b / bMax, y1 = Yc[1] - v * amp;
+      g.fillStyle = css('--crest'); g.globalAlpha = s.yr <= now ? 0.35 : 0.1; g.fillRect(X(s.yr) - bw / 2, Math.min(Yc[1], y1), bw, Math.max(1, Math.abs(y1 - Yc[1]))); });
+    g.globalAlpha = 1;
+    g.strokeStyle = css('--muted'); g.setLineDash([3, 3]); g.beginPath(); g.moveTo(X(now), pad.t); g.lineTo(X(now), h - pad.b); g.stroke(); g.setLineDash([]);
+  }
   function record() {
+    if (mode === 'cw') return recordCW();
+    if (mode === 'enso') return recordENSO();
     const { g, w, h } = prep(document.getElementById('rec')), pad = { l: 92, r: 8, t: 10, b: 20 };
     const lo = 1984, hi = 2030, X = x => pad.l + (x - lo) / (hi - lo) * (w - pad.l - pad.r);
     const rowH = (h - pad.t - pad.b) / 2, Yc = [pad.t + rowH * 0.5, pad.t + rowH * 1.5], amp = rowH * 0.42;
@@ -404,6 +551,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--crest); out
     if (now - tick2d > 150) { drawAll2D(); tick2d = now; }
     requestAnimationFrame(frame);
   }
+  document.getElementById('modeNote').textContent = NOTES.qbo;
   update(); drawAll2D(); requestAnimationFrame(frame);
 })();
 </script>

@@ -499,6 +499,16 @@ package body GEM.LTE.Primitives.Shared is
       if Ctx.Known then
          Set_Field (Obj, "aero", Create (Ctx.Aero_Coef));
       end if;
+      if Ctx.Known and then Ctx.Tess_Freq /= 0.0 then
+         declare
+            Tess : constant JSON_Value := Create_Object;
+         begin
+            Set_Field (Tess, "freq", Create (Ctx.Tess_Freq));
+            Set_Field (Tess, "sin", Create (Ctx.Tess_Sin));
+            Set_Field (Tess, "cos", Create (Ctx.Tess_Cos));
+            Set_Field (Obj, "tess", Tess);
+         end;
+      end if;
       if Ctx.Known and then NM + NH >= 1 then
          Add_Secular_Context;
       end if;

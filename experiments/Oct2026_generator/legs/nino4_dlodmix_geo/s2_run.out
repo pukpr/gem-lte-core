@@ -1,0 +1,1312 @@
+RESPONSE FILE
+ALIAS not set, use default
+EXCLUDE not set, use default
+ALTERNATE not set, use default
+CLIMATE_INDEX not set, use default
+DLOD_REF not set, use default
+EVERY not set, use default
+FILTER 0.0
+FLIP 0.0015
+FORCING not set, use default
+FSTEP not set, use default
+IMPULSE not set, use default
+MAXH 15
+MAXLOOPS not set, use default
+MERMS not set, use default
+METRIC not set, use default
+MLR not set, use default
+NH 1 1
+NM 1
+RESET not set, use default
+SAMPLING not set, use default
+SCALING not set, use default
+SPLIT_LOW not set, use default
+SPLIT_TRAINING not set, use default
+SPREAD_CYCLE not set, use default
+SPREAD_MIN 0.000001
+SPREAD_MAX 0.45
+STARTING_METRIC not set, use default
+STEP not set, use default
+THRESHOLD not set, use default
+THRESHOLD_ACTION CATCHUP
+TRAIN_END not set, use default
+TRAIN_START not set, use default
+TREND not set, use default
+YEAR 0.00405305
+F9 not set, use default
+DECAY 48.0
+FMULT not set, use default
+FSTART not set, use default
+LOCKF not set, use default
+SYM not set, use default
+NONLIN not set, use default
+IDATE 1880.0
+TEST_ONLY not set, use default
+TIMEOUT not set, use default
+NUMBER_OF_PROCESSORS not set, use default
+LOCKT not set, use default
+DTW 3
+LOCKA not set, use default
+CAL_LOD not set, use default
+FRICTION not set, use default
+JERK 0.0
+RIDGE not set, use default
+COVERAGE not set, use default
+ENCLOSING not set, use default
+ENCLOSED not set, use default
+UNCOMPENSATED not set, use default
+STRICT_IDATE TRUE
+INIT_DATE 1880.0
+VALIDATE not set, use default
+MANIFOLD not set, use default
+ACCEL not set, use default
+AERO not set, use default
+AERO_LAG not set, use default
+ALPHA not set, use default
+ALPHA_GAIN not set, use default
+ALPHA_SLOPE not set, use default
+ALPHA_SIGN not set, use default
+LAYER not set, use default
+LAYER_K not set, use default
+LAYER_HP not set, use default
+LAYER_MIX not set, use default
+IR_SIDE not set, use default
+IR_BASE not set, use default
+IR_LAG not set, use default
+ANNUAL_DITHER not set, use default
+ANNUAL_DITHER_PHASE not set, use default
+ANNUAL_DITHER_STAGE not set, use default
+TIDES not set, use default
+ZONAL_KAPPA not set, use default
+ZONAL_TAU not set, use default
+ZONAL_WSUN not set, use default
+ZONAL_ECC not set, use default
+ZONAL_EVECT not set, use default
+ZONAL_VAR not set, use default
+ZONAL_ANNEQ not set, use default
+ZONAL_INCL not set, use default
+IMPULSE_MOD12 not set, use default
+TIDE_LEGACY not set, use default
+HYBRID_LAMBDA not set, use default
+LOD_TERM not set, use default
+LOD_FLOOR not set, use default
+ZONAL_RHO not set, use default
+ZONAL_ADJ not set, use default
+ZONAL_SIDEREAL not set, use default
+ZONAL_SIDEREAL_SUN not set, use default
+TROPICAL not set, use default
+IMPULSE_EXACT not set, use default
+FB_LO not set, use default
+FB_HI not set, use default
+FB_LO2 not set, use default
+FB_HI2 not set, use default
+LEGS 1
+LEG_WEIGHT not set, use default
+SELECT_TOP not set, use default
+SELECT_TIE not set, use default
+LEG_IR not set, use default
+LEG_COMMON not set, use default
+LEG_SCALE not set, use default
+LEG_SCORE not set, use default
+FORECAST_YEARS not set, use default
+LEG RESPONSE FILE lt.exe.resp.1
+  CLIMATE_INDEX nino4.dat
+ 8 processors available, timeout= 2700.000000000
+*** JSON-ONLY MODE ***
+Reading primary file: lt.exe.p
+=== Reading JSON LPAP from: LPAP ===
+  Field 'LPAP' not found in JSON
+=== Reading JSON LPAP from: lpap ===
+  Array contains 42 triplets
+  MATCH: JSON period 2.73216615540000E+01 -> Index 1 (LP= 2.73216615540000E+01, diff= 3.55271367880050E-15, Amp=-5.61294772499301E-01, Phase= 9.25392934661601E-01)
+  MATCH: JSON period 2.72122208150000E+01 -> Index 2 (LP= 2.72122208150000E+01, diff= 3.55271367880050E-15, Amp= 1.70999865936267E-01, Phase=-1.41982574651272E+01)
+  MATCH: JSON period 1.09517502233364E+03 -> Index 3 (LP= 1.09517502233364E+03, diff= 4.09272615797818E-12, Amp= 1.82864578231789E-01, Phase= 1.58830828333606E-02)
+  MATCH: JSON period 1.36334156847556E+01 -> Index 4 (LP= 1.36334156847556E+01, diff= 4.97379915032070E-14, Amp= 2.76589569054046E-01, Phase= 4.47125350944556E+00)
+  MATCH: JSON period 1.36608307770000E+01 -> Index 5 (LP= 1.36608307770000E+01, diff= 1.77635683940025E-15, Amp=-3.47820151980785E+00, Phase= 1.15047202424087E+00)
+  MATCH: JSON period 1.36061104075000E+01 -> Index 6 (LP= 1.36061104075000E+01, diff= 1.77635683940025E-15, Amp= 2.82885990317401E-01, Phase=-1.01574698279530E+00)
+  MATCH: JSON period 2.75545498860000E+01 -> Index 7 (LP= 2.75545498860000E+01, diff= 3.55271367880050E-15, Amp= 1.58915570869831E-01, Phase= 3.76739324894514E+00)
+  MATCH: JSON period 1.37772749430000E+01 -> Index 8 (LP= 1.37772749430000E+01, diff= 1.77635683940025E-15, Amp= 4.92643260109857E-01, Phase=-2.47216640208209E+00)
+  MATCH: JSON period 6.79347648813065E+03 -> Index 9 (LP= 6.79347648813065E+03, diff= 4.54747350886464E-12, Amp=-4.83454183183081E-02, Phase=-5.71690519578297E+00)
+  MATCH: JSON period 1.61630271425126E+03 -> Index 10 (LP= 1.61630271425126E+03, diff= 2.95585778076202E-12, Amp= 1.06830074275920E-01, Phase=-3.73132055713968E-01)
+  MATCH: JSON period 3.18120940388036E+01 -> Index 11 (LP= 3.18120938043517E+01, diff= 2.34451892566767E-07, Amp= 8.14182749154823E-02, Phase= 7.07775207408447E+00)
+  MATCH: JSON period 1.30566025845931E+03 -> Index 12 (LP= 1.30566025845931E+03, diff= 2.50111042987555E-12, Amp= 1.32058010694642E-01, Phase= 2.45465627974598E+01)
+  MATCH: JSON period 2.74432392622558E+01 -> Index 13 (LP= 2.74432392622558E+01, diff= 2.13162820728030E-14, Amp= 1.05372718409744E-01, Phase= 3.85204899557368E+00)
+  MATCH: JSON period 2.76667671457246E+01 -> Index 14 (LP= 2.76667671457246E+01, diff= 3.90798504668055E-14, Amp= 2.48309729272316E-01, Phase=-9.49350054030445E-01)
+  MATCH: JSON period 2.19035004466729E+03 -> Index 15 (LP= 2.19035004466729E+03, diff= 1.81898940354586E-12, Amp= 6.53245672290044E-02, Phase=-2.73009234335473E+00)
+  MATCH: JSON period 2.69850593472905E+01 -> Index 16 (LP= 2.69850593472905E+01, diff= 7.10542735760100E-15, Amp= 2.82064597227790E-02, Phase=-1.32964996038092E+00)
+  MATCH: JSON period 6.16720701373239E+03 -> Index 17 (LP= 6.16720701373239E+03, diff= 0.00000000000000E+00, Amp=-4.44330162030246E-02, Phase= 2.66859237396070E+01)
+  MATCH: JSON period-3.23260542850251E+03 -> Index 18 (LP=-3.23260542850251E+03, diff= 4.09272615797818E-12, Amp= 8.88122010540113E-02, Phase=-4.28386403927750E-02)
+  MATCH: JSON period-2.12090900683440E+03 -> Index 19 (LP=-2.12090900683440E+03, diff= 4.09272615797818E-12, Amp= 9.34543324405927E-02, Phase= 5.30043928494675E+00)
+  MATCH: JSON period 9.13295078375850E+00 -> Index 20 (LP= 9.13295078375850E+00, diff= 3.55271367880050E-15, Amp= 1.24237583265169E-02, Phase=-3.61747134175962E+00)
+  MATCH: JSON period 9.12068919638272E+00 -> Index 21 (LP= 9.12068919638272E+00, diff= 3.55271367880050E-15, Amp= 1.59301563701348E-02, Phase=-3.61836195650097E+00)
+  MATCH: JSON period 9.10846048883933E+00 -> Index 22 (LP= 9.10846048883933E+00, diff= 3.55271367880050E-15, Amp=-6.73189703507129E-02, Phase= 6.18297943649554E+00)
+  MATCH: JSON period 3.39673824406533E+03 -> Index 23 (LP= 3.39673824406533E+03, diff= 2.72848410531878E-12, Amp= 2.44663244348357E-02, Phase=-4.96043733223449E+00)
+  MATCH: JSON period 1.65631999626209E+03 -> Index 24 (LP= 1.65631999626209E+03, diff= 0.00000000000000E+00, Amp= 1.77770526045057E-02, Phase=-1.98440950081405E+00)
+  MATCH: JSON period 9.55688764438291E+00 -> Index 25 (LP= 9.55688762322357E+00, diff= 2.11593427223988E-08, Amp= 5.51383827423219E-02, Phase= 6.49315207733704E+00)
+  MATCH: JSON period 9.18484996200000E+00 -> Index 26 (LP= 9.18484996200000E+00, diff= 0.00000000000000E+00, Amp= 1.46124321373741E-02, Phase= 2.39361578848111E+00)
+  MATCH: JSON period 9.54346214778420E+00 -> Index 27 (LP= 9.54346212668427E+00, diff= 2.10999324679051E-08, Amp= 2.17059120499957E-01, Phase=-2.89478335756962E+00)
+  MATCH: JSON period 7.08840688274068E+00 -> Index 28 (LP= 7.08840687110032E+00, diff= 1.16403615635363E-08, Amp= 1.06983253911650E-01, Phase=-9.82686181506462E-01)
+  MATCH: JSON period 6.85248390315609E+00 -> Index 29 (LP= 6.85248390315609E+00, diff= 3.55271367880050E-15, Amp= 9.16329177751535E-02, Phase=-4.38286146090015E+00)
+  MATCH: JSON period 6.85940288608689E+00 -> Index 30 (LP= 6.85940288608689E+00, diff= 4.44089209850063E-15, Amp= 2.53533491208695E-01, Phase= 1.10394782202113E+01)
+  MATCH: JSON period 7.09581074935334E+00 -> Index 31 (LP= 7.09581073768865E+00, diff= 1.16646949877008E-08, Amp= 2.84733589583535E-01, Phase= 4.18153950185324E+00)
+  MATCH: JSON period 5.64270811874850E+00 -> Index 32 (LP= 5.64270811137210E+00, diff= 7.37640259984573E-09, Amp= 1.64145615554561E-01, Phase= 1.80592658439554E-01)
+  MATCH: JSON period 1.47653273659976E+01 -> Index 33 (LP= 1.47653273154901E+01, diff= 5.05074524426163E-08, Amp= 0.00000000000000E+00, Phase=-9.05084640079495E-01)
+  MATCH: JSON period 9.61373179479856E+00 -> Index 34 (LP= 9.61373177338676E+00, diff= 2.14118038854849E-08, Amp= 1.10107624885535E-03, Phase= 7.52162980466723E-01)
+  MATCH: JSON period 2.70926769265989E+01 -> Index 35 (LP= 2.70926769265989E+01, diff= 3.55271367880050E-15, Amp= 0.00000000000000E+00, Phase=-1.72887715483105E+01)
+  MATCH: JSON period 5.63802513643941E+00 -> Index 36 (LP= 5.63802512907525E+00, diff= 7.36415817215175E-09, Amp= 1.24242659777938E-01, Phase=-7.79442990612332E+00)
+  MATCH: JSON period 5.49218394831290E+00 -> Index 37 (LP= 5.49218394831290E+00, diff= 4.44089209850063E-15, Amp= 3.23701672204383E-01, Phase=-3.85197710875097E+00)
+  MATCH: JSON period 1.47974890685771E+01 -> Index 38 (LP= 1.47974890178494E+01, diff= 5.07276904926357E-08, Amp= 1.80208360725773E-01, Phase=-2.50834065615008E+00)
+  MATCH: JSON period 1.47333051643583E+01 -> Index 39 (LP= 1.47333051140697E+01, diff= 5.02886337017117E-08, Amp= 0.00000000000000E+00, Phase= 3.25990141465686E+00)
+  MATCH: JSON period 1.53873722641758E+01 -> Index 40 (LP= 1.53873721818968E+01, diff= 8.22790457988276E-08, Amp= 2.87959161767463E-02, Phase= 5.96502591154813E-01)
+  MATCH: JSON period 2.39421150505050E+01 -> Index 41 (LP= 2.39421151833038E+01, diff= 1.32798835039694E-07, Amp= 0.00000000000000E+00, Phase=-1.52948661736395E+00)
+  MATCH: JSON period 1.82623142998534E+02 -> Index 42 (LP= 1.82623150725000E+02, diff= 7.72646598079518E-06, Amp= 6.65856386757589E-02, Phase= 1.35635110346432E+00)
+=== LPAP Summary: Matched 42 out of 42 JSON triplets ===
+
+Successfully loaded: lt.exe.p
+*** JSON FILE LOADED SUCCESSFULLY ***
+records from  1 ...  20829
+factors from  1 ...  42
+updated forcing  2019.03045764056
+   0.97108350798=CC  365.24628599707=Yr
+YA=-1.54529313250495E-05
+Referencing dLOD
+nino4.dat for Thread # 1 2
+nino4.dat for Thread # 2 3
+records from  1 ...  20829
+factors from  1 ...  42
+updated forcing  2019.03045764056
+nino4.dat for Thread # 3 4
+nino4.dat for Thread # 4 5
+nino4.dat for Thread # 5 6
+nino4.dat for Thread # 6 7
+nino4.dat for Thread # 7 8
+nino4.dat for Thread # 8 9
+   0.97108350798=CC  365.24628599707=Yr
+=== Param_B Overlay Verification ===
+  NLP (tidal constituents) =  42
+  NLT (modulations) =  11
+  Expected overlay size =  122
+  Calculated (P'Size / LF'Size - 1) =  122
+  Manual ( 27 + NLP*2 + NLT) =  122
+  ✓ Layout verification PASSED
+  Scalar fields: 1.. 27
+  LPAP array:  28.. 111
+  LT array:  112.. 122
+
+Catchup mode enabled:TRUE
+records from  1 ...  20829
+factors from  1 ...  42
+updated forcing  2019.03045764056
+Status:  1 2   0.72923   0.20976 # 20
+   0.97108350798=CC  365.24628599707=Yr
+=== Param_B Overlay Verification ===
+  NLP (tidal constituents) =  42
+  NLT (modulations) =  11
+  Expected overlay size =  122
+  Calculated (P'Size / LF'Size - 1) =  122
+  Manual ( 27 + NLP*2 + NLT) =  122
+  ✓ Layout verification PASSED
+  Scalar fields: 1.. 27
+  LPAP array:  28.. 111
+  LT array:  112.. 122
+
+Catchup mode enabled:TRUE
+records from  1 ...  20829
+factors from  1 ...  42
+updated forcing  2019.03045764056
+Status:  1 2   0.72923   0.20968 # 40
+   0.97108350798=CC  365.24628599707=Yr
+=== Param_B Overlay Verification ===
+  NLP (tidal constituents) =  42
+  NLT (modulations) =  11
+  Expected overlay size =  122
+  Calculated (P'Size / LF'Size - 1) =  122
+  Manual ( 27 + NLP*2 + NLT) =  122
+  ✓ Layout verification PASSED
+  Scalar fields: 1.. 27
+  LPAP array:  28.. 111
+  LT array:  112.. 122
+
+Catchup mode enabled:TRUE
+records from  1 ...  20829
+factors from  1 ...  42
+updated forcing  2019.03045764056
+Status:  2 2   0.72930   0.24289 # 60
+Status:  2 2   0.72959   0.15619 # 80
+   0.97108350798=CC  365.24628599707=Yr
+=== Param_B Overlay Verification ===
+  NLP (tidal constituents) =  42
+  NLT (modulations) =  11
+  Expected overlay size =  122
+  Calculated (P'Size / LF'Size - 1) =  122
+  Manual ( 27 + NLP*2 + NLT) =  122
+  ✓ Layout verification PASSED
+  Scalar fields: 1.. 27
+  LPAP array:  28.. 111
+  LT array:  112.. 122
+
+Catchup mode enabled:TRUE
+records from  1 ...  20829
+factors from  1 ...  42
+updated forcing  2019.03045764056
+Status:  2 2   0.72959   0.15619 # 100
+Status:  1 2   0.72969   0.16197 # 120
+   0.97108350798=CC  365.24628599707=Yr
+=== Param_B Overlay Verification ===
+  NLP (tidal constituents) =  42
+  NLT (modulations) =  11
+  Expected overlay size =  122
+  Calculated (P'Size / LF'Size - 1) =  122
+  Manual ( 27 + NLP*2 + NLT) =  122
+  ✓ Layout verification PASSED
+  Scalar fields: 1.. 27
+  LPAP array:  28.. 111
+  LT array:  112.. 122
+
+Catchup mode enabled:TRUE
+records from  1 ...  20829
+factors from  1 ...  42
+updated forcing  2019.03045764056
+Status:  3 2   0.72969   0.15909 # 140
+Status:  1 2   0.72971   0.15888 # 160
+   0.97108350798=CC  365.24628599707=Yr
+=== Param_B Overlay Verification ===
+  NLP (tidal constituents) =  42
+  NLT (modulations) =  11
+  Expected overlay size =  122
+  Calculated (P'Size / LF'Size - 1) =  122
+  Manual ( 27 + NLP*2 + NLT) =  122
+  ✓ Layout verification PASSED
+  Scalar fields: 1.. 27
+  LPAP array:  28.. 111
+  LT array:  112.. 122
+
+Catchup mode enabled:TRUE
+records from  1 ...  20829
+factors from  1 ...  42
+updated forcing  2019.03045764056
+Status:  2 2   0.72971   0.15930 # 180
+   0.97108350798=CC  365.24628599707=Yr
+=== Param_B Overlay Verification ===
+  NLP (tidal constituents) =  42
+  NLT (modulations) =  11
+  Expected overlay size =  122
+  Calculated (P'Size / LF'Size - 1) =  122
+  Manual ( 27 + NLP*2 + NLT) =  122
+  ✓ Layout verification PASSED
+  Scalar fields: 1.. 27
+  LPAP array:  28.. 111
+  LT array:  112.. 122
+
+Catchup mode enabled:TRUE
+records from  1 ...  20829
+factors from  1 ...  42
+updated forcing  2019.03045764056
+Status:  4 2   0.72975   0.18409 # 200
+Status:  6 115   0.73140   0.00000 # 220
+   0.97108350798=CC  365.24628599707=Yr
+=== Param_B Overlay Verification ===
+  NLP (tidal constituents) =  42
+  NLT (modulations) =  11
+  Expected overlay size =  122
+  Calculated (P'Size / LF'Size - 1) =  122
+  Manual ( 27 + NLP*2 + NLT) =  122
+  ✓ Layout verification PASSED
+  Scalar fields: 1.. 27
+  LPAP array:  28.. 111
+  LT array:  112.. 122
+
+Catchup mode enabled:TRUE
+Status:  6 2   0.73140   0.00000 # 240
+Status:  6 2   0.73140   0.00000 # 260
+Status:  6 2   0.73140   0.00000 # 280
+Status:  1 2   0.73289   0.00000 # 300
+Status:  1 2   0.73289   0.00000 # 320
+Status:  1 2   0.73289   0.00000 # 340
+Status:  1 2   0.73289   0.00000 # 360
+Status:  5 2   0.73344   0.00000 # 380
+Status:  1 105   0.73352   0.00000 # 400
+Status:  3 2   0.73364   0.12084 # 420
+Status:  1 2   0.73395   0.00000 # 440
+Status:  3 2   0.73406   0.00000 # 460
+Status:  8 2   0.73408   0.00000 # 480
+Status:  1 2   0.73423   0.00000 # 500
+Status:  5 2   0.73442   0.00000 # 520
+Status:  3 2   0.73475   0.00000 # 540
+Status:  3 2   0.73475   0.00000 # 560
+Status:  7 2   0.73488   0.25860 # 580
+Status:  5 2   0.73491   0.00000 # 600
+Status:  4 2   0.73517   0.00000 # 620
+Status:  6 2   0.73529   0.00000 # 640
+Status:  5 2   0.73534   0.00000 # 660
+Status:  5 2   0.73537   0.00000 # 680
+Status:  8 2   0.73541   0.00000 # 700
+Status:  5 69   0.73541   0.00000 # 720
+Status:  6 41   0.73545   0.00000 # 740
+Status:  1 2   0.73548   0.00000 # 760
+Status:  6 76   0.73558   0.00000 # 780
+Status:  8 2   0.73561   0.00000 # 800
+Status:  6 2   0.73562   0.00000 # 820
+Status:  3 2   0.73568   0.00000 # 840
+Status:  7 2   0.73584   0.20533 # 860
+Status:  4 2   0.73593   0.00000 # 880
+Status:  5 2   0.73605   0.00000 # 900
+Status:  7 2   0.73610   0.18221 # 920
+Status:  7 2   0.73610   0.18222 # 940
+Status:  4 2   0.73615   0.00000 # 960
+Status:  5 69   0.73616   0.00000 # 980
+Status:  1 2   0.73635   0.00000 # 1000
+Status:  6 2   0.73637   0.00000 # 1020
+Status:  5 2   0.73641   0.00000 # 1040
+Status:  4 2   0.73645   0.00000 # 1060
+Status:  3 2   0.73652   0.00000 # 1080
+Status:  3 2   0.73686   0.17511 # 1100
+Status:  3 2   0.73686   0.17507 # 1120
+Status:  3 2   0.73687   0.16418 # 1140
+Status:  1 2   0.73689   0.00000 # 1160
+Status:  6 145   0.73694   0.00000 # 1180
+Status:  7 2   0.73698   0.17379 # 1200
+Status:  4 2   0.73700   0.00000 # 1220
+Status:  5 2   0.73701   0.00000 # 1240
+Status:  6 2   0.73704   0.00000 # 1260
+Status:  1 2   0.73713   0.00000 # 1280
+Status:  5 2   0.73714   0.00000 # 1300
+Status:  7 2   0.73719   0.17367 # 1320
+Status:  7 2   0.73780   0.00000 # 1340
+Status:  3 2   0.73784   0.13562 # 1360
+Status:  3 2   0.73784   0.13570 # 1380
+Status:  4 2   0.73788   0.00000 # 1400
+Status:  7 2   0.73790   0.00000 # 1420
+Status:  3 2   0.73792   0.14171 # 1440
+Status:  7 2   0.73799   0.00000 # 1460
+Status:  4 2   0.73804   0.00000 # 1480
+Status:  8 2   0.73805   0.00000 # 1500
+Status:  1 2   0.73810   0.00000 # 1520
+Status:  4 2   0.73818   0.00000 # 1540
+Status:  1 2   0.73823   0.00000 # 1560
+Status:  7 2   0.73840   0.00000 # 1580
+Status:  4 2   0.73843   0.00000 # 1600
+Status:  8 2   0.73844   0.00000 # 1620
+Status:  8 2   0.73845   0.00000 # 1640
+Status:  1 195   0.73849   0.00000 # 1660
+Status:  5 2   0.73854   0.00000 # 1680
+Status:  7 2   0.73857   0.00000 # 1700
+Status:  8 2   0.73861   0.00000 # 1720
+Status:  3 2   0.73863   0.14841 # 1740
+Status:  8 44   0.73866   0.00000 # 1760
+Status:  3 2   0.73872   0.14941 # 1780
+Status:  5 2   0.73880   0.00000 # 1800
+Status:  7 2   0.73883   0.00000 # 1820
+Status:  4 2   0.73889   0.00000 # 1840
+Status:  5 2   0.73893   0.00000 # 1860
+Status:  8 2   0.73903   0.00000 # 1880
+Status:  1 2   0.73908   0.00000 # 1900
+Status:  7 2   0.73917   0.00000 # 1920
+Status:  4 2   0.73920   0.00000 # 1940
+Status:  3 2   0.73923   0.16391 # 1960
+Status:  4 2   0.73927   0.00000 # 1980
+Status:  8 2   0.73935   0.00000 # 2000
+Status:  5 118   0.73941   0.00000 # 2020
+Status:  8 2   0.73943   0.00000 # 2040
+Status:  7 41   0.73946   0.00000 # 2060
+Status:  5 2   0.73949   0.00000 # 2080
+Status:  8 2   0.73951   0.00000 # 2100
+Status:  4 2   0.73953   0.00000 # 2120
+Status:  5 2   0.73957   0.00000 # 2140
+Status:  3 2   0.73960   0.16908 # 2160
+Status:  1 138   0.73973   0.00000 # 2180
+Status:  4 2   0.73974   0.00000 # 2200
+Status:  6 2   0.73977   0.00000 # 2220
+Status:  8 15   0.73978   0.00000 # 2240
+Status:  3 2   0.73978   0.15985 # 2260
+Status:  3 2   0.73982   0.19719 # 2280
+Status:  6 2   0.73986   0.00000 # 2300
+Status:  5 2   0.73989   0.00000 # 2320
+Status:  1 2   0.73993   0.00000 # 2340
+Status:  4 2   0.73994   0.00000 # 2360
+Status:  4 2   0.73995   0.00000 # 2380
+Status:  8 2   0.74012   0.00000 # 2400
+Status:  8 2   0.74012   0.00000 # 2420
+Status:  8 2   0.74012   0.00000 # 2440
+Status:  4 2   0.74023   0.00000 # 2460
+Status:  4 2   0.74023   0.00000 # 2480
+Status:  3 2   0.74026   0.22153 # 2500
+Status:  4 2   0.74036   0.00000 # 2520
+Status:  8 2   0.74041   0.00000 # 2540
+Status:  4 2   0.74045   0.00000 # 2560
+Status:  1 2   0.74046   0.00000 # 2580
+Status:  3 2   0.74048   0.21827 # 2600
+Status:  3 2   0.74051   0.21887 # 2620
+Status:  5 2   0.74063   0.00000 # 2640
+Status:  7 148   0.74064   0.00000 # 2660
+Status:  5 2   0.74065   0.00000 # 2680
+Status:  4 2   0.74067   0.00000 # 2700
+Status:  5 2   0.74068   0.00000 # 2720
+Status:  6 2   0.74076   0.00000 # 2740
+Status:  3 6   0.74077   0.22071 # 2760
+Status:  7 2   0.74090   0.00000 # 2780
+Status:  4 2   0.74103   0.00000 # 2800
+Status:  3 2   0.74108   0.21540 # 2820
+Status:  8 2   0.74108   0.00000 # 2840
+Status:  1 2   0.74114   0.00000 # 2860
+Status:  3 2   0.74117   0.23299 # 2880
+Status:  8 2   0.74125   0.00000 # 2900
+Status:  6 2   0.74132   0.00000 # 2920
+Status:  3 2   0.74137   0.22975 # 2940
+Status:  6 2   0.74139   0.00000 # 2960
+Status:  4 2   0.74156   0.00000 # 2980
+Status:  7 2   0.74157   0.00000 # 3000
+Status:  1 2   0.74158   0.00000 # 3020
+Status:  4 2   0.74169   0.00000 # 3040
+Status:  6 2   0.74169   0.00000 # 3060
+Status:  4 2   0.74177   0.00000 # 3080
+Status:  2 2   0.74307   0.00000 # 3100
+Status:  2 2   0.74307   0.00000 # 3120
+Status:  2 2   0.74307   0.00000 # 3140
+Status:  2 2   0.74307   0.00000 # 3160
+Status:  2 2   0.74307   0.00000 # 3180
+Status:  2 2   0.74307   0.00000 # 3200
+Status:  2 2   0.74307   0.00000 # 3220
+Status:  2 2   0.74307   0.00000 # 3240
+Status:  5 2   0.74314   0.00000 # 3260
+Status:  4 2   0.74326   0.00000 # 3280
+Status:  3 2   0.74331   0.18232 # 3300
+Status:  2 2   0.74342   0.00000 # 3320
+Status:  2 2   0.74342   0.00000 # 3340
+Status:  2 2   0.74342   0.00000 # 3360
+Status:  4 2   0.74344   0.00000 # 3380
+Status:  4 2   0.74345   0.00000 # 3400
+Status:  3 2   0.74346   0.18961 # 3420
+Status:  5 2   0.74347   0.00000 # 3440
+Status:  4 2   0.74358   0.00000 # 3460
+Status:  1 2   0.74360   0.00000 # 3480
+Status:  2 99   0.74360   0.00000 # 3500
+Status:  1 2   0.74361   0.00000 # 3520
+Status:  2 2   0.74362   0.00000 # 3540
+Status:  8 2   0.74381   0.00000 # 3560
+Status:  8 2   0.74381   0.00000 # 3580
+Status:  3 130   0.74388   0.21884 # 3600
+Status:  2 2   0.74404   0.00000 # 3620
+Status:  2 2   0.74404   0.00000 # 3640
+Status:  8 2   0.74409   0.00000 # 3660
+Status:  2 68   0.74410   0.00000 # 3680
+Status:  3 2   0.74412   0.21041 # 3700
+Status:  6 414   0.74434   0.00000 # 3720
+Status:  6 2   0.74434   0.00000 # 3740
+Status:  8 2   0.74439   0.00000 # 3760
+Status:  5 2   0.74445   0.00000 # 3780
+Status:  2 2   0.74463   0.00000 # 3800
+Status:  6 2   0.74466   0.00000 # 3820
+Status:  2 2   0.74471   0.00000 # 3840
+Status:  2 2   0.74471   0.00000 # 3860
+Status:  2 22   0.74472   0.00000 # 3880
+Status:  5 2   0.74474   0.00000 # 3900
+Status:  2 2   0.74475   0.00000 # 3920
+Status:  6 2   0.74482   0.00000 # 3940
+Status:  6 2   0.74482   0.00000 # 3960
+Status:  6 2   0.74483   0.00000 # 3980
+Status:  2 2   0.74488   0.00000 # 4000
+Status:  4 2   0.74490   0.04621 # 4020
+Status:  3 2   0.74494   0.24828 # 4040
+Status:  2 96   0.74497   0.00000 # 4060
+Status:  2 2   0.74502   0.00000 # 4080
+Status:  2 2   0.74503   0.00000 # 4100
+Status:  4 2   0.74508   0.09023 # 4120
+Status:  2 2   0.74512   0.00000 # 4140
+Status:  6 2   0.74520   0.00000 # 4160
+Status:  1 2   0.74520   0.00000 # 4180
+Status:  5 2   0.74522   0.00000 # 4200
+Status:  2 2   0.74530   0.00000 # 4220
+Status:  1 2   0.74537   0.00000 # 4240
+Status:  2 2   0.74538   0.00000 # 4260
+Status:  6 2   0.74545   0.00000 # 4280
+Status:  2 2   0.74546   0.00000 # 4300
+Status:  2 2   0.74547   0.00000 # 4320
+Status:  5 2   0.74554   0.00000 # 4340
+Status:  6 2   0.74557   0.00000 # 4360
+Status:  4 2   0.74557   0.10704 # 4380
+Status:  3 2   0.74560   0.29222 # 4400
+Status:  4 2   0.74561   0.11591 # 4420
+Status:  3 2   0.74566   0.30238 # 4440
+Status:  3 2   0.74567   0.30204 # 4460
+Status:  6 2   0.74572   0.00000 # 4480
+Status:  8 145   0.74577   0.00000 # 4500
+Status:  3 2   0.74577   0.31169 # 4520
+Status:  2 2   0.74579   0.00000 # 4540
+Status:  1 2   0.74589   0.00000 # 4560
+Status:  5 2   0.74668   0.00000 # 4580
+Status:  5 2   0.74668   0.00000 # 4600
+Status:  5 2   0.74668   0.00000 # 4620
+Status:  2 2   0.74679   0.00000 # 4640
+Status:  2 2   0.74679   0.00000 # 4660
+Status:  5 2   0.74679   0.00000 # 4680
+Status:  5 2   0.74680   0.00000 # 4700
+Status:  5 2   0.74680   0.00000 # 4720
+Status:  2 2   0.74680   0.00000 # 4740
+Status:  1 2   0.74681   0.00000 # 4760
+Status:  1 2   0.74682   0.00000 # 4780
+Status:  3 2   0.74685   0.28366 # 4800
+Status:  5 2   0.74686   0.00000 # 4820
+Status:  2 2   0.74689   0.00000 # 4840
+Status:  4 2   0.74696   0.19576 # 4860
+Status:  2 73   0.74696   0.00000 # 4880
+Status:  4 2   0.74701   0.20530 # 4900
+Status:  1 2   0.74701   0.00000 # 4920
+Status:  4 2   0.74732   0.13445 # 4940
+Status:  4 2   0.74732   0.13459 # 4960
+Status:  4 2   0.74732   0.13471 # 4980
+Status:  4 2   0.74732   0.13475 # 5000
+Status:  2 2   0.74738   0.00000 # 5020
+Status:  3 2   0.74746   0.30804 # 5040
+Status:  2 74   0.74749   0.00000 # 5060
+Status:  1 2   0.74752   0.00000 # 5080
+Status:  3 2   0.74752   0.30085 # 5100
+Status:  1 29   0.74754   0.00000 # 5120
+Status:  3 2   0.74756   0.29779 # 5140
+Status:  4 2   0.74758   0.17692 # 5160
+Status:  4 2   0.74758   0.17743 # 5180
+Status:  1 83   0.74759   0.00000 # 5200
+Status:  2 29   0.74761   0.00000 # 5220
+Status:  5 2   0.74763   0.00000 # 5240
+Status:  1 76   0.74764   0.00000 # 5260
+Status:  4 2   0.74766   0.17192 # 5280
+Status:  3 2   0.74767   0.30601 # 5300
+Status:  4 2   0.74771   0.16983 # 5320
+Status:  5 2   0.74784   0.00000 # 5340
+Status:  5 2   0.74784   0.00000 # 5360
+Status:  2 2   0.74785   0.00000 # 5380
+Status:  3 2   0.74786   0.29465 # 5400
+Status:  2 2   0.74788   0.00000 # 5420
+Status:  6 2   0.74789   0.00000 # 5440
+Status:  5 2   0.74790   0.00000 # 5460
+Status:  1 2   0.74803   0.00000 # 5480
+Status:  6 2   0.74804   0.00000 # 5500
+Status:  1 2   0.74805   0.00000 # 5520
+Status:  1 2   0.74806   0.00000 # 5540
+Status:  4 44   0.74809   0.16123 # 5560
+Status:  1 2   0.74815   0.00000 # 5580
+Status:  2 2   0.74815   0.00000 # 5600
+Status:  4 2   0.74816   0.18509 # 5620
+Status:  2 58   0.74818   0.00000 # 5640
+Status:  3 2   0.74820   0.29092 # 5660
+Status:  1 2   0.74823   0.00000 # 5680
+Status:  2 2   0.74828   0.00000 # 5700
+Status:  2 2   0.74828   0.00000 # 5720
+Status:  1 2   0.74829   0.00000 # 5740
+Status:  6 2   0.74833   0.00000 # 5760
+Status:  4 2   0.74836   0.20574 # 5780
+Status:  2 2   0.74845   0.00000 # 5800
+Status:  1 2   0.74846   0.00000 # 5820
+Status:  3 2   0.74850   0.31154 # 5840
+Status:  2 2   0.74852   0.00000 # 5860
+Status:  1 2   0.74852   0.00000 # 5880
+Status:  4 2   0.74853   0.20104 # 5900
+Status:  5 2   0.74854   0.00000 # 5920
+Status:  2 2   0.74857   0.00000 # 5940
+Status:  5 74   0.74858   0.00000 # 5960
+Status:  1 2   0.74859   0.00000 # 5980
+Status:  2 2   0.74861   0.00000 # 6000
+Status:  3 2   0.74863   0.30184 # 6020
+Status:  3 2   0.74864   0.31388 # 6040
+Status:  2 2   0.74866   0.00000 # 6060
+Status:  3 2   0.74867   0.30640 # 6080
+Status:  5 2   0.74870   0.00000 # 6100
+Status:  1 2   0.74871   0.00000 # 6120
+Status:  3 2   0.74872   0.30991 # 6140
+Status:  5 2   0.74873   0.00000 # 6160
+Status:  6 2   0.74874   0.00000 # 6180
+Status:  5 2   0.74878   0.00000 # 6200
+Status:  2 66   0.74878   0.00000 # 6220
+Status:  3 2   0.74883   0.32778 # 6240
+Status:  4 2   0.74889   0.20780 # 6260
+Status:  5 19   0.74889   0.00000 # 6280
+Status:  3 2   0.74896   0.33207 # 6300
+Status:  1 2   0.74902   0.00000 # 6320
+Status:  5 2   0.74902   0.00000 # 6340
+Status:  4 2   0.74906   0.22460 # 6360
+Status:  5 2   0.74907   0.00000 # 6380
+Status:  4 56   0.74911   0.23496 # 6400
+Status:  6 2   0.74912   0.00000 # 6420
+Status:  3 2   0.74918   0.32879 # 6440
+Status:  5 2   0.74920   0.00000 # 6460
+Status:  1 175   0.74921   0.00000 # 6480
+Status:  6 2   0.74925   0.00000 # 6500
+Status:  4 2   0.74925   0.22069 # 6520
+Status:  6 2   0.74929   0.00000 # 6540
+Status:  2 2   0.74930   0.00000 # 6560
+Status:  5 33   0.74930   0.00000 # 6580
+Status:  2 29   0.74931   0.00000 # 6600
+Status:  1 2   0.74934   0.00000 # 6620
+Status:  3 2   0.74936   0.31254 # 6640
+Status:  4 2   0.74938   0.17674 # 6660
+Status:  3 2   0.74938   0.31212 # 6680
+Status:  1 2   0.74941   0.00000 # 6700
+Status:  2 2   0.74946   0.00000 # 6720
+Status:  2 2   0.74946   0.00000 # 6740
+Status:  4 2   0.74947   0.17598 # 6760
+Status:  6 2   0.74951   0.00000 # 6780
+Status:  1 2   0.74955   0.00000 # 6800
+Status:  2 2   0.74957   0.00000 # 6820
+Status:  5 2   0.74959   0.00000 # 6840
+Status:  4 2   0.74962   0.20199 # 6860
+Status:  1 2   0.74963   0.00000 # 6880
+Status:  2 2   0.74964   0.00000 # 6900
+Status:  5 2   0.74966   0.00000 # 6920
+Status:  2 2   0.74972   0.00000 # 6940
+Status:  2 2   0.74973   0.00000 # 6960
+Status:  6 2   0.74974   0.00000 # 6980
+Status:  2 2   0.74977   0.00000 # 7000
+Status:  4 2   0.74978   0.19914 # 7020
+Status:  1 2   0.74980   0.00000 # 7040
+Status:  3 2   0.74981   0.32100 # 7060
+Status:  5 93   0.74984   0.00000 # 7080
+Status:  4 36   0.74985   0.20811 # 7100
+Status:  1 2   0.74985   0.00000 # 7120
+Status:  6 2   0.74990   0.00000 # 7140
+Status:  5 2   0.74991   0.00000 # 7160
+Status:  4 2   0.74997   0.23385 # 7180
+Status:  2 2   0.74998   0.00000 # 7200
+Status:  4 24   0.74998   0.23248 # 7220
+Status:  2 2   0.74999   0.00000 # 7240
+Status:  5 14   0.75001   0.00000 # 7260
+Status:  3 2   0.75003   0.31227 # 7280
+Status:  2 2   0.75004   0.00000 # 7300
+Status:  1 2   0.75008   0.00000 # 7320
+Status:  3 2   0.75013   0.34145 # 7340
+Status:  2 2   0.75023   0.00000 # 7360
+Status:  2 2   0.75024   0.00000 # 7380
+Status:  4 2   0.75024   0.23160 # 7400
+Status:  4 2   0.75024   0.23018 # 7420
+Status:  2 2   0.75029   0.00000 # 7440
+Status:  2 40   0.75032   0.00000 # 7460
+Status:  1 2   0.75033   0.00000 # 7480
+Status:  3 2   0.75036   0.34250 # 7500
+Status:  2 2   0.75039   0.00000 # 7520
+Status:  6 2   0.75040   0.00000 # 7540
+Status:  2 2   0.75042   0.00000 # 7560
+Status:  6 2   0.75046   0.00000 # 7580
+Status:  6 2   0.75047   0.00000 # 7600
+Status:  2 2   0.75048   0.00000 # 7620
+Status:  3 2   0.75048   0.35035 # 7640
+Status:  3 2   0.75049   0.35081 # 7660
+Status:  4 2   0.75050   0.23745 # 7680
+Status:  2 2   0.75051   0.00000 # 7700
+Status:  4 69   0.75053   0.23658 # 7720
+Status:  1 2   0.75053   0.00000 # 7740
+Status:  3 2   0.75054   0.34357 # 7760
+Status:  4 45   0.75055   0.23082 # 7780
+Status:  1 2   0.75055   0.00000 # 7800
+Status:  2 2   0.75057   0.00000 # 7820
+Status:  6 90   0.75059   0.00000 # 7840
+Status:  2 2   0.75060   0.00000 # 7860
+Status:  1 2   0.75060   0.00000 # 7880
+Status:  6 2   0.75062   0.00000 # 7900
+Status:  2 2   0.75063   0.00000 # 7920
+Status:  4 2   0.75066   0.22263 # 7940
+Status:  4 2   0.75068   0.23784 # 7960
+Status:  1 2   0.75072   0.00000 # 7980
+Status:  3 2   0.75072   0.35083 # 8000
+Status:  2 2   0.75073   0.00000 # 8020
+Status:  1 2   0.75073   0.00000 # 8040
+Status:  2 2   0.75076   0.00000 # 8060
+Status:  4 2   0.75081   0.23370 # 8080
+Status:  5 2   0.75085   0.00000 # 8100
+Status:  4 2   0.75085   0.24035 # 8120
+Status:  2 2   0.75086   0.00000 # 8140
+Status:  3 2   0.75089   0.33861 # 8160
+Status:  2 2   0.75089   0.00000 # 8180
+Status:  1 2   0.75089   0.00000 # 8200
+Status:  6 2   0.75092   0.00000 # 8220
+Status:  6 2   0.75093   0.00000 # 8240
+Status:  3 2   0.75095   0.33879 # 8260
+Status:  5 2   0.75097   0.00000 # 8280
+Status:  4 2   0.75098   0.22876 # 8300
+Status:  6 2   0.75098   0.00000 # 8320
+Status:  1 2   0.75100   0.00000 # 8340
+Status:  3 2   0.75100   0.34347 # 8360
+Status:  1 2   0.75101   0.00000 # 8380
+Status:  4 2   0.75102   0.23698 # 8400
+Status:  3 2   0.75103   0.34383 # 8420
+Status:  3 2   0.75103   0.34392 # 8440
+Status:  6 2   0.75106   0.00000 # 8460
+Status:  5 2   0.75106   0.00000 # 8480
+Status:  2 2   0.75107   0.00000 # 8500
+Status:  5 2   0.75108   0.00000 # 8520
+Status:  4 2   0.75110   0.23423 # 8540
+Status:  4 2   0.75112   0.23034 # 8560
+Status:  6 2   0.75114   0.00000 # 8580
+Status:  2 2   0.75116   0.00000 # 8600
+Status:  2 2   0.75116   0.00000 # 8620
+Status:  5 209   0.75117   0.00000 # 8640
+Status:  2 2   0.75117   0.00000 # 8660
+Status:  1 15   0.75118   0.00000 # 8680
+Status:  1 2   0.75118   0.00000 # 8700
+Status:  3 2   0.75119   0.35859 # 8720
+Status:  2 2   0.75120   0.00000 # 8740
+Status:  4 2   0.75121   0.24424 # 8760
+Status:  6 2   0.75122   0.00000 # 8780
+Status:  2 2   0.75122   0.00000 # 8800
+Status:  6 2   0.75123   0.00000 # 8820
+Status:  4 2   0.75129   0.24323 # 8840
+Status:  4 2   0.75129   0.24324 # 8860
+Status:  5 2   0.75131   0.00000 # 8880
+Status:  6 2   0.75132   0.00000 # 8900
+Status:  5 2   0.75134   0.00000 # 8920
+Status:  1 2   0.75135   0.00000 # 8940
+Status:  2 2   0.75136   0.00000 # 8960
+Status:  4 2   0.75141   0.24878 # 8980
+Status:  4 2   0.75141   0.24882 # 9000
+Status:  4 2   0.75141   0.24883 # 9020
+Status:  1 152   0.75147   0.00000 # 9040
+Status:  1 2   0.75147   0.00000 # 9060
+Status:  2 2   0.75148   0.00000 # 9080
+Status:  6 2   0.75149   0.00000 # 9100
+Status:  5 2   0.75149   0.00000 # 9120
+Status:  2 2   0.75150   0.00000 # 9140
+Status:  5 2   0.75151   0.00000 # 9160
+Status:  6 2   0.75151   0.00000 # 9180
+Status:  1 2   0.75151   0.00000 # 9200
+Status:  2 35   0.75151   0.00000 # 9220
+Status:  3 2   0.75156   0.32957 # 9240
+Status:  3 2   0.75156   0.33044 # 9260
+Status:  5 2   0.75157   0.00000 # 9280
+Status:  6 2   0.75165   0.00000 # 9300
+Status:  3 2   0.75166   0.33156 # 9320
+Status:  4 2   0.75172   0.26358 # 9340
+Status:  3 2   0.75174   0.33428 # 9360
+Status:  4 2   0.75174   0.25694 # 9380
+Status:  2 2   0.75184   0.00000 # 9400
+Status:  2 2   0.75184   0.00000 # 9420
+Status:  3 2   0.75185   0.33601 # 9440
+Status:  4 2   0.75187   0.24367 # 9460
+Status:  2 2   0.75189   0.00000 # 9480
+Status:  2 2   0.75190   0.00000 # 9500
+Status:  6 128   0.75191   0.00000 # 9520
+Status:  4 2   0.75194   0.25463 # 9540
+Status:  4 2   0.75194   0.25453 # 9560
+Status:  2 2   0.75194   0.00000 # 9580
+Status:  3 9   0.75194   0.34297 # 9600
+Status:  4 2   0.75195   0.24577 # 9620
+Status:  1 2   0.75196   0.00000 # 9640
+Status:  5 2   0.75196   0.00000 # 9660
+Status:  4 2   0.75198   0.24590 # 9680
+Status:  5 2   0.75198   0.00000 # 9700
+Status:  1 2   0.75201   0.00000 # 9720
+Status:  4 2   0.75202   0.24541 # 9740
+Status:  3 2   0.75205   0.33874 # 9760
+Status:  6 2   0.75206   0.00000 # 9780
+Status:  1 103   0.75209   0.00000 # 9800
+Status:  4 2   0.75211   0.24094 # 9820
+Status:  6 2   0.75212   0.00000 # 9840
+Status:  1 2   0.75220   0.00000 # 9860
+Status:  1 2   0.75220   0.00000 # 9880
+Status:  1 2   0.75220   0.00000 # 9900
+Status:  1 2   0.75221   0.00000 # 9920
+Status:  3 2   0.75222   0.35483 # 9940
+Status:  1 2   0.75224   0.00000 # 9960
+Status:  3 2   0.75224   0.34856 # 9980
+Status:  4 2   0.75235   0.24775 # 10000
+Status:  2 2   0.75237   0.00000 # 10020
+Status:  6 405   0.75238   0.00000 # 10040
+Status:  2 2   0.75239   0.00000 # 10060
+Status:  1 2   0.75240   0.00000 # 10080
+Status:  6 2   0.75241   0.00000 # 10100
+Status:  3 2   0.75245   0.33971 # 10120
+Status:  4 2   0.75246   0.24748 # 10140
+Status:  2 2   0.75247   0.00000 # 10160
+Status:  6 6   0.75248   0.00000 # 10180
+Status:  2 18   0.75249   0.00000 # 10200
+Status:  1 2   0.75250   0.00000 # 10220
+Status:  6 67   0.75251   0.00000 # 10240
+Status:  4 55   0.75255   0.24388 # 10260
+Status:  5 2   0.75255   0.00000 # 10280
+Status:  1 2   0.75259   0.00000 # 10300
+Status:  2 2   0.75260   0.00000 # 10320
+Status:  4 2   0.75261   0.24477 # 10340
+Status:  2 2   0.75262   0.00000 # 10360
+Status:  2 2   0.75263   0.00000 # 10380
+Status:  1 47   0.75263   0.00000 # 10400
+Status:  2 2   0.75263   0.00000 # 10420
+Status:  6 2   0.75266   0.00000 # 10440
+Status:  4 19   0.75266   0.24875 # 10460
+Status:  6 2   0.75266   0.00000 # 10480
+Status:  2 2   0.75267   0.00000 # 10500
+Status:  1 2   0.75268   0.00000 # 10520
+Status:  5 2   0.75269   0.00000 # 10540
+Status:  3 2   0.75269   0.35053 # 10560
+Status:  5 2   0.75270   0.00000 # 10580
+Status:  5 2   0.75270   0.00000 # 10600
+Status:  6 29   0.75273   0.00000 # 10620
+Status:  6 2   0.75273   0.00000 # 10640
+Status:  2 2   0.75277   0.00000 # 10660
+Status:  1 2   0.75277   0.00000 # 10680
+Status:  2 2   0.75278   0.00000 # 10700
+Status:  4 2   0.75278   0.23837 # 10720
+Status:  6 2   0.75279   0.00000 # 10740
+Status:  3 25   0.75280   0.35965 # 10760
+Status:  1 2   0.75280   0.00000 # 10780
+Status:  4 2   0.75281   0.24453 # 10800
+Status:  2 2   0.75283   0.00000 # 10820
+Status:  2 2   0.75283   0.00000 # 10840
+Status:  6 2   0.75285   0.00000 # 10860
+Status:  6 2   0.75285   0.00000 # 10880
+Status:  3 2   0.75285   0.35670 # 10900
+Status:  5 2   0.75288   0.00000 # 10920
+Status:  2 2   0.75288   0.00000 # 10940
+Status:  4 2   0.75292   0.24829 # 10960
+Status:  4 2   0.75292   0.24827 # 10980
+Status:  2 2   0.75293   0.00000 # 11000
+Status:  5 127   0.75294   0.00000 # 11020
+Status:  1 310   0.75295   0.00000 # 11040
+Status:  6 2   0.75296   0.00000 # 11060
+Status:  4 2   0.75296   0.24864 # 11080
+Status:  3 2   0.75297   0.36063 # 11100
+Status:  3 33   0.75297   0.36114 # 11120
+Status:  4 2   0.75298   0.24707 # 11140
+Status:  1 2   0.75299   0.00000 # 11160
+Status:  5 2   0.75299   0.00000 # 11180
+Status:  4 103   0.75300   0.24699 # 11200
+Status:  2 2   0.75300   0.00000 # 11220
+Status:  1 2   0.75301   0.00000 # 11240
+Status:  3 2   0.75301   0.36578 # 11260
+Status:  1 2   0.75304   0.00000 # 11280
+Status:  1 2   0.75306   0.00000 # 11300
+Status:  6 54   0.75306   0.00000 # 11320
+Status:  1 11   0.75307   0.00000 # 11340
+Status:  1 2   0.75307   0.00000 # 11360
+Status:  1 2   0.75308   0.00000 # 11380
+Status:  6 57   0.75308   0.00000 # 11400
+Status:  1 2   0.75308   0.00000 # 11420
+Status:  6 2   0.75310   0.00000 # 11440
+Status:  3 2   0.75311   0.36038 # 11460
+Status:  1 2   0.75312   0.00000 # 11480
+Status:  3 66   0.75312   0.36091 # 11500
+Status:  3 2   0.75312   0.36123 # 11520
+Status:  1 2   0.75313   0.00000 # 11540
+Status:  2 2   0.75317   0.00000 # 11560
+Status:  2 2   0.75317   0.00000 # 11580
+Status:  4 2   0.75318   0.25403 # 11600
+Status:  4 19   0.75318   0.25340 # 11620
+Status:  3 7   0.75319   0.35892 # 11640
+Status:  2 2   0.75321   0.00000 # 11660
+Status:  2 2   0.75321   0.00000 # 11680
+Status:  4 2   0.75322   0.23535 # 11700
+Status:  5 2   0.75330   0.00000 # 11720
+Status:  5 2   0.75330   0.00000 # 11740
+Status:  5 2   0.75330   0.00000 # 11760
+Status:  2 2   0.75332   0.00000 # 11780
+Status:  2 21   0.75332   0.00000 # 11800
+Status:  5 2   0.75332   0.00000 # 11820
+Status:  2 2   0.75332   0.00000 # 11840
+Status:  5 2   0.75333   0.00000 # 11860
+Status:  2 49   0.75333   0.00000 # 11880
+Status:  4 2   0.75334   0.22691 # 11900
+Status:  3 53   0.75335   0.35833 # 11920
+Status:  1 65   0.75336   0.00000 # 11940
+Status:  5 2   0.75337   0.00000 # 11960
+Status:  3 2   0.75337   0.35258 # 11980
+Status:  5 2   0.75338   0.00000 # 12000
+Status:  2 2   0.75338   0.00000 # 12020
+Status:  5 2   0.75341   0.00000 # 12040
+Status:  4 2   0.75342   0.22586 # 12060
+Status:  5 2   0.75345   0.00000 # 12080
+Status:  1 2   0.75347   0.00000 # 12100
+Status:  4 132   0.75349   0.23763 # 12120
+Status:  2 2   0.75351   0.00000 # 12140
+Status:  2 2   0.75351   0.00000 # 12160
+Status:  5 2   0.75352   0.00000 # 12180
+Status:  1 2   0.75353   0.00000 # 12200
+Status:  2 2   0.75353   0.00000 # 12220
+Status:  5 2   0.75354   0.00000 # 12240
+Status:  5 2   0.75354   0.00000 # 12260
+Status:  5 2   0.75354   0.00000 # 12280
+Status:  5 2   0.75355   0.00000 # 12300
+Status:  1 2   0.75355   0.00000 # 12320
+Status:  2 2   0.75355   0.00000 # 12340
+Status:  3 2   0.75356   0.35110 # 12360
+Status:  4 2   0.75357   0.23717 # 12380
+Status:  5 2   0.75358   0.00000 # 12400
+Status:  4 2   0.75358   0.23747 # 12420
+Status:  4 2   0.75361   0.22376 # 12440
+Status:  1 2   0.75361   0.00000 # 12460
+Status:  4 2   0.75362   0.22605 # 12480
+Status:  2 76   0.75363   0.00000 # 12500
+Status:  5 2   0.75363   0.00000 # 12520
+Status:  2 35   0.75363   0.00000 # 12540
+Status:  1 136   0.75364   0.00000 # 12560
+Status:  3 2   0.75364   0.35520 # 12580
+Status:  4 2   0.75365   0.23004 # 12600
+Status:  4 2   0.75366   0.23089 # 12620
+Status:  5 2   0.75366   0.00000 # 12640
+Status:  4 58   0.75367   0.23194 # 12660
+Status:  3 2   0.75367   0.35538 # 12680
+Status:  2 2   0.75368   0.00000 # 12700
+Status:  4 2   0.75369   0.23416 # 12720
+Status:  1 2   0.75371   0.00000 # 12740
+Status:  1 2   0.75371   0.00000 # 12760
+Status:  3 2   0.75373   0.36126 # 12780
+Status:  5 2   0.75374   0.00000 # 12800
+Status:  2 2   0.75374   0.00000 # 12820
+Status:  2 18   0.75375   0.00000 # 12840
+Status:  3 2   0.75377   0.35820 # 12860
+Status:  1 2   0.75377   0.00000 # 12880
+Status:  1 2   0.75378   0.00000 # 12900
+Status:  3 59   0.75379   0.35779 # 12920
+Status:  4 2   0.75379   0.23478 # 12940
+Status:  3 2   0.75380   0.35850 # 12960
+Status:  4 33   0.75381   0.23250 # 12980
+Status:  1 2   0.75382   0.00000 # 13000
+Status:  5 2   0.75382   0.00000 # 13020
+Status:  2 2   0.75383   0.00000 # 13040
+Status:  5 2   0.75384   0.00000 # 13060
+Status:  3 2   0.75385   0.36270 # 13080
+Status:  4 2   0.75386   0.23258 # 13100
+Status:  1 2   0.75388   0.00000 # 13120
+Status:  2 2   0.75388   0.00000 # 13140
+Status:  4 2   0.75389   0.23260 # 13160
+Status:  5 2   0.75389   0.00000 # 13180
+Status:  3 2   0.75391   0.35174 # 13200
+Status:  4 2   0.75392   0.23323 # 13220
+Status:  3 63   0.75392   0.34981 # 13240
+Status:  3 2   0.75392   0.34977 # 13260
+Status:  5 2   0.75395   0.00000 # 13280
+Status:  5 2   0.75395   0.00000 # 13300
+Status:  4 2   0.75396   0.23378 # 13320
+Status:  2 2   0.75398   0.00000 # 13340
+Status:  5 2   0.75398   0.00000 # 13360
+Status:  2 2   0.75400   0.00000 # 13380
+Status:  4 8   0.75400   0.23248 # 13400
+Status:  5 2   0.75405   0.00000 # 13420
+Status:  5 2   0.75405   0.00000 # 13440
+Status:  5 2   0.75405   0.00000 # 13460
+Status:  2 2   0.75406   0.00000 # 13480
+Status:  2 6   0.75406   0.00000 # 13500
+Status:  4 2   0.75408   0.23410 # 13520
+Status:  1 2   0.75408   0.00000 # 13540
+Status:  2 2   0.75408   0.00000 # 13560
+Status:  5 2   0.75409   0.00000 # 13580
+Status:  4 2   0.75410   0.23349 # 13600
+Status:  1 2   0.75411   0.00000 # 13620
+Status:  3 2   0.75412   0.36743 # 13640
+Status:  3 2   0.75414   0.36397 # 13660
+Status:  4 2   0.75414   0.23592 # 13680
+Status:  3 2   0.75415   0.36155 # 13700
+Status:  3 2   0.75415   0.36177 # 13720
+Status:  3 2   0.75416   0.36564 # 13740
+Status:  2 2   0.75416   0.00000 # 13760
+Status:  3 2   0.75417   0.36400 # 13780
+Status:  4 139   0.75418   0.23401 # 13800
+Status:  1 2   0.75418   0.00000 # 13820
+Status:  4 2   0.75418   0.23465 # 13840
+Status:  1 18   0.75419   0.00000 # 13860
+Status:  4 2   0.75419   0.23237 # 13880
+Status:  3 2   0.75422   0.36237 # 13900
+Status:  2 2   0.75423   0.00000 # 13920
+Status:  2 2   0.75423   0.00000 # 13940
+Status:  3 2   0.75424   0.35778 # 13960
+Status:  1 2   0.75425   0.00000 # 13980
+Status:  2 136   0.75426   0.00000 # 14000
+Status:  4 2   0.75427   0.23030 # 14020
+Status:  2 2   0.75428   0.00000 # 14040
+Status:  3 2   0.75429   0.35536 # 14060
+Status:  3 2   0.75429   0.35547 # 14080
+Status:  5 306   0.75434   0.00000 # 14100
+Status:  5 2   0.75434   0.00000 # 14120
+Status:  3 2   0.75434   0.35835 # 14140
+Status:  5 2   0.75435   0.00000 # 14160
+Status:  5 2   0.75435   0.00000 # 14180
+Status:  5 2   0.75435   0.00000 # 14200
+Status:  4 2   0.75435   0.22006 # 14220
+Status:  3 2   0.75436   0.35738 # 14240
+Status:  4 2   0.75437   0.22535 # 14260
+Status:  3 2   0.75437   0.35506 # 14280
+Status:  5 2   0.75438   0.00000 # 14300
+Status:  3 2   0.75439   0.36000 # 14320
+Status:  4 2   0.75439   0.22814 # 14340
+Status:  2 2   0.75440   0.00000 # 14360
+Status:  3 10   0.75441   0.35840 # 14380
+Status:  3 45   0.75442   0.35808 # 14400
+Status:  5 2   0.75443   0.00000 # 14420
+Status:  3 2   0.75444   0.35943 # 14440
+Status:  4 2   0.75444   0.22957 # 14460
+Status:  3 2   0.75444   0.35744 # 14480
+Status:  3 2   0.75444   0.36195 # 14500
+Status:  4 58   0.75445   0.22925 # 14520
+Status:  4 2   0.75446   0.22866 # 14540
+Status:  3 2   0.75447   0.35753 # 14560
+Status:  2 2   0.75447   0.00000 # 14580
+Status:  3 2   0.75447   0.36267 # 14600
+Status:  3 2   0.75448   0.36208 # 14620
+Status:  4 2   0.75448   0.22891 # 14640
+Status:  5 2   0.75451   0.00000 # 14660
+Status:  5 2   0.75451   0.00000 # 14680
+Status:  4 2   0.75452   0.22657 # 14700
+Status:  4 45   0.75453   0.22561 # 14720
+Status:  3 2   0.75454   0.36954 # 14740
+Status:  4 2   0.75454   0.22398 # 14760
+Status:  5 2   0.75455   0.00000 # 14780
+Status:  5 2   0.75455   0.00000 # 14800
+Status:  5 2   0.75456   0.00000 # 14820
+Status:  2 2   0.75458   0.00000 # 14840
+Status:  4 2   0.75458   0.22538 # 14860
+Status:  3 2   0.75458   0.36369 # 14880
+Status:  5 2   0.75459   0.00000 # 14900
+Status:  5 2   0.75460   0.00000 # 14920
+Status:  2 2   0.75462   0.00000 # 14940
+Status:  2 2   0.75462   0.00000 # 14960
+Status:  6 2   0.75462   0.00000 # 14980
+Status:  6 47   0.75463   0.00000 # 15000
+Status:  5 2   0.75463   0.00000 # 15020
+Status:  6 30   0.75464   0.00000 # 15040
+Status:  6 2   0.75465   0.00000 # 15060
+Status:  3 26   0.75465   0.36679 # 15080
+Status:  6 2   0.75466   0.00000 # 15100
+Status:  3 2   0.75467   0.36252 # 15120
+Status:  6 2   0.75468   0.00000 # 15140
+Status:  5 2   0.75469   0.00000 # 15160
+Status:  6 2   0.75469   0.00000 # 15180
+Status:  2 118   0.75470   0.00000 # 15200
+Status:  4 2   0.75470   0.22282 # 15220
+Status:  3 2   0.75471   0.36729 # 15240
+Status:  4 2   0.75471   0.22122 # 15260
+Status:  6 2   0.75471   0.00000 # 15280
+Status:  2 2   0.75472   0.00000 # 15300
+Status:  4 2   0.75473   0.21452 # 15320
+Status:  5 2   0.75473   0.00000 # 15340
+Status:  6 2   0.75474   0.00000 # 15360
+Status:  4 2   0.75474   0.21478 # 15380
+Status:  3 2   0.75475   0.36910 # 15400
+Status:  4 2   0.75476   0.21708 # 15420
+Status:  3 2   0.75476   0.36358 # 15440
+Status:  6 2   0.75477   0.00000 # 15460
+Status:  6 2   0.75477   0.00000 # 15480
+Status:  2 2   0.75478   0.00000 # 15500
+Status:  4 2   0.75478   0.21791 # 15520
+Status:  4 2   0.75478   0.21762 # 15540
+Status:  2 8   0.75479   0.00000 # 15560
+Status:  3 2   0.75480   0.36577 # 15580
+Status:  5 2   0.75480   0.00000 # 15600
+Status:  2 2   0.75481   0.00000 # 15620
+Status:  5 97   0.75481   0.00000 # 15640
+Status:  5 2   0.75482   0.00000 # 15660
+Status:  2 9   0.75482   0.00000 # 15680
+Status:  5 8   0.75482   0.00000 # 15700
+Status:  2 2   0.75482   0.00000 # 15720
+Status:  6 2   0.75483   0.00000 # 15740
+Status:  2 2   0.75484   0.00000 # 15760
+Status:  5 2   0.75484   0.00000 # 15780
+Status:  6 2   0.75486   0.00000 # 15800
+Status:  3 2   0.75486   0.36825 # 15820
+Status:  6 2   0.75487   0.00000 # 15840
+Status:  4 306   0.75488   0.21694 # 15860
+Status:  2 2   0.75492   0.00000 # 15880
+Status:  2 2   0.75492   0.00000 # 15900
+Status:  5 100   0.75492   0.00000 # 15920
+Status:  2 2   0.75493   0.00000 # 15940
+Status:  5 56   0.75494   0.00000 # 15960
+Status:  5 23   0.75495   0.00000 # 15980
+Status:  4 2   0.75496   0.21832 # 16000
+Status:  3 2   0.75498   0.35725 # 16020
+Status:  2 2   0.75499   0.00000 # 16040
+Status:  3 2   0.75500   0.37019 # 16060
+Status:  4 2   0.75500   0.22328 # 16080
+Status:  3 2   0.75501   0.37073 # 16100
+Status:  4 2   0.75501   0.22401 # 16120
+Status:  3 9   0.75501   0.37047 # 16140
+Status:  6 2   0.75502   0.00000 # 16160
+Status:  2 2   0.75502   0.00000 # 16180
+Status:  2 2   0.75502   0.00000 # 16200
+Status:  5 2   0.75502   0.00000 # 16220
+Status:  4 2   0.75503   0.21650 # 16240
+Status:  3 2   0.75504   0.36559 # 16260
+Status:  3 2   0.75504   0.36520 # 16280
+Status:  5 2   0.75505   0.00000 # 16300
+Status:  6 2   0.75506   0.00000 # 16320
+Status:  2 25   0.75506   0.00000 # 16340
+Status:  6 2   0.75507   0.00000 # 16360
+Status:  5 2   0.75507   0.00000 # 16380
+Status:  3 4   0.75507   0.36528 # 16400
+Status:  4 2   0.75508   0.21532 # 16420
+Status:  6 2   0.75509   0.00000 # 16440
+Status:  6 2   0.75509   0.00000 # 16460
+Status:  5 2   0.75510   0.00000 # 16480
+Status:  6 2   0.75510   0.00000 # 16500
+Status:  2 2   0.75510   0.00000 # 16520
+Status:  5 2   0.75511   0.00000 # 16540
+Status:  4 2   0.75512   0.21114 # 16560
+Status:  6 2   0.75514   0.00000 # 16580
+Status:  4 2   0.75515   0.22100 # 16600
+Status:  6 2   0.75515   0.00000 # 16620
+Status:  6 2   0.75516   0.00000 # 16640
+Status:  5 2   0.75517   0.00000 # 16660
+Status:  3 2   0.75518   0.36882 # 16680
+Status:  2 2   0.75528   0.00000 # 16700
+Status:  2 2   0.75528   0.00000 # 16720
+Status:  2 2   0.75528   0.00000 # 16740
+Status:  2 2   0.75528   0.00000 # 16760
+Status:  2 2   0.75528   0.00000 # 16780
+Status:  6 2   0.75528   0.00000 # 16800
+Status:  3 282   0.75529   0.36253 # 16820
+Status:  4 2   0.75532   0.21999 # 16840
+Status:  6 2   0.75533   0.00000 # 16860
+Status:  2 2   0.75534   0.00000 # 16880
+Status:  2 30   0.75536   0.00000 # 16900
+Status:  2 2   0.75536   0.00000 # 16920
+Status:  2 28   0.75537   0.00000 # 16940
+Status:  2 2   0.75537   0.00000 # 16960
+Status:  4 2   0.75537   0.21773 # 16980
+Status:  2 2   0.75538   0.00000 # 17000
+Status:  5 86   0.75539   0.00000 # 17020
+Status:  6 2   0.75541   0.00000 # 17040
+Status:  3 2   0.75541   0.36440 # 17060
+Status:  5 2   0.75542   0.00000 # 17080
+Status:  6 2   0.75544   0.00000 # 17100
+Status:  2 2   0.75544   0.00000 # 17120
+Status:  5 2   0.75544   0.00000 # 17140
+Status:  5 2   0.75544   0.00000 # 17160
+Status:  2 2   0.75544   0.00000 # 17180
+Status:  5 2   0.75544   0.00000 # 17200
+Status:  4 2   0.75553   0.22252 # 17220
+Status:  4 2   0.75553   0.22271 # 17240
+Status:  5 2   0.75554   0.00000 # 17260
+Status:  5 2   0.75555   0.00000 # 17280
+Status:  5 26   0.75557   0.00000 # 17300
+Status:  2 2   0.75557   0.00000 # 17320
+Status:  5 2   0.75558   0.00000 # 17340
+Status:  2 2   0.75561   0.00000 # 17360
+Status:  5 2   0.75561   0.00000 # 17380
+Status:  6 2   0.75562   0.00000 # 17400
+Status:  5 2   0.75563   0.00000 # 17420
+Status:  6 2   0.75563   0.00000 # 17440
+Status:  5 18   0.75564   0.00000 # 17460
+Status:  2 2   0.75564   0.00000 # 17480
+Status:  6 2   0.75564   0.00000 # 17500
+Status:  5 2   0.75565   0.00000 # 17520
+Status:  4 2   0.75567   0.22648 # 17540
+Status:  4 2   0.75567   0.22648 # 17560
+Status:  4 2   0.75568   0.22734 # 17580
+Status:  4 31   0.75568   0.22762 # 17600
+Status:  5 2   0.75568   0.00000 # 17620
+Status:  2 2   0.75568   0.00000 # 17640
+Status:  6 2   0.75569   0.00000 # 17660
+Status:  5 2   0.75569   0.00000 # 17680
+Status:  5 2   0.75570   0.00000 # 17700
+Status:  4 2   0.75570   0.22775 # 17720
+Status:  2 2   0.75571   0.00000 # 17740
+Status:  5 2   0.75572   0.00000 # 17760
+Status:  5 2   0.75572   0.00000 # 17780
+Status:  2 2   0.75572   0.00000 # 17800
+```
+  -0.88061148200 :offset:
+   0.20903944292 :bg:
+ -12.15127992649 :impA:
+ -13.93190359416 :impB:
+   0.01341442596 :impC:
+   0.11002698559:delA:
+   0.17370793922:delB:
+  10.72527144372:asym:
+   0.00689331790:ann1:
+   0.00770934221:ann2:
+   0.00340253677:sem1:
+  -0.00670354911:sem2:
+   0.01494922778:cw1:
+   0.00422859051:cw2:
+  -0.00003023526:year:
+  -0.39633542055:IR:
+   0.00001473411 :mA:
+  -0.06343168383 :mP:
+   0.00004069816 :shiftT:
+   3.81604396435 :init:
+   0.99999988440 :rho:
+   1.00000000000 :ztau:
+   1.00000000000 :zdist:
+   0.00000000000 :ztilt:
+   0.00000000000 :ssaA:
+   0.00000000000 :ssaP:
+   0.00000000000 :mB:
+   0.22449798907 :bg2:
+   0.00113625231 :delC:
+---- Tidal ----
+  27.32166155400,   -0.56115583084,    0.93230111422,  1, -316128,  1.77565410058893E-04
+  27.21222081500,    0.16965016548,  -14.09934544119,  2,  11572,  1.45347753998138E-03
+1095.17502233364,    0.16956228135,    0.19112014737,  3,  191295,  8.85927039697400E-05
+  13.63341568476,    0.27245675372,    4.42577142360,  4,  111,  1.29174139330670E-01
+  13.66083077700,   -3.45052092222,    1.15306715106,  5, -1192,  3.16052317940898E-01
+  13.60611040750,    0.27999970697,   -1.02390315394,  6,  2554,  1.05509940552748E-02
+  27.55454988600,    0.16898138790,    3.89448200779,  7,  97,  8.56629820461218E-02
+  13.77727494300,    0.48269257113,   -2.50259730561,  8,  3464,  1.35421745247856E-02
+6793.47648813065,   -0.04918382333,   -5.68170068481,  9, -4321,  1.16522618592927E-03
+1616.30271425126,    0.09412190485,   -0.24940592461,  10,  6315,  1.46722832524831E-03
+  31.81209426308,    0.06085878145,    7.65325228058,  11,  297,  1.53413880073974E-02
+1305.66025845931,    0.10248731211,   24.81654996117,  12,  34249,  2.98368738014052E-04
+  27.44323926226,    0.11237463530,   -2.45906327552,  13,  2514,  4.29919645759655E-03
+  27.66676714572,    0.23742468088,   -0.95837117572,  14,  3097,  7.42648349562855E-03
+2190.35004466729,    0.06991839481,   -2.74659644951,  15,  5439,  1.26231103363082E-03
+  26.98505934729,    0.02706877829,   -1.09855587443,  16,  779,  3.08034129400270E-03
+6167.20701373239,   -0.04450397064,   32.95223356796,  17, -11727,  3.82772110903382E-04
+-3232.60542850251,    0.09324245473,    0.04415426318,  18,  12503,  7.39820974188464E-04
+-2120.90900683440,    0.09826669484,    5.31759936998,  19,  11175,  8.71554287482587E-04
+   9.13295078376,    0.01230928986,   -3.63657702186,  20, -86,  8.57411965391519E-02
+   9.12068919638,    0.01191450108,   -3.83862783675,  21, -66,  3.54498873777007E-02
+   9.10846048884,   -0.06270365206,    6.36266221220,  22, -2197,  2.99079895455234E-03
+3396.73824406533,    0.02209572956,    1.09594522890,  23,  2719,  7.83806681560791E-04
+1656.31999626209,    0.02586519513,   -1.73412656735,  24,  1594,  1.52675377926141E-03
+   9.55688766462,    0.04617489967,    6.72192548867,  25,  199,  1.54292702565412E-02
+   9.18484996200,    0.02019950547,    2.05612635309,  26,  777,  2.30310482577154E-03
+   9.54346216797,    0.18469867380,   -2.92976801406,  27,  2779,  6.41590514610302E-03
+   7.08840689388,    0.08679531949,   -1.64768133429,  28,  1314,  6.13893513444983E-03
+   6.85248390316,    0.09228651133,   -4.39887380230,  29,  2163,  4.07754617869156E-03
+   6.85940288609,    0.24103739264,   10.98658149279,  30,  1503,  1.50365215309982E-02
+   7.09581076051,    0.24180196531,    4.12589000591,  31,  1305,  1.72063880906447E-02
+   5.64270812580,    0.15525141973,   -0.00086778350,  32,  3247,  4.63902277333874E-03
+  14.76532741431,    0.00000000000,   -0.90508464008,  33, -100,  2.53378835179523E-02
+   9.61373181528,    0.00163216094,    0.34679590765,  34, -76,  6.79776806910703E-03
+  27.09267692660,    0.00000000000,  -17.28877154831,  35, -100,  4.88829792457255E-03
+   5.63802514348,    0.11720842840,   -7.70695005752,  36,  18546,  6.28595782322048E-04
+   5.49218394831,    0.28761023382,   -3.82887438446,  37,  25575,  1.12017917926687E-03
+  14.79748911710,    0.19690749478,   -2.48284552734,  38,  6759,  2.87060225177363E-03
+  14.73330521246,    0.00000000000,    3.25990141466,  39, -100,  2.87706141760412E-03
+  15.38737234288,    0.06895132083,    0.28120008340,  40,  6562,  1.03505559534615E-03
+  23.94211492347,    0.00000000000,   -1.52948661736,  41, -100,  4.36582711136567E-04
+ 182.62313560737,    0.06650704039,    1.35629399660,  42,  179,  2.38491383363208E-02
+---- LTE ----
+   0.00000000000 :ridge:
+   1.00000000000 :coverage:
+ FALSE :enclosing:
+ UL :enclosed:
+  -0.00489754444 :trend:
+   0.00003685067 :accel:
+  -0.19750734912 :K0:
+   8.43542408425 :level:
+   0.01539461693,    3.13476894814,    0.42262814986 1
+   0.15394616934,    0.24711736840,   -2.14678735096 10
+   0.09236770160,    0.25180727967,   -0.47087975584 6
+```
+CC   0.0000000000   0.7557239369   2 1
+records from  1 ...  20829
+factors from  1 ...  42
+updated forcing  2019.03045764056
+   0.97108801858=CC  365.24627121474=Yr
+  -0.70417454130:dLOD:    365.24627121474:Yr: nino4.dat
+Traceback (most recent call last):
+  File "/home/paul/eval/gem-lte-core/experiments/Oct2026_generator/legs/nino4_dlodmix_geo/../leg_scores2.py", line 16, in <module>
+    X0 = 10.0 * np.floor(min(_start(k) for k in range(1, NL + 1)) / 10.0)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/paul/eval/gem-lte-core/experiments/Oct2026_generator/legs/nino4_dlodmix_geo/../leg_scores2.py", line 16, in <genexpr>
+    X0 = 10.0 * np.floor(min(_start(k) for k in range(1, NL + 1)) / 10.0)
+                             ^^^^^^^^^
+  File "/home/paul/eval/gem-lte-core/experiments/Oct2026_generator/legs/nino4_dlodmix_geo/../leg_scores2.py", line 15, in _start
+    a = np.loadtxt(f"{d}/lte_results.{k}.csv", delimiter=","); nz = a[a[:, 2] != 0, 0]; return float(nz[0]) if len(nz) else float(a[0, 0])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/numpy/lib/npyio.py", line 1373, in loadtxt
+    arr = _read(fname, dtype=dtype, comment=comment, delimiter=delimiter,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/numpy/lib/npyio.py", line 992, in _read
+    fh = np.lib._datasource.open(fname, 'rt', encoding=encoding)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/numpy/lib/_datasource.py", line 193, in open
+    return ds.open(path, mode, encoding=encoding, newline=newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/numpy/lib/_datasource.py", line 533, in open
+    raise FileNotFoundError(f"{path} not found.")
+FileNotFoundError: ./lte_results.2.csv not found.

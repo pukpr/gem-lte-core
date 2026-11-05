@@ -145,6 +145,9 @@ package GEM.LTE.Primitives.Shared is
       Aero_Lag       : Long_Float := 0.0;   -- AERO_LAG, years
       Alpha          : Long_Float := 0.0;   -- ALPHA gain fraction (0 = off)
       M_Min          : Long_Float := 0.0;   -- manifold minimum used with it
+      Tess_Freq      : Long_Float := 0.0;   -- TESS pair: alias (cycles/yr),
+      Tess_Sin       : Long_Float := 0.0;   -- sin and cos coefficients
+      Tess_Cos       : Long_Float := 0.0;
    end record;
    No_Secular_Context : constant Secular_Context := (others => <>);
 

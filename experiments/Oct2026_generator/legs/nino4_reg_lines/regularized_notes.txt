@@ -1,0 +1,42 @@
+    27.3217  -0.618 alias    2.72 yr  data pct  36  
+    27.2122  +0.159 alias    2.37 yr  data pct  68  
+  1095.1750  +0.165 alias    3.00 yr  data pct  75  
+    13.6334  +0.215 alias    4.77 yr  data pct  85  Mf' LOD ratio 0.409 of Mf -> -1.479 @ 1.952
+    13.6608  -3.616 alias    3.79 yr  data pct  81  
+    13.6061  +0.302 alias    6.41 yr  data pct  50  
+    27.5545  +0.151 alias    3.92 yr  data pct  66  
+    13.7773  +0.484 alias    2.04 yr  data pct  10  
+  6793.4765  -0.048 alias   18.60 yr  data pct  71  keep (semiannual / nodal)
+  1616.3027  +0.130 alias    4.43 yr  data pct  93  
+    31.8121  +0.108 alias    2.08 yr  data pct  14  
+  1305.6603  +0.189 alias    3.57 yr  data pct  92  
+    27.4432  +0.074 alias    3.24 yr  data pct  45  
+    27.6668  +0.303 alias    4.96 yr  data pct  81  
+  2190.3500  +0.052 alias    6.00 yr  data pct  90  
+    26.9851  +0.024 alias    2.15 yr  data pct  27  
+  6167.2070  -0.032 alias   16.89 yr  data pct  88  TRIM: alias 16.9 yr outside 1.5-12 yr
+ -3232.6054  +0.090 alias    8.85 yr  data pct  57  
+ -2120.9090  +0.076 alias    5.81 yr  data pct  91  
+     9.1330  +0.012 alias  120.44 yr  data pct  22  TRIM: alias 120.4 yr outside 1.5-12 yr
+     9.1207  +0.019 alias   22.00 yr  data pct  71  TRIM: alias 22.0 yr outside 1.5-12 yr
+     9.1085  -0.061 alias   10.08 yr  data pct  92  
+  3396.7382  +0.032 alias    9.30 yr  data pct  72  
+  1656.3200  +0.014 alias    4.53 yr  data pct  85  seed 4.53-yr line at 0.10
+     9.5569  +0.045 alias    4.59 yr  data pct  82  seed 4.59-yr alias at 0.10
+     9.1848  +0.011 alias    4.27 yr  data pct  68  
+     9.5435  +0.304 alias    3.68 yr  data pct  87  
+     7.0884  +0.143 alias    2.11 yr  data pct  32  
+     6.8525  +0.132 alias    3.33 yr  data pct  45  
+     6.8594  +0.300 alias    4.05 yr  data pct  76  
+     7.0958  +0.386 alias    2.11 yr  data pct  32  
+     5.6427  +0.246 alias    3.68 yr  data pct  88  
+    14.7653  +0.000 alias    3.79 yr  data pct  81  
+     9.6137  +0.001 alias  120.76 yr  data pct  22  TRIM: alias 120.8 yr outside 1.5-12 yr
+    27.0927  +0.000 alias    2.08 yr  data pct  14  
+     5.6380  +0.158 alias    4.59 yr  data pct  82  
+     5.4922  +0.411 alias    2.01 yr  data pct  16  
+    14.7975  +0.193 alias    3.15 yr  data pct  40  
+    14.7333  +0.000 alias    4.77 yr  data pct  85  
+    15.3874  +0.021 alias    3.79 yr  data pct  81  
+    23.9421  +0.000 alias    3.92 yr  data pct  66  
+   182.6231  +0.068 alias 44648.78 yr  data pct  36  keep (semiannual / nodal)

@@ -1036,6 +1036,76 @@ package body GEM.LTE.Primitives.Solution is
       DKeep : Shared.Param_S (N_Tides, N_Modulations) := D;
       D0 : constant Shared.Param_S := D;  -- reference
 
+      --  DLOD_MIX (2026-11-04): blend the fit score with the agreement of
+      --  the candidate's tidal sum with the dLOD reconstruction, the same
+      --  |CC| that CompareRef prints as ":dLOD:" (that one is computed only
+      --  when a result is saved). "MEAN": (score + |CC_dLOD|) / 2; "GEO":
+      --  sqrt (max (score, 0) * |CC_dLOD|); unset: off. The dLOD grid is
+      --  thinned by DLOD_STRIDE (default 5) to keep each evaluation cheap,
+      --  and the reference uses the starting year length (D0).
+      DLOD_Mix : constant String := GEM.Getenv ("DLOD_MIX", "");
+      DLOD_Mix_On : constant Boolean :=
+        DLOD_Mix = "MEAN" or else DLOD_Mix = "GEO";
+      DLOD_Stride : constant Integer :=
+        Integer'Max (1, GEM.Getenv ("DLOD_STRIDE", 5));
+      DLOD_File : constant String := GEM.Getenv ("DLOD_DAT", "../dlod3.dat");
+      DLOD_Lock : constant Integer := -77;   -- Save_Mutex owner tag while reading dLOD
+
+      function DLOD_Template return Data_Pairs is
+         Empty : Data_Pairs (1 .. 0);
+      begin
+         if not DLOD_Mix_On then
+            return Empty;
+         end if;
+         Save_Mutex.Seize (DLOD_Lock);   -- one thread at a time reads the file
+         declare
+            Full : constant Data_Pairs := Make_Data (DLOD_File);
+            N : constant Natural := (Full'Length + DLOD_Stride - 1) / DLOD_Stride;
+            R : Data_Pairs (1 .. N);
+         begin
+            for I in 1 .. N loop
+               R (I) := Full (Full'First + (I - 1) * DLOD_Stride);
+            end loop;
+            Save_Mutex.Release (DLOD_Lock);
+            return R;
+         end;
+      end DLOD_Template;
+
+      DL_Ref : constant Data_Pairs := DLOD_Template;
+
+      function DLOD_Reference return Data_Pairs is
+      begin
+         if not DLOD_Mix_On then
+            return DL_Ref;
+         end if;
+         Save_Mutex.Seize (DLOD_Lock);
+         declare
+            R : constant Data_Pairs :=
+              Tide_Sum
+                (Template => DL_Ref, Constituents => GEM.dLOD (DLOD_File, D0.B.Year),
+                 Periods => D0.A.LP, Ref_Time => 0.0, Scaling => 1.0,
+                 Cos_Phase => False, Year_Len => Year_Length (D0.B.Year));
+         begin
+            Save_Mutex.Release (DLOD_Lock);
+            return R;
+         end;
+      end DLOD_Reference;
+
+      DL_R2 : constant Data_Pairs := DLOD_Reference;
+
+
+      function DLOD_Agreement return Long_Float is
+         M2 : constant Data_Pairs :=
+           Tide_Sum
+             (Template => DL_Ref, Constituents => D.B.LPAP, Periods => D.A.LP,
+              Ref_Time => 0.0, Scaling => 1.0, Cos_Phase => False,
+              Year_Len => Year_Length (D.B.Year), Rho => D.B.rho,
+              ZTau => D.B.ztau, ZDist => D.B.zdist, ZTilt => D.B.ztilt,
+              SsaA => D.B.ssaA, SsaP => D.B.ssaP);
+      begin
+         return abs CC (DL_R2, M2);
+      end DLOD_Agreement;
+
       Maximum_Loops : constant Long_Integer :=
         GEM.Getenv ("MAXLOOPS", 100_000);
       Threshold : constant Integer := GEM.Getenv ("THRESHOLD", 99);
@@ -1066,6 +1136,10 @@ package body GEM.LTE.Primitives.Solution is
       EMD_CC : constant Boolean := GEM.Getenv ("METRIC", "CC") = "EC";
       EMD_DER : constant Boolean := GEM.Getenv ("METRIC", "CC") = "ED";
       SEM_Metric : constant Boolean := GEM.Getenv ("METRIC", "CC") = "SEM";
+      --  METRIC=CP: (CC + power-spectrum CC over FB_LO .. FB_HI) / 2
+      CP_Metric : constant Boolean := GEM.Getenv ("METRIC", "CC") = "CP";
+      --  TESS_PERIOD (days): per-leg sin/cos pair at that line's annual alias
+      Tess_Period : constant Long_Float := GEM.Getenv ("TESS_PERIOD", 0.0);
       DTW_Window : constant Integer :=
         GEM.Getenv ("DTW", 1); -- 100 is about ~5% of the time-series length
       Sampling_Per_Year : constant Long_Float := GEM.Getenv ("SAMPLING", 12.0);
@@ -1256,6 +1330,8 @@ package body GEM.LTE.Primitives.Solution is
             Raw_Score := FT_CC (X, Y, Z);
          elsif FB_Metric then
             Raw_Score := FB_CC (X, Y, FB_Lo, FB_Hi, FB_Lo2, FB_Hi2);
+         elsif CP_Metric then
+            Raw_Score := 0.5 * (CC (X, Y) + FP_CC (X, Y, FB_Lo, FB_Hi));
          elsif Winding_Metric then
             Raw_Score := (Winding_Agreement (X, Y, Z) + CC(X,Y))/2.0;
          elsif DTW_Metric then
@@ -1286,6 +1362,19 @@ package body GEM.LTE.Primitives.Solution is
             Raw_Score := Min_Entropy_Power_Spectrum (X, Y); -- or X = Z
          else
             Raw_Score := CC (X, Y);
+         end if;
+
+         if DLOD_Mix_On then
+            declare
+               L : constant Long_Float := DLOD_Agreement;
+            begin
+               if DLOD_Mix = "GEO" then
+                  Raw_Score := Ada.Numerics.Long_Elementary_Functions.Sqrt
+                    (Long_Float'Max (Raw_Score, 0.0) * L);
+               else
+                  Raw_Score := 0.5 * (Raw_Score + L);
+               end if;
+            end;
          end if;
 
          --  Multiplicative penalty: Manifold_CC~1.0 (this run's own
@@ -2576,6 +2665,14 @@ package body GEM.LTE.Primitives.Solution is
                     Year_Length (D.B.Year) / (GEM.LTE.Draconic / 2.0)
                     - Long_Float'Floor
                         (Year_Length (D.B.Year) / (GEM.LTE.Draconic / 2.0))
+                  else 0.0),
+               --  TESS_PERIOD (days, 0 = off): signed annual alias of a
+               --  tesseral line, Mod (Year / P + 1/2, 1) - 1/2 cycles/yr
+               TS_Freq =>
+                 (if Tess_Period > 0.0 then
+                    Year_Length (D.B.Year) / Tess_Period
+                    - Long_Float'Floor
+                        (Year_Length (D.B.Year) / Tess_Period + 0.5)
                   else 0.0)
             );
             for R in 1 .. N_Reg loop
@@ -3257,6 +3354,9 @@ package body GEM.LTE.Primitives.Solution is
                   Aero_Enabled   => GEM.LTE.Primitives.Aero_On,
                   Aero_Coef      => Aero,
                   Aero_Lag       => GEM.LTE.Primitives.Aero_Lag,
+                  Tess_Freq      => Annual_Cycle.TS_Freq,
+                  Tess_Sin       => Annual_Cycle.TS1,
+                  Tess_Cos       => Annual_Cycle.TS2,
                   Alpha          => Alpha,
                   M_Min          => (if Alpha /= 0.0 then Manifold_Min (Forcing) else 0.0)));
          end;

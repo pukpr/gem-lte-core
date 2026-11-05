@@ -1039,6 +1039,10 @@ package body GEM.LTE.Primitives is
                LF := LF + Annual.CW1 * Sin(2.0 * Pi * Annual.CW_Freq * Res (I).Date)
                         + Annual.CW2 * Cos(2.0 * Pi * Annual.CW_Freq * Res (I).Date);
             end if;
+            if Annual.TS_Freq /= 0.0 then
+               LF := LF + Annual.TS1 * Sin(2.0 * Pi * Annual.TS_Freq * Res (I).Date)
+                        + Annual.TS2 * Cos(2.0 * Pi * Annual.TS_Freq * Res (I).Date);
+            end if;
             Res (I).Value := LF;
          end;
       end loop;
@@ -1792,6 +1796,82 @@ package body GEM.LTE.Primitives is
       return Num / Sqrt (DD * MM);
    end FB_CC;
 
+   --  FP_CC: correlation of the model and data POWER spectra over the band
+   --  Lo .. Hi (cycles/year), bin by bin (linear power, Hann taper, mean and
+   --  linear trend removed). Unlike FB_CC it ignores phase, so it rewards the
+   --  spectral shape without rewarding the timing of particular events.
+   function FP_CC
+     (Model, Data : in Data_Pairs; Lo, Hi : in Long_Float) return Long_Float
+   is
+      use Ada.Numerics.Long_Elementary_Functions;
+      Two_Pi : constant Long_Float := 2.0 * Ada.Numerics.Pi;
+      N : constant Integer := Data'Length;
+      T0 : constant Long_Float := Data (Data'First).Date;
+      Span : constant Long_Float := Data (Data'Last).Date - T0;
+      K_Lo : constant Integer := Integer (Long_Float'Ceiling (Lo * Span));
+      K_Hi : constant Integer := Integer (Long_Float'Floor (Hi * Span));
+      type Vec is array (1 .. N) of Long_Float;
+      W, CB, SB, C, S, D, M : Vec;
+      NB : constant Integer := Integer'Max (K_Hi - K_Lo + 1, 0);
+      type Bins is array (1 .. Integer'Max (NB, 1)) of Long_Float;
+      PD, PM : Bins := (others => 0.0);
+      Dc, Ds, Mc, Ms, Cn, Avg_D, Avg_M, Num, DD, MM : Long_Float := 0.0;
+
+      procedure Prepare (X : in Data_Pairs; V : out Vec) is
+         Sx, Sy, Sxx, Sxy, U, A, B : Long_Float := 0.0;
+      begin
+         for I in 1 .. N loop
+            U := X (X'First + I - 1).Date - T0;
+            Sx := Sx + U; Sy := Sy + X (X'First + I - 1).Value;
+            Sxx := Sxx + U * U; Sxy := Sxy + U * X (X'First + I - 1).Value;
+         end loop;
+         B := (Long_Float (N) * Sxy - Sx * Sy) / (Long_Float (N) * Sxx - Sx * Sx);
+         A := (Sy - B * Sx) / Long_Float (N);
+         for I in 1 .. N loop
+            U := X (X'First + I - 1).Date - T0;
+            V (I) := W (I) * (X (X'First + I - 1).Value - A - B * U);
+         end loop;
+      end Prepare;
+   begin
+      if N < 8 or else Span <= 0.0 or else Model'Length /= N or else NB < 3 or else K_Lo < 1 then
+         return 0.0;
+      end if;
+      for I in 1 .. N loop
+         W (I) := 0.5 * (1.0 - Cos (Two_Pi * (Data (Data'First + I - 1).Date - T0) / Span));
+         CB (I) := Cos (Two_Pi * (Data (Data'First + I - 1).Date - T0) / Span);
+         SB (I) := Sin (Two_Pi * (Data (Data'First + I - 1).Date - T0) / Span);
+      end loop;
+      Prepare (Data, D);
+      Prepare (Model, M);
+      for I in 1 .. N loop   -- phase at the first bin; later bins by rotation
+         C (I) := Cos (Two_Pi * Long_Float (K_Lo) * (Data (Data'First + I - 1).Date - T0) / Span);
+         S (I) := Sin (Two_Pi * Long_Float (K_Lo) * (Data (Data'First + I - 1).Date - T0) / Span);
+      end loop;
+      for K in 1 .. NB loop
+         Dc := 0.0; Ds := 0.0; Mc := 0.0; Ms := 0.0;
+         for I in 1 .. N loop
+            Dc := Dc + D (I) * C (I); Ds := Ds + D (I) * S (I);
+            Mc := Mc + M (I) * C (I); Ms := Ms + M (I) * S (I);
+            Cn := C (I) * CB (I) - S (I) * SB (I);
+            S (I) := S (I) * CB (I) + C (I) * SB (I);
+            C (I) := Cn;
+         end loop;
+         PD (K) := Dc * Dc + Ds * Ds;
+         PM (K) := Mc * Mc + Ms * Ms;
+         Avg_D := Avg_D + PD (K); Avg_M := Avg_M + PM (K);
+      end loop;
+      Avg_D := Avg_D / Long_Float (NB); Avg_M := Avg_M / Long_Float (NB);
+      for K in 1 .. NB loop
+         Num := Num + (PD (K) - Avg_D) * (PM (K) - Avg_M);
+         DD := DD + (PD (K) - Avg_D) ** 2;
+         MM := MM + (PM (K) - Avg_M) ** 2;
+      end loop;
+      if DD <= 0.0 or else MM <= 0.0 then
+         return 0.0;
+      end if;
+      return Num / Sqrt (DD * MM);
+   end FP_CC;
+
    -- Hoyer_Spectral_Peak
    --
     function Hoyer_Spectral_Peak (Model, Data, Forcing : in Data_Pairs) return Long_Float is
@@ -2114,7 +2194,8 @@ package body GEM.LTE.Primitives is
       NonLin : in Long_Float := 1.0;
       Alpha : in Long_Float := 0.0;
       M_Min : in Long_Float := 0.0;
-      CW_Freq : in Long_Float := 0.0)
+      CW_Freq : in Long_Float := 0.0;
+      TS_Freq : in Long_Float := 0.0)
    is
 
       use Ada.Numerics.Long_Elementary_Functions;
@@ -2141,11 +2222,15 @@ package body GEM.LTE.Primitives is
       CW_On : constant Boolean := CW_Freq /= 0.0;
       CW_Col : constant Integer := Base + Add_Trend + 1;
       Add_CW : constant Integer := (if CW_On then 2 else 0);
+      --  Optional TESS pair (TS_Freq /= 0): TS_Col cos, TS_Col + 1 sin.
+      TS_On : constant Boolean := TS_Freq /= 0.0;
+      TS_Col : constant Integer := Base + Add_Trend + Add_CW + 1;
+      Add_TS : constant Integer := (if TS_On then 2 else 0);
       --  Optional aerosol column, always the last one when AERO is set.
       Aero_Col : constant Integer :=
-        (if Aero_On then Base + Add_Trend + Add_CW + 1 else 0);
+        (if Aero_On then Base + Add_Trend + Add_CW + Add_TS + 1 else 0);
       Num_Coefficients : constant Integer :=
-        Base + Add_Trend + Add_CW + Boolean'Pos (Aero_On);
+        Base + Add_Trend + Add_CW + Add_TS + Boolean'Pos (Aero_On);
       RData : Vector (1 .. Last - First + 1);
       Factors_Matrix : Matrix (1 .. Last - First + 1, 1 .. Num_Coefficients);
       Value : Long_Float;
@@ -2217,6 +2302,12 @@ package body GEM.LTE.Primitives is
               Cos (2.0 * Pi * CW_Freq * Forcing (I).Date);
             Factors_Matrix (I - First + 1, CW_Col + 1) :=
               Sin (2.0 * Pi * CW_Freq * Forcing (I).Date);
+         end if;
+         if TS_On then
+            Factors_Matrix (I - First + 1, TS_Col) :=
+              Cos (2.0 * Pi * TS_Freq * Forcing (I).Date);
+            Factors_Matrix (I - First + 1, TS_Col + 1) :=
+              Sin (2.0 * Pi * TS_Freq * Forcing (I).Date);
          end if;
          if Aero_On then
             Factors_Matrix (I - First + 1, Aero_Col) :=
@@ -2360,6 +2451,11 @@ package body GEM.LTE.Primitives is
                Annual.CW1 := Coefficients (CW_Col + 1);
                Annual.CW2 := Coefficients (CW_Col);
                Annual.CW_Freq := CW_Freq;
+            end if;
+            if TS_On then
+               Annual.TS1 := Coefficients (TS_Col + 1);
+               Annual.TS2 := Coefficients (TS_Col);
+               Annual.TS_Freq := TS_Freq;
             end if;
             Singular := False;
          end if;
