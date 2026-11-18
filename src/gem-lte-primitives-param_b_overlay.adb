@@ -141,7 +141,8 @@ package body GEM.LTE.Primitives.Param_B_Overlay is
             (SsaP_Index,   "ssaP     ", P.ssaP),
             (MB_Index,     "mB       ", P.mB),
             (BG2_Index,    "bg2      ", P.bg2),
-            (DelC_Index,   "delC     ", P.delC)
+            (DelC_Index,   "delC     ", P.delC),
+            (BesK_Index,   "besK     ", P.besK)
          );
          
          Matches : Natural := 0;

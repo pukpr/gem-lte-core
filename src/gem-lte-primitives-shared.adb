@@ -249,6 +249,7 @@ package body GEM.LTE.Primitives.Shared is
          Set_Field (Obj, "mb", Create (D.B.mB));
          Set_Field (Obj, "bg2", Create (D.B.bg2));
          Set_Field (Obj, "delC", Create (D.B.delC));
+         Set_Field (Obj, "besk", Create (D.B.besK));
          
          -- LPAP array (tidal constituents) - only in primary file
          if Include_LPAP then
@@ -478,6 +479,7 @@ package body GEM.LTE.Primitives.Shared is
       Set_Field (Manifold, "mb", Create (B.mB));
       Set_Field (Manifold, "bg2", Create (B.bg2));
       Set_Field (Manifold, "delC", Create (B.delC));
+      Set_Field (Manifold, "besk", Create (B.besK));
       Set_Field (Manifold, "impA", Create (B.ImpA));
       Set_Field (Manifold, "impB", Create (B.ImpB));
       Set_Field (Manifold, "offs", Create (B.Offset));
@@ -853,6 +855,21 @@ package body GEM.LTE.Primitives.Shared is
       Read_JSON_Float_Array (Data, "lt", D.B.LT);
       Read_JSON_Int_Array (Data, "harm", D.C);
       Read_JSON_Int_Array (Data, "harmonics", D.C);
+      --  besk (2026-11-17): the Bessel correction's wavenumber, a manifold
+      --  parameter of its own. Before, the correction used ltep (NM) -- or
+      --  ltep (NM - 1) with LOCKF -- so a file without besk is seeded with
+      --  that value and reproduces exactly.
+      if Kind (Data) = JSON_Object_Type and then Has_Field (Data, "besk") then
+         D.B.besK := Get_Number (Get (Data, "besk"));
+      else
+         declare
+            NM : constant Integer :=
+              Integer'Max (1, Integer'Min (D.B.LT'Last, GEM.Getenv ("NM", D.B.LT'Length)));
+            Lock : constant Boolean := GEM.Getenv ("LOCKF", False);
+         begin
+            D.B.besK := D.B.LT (if Lock and then NM >= 2 then NM - 1 else NM);
+         end;
+      end if;
       for I in D.A.LP'Range loop
          D.A.LP (I) := GEM.LTE.LP (I);
       end loop;
@@ -922,6 +939,212 @@ package body GEM.LTE.Primitives.Shared is
    --    -p : Dump parameters and exit
    --    -w : Write parameters to .par files and exit
    --  =========================================================================
+   function Leg_File (Leg : in Positive) return String is
+      Exec : constant String :=
+        Ada.Directories.Simple_Name (Ada.Command_Line.Command_Name);
+      Base : constant String :=
+        (if Exec'Length > 0 and then Exec (Exec'Last) = '.' then
+           Exec (Exec'First .. Exec'Last - 1)
+         else Exec);
+      L : constant String := Positive'Image (Leg);
+   begin
+      return Base & ".p." & L (L'First + 1 .. L'Last);
+   end Leg_File;
+
+   --  The leg's own scalars beyond IR, under their .p keys (one list for
+   --  Read_Leg and Write_Leg). Own_Params is every Param_B scalar but IR and
+   --  year (Param_B_Overlay's 28 less those 2), plus cw1/cw2 from Param_S.
+   procedure Own_Fields
+     (D : in out Param_S; Own : in Leg_Own_Set;
+      Apply : not null access procedure (Key : in String; V : in out Long_Float)) is
+   begin
+      if Own = Own_None then
+         return;
+      end if;
+      Apply ("impA", D.B.ImpA);
+      Apply ("impB", D.B.ImpB);
+      Apply ("besk", D.B.besK);
+      Apply ("offs", D.B.Offset);
+      Apply ("bg", D.B.bg);
+      Apply ("bg2", D.B.bg2);
+      if Own = Own_Params then
+         Apply ("impC", D.B.ImpC);
+         Apply ("delA", D.B.DelA);
+         Apply ("delB", D.B.DelB);
+         Apply ("asym", D.B.Asym);
+         Apply ("ann1", D.B.Ann1);
+         Apply ("ann2", D.B.Ann2);
+         Apply ("sem1", D.B.Sem1);
+         Apply ("sem2", D.B.Sem2);
+         Apply ("ma", D.B.mA);
+         Apply ("mp", D.B.mP);
+         Apply ("shfT", D.B.shiftT);
+         Apply ("init", D.B.init);
+         Apply ("rho", D.B.rho);
+         Apply ("ztau", D.B.ztau);
+         Apply ("zdist", D.B.zdist);
+         Apply ("ztilt", D.B.ztilt);
+         Apply ("ssaA", D.B.ssaA);
+         Apply ("ssaP", D.B.ssaP);
+         Apply ("mb", D.B.mB);
+         Apply ("delC", D.B.delC);
+         Apply ("cw1", D.CW1);
+         Apply ("cw2", D.CW2);
+      end if;
+   end Own_Fields;
+
+   procedure Read_Leg (Leg : in Positive; D : in out Param_S; Found : out Boolean;
+                       Own : in Leg_Own_Set := Own_None)
+   is
+      use GNATCOLL.JSON;
+      Name : constant String := Leg_File (Leg);
+      Result : Read_Result;
+      procedure Get (Key : in String; V : in out Long_Float) is
+      begin
+         V := Get_Float_Field (Result.Value, Key, V);
+      end Get;
+   begin
+      Found := False;
+      if not Ada.Directories.Exists (Name) then
+         return;
+      end if;
+      Result := Read (File_To_String (Name));
+      if not Result.Success then
+         Ada.Text_IO.Put_Line (Name & ": " & Format_Parsing_Error (Result.Error));
+         GNAT.OS_Lib.OS_Exit (0);
+      end if;
+      D.B.IR := Get_Float_Field (Result.Value, "IR", D.B.IR);
+      Read_JSON_Float_Array (Result.Value, "ltep", D.B.LT);
+      Read_JSON_Int_Array (Result.Value, "harm", D.C);
+      Own_Fields (D, Own, Get'Access);
+      Found := True;
+   end Read_Leg;
+
+   procedure Write_Leg (Leg : in Positive; D : in Param_S;
+                        Own : in Leg_Own_Set := Own_None) is
+      use GNATCOLL.JSON;
+      NM : constant Integer := GEM.Getenv ("NM", D.B.LT'Length);
+      Harms : constant Ns := Parse_NH (GEM.Getenv ("NH", ""));
+      Obj : constant JSON_Value := Create_Object;
+      LT_Arr, Harm_Arr : JSON_Array := Empty_Array;
+      FT : Ada.Text_IO.File_Type;
+      DD : Param_S := D;
+      procedure Put (Key : in String; V : in out Long_Float) is
+      begin
+         Set_Field (Obj, Key, Create (V));
+      end Put;
+   begin
+      Own_Fields (DD, Own, Put'Access);
+      Set_Field (Obj, "IR", Create (D.B.IR));
+      for I in 1 .. NM loop
+         Append (LT_Arr, Create (D.B.LT (I)));
+      end loop;
+      Set_Field (Obj, "ltep", Create (LT_Arr));
+      for I in 1 .. Harms'Length loop
+         exit when I > D.C'Last;
+         Append (Harm_Arr, Create (Long_Float (D.C (I))));
+      end loop;
+      Set_Field (Obj, "harm", Create (Harm_Arr));
+      Ada.Text_IO.Create (FT, Ada.Text_IO.Out_File, Leg_File (Leg));
+      Ada.Text_IO.Put_Line (FT, Write (Obj, Compact => False));
+      Ada.Text_IO.Close (FT);
+   end Write_Leg;
+
+   function Wisdom_File return String is
+      Env : constant String := GEM.Getenv ("WISDOM_P", "");
+      Rel : constant String := "experiments/wisdom_lpap/wisdom_raw.lt.exe.p";
+   begin
+      if Env /= "" then
+         return Env;
+      end if;
+      declare
+         Dir : Ada.Strings.Unbounded.Unbounded_String :=
+           Ada.Strings.Unbounded.To_Unbounded_String
+             (Ada.Directories.Current_Directory);
+      begin
+         for Level in 0 .. 10 loop
+            declare
+               Here : constant String := Ada.Strings.Unbounded.To_String (Dir);
+               Name : constant String := Here & "/" & Rel;
+            begin
+               if Ada.Directories.Exists (Name) then
+                  return Name;
+               end if;
+               exit when Here = "/" or else Here = "";
+               Dir := Ada.Strings.Unbounded.To_Unbounded_String
+                 (Ada.Directories.Containing_Directory (Here));
+            end;
+         end loop;
+      exception
+         when Ada.Directories.Use_Error | Ada.Directories.Name_Error =>
+            null;
+      end;
+      return "";
+   end Wisdom_File;
+
+   procedure Seed_LPAP (D : in out Param_S; File : in String;
+                        Seeded, Skipped : out Natural)
+   is
+      use GNATCOLL.JSON;
+      Result : Read_Result;
+      Arr : JSON_Array;
+      Used : array (D.B.LPAP'Range) of Boolean := (others => False);
+   begin
+      Seeded := 0;
+      Skipped := 0;
+      Result := Read (File_To_String (File));
+      if not Result.Success then
+         raise Constraint_Error with
+           File & ": " & Format_Parsing_Error (Result.Error);
+      end if;
+      if not Has_Field (Result.Value, "lpap") then
+         raise Constraint_Error with File & ": no lpap";
+      end if;
+      Arr := Get (Result.Value, "lpap");
+      for I in 1 .. Length (Arr) loop
+         declare
+            T : constant JSON_Array := Get (Get (Arr, I));
+            Period, Amp, Phase : Long_Float;
+            Best : Integer := 0;
+            Best_Diff : Long_Float := Long_Float'Last;
+         begin
+            if Length (T) >= 3 then
+               Period := Get_Number (Get (T, 1));
+               Amp := Get_Number (Get (T, 2));
+               Phase := Get_Number (Get (T, 3));
+               if Amp = 0.0 then
+                  Skipped := Skipped + 1;
+               else
+                  for J in D.B.LPAP'Range loop
+                     if not Used (J) and then D.A.LP (J) /= 0.0 then
+                        declare
+                           Diff : constant Long_Float :=
+                             abs (abs Period - abs D.A.LP (J));
+                        begin
+                           if Diff <= 1.0E-4 * abs D.A.LP (J)
+                             and then Diff < Best_Diff
+                           then
+                              Best := J;
+                              Best_Diff := Diff;
+                           end if;
+                        end;
+                     end if;
+                  end loop;
+                  if Best = 0 then
+                     Ada.Text_IO.Put_Line
+                       ("  WISDOM: no table period for" & Period'Img);
+                     Skipped := Skipped + 1;
+                  else
+                     D.B.LPAP (Best) := (Amplitude => Amp, Phase => Phase);
+                     Used (Best) := True;
+                     Seeded := Seeded + 1;
+                  end if;
+               end if;
+            end if;
+         end;
+      end loop;
+   end Seed_LPAP;
+
    procedure Load (P : in out Param_S) is
    begin
       Read (P);
@@ -978,6 +1201,7 @@ package body GEM.LTE.Primitives.Shared is
       Put (D.B.mB, " :mB:", NL);
       Put (D.B.bg2, " :bg2:", NL);
       Put (D.B.delC, " :delC:", NL);
+      Put (D.B.besK, " :besk:", NL);
       Ada.Text_IO.Put_Line ("---- Tidal ----");
       for I in D.B.LPAP'Range loop
          Put (D.A.LP (I), ", ");

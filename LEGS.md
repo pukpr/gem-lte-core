@@ -72,6 +72,74 @@ settings close that gap.
   identity), which is the built-in check.
 - Use `ALPHA 0` and `NONLIN 1.0` with it.
 
+## Each leg's own windings: `LEG_WINDINGS`
+
+By default every leg uses the same winding wavenumbers (`ltep`, the `harm` multipliers) and `IR`
+from `lt.exe.p`, and only the regressed amplitudes and phases differ. With **`LEG_WINDINGS TRUE`**
+(common file; default off) the manifold stays shared, but the parameters after it are each leg's own:
+
+- **Files.** Each leg reads `lt.exe.p.<leg>` (`lt.exe.p.1`, `lt.exe.p.2`, ...) after `lt.exe.p`, and
+  takes from it whichever of `ltep`, `harm` and `IR` it holds. A missing file means the leg starts
+  from the shared values. At save every leg writes its own `lt.exe.p.<leg>`. The leader still writes
+  `lt.exe.p` (with leg 1's values), so that file stays complete on its own.
+- **Counts.** `NM` and `NH` come from the main `lt.exe.resp`, so every leg has as many `ltep` and
+  `harm` values. Do not set `NM` or `NH` in a leg file.
+- **Search.** The leader walks the shared parameters and its own leg's values as before. Each follower
+  puts its own `ltep`, `IR` and multipliers back over the leader's candidate and steps them itself:
+  one `Markov` step on one of its `ltep` / `IR` values at the rate the leader's walk gives any one
+  parameter, and the usual `Random_Harmonic` step on its multipliers. Accept and reject stay joint
+  (the composite), and a rejected step reverts each leg's own values.
+- **Zeros never move**, as in the walk: a leg whose `IR` should be searched needs a nonzero start.
+  `LEG_IR` still fixes a leg's `IR`; `LOCKW` snaps followers' `ltep` too.
+- **The manifold stays shared.** Its Bessel correction used to take its wavenumber from `ltep`
+  (`ltep(NM)`, or `ltep(NM-1)` with `LOCKF`), which made each leg's own `ltep` move its manifold.
+  It is now the shared `lt.exe.p` parameter **`besk`** (2026-11-17), searched with the other
+  manifold parameters; a `.p` without it is seeded from that `ltep`, so older fits reproduce.
+  `LAYER` still reads `ltep(1)` and `ltep(2)` and so does not keep the manifold shared.
+- **`LEG_P`** (common file or environment, with `LEG_WINDINGS`; any case) sets how much more
+  than `ltep`, `harm` and `IR` each leg owns. The extra keys go into `lt.exe.p.<leg>`, and each
+  follower steps them with its `ltep` and `IR`:
+  - **`NONE`** (default): nothing more.
+  - **`BESSEL`**: the Bessel correction, `impA`, `impB`, `besk`, `offs`, `bg` and `bg2` (`bg2` is
+    stepped only with `NM 1`, the one case that uses it). Only the tidal forcing and its impulse
+    integration stay shared.
+  - **`PARAMS`**: every `.p` parameter except `lpap` and `year`. That is the Bessel set plus `impC`,
+    `delA`, `delB`, `delC`, `asym`, `ann1`, `ann2`, `sem1`, `sem2`, `ma`, `mp`, `mb`, `shfT`, `init`,
+    `rho`, `ztau`, `zdist`, `ztilt`, `ssaA`, `ssaP`, `cw1` and `cw2`. Only the tidal constituents
+    and the year length stay shared. `ann*`/`sem*` (with `TREND`) and `cw*` are regression outputs,
+    so they are each leg's own in any mode; `PARAMS` only carries them in the leg file.
+
+  With `BESSEL` or `PARAMS`, each leg's manifold column is its own. A leg file without some of
+  these keys starts those from the shared values. `LEG_BESSEL TRUE`, the earlier switch, still
+  means `LEG_P BESSEL`.
+- **`MANIFOLD_PRE TRUE`** (common file or environment; default off; also without legs) puts the
+  manifold as it is *before* the Bessel step (or its `LAYER` / `FRICTION` variant) into column 4
+  of `lte_results.csv` / `lte_results.<leg>.csv`. That is the tidal forcing and its impulse
+  integration only, after a stage-0 `ANNUAL_DITHER`. It is cached with each accepted candidate, so
+  it matches the saved fit. Columns 1–3 and all scores are unchanged, and `leg_scores2.py`'s
+  manifold line and bottom panel then compare the legs' manifolds before Bessel. It is not
+  applied with `VALIDATE TRUE` without legs, where the save can take another thread's candidate;
+  the run then prints a note and writes the usual post-Bessel column.
+  - Check (2026-11-18, the 4-leg `amo_pdo_nao_nino4_feb_overnight.wow` fit, `LEG_P BESSEL`):
+    applying each leg's Bessel step to the new column reproduces the post-Bessel column to 4e-13.
+    The pre-Bessel manifolds of the four legs agree to 1.00000, against 0.963 / 0.941 / 0.898
+    after Bessel, so the whole spread between them comes from each leg's Bessel step.
+- **Checks for `LEG_P`** (2026-11-17, `TEST_ONLY`, 2-leg AMO + NAO):
+  - Unset gives the same scores as the binary before `LEG_P`.
+  - `BESSEL`, `LEG_BESSEL TRUE` and `PARAMS` with leg files holding only the Bessel keys all give
+    the same scores as the earlier `LEG_BESSEL TRUE`.
+  - With NAO's full fit as `lt.exe.p` and every non-lpap, non-year key of each single-leg fit in
+    `lt.exe.p.<leg>`, the NAO leg reproduces its single-leg 0.8505 in both modes. The AMO leg goes
+    from 0.483 (`BESSEL`) to 0.585 (`PARAMS`).
+  - A `PARAMS` search writes all 31 keys to each leg file, and never `lpap` or `year`.
+- **Use `STRICT_IDATE TRUE`** for a strictly common manifold: without it each leg's forcing is
+  integrated from its own first data date (Baltic July 1880, NAO January 1880 gives a manifold
+  CC of 0.9994 between the legs, in every run before this feature too).
+- Off with `LEG_COMMON`, which applies the leader's amplitudes to windings it assumes are common.
+- `leg_scores2.py` lists each leg's wavenumbers when they differ.
+- Checks (2026-11-15): off, and on without per-leg files, is bit-identical to before; a hand-set
+  `lt.exe.p.2` changes leg 2 only; reloading a search's saved files reproduces every leg's score.
+
 Other per-leg settings added for particular indices: **`LEG_IR`** (the leg's own one-year lag
 coefficient; `1.0` with `UNCOMPENSATED TRUE` makes the leg the one-year difference of its response, as
 for NAO against AMO) and **`ALPHA_GAIN`** (positive-side gain, now readable per leg).

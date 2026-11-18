@@ -62,7 +62,8 @@ package body GEM.LTE is
         (Long_Float (D (I).s) / Tropical +
         (Long_Float (D (I).h) * D (I).Year_Multiplier) /
           Year_Length (Dynamic_Correction) +
-        Long_Float (D (I).p) / p + Long_Float (D (I).N) / N);
+        Long_Float (D (I).p) / p + Long_Float (D (I).N) / N +
+        Long_Float (D (I).Day));
       --end if;
    end Doodson;
 

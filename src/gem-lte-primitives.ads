@@ -161,7 +161,10 @@ package GEM.LTE.Primitives is
       CW_Freq : in Long_Float := 0.0;
       --  TS_Freq /= 0.0: the same for the TESS pair (Annual.TS1/TS2/TS_Freq),
       --  columns right after the CW pair; 0.0 = no columns.
-      TS_Freq : in Long_Float := 0.0);
+      TS_Freq : in Long_Float := 0.0;
+      --  True: apply the WRIDGE winding penalty (the climate-index fit only;
+      --  the dLOD tidal-line regression leaves it False).
+      Winding_Penalty : in Boolean := False);
 
    --
    -- Utility procedures
@@ -214,8 +217,11 @@ package GEM.LTE.Primitives is
    function FP_CC
      (Model, Data : in Data_Pairs; Lo, Hi : in Long_Float) return Long_Float;
 
-   -- Hoyer Peakedness
-   function Hoyer_Spectral_Peak (Model, Data, Forcing : in Data_Pairs) return Long_Float;
+   --  Hoyer peakedness of the data's spectrum in the manifold coordinate
+   --  (Forcing), bins in units of the base winding Base, minus that of a
+   --  half-length circular shift of the data (HOYER_LEGACY: original score)
+   function Hoyer_Spectral_Peak
+     (Data, Forcing : in Data_Pairs; Base : in Long_Float) return Long_Float;
 
    -- Minimum Entropy
    function Min_Entropy_Power_Spectrum

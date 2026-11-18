@@ -1,4 +1,5 @@
 with Ada.Strings.Fixed;
+with Ada.Strings.Maps.Constants;
 with GEM.Zonal;
 --  ============================================================================
 --  GEM.LTE.Primitives.Solution - Parallel Optimization Solver
@@ -41,12 +42,14 @@ with Text_IO;
 with Ada.Numerics.Long_Elementary_Functions;
 with Ada.Long_Float_Text_IO;
 with GEM.Random_Descent;
+with Ada.Numerics.Float_Random;
 with GEM.dLOD;
 with GNAT.Ctrl_C;
 with System.Task_Info;
 with System.Multiprocessors;
 with GEM.LTE.Primitives.Shared;
 with GEM.LTE.Primitives.Param_B_Overlay;
+with GEM.LTE.Primitives.Inversion;
 with Ada.Exceptions;
 with GNAT.Traceback.Symbolic;
 with Ada.IO_Exceptions;
@@ -54,6 +57,7 @@ with GNAT.OS_Lib;
 with Ada.Directories;
 
 package body GEM.LTE.Primitives.Solution is
+   use type GEM.LTE.Primitives.Shared.Leg_Own_Set;
 
    Is_Split : constant Boolean := GEM.Getenv ("SPLIT_TRAINING", False);
    Split_Low : constant Boolean := GEM.Getenv ("SPLIT_LOW", True);
@@ -100,8 +104,51 @@ package body GEM.LTE.Primitives.Solution is
    --  without legs (with legs the scores are the pair's composites).
    Select_Top : constant Integer := GEM.Getenv ("SELECT_TOP", 0);
    Select_Tie : constant Long_Float := GEM.Getenv ("SELECT_TIE", 0.01);
+   --  DLOD_SHIFT (days, default 0 = off): the dLOD agreement (CompareRef's
+   --  ":dLOD:" and the DLOD_MIX score) is the best |CC| over the reference
+   --  shifted by tau = -DLOD_SHIFT .. +DLOD_SHIFT in DLOD_SHIFT_STEP days.
+   --  Moving the impulse by tau equals rotating every tidal phase by
+   --  omega * tau, so this lets the dLOD check allow for impulse-position
+   --  uncertainty. The agreement falls as cos (2 pi tau / 13.66 d) (Mf), so
+   --  keep DLOD_SHIFT to about 0.5 d; more frees the Mf phase.
+   DLOD_Shift : constant Long_Float := GEM.Getenv ("DLOD_SHIFT", 0.0);
+   DLOD_Shift_Step : constant Long_Float := GEM.Getenv ("DLOD_SHIFT_STEP", 0.25);
+   N_DLOD_Shift : constant Natural :=
+     (if DLOD_Shift > 0.0 and then DLOD_Shift_Step > 0.0
+      then Natural (Long_Float'Floor (DLOD_Shift / DLOD_Shift_Step + 1.0E-9))
+      else 0);
+
+   --  Template with every date moved by Years (Tide_Sum ignores Ref_Time)
+   function Shift_Dates (T : Data_Pairs; Years : Long_Float) return Data_Pairs is
+      R : Data_Pairs := T;
+   begin
+      for I in R'Range loop
+         R (I).Date := R (I).Date + Years;
+      end loop;
+      return R;
+   end Shift_Dates;
    Max_Clients : constant := 512;
    type Score_List is array (1 .. Max_Clients) of Long_Float;
+
+   --  LEG_P: NONE (or unset), BESSEL or PARAMS, any case; see Leg_P below
+   function Leg_P_Mode return GEM.LTE.Primitives.Shared.Leg_Own_Set is
+      use GEM.LTE.Primitives.Shared;
+      V : constant String :=
+        Ada.Strings.Fixed.Translate
+          (Ada.Strings.Fixed.Trim (GEM.Getenv ("LEG_P", ""), Ada.Strings.Both),
+           Ada.Strings.Maps.Constants.Upper_Case_Map);
+   begin
+      if V = "PARAMS" then
+         return Own_Params;
+      elsif V = "BESSEL" then
+         return Own_Bessel;
+      elsif V = "" or else V = "NONE" then
+         return (if GEM.Getenv ("LEG_BESSEL", False) then Own_Bessel else Own_None);
+      else
+         raise Constraint_Error with
+           "LEG_P must be NONE, BESSEL or PARAMS, not " & V;
+      end if;
+   end Leg_P_Mode;
 
    function Assign_Leg (L : Natural) return Boolean is
    begin
@@ -148,6 +195,45 @@ package body GEM.LTE.Primitives.Solution is
          Metric := CC (D, M2);
       else
          Metric := Long_Float'Max (CC (R2, M2), Metric);
+         --  DLOD_SHIFT: the signed CC at the shift with the best |CC|;
+         --  dlod_compare.csv keeps the unshifted reference
+         if N_DLOD_Shift > 0 then
+            declare
+               Best_Tau : Long_Float := 0.0;
+               Best : Long_Float := Metric;
+            begin
+               for K in -N_DLOD_Shift .. N_DLOD_Shift loop
+                  if K /= 0 then
+                     declare
+                        Tau : constant Long_Float :=
+                          Long_Float (K) * DLOD_Shift_Step;
+                        C : constant Long_Float :=
+                          CC (Tide_Sum
+                                (Template => Shift_Dates
+                                   (Ref, Tau / Year_Length (Year_Correction)),
+                                 Constituents => LPRef, Periods => LP,
+                                 Ref_Time => 0.0, Scaling => 1.0,
+                                 Cos_Phase => False,
+                                 Year_Len => Year_Length (Year_Correction)),
+                              M2);
+                     begin
+                        if abs C > abs Best then
+                           Best := C;
+                           Best_Tau := Tau;
+                        end if;
+                     end;
+                  end if;
+               end loop;
+               Text_IO.Put ("dLOD shift: unshifted");
+               Ada.Long_Float_Text_IO.Put (Metric, Fore => 2, Aft => 5, Exp => 0);
+               Text_IO.Put (", best");
+               Ada.Long_Float_Text_IO.Put (Best, Fore => 2, Aft => 5, Exp => 0);
+               Text_IO.Put (" at tau");
+               Ada.Long_Float_Text_IO.Put (Best_Tau, Fore => 3, Aft => 2, Exp => 0);
+               Text_IO.Put_Line (" d (reference at t + tau)");
+               Metric := Best;
+            end;
+         end if;
       end if;
       Text_IO.Create (File, Text_IO.Out_File, "dlod_compare.csv");
       for I in R2'Range loop
@@ -191,9 +277,11 @@ package body GEM.LTE.Primitives.Solution is
    is
       --  Paired legs need an even number of tasks (at least one pair)
       NT : constant Positive :=
-        (if Paired
+        (if Paired and then Inversion.On then Group  -- deterministic: one group
+         elsif Paired
          then Integer'Max
                 (Group, Number_of_Threads - Number_of_Threads mod Group)
+         elsif Inversion.On then 1  -- deterministic: one task
          else Number_of_Threads);
       TA : array (1 .. NT) of Thread_Access;
       use System.Multiprocessors;
@@ -707,8 +795,12 @@ package body GEM.LTE.Primitives.Solution is
    protected type Exchange is
       procedure Propose
         (D : in Shared.Param_S; H : in Ns; Threshold : in Long_Float);
+      --  H: the follower's own multipliers. Fetch overwrites only the ones
+      --  the leader posted, so a leg with a longer NH (e.g. lt.exe.resp.4
+      --  NH "1 1 15") keeps its extra harmonics, fixed, instead of reading
+      --  unset slots (0 = a constant column, singular regression).
       entry Fetch (Follower_Leg)
-        (D : out Shared.Param_S; H : out Ns; Threshold : out Long_Float;
+        (D : out Shared.Param_S; H : in out Ns; Threshold : out Long_Float;
          Quit : out Boolean);
       procedure Answer (L : in Follower_Leg; Score, OOB, Weight : in Long_Float);
       entry Result
@@ -724,6 +816,7 @@ package body GEM.LTE.Primitives.Solution is
    private
       Cand : Final_Param_P := null;
       HB : Ns (1 .. 100) := (others => 0);
+      HN : Natural := 0;  -- number of multipliers the leader posted
       Thr : Long_Float := 0.0;
       Have, Answered, Decided, Gone : Flags := (others => False);
       Amps_Ready : Flags := (others => False);
@@ -744,6 +837,7 @@ package body GEM.LTE.Primitives.Solution is
             Cand.all := D;
          end if;
          HB (1 .. H'Length) := H;
+         HN := H'Length;
          Thr := Threshold;
          Pending := 0;
          for L in 2 .. Group loop
@@ -756,13 +850,14 @@ package body GEM.LTE.Primitives.Solution is
       end Propose;
 
       entry Fetch (for L in Follower_Leg)
-        (D : out Shared.Param_S; H : out Ns; Threshold : out Long_Float;
+        (D : out Shared.Param_S; H : in out Ns; Threshold : out Long_Float;
          Quit : out Boolean)
         when Have (L) or Closed is
+         K : constant Natural := Natural'Min (H'Length, HN);
       begin
          if Have (L) then
             D := Cand.all;
-            H := HB (1 .. H'Length);
+            H (H'First .. H'First + K - 1) := HB (1 .. K);
             Threshold := Thr;
             Quit := False;
             Have (L) := False;
@@ -964,6 +1059,29 @@ package body GEM.LTE.Primitives.Solution is
         Follower and then Common_Split > 0
         and then GEM.Getenv ("LEG_SCORE", "FULL") = "FAST";
       Has_Leg_IR : constant Boolean := GEM.Getenv ("LEG_IR", "") /= "";
+      --  LEG_WINDINGS TRUE (LEGS runs): ltep, the harmonic multipliers and
+      --  IR are each leg's own -- read from lt.exe.p.<leg> when it exists
+      --  (else the shared lt.exe.p values), searched by the leg's own task
+      --  and saved to lt.exe.p.<leg> -- while every manifold parameter
+      --  stays shared. NM and NH come from the main response file, so every
+      --  leg has as many of each. Off with LEG_COMMON, which applies the
+      --  leader's amplitudes to windings it assumes are common.
+      Leg_Windings : constant Boolean :=
+        Paired and then Common_Split = 0
+        and then GEM.Getenv ("LEG_WINDINGS", False);
+      --  LEG_P (with LEG_WINDINGS) widens what each leg owns, in
+      --  lt.exe.p.<leg>, beyond ltep, harm and IR:
+      --    NONE   (default) nothing more;
+      --    BESSEL the manifold's Bessel correction -- impA, impB, besk,
+      --           offs, bg (and bg2, used only with NM = 1) -- so only the
+      --           tidal forcing and its impulse integration stay shared;
+      --    PARAMS every .p parameter except lpap and year, so only the
+      --           tidal constituents and the year length stay shared.
+      --  The manifold column of each leg's results file is then the leg's
+      --  own. LEG_BESSEL TRUE, the earlier switch, still means LEG_P BESSEL.
+      Leg_P : constant GEM.LTE.Primitives.Shared.Leg_Own_Set :=
+        (if Leg_Windings then Leg_P_Mode
+         else GEM.LTE.Primitives.Shared.Own_None);
       Leg_IR : constant Long_Float :=
         (if Has_Leg_IR then GEM.Getenv ("LEG_IR", 0.0) else 0.0);
       Results_File : constant String := "lte_results" & GEM.Leg_Tag & ".csv";
@@ -1026,6 +1144,15 @@ package body GEM.LTE.Primitives.Solution is
       --  KeepModel/DKeep were derived from -- see the Am_I_Last resync
       --  below (2026-09-29 fix).
       KeepForcing : Data_Pairs := Data_Records;
+      --  MANIFOLD_PRE TRUE: lte_results.csv column 4 (lte_results.<leg>.csv
+      --  with legs) holds the manifold as it is BEFORE the Bessel step (or
+      --  its LAYER / FRICTION variant) instead of after it -- the tidal
+      --  forcing and its impulse integration only, after a stage-0 dither.
+      --  Pre_Forcing is that series for the candidate being evaluated and
+      --  KeepPre its copy for the accepted one, cached beside KeepForcing.
+      --  Default FALSE writes the post-Bessel manifold, as always.
+      Manifold_Pre : constant Boolean := GEM.Getenv ("MANIFOLD_PRE", False);
+      Pre_Forcing, KeepPre : Data_Pairs := Data_Records;
 
       Best : Boolean := False;
       Percentage : Integer;
@@ -1091,8 +1218,43 @@ package body GEM.LTE.Primitives.Solution is
          end;
       end DLOD_Reference;
 
-      DL_R2 : constant Data_Pairs := DLOD_Reference;
+      --  DLOD_SHIFT: the reference at every shift, from one run of the
+      --  (slow) dLOD regression; each evaluation then costs one CC per shift
+      --  on top of the candidate's Tide_Sum
+      N_DL_Shift : constant Natural := (if DLOD_Mix_On then N_DLOD_Shift else 0);
+      subtype DL_Pairs is Data_Pairs (DL_Ref'Range);
+      type DL_Shifted is array (Integer range <>) of DL_Pairs;
 
+      function Shifted_References return DL_Shifted is
+         R : DL_Shifted (-N_DL_Shift .. N_DL_Shift);
+      begin
+         if N_DL_Shift = 0 then
+            return R (1 .. 0);
+         end if;
+         Save_Mutex.Seize (DLOD_Lock);
+         declare
+            LPRef : constant Long_Periods_Amp_Phase :=
+              GEM.dLOD (DLOD_File, D0.B.Year);
+         begin
+            for K in R'Range loop
+               R (K) :=
+                 Tide_Sum
+                   (Template =>
+                      (if K = 0 then DL_Ref
+                       else Shift_Dates
+                         (DL_Ref, Long_Float (K) * DLOD_Shift_Step / Year_Length (D0.B.Year))),
+                    Constituents => LPRef, Periods => D0.A.LP, Ref_Time => 0.0,
+                    Scaling => 1.0, Cos_Phase => False,
+                    Year_Len => Year_Length (D0.B.Year));
+            end loop;
+         end;
+         Save_Mutex.Release (DLOD_Lock);
+         return R;
+      end Shifted_References;
+
+      DL_R2_Shifted : constant DL_Shifted := Shifted_References;
+      DL_R2 : constant Data_Pairs :=
+        (if N_DL_Shift > 0 then DL_R2_Shifted (0) else DLOD_Reference);
 
       function DLOD_Agreement return Long_Float is
          M2 : constant Data_Pairs :=
@@ -1102,8 +1264,15 @@ package body GEM.LTE.Primitives.Solution is
               Year_Len => Year_Length (D.B.Year), Rho => D.B.rho,
               ZTau => D.B.ztau, ZDist => D.B.zdist, ZTilt => D.B.ztilt,
               SsaA => D.B.ssaA, SsaP => D.B.ssaP);
+         Best : Long_Float := 0.0;
       begin
-         return abs CC (DL_R2, M2);
+         if N_DL_Shift = 0 then
+            return abs CC (DL_R2, M2);
+         end if;
+         for K in DL_R2_Shifted'Range loop
+            Best := Long_Float'Max (Best, abs CC (DL_R2_Shifted (K), M2));
+         end loop;
+         return Best;
       end DLOD_Agreement;
 
       Maximum_Loops : constant Long_Integer :=
@@ -1132,6 +1301,8 @@ package body GEM.LTE.Primitives.Solution is
       DER_Metric : constant Boolean := GEM.Getenv ("METRIC", "CC") = "DER";
       EMD_Metric : constant Boolean := GEM.Getenv ("METRIC", "CC") = "EMD";
       Hoy_Metric : constant Boolean := GEM.Getenv ("METRIC", "CC") = "HOYER";
+      --  base winding D.B.LT (NM): the Hoyer bins are multiples of it
+      Hoy_Base : constant Integer := GEM.Getenv ("NM", N_Modulations);
       DTW_CC : constant Boolean := GEM.Getenv ("METRIC", "CC") = "DC";
       EMD_CC : constant Boolean := GEM.Getenv ("METRIC", "CC") = "EC";
       EMD_DER : constant Boolean := GEM.Getenv ("METRIC", "CC") = "ED";
@@ -1340,7 +1511,11 @@ package body GEM.LTE.Primitives.Solution is
             Raw_Score := EMD (X, Y);
          elsif Hoy_Metric then
             Raw_Score := -- Ada.Numerics.Long_Elementary_Functions.Sqrt ()
-                   (Hoyer_Spectral_Peak (X, Y, Z) + CC (X, Y)) * 0.5;
+                   (Hoyer_Spectral_Peak
+                      (Y, Z,
+                       D.B.LT (Integer'Max (1,
+                         Integer'Min (Hoy_Base, D.B.LT'Last)))) +
+                    CC (X, Y)) * 0.5;
          elsif DTW_CC then
             Raw_Score :=
               Ada.Numerics.Long_Elementary_Functions.Sqrt
@@ -2011,7 +2186,7 @@ package body GEM.LTE.Primitives.Solution is
         GEM.LTE.Primitives.Param_B_Overlay.Overlay_Size (D.B.NLP, D.B.NLT);
       
       -- Reduced size for Walker search based on NM (only search used LT entries)
-      -- Size = Scalar_Field_Count (26) scalars + (NLP * 2) LPAP + NM LT entries
+      -- Size = Scalar_Field_Count (28) scalars + (NLP * 2) LPAP + NM LT entries
       Size_Shared : constant Positive :=
         GEM.Getenv ("DSIZE", GEM.LTE.Primitives.Param_B_Overlay.Scalar_Field_Count + (D.B.NLP * 2) + NM);
 
@@ -2049,6 +2224,54 @@ package body GEM.LTE.Primitives.Solution is
       Harms : Ns := Parse_NH (GEM.Getenv ("NH", ""));
       Harms_Keep : Ns := Harms;
       NH : Integer := Harms'Length;
+      --  LEG_WINDINGS: a follower's own ltep (1 .. NM) and IR, put back over
+      --  each candidate the leader posts (Own_*0: their starting values,
+      --  the Markov reference); Lead_Harms takes the leader's multipliers
+      --  so that Harms stays the follower's own
+      Own_LT, Own_LT0 : Modulations (1 .. NM);
+      Own_IR, Own_IR0 : Long_Float := 0.0;
+      --  LEG_P: the follower's own scalars beyond IR, likewise, as indices
+      --  into Set (the Param_B_Overlay field order): BESSEL the Bessel
+      --  correction (bg2 only with NM = 1, the one case that uses it),
+      --  PARAMS every scalar but IR (kept on its own above) and Year.
+      --  cw1/cw2 lie outside Set and are carried in Own_CW.
+      type Index_List is array (Positive range <>) of Positive;
+      function Own_Indices return Index_List is
+         package PBO renames GEM.LTE.Primitives.Param_B_Overlay;
+         use GEM.LTE.Primitives.Shared;
+      begin
+         case Leg_P is
+            when Own_None =>
+               return (1 .. 0 => 1);
+            when Own_Bessel =>
+               --  bg2 last: kept with NM > 1 too, but not stepped (N_Own_Steps)
+               return (PBO.ImpA_Index, PBO.ImpB_Index, PBO.BesK_Index,
+                       PBO.Offset_Index, PBO.BG_Index, PBO.BG2_Index);
+            when Own_Params =>
+               declare
+                  R : Index_List (1 .. PBO.Scalar_Field_Count - 2);
+                  N : Natural := 0;
+               begin
+                  for I in 1 .. PBO.Scalar_Field_Count loop
+                     if I /= PBO.IR_Index and then I /= PBO.Year_Index then
+                        N := N + 1;
+                        R (N) := I;
+                     end if;
+                  end loop;
+                  return R;
+               end;
+         end case;
+      end Own_Indices;
+      Own_Idx : constant Index_List := Own_Indices;
+      N_Own_Scalars : constant Natural := Own_Idx'Length;
+      N_Own_Steps : constant Natural :=
+        (if Leg_P = GEM.LTE.Primitives.Shared.Own_Bessel and then NM /= 1
+         then N_Own_Scalars - 1 else N_Own_Scalars);
+      type Own_Values is array (1 .. N_Own_Scalars) of Long_Float;
+      Own_Sc, Own_Sc0 : Own_Values := (others => 0.0);
+      Own_CW1, Own_CW2 : Long_Float := 0.0;
+      Lead_Harms : Ns := Harms;
+      Own_Gen : Ada.Numerics.Float_Random.Generator;
 
       Secular_Trend : Long_Float := 0.0;
       --  TODO: Can remove - Single exclamation mark marker used during
@@ -2117,6 +2340,72 @@ package body GEM.LTE.Primitives.Solution is
          end loop;
          return True;
       end Modulations_Are_Valid;
+
+      --  LEG_WINDINGS (follower): one Markov step on one of this leg's own
+      --  ltep / IR values, at the rate the leader's walk gives any one
+      --  parameter ((NM + 1) in Size_Shared), leaving zeros and fixed values
+      --  alone as the walk does. ltep snaps to the canonical set under
+      --  LOCKW, and a step below MIN_LT is undone. LEG_IR keeps IR fixed.
+      function Get_Own return Own_Values is
+         V : Own_Values;
+      begin
+         for K in V'Range loop
+            V (K) := Set (Own_Idx (K));
+         end loop;
+         return V;
+      end Get_Own;
+
+      procedure Put_Own (V : in Own_Values) is
+      begin
+         for K in V'Range loop
+            Set (Own_Idx (K)) := V (K);
+         end loop;
+      end Put_Own;
+
+      --  LEG_P: the step may instead fall on one of the leg's own scalars
+      --  (N_Own_Steps more in the count).
+      procedure Perturb_Own is
+         use Ada.Numerics.Float_Random;
+         N_Own : constant Positive := NM + 1 + N_Own_Steps;
+         J : Positive;
+         Ref : Long_Float;
+      begin
+         if Long_Float (Random (Own_Gen)) * Long_Float (Size_Shared)
+           >= Long_Float (N_Own)
+         then
+            return;
+         end if;
+         J := Integer'Min
+           (N_Own, 1 + Integer (Long_Float'Floor
+                                  (Long_Float (Random (Own_Gen)) * Long_Float (N_Own))));
+         if J <= NM then
+            if D.B.LT (J) /= 0.0 and then not Is_Fixed (D.B.LT (J)) then
+               Walker.Markov (D.B.LT (J), Ref, Spread, Own_LT0 (J));
+               if Lock_Winding then
+                  D.B.LT (J) := Walker.Nearest_In_Set (D.B.LT (J), Canon_Candidates);
+               end if;
+               if abs D.B.LT (J) < Minimum_Modulation then
+                  D.B.LT (J) := Ref;
+               end if;
+            end if;
+         elsif J = NM + 1 then
+            if not Has_Leg_IR and then D.B.IR /= 0.0
+              and then not Is_Fixed (D.B.IR)
+            then
+               Walker.Markov (D.B.IR, Ref, Spread, Own_IR0);
+            end if;
+         else
+            declare
+               K : constant Positive := J - NM - 1;
+               V : Long_Float := Set (Own_Idx (K));
+            begin
+               if V /= 0.0 and then not Is_Fixed (V) then
+                  Walker.Markov (V, Ref, Spread, Own_Sc0 (K));
+                  Set (Own_Idx (K)) := V;
+               end if;
+            end;
+         end if;
+      end Perturb_Own;
 
       function Jerked_Tidal_Factors return Long_Periods_Amp_Phase is
          Result : Long_Periods_Amp_Phase := D.B.LPAP;
@@ -2338,6 +2627,57 @@ package body GEM.LTE.Primitives.Solution is
          return F;
       end Calc_Forcing;
 
+      --  INVERSION: every evaluation feeds the deterministic refinement
+      --  (a follower before it answers its leader, the leader after the
+      --  pair's composite score is in; see GEM.LTE.Primitives.Inversion)
+      procedure Inversion_Record is
+         function Pointwise (I : Integer; F : Long_Float) return Long_Float is
+            P : constant Data_Pairs (1 .. 1) :=
+              (1 => (Date => Forcing (I).Date, Value => F));
+            R : constant Data_Pairs :=
+              LTE (Forcing => P, Wave_Numbers => M (1 .. NM + NH),
+                   Amp_Phase => MAP (1 .. NM + NH),
+                   Offset => D.A.level, K0 => D.A.k0,
+                   Trend => Secular_Trend, Accel => Accel,
+                   NonLin => NonLin, Annual => Annual_Cycle,
+                   Third => 0.0, Accel_Ref => Accel_Ref, Aero => Aero,
+                   Alpha => Alpha, M_Min => M_Min);
+         begin
+            return R (R'First).Value;
+         end Pointwise;
+         Train : Inversion.Mask (Model'Range) := (others => False);
+         Fastest : Long_Float := 0.0;
+      begin
+         if Exclude then
+            Train (Model'First .. First) := (others => True);
+            Train (Last .. Real_Last) := (others => True);
+         else
+            Train (First .. Last) := (others => True);
+         end if;
+         for J in 1 .. NM + NH loop
+            if MAP (J).Amplitude /= 0.0 then
+               Fastest := Long_Float'Max (Fastest, abs M (J));
+            end if;
+         end loop;
+         Inversion.Record_Result
+           (D, Model, Data_Records, Forcing, Train, CorrCoeff,
+            CorrCoeffP, Singular, Leg => Leg, Leg_Weight => Leg_Weight,
+            Winding_Period =>
+              (if Fastest > 0.0 then 1.0 / Fastest else 1.0),
+            Center_Weight =>
+              (if Filter9Pt > 0 then 0.5 ** Filter9Pt
+               elsif Filter9Pt < 0 then 1.0
+               else (1.0 - 2.0 * Filter) ** 2),
+            Pointwise => Pointwise'Access,
+            Valid => Validate_Metric (Model),
+            Test =>
+              (if First - Model'First + 1 >= Min_Validate_Segment
+               then Metric (Model (Model'First .. First),
+                            Data_Records (Data_Records'First .. First),
+                            Forcing (Forcing'First .. First))
+               else Long_Float'First));
+      end Inversion_Record;
+
    begin
       if Data_Records'Length = 0 then
          Text_IO.Put_Line (File_Name & " empty or not found");
@@ -2384,6 +2724,34 @@ package body GEM.LTE.Primitives.Solution is
          end loop;
       end if;
       Text_IO.Put_Line ("Catchup mode enabled:" & Boolean'Image (Catchup));
+      if Leg_Windings then
+         declare
+            Found : Boolean;
+         begin
+            if N_Own_Scalars > 0
+              and then Size_Shared < GEM.LTE.Primitives.Param_B_Overlay.Scalar_Field_Count
+            then
+               raise Constraint_Error with
+                 "LEG_P needs DSIZE >= the 28 Param_B scalars";
+            end if;
+            GEM.LTE.Primitives.Shared.Read_Leg (Leg, D, Found, Leg_P);
+            Text_IO.Put_Line
+              ("LEG_WINDINGS leg" & Leg'Img &
+               (if Found then ": own ltep/harm/IR" &
+                  (case Leg_P is
+                     when GEM.LTE.Primitives.Shared.Own_None => "",
+                     when GEM.LTE.Primitives.Shared.Own_Bessel => "/Bessel",
+                     when GEM.LTE.Primitives.Shared.Own_Params =>
+                       "/all params but lpap, year") &
+                  " from lt.exe.p" & GEM.Leg_Tag
+                else ": no lt.exe.p" & GEM.Leg_Tag & ", starting from lt.exe.p"));
+            DKeep := D;
+            Own_LT0 := D.B.LT (1 .. NM);
+            Own_IR0 := D.B.IR;
+            Own_Sc0 := Get_Own;
+            Ada.Numerics.Float_Random.Reset (Own_Gen, ID + 1);
+         end;
+      end if;
       Keep := Set;
       Set0 := Set;
       Init_Value0 := D.B.init;
@@ -2400,9 +2768,34 @@ package body GEM.LTE.Primitives.Solution is
          --  LEGS: the follower evaluates the candidate its leader posts, and
          --  judges it against the leader's own current best.
          if Follower then
-            Exchanges (Pair).Fetch (Leg)
-              (D, Harms, Pair_Threshold, Follower_Quit);
-            exit when Follower_Quit;
+            if Leg_Windings then
+               --  the leader's candidate, with this leg's own ltep, IR and
+               --  multipliers; after the first evaluation (which scores the
+               --  loaded values) one of them may take a step
+               Own_LT := D.B.LT (1 .. NM);
+               Own_IR := D.B.IR;
+               Own_Sc := Get_Own;
+               Own_CW1 := D.CW1;
+               Own_CW2 := D.CW2;
+               Exchanges (Pair).Fetch (Leg)
+                 (D, Lead_Harms, Pair_Threshold, Follower_Quit);
+               exit when Follower_Quit;
+               D.B.LT (1 .. NM) := Own_LT;
+               D.B.IR := Own_IR;
+               Put_Own (Own_Sc);
+               if Leg_P = GEM.LTE.Primitives.Shared.Own_Params then
+                  D.CW1 := Own_CW1;
+                  D.CW2 := Own_CW2;
+               end if;
+               if Counter > 1 and then not Test_Only then
+                  Perturb_Own;
+                  Walker.Random_Harmonic (Harms, Harms_Keep);
+               end if;
+            else
+               Exchanges (Pair).Fetch (Leg)
+                 (D, Harms, Pair_Threshold, Follower_Quit);
+               exit when Follower_Quit;
+            end if;
             Old_CC := Pair_Threshold;
          end if;
          if Has_Leg_IR then
@@ -2499,6 +2892,7 @@ package body GEM.LTE.Primitives.Solution is
             Forcing := Calc_Forcing;
          end if;
 
+         Pre_Forcing := Forcing;  -- MANIFOLD_PRE: no Bessel step on this path
          if MLR_On or not (Forcing_Only or Is_Minimum_Entropy) then
             if Climate_Trend then
                Secular_Trend := 1.0;
@@ -2525,6 +2919,7 @@ package body GEM.LTE.Primitives.Solution is
             if Dither_A /= 0.0 and then Dither_Stage = 0 then
                Forcing := Add_Dither (Forcing);
             end if;
+            Pre_Forcing := Forcing;  -- MANIFOLD_PRE: the manifold before Bessel
             if Layer > 0 and then NM >= 2 then
                Forcing := Layered
                  (Bessel (Forcing, D.B.ImpA, D.B.ImpB,
@@ -2541,13 +2936,15 @@ package body GEM.LTE.Primitives.Solution is
                --  bg scales the winding (1 - bg); the 2k cosine term has its
                --  own coefficient bg2 (2026-11-02; it used to be bg as well,
                --  so a .p without bg2 loads bg2 = bg and reproduces).
-               Forcing := Bessel(Forcing, D.B.ImpA, D.B.ImpB, M(NM)*(1.0-D.B.BG), 0.0, D.B.Offset, D.B.bg2);
+               --  The Bessel wavenumber is the manifold's own besk (2026-11-17),
+               --  no longer ltep (NM) -- or ltep (NM - 1) with LOCKF -- so the
+               --  windings can move (or differ per leg, LEG_WINDINGS) without
+               --  moving the manifold; a .p without besk is seeded from the
+               --  ltep it used, so older fits reproduce. (The fourth argument
+               --  is unused by Bessel.) LAYER above still reads M (1) and M (2).
+               Forcing := Bessel(Forcing, D.B.ImpA, D.B.ImpB, D.B.besK*(1.0-D.B.BG), 0.0, D.B.Offset, D.B.bg2);
             else
-               if Lock_Freq then
-                  Forcing := Bessel(Forcing, D.B.ImpA, D.B.ImpB, M(NM-1), M(NM), D.B.Offset, D.B.bg);
-               else
-                  Forcing := Bessel(Forcing, D.B.ImpA, D.B.ImpB, M(NM), M(NM-1), D.B.Offset, D.B.bg);
-               end if;
+               Forcing := Bessel(Forcing, D.B.ImpA, D.B.ImpB, D.B.besK, 0.0, D.B.Offset, D.B.bg);
             end if;
             if Dither_A /= 0.0 and then Dither_Stage /= 0 then
                Forcing := Add_Dither (Forcing);
@@ -2645,6 +3042,7 @@ package body GEM.LTE.Primitives.Solution is
                   else Excluded (Forcing (Forcing'First .. Real_Last))),  -- Value @ Time
                NM => RM'Length, -- # modulations
                DBLT => RM, --D.B.LT,
+               Winding_Penalty => True,
                DALTAP => RMAP, --D.A.LTAP,
                DALEVEL => D.A.level,
                DAK0 => D.A.k0, 
@@ -2915,6 +3313,7 @@ package body GEM.LTE.Primitives.Solution is
 
          Own_Score := CorrCoeff;
 
+
          --  LEGS: the score from here on is the pair's composite.
          if Leader then
             declare
@@ -2925,8 +3324,14 @@ package body GEM.LTE.Primitives.Solution is
                CorrCoeffP := P;
             end;
          elsif Follower then
+            if Inversion.On then
+               Inversion_Record;
+            end if;
             Exchanges (Pair).Answer (Leg, CorrCoeff, CorrCoeffP, Leg_Weight);
             Exchanges (Pair).Verdict (Leg) (CorrCoeff);
+         end if;
+         if Inversion.On and then not Follower then
+            Inversion_Record;
          end if;
 
          --  BUG FIX (ordering): this accept/reject block used to run
@@ -2948,12 +3353,16 @@ package body GEM.LTE.Primitives.Solution is
          --  "Validate stuck near 1.0 while training keeps improving"
          --  symptom. Moved before the monitor registration so KeepModel is
          --  always this iteration's own freshly-decided state.
-         if CorrCoeff > Old_CC then
+         if (CorrCoeff > Old_CC
+             or else (Inversion.On and then Inversion.Force_Accept (Leg)))
+           and then (not Inversion.On or else Inversion.Is_Base (Leg))
+         then
             Old_CC := CorrCoeff;
             Ever_Accepted := True;
             Keep := Set;
             KeepModel := Model;
             KeepForcing := Forcing;
+            KeepPre := Pre_Forcing;
             --  The harmonic multipliers live in the local Harms array;
             --  D.C is only read once at start-up. Without copying them
             --  here, DKeep carried the ORIGINAL file's harmonics, and the
@@ -3032,7 +3441,7 @@ package body GEM.LTE.Primitives.Solution is
             Counter := 1; -- no use penalizing thread in the lead
          end if;
 
-         if not Follower and then
+         if not Follower and then not Inversion.On and then
            (Singular or
             ((not Best) and Counter > Maximum_Loops and Percentage < Threshold))
          then
@@ -3063,6 +3472,13 @@ package body GEM.LTE.Primitives.Solution is
             exit;
          elsif Follower then
             null;  -- the next candidate comes from the leader
+         elsif Inversion.On then
+            declare
+               Done : Boolean;
+            begin
+               Inversion.Next (D, Done);
+               exit when Done;
+            end;
          elsif Vary_Initial then
             Walker.Markov (D.B.init, Keep_Initial_Value, Spread, Init_Value0);
          else
@@ -3271,6 +3687,7 @@ package body GEM.LTE.Primitives.Solution is
       --  valid whenever Ever_Accepted is True.
       if Ever_Accepted then
          Forcing := KeepForcing;
+         Pre_Forcing := KeepPre;
       end if;
 
       if Save_Now then
@@ -3366,7 +3783,19 @@ package body GEM.LTE.Primitives.Solution is
          if not Follower then  -- one parameter file, written by the leader
             GEM.LTE.Primitives.Shared.Save (DKeep);
          end if;
-         Save (KeepModel, Data_Records, Forcing, File_Name => Results_File,
+         if Leg_Windings then  -- and each leg's own ltep, harm and IR
+            GEM.LTE.Primitives.Shared.Write_Leg (Leg, DKeep, Leg_P);
+         end if;
+         --  MANIFOLD_PRE: column 4 is the pre-Bessel manifold. Not under
+         --  VALIDATE without legs, where the save can take ANOTHER thread's
+         --  winning candidate, whose pre-Bessel copy this task does not have.
+         if Manifold_Pre and then Validate and then not Paired then
+            Text_IO.Put_Line ("MANIFOLD_PRE ignored with VALIDATE: column 4 is post-Bessel");
+         end if;
+         Save (KeepModel, Data_Records,
+               (if Manifold_Pre and then not (Validate and then not Paired)
+                then Pre_Forcing else Forcing),
+               File_Name => Results_File,
                IR => D.B.IR);    -- saves to file
 
          if Validate then
@@ -3442,7 +3871,7 @@ package body GEM.LTE.Primitives.Solution is
          null; -- Text_IO.Put_Line("Exited " & ID'Img);
       end if;
       end;
-      if Test_Only then
+      if Test_Only or else Inversion.On then  -- releases the main program
          Monitor.Test_Done;
       end if;
 
@@ -3459,7 +3888,7 @@ package body GEM.LTE.Primitives.Solution is
          then
             Monitor.Final_Report (ID, Long_Float'First, 0.0);
          end if;
-         if Test_Only then
+         if Test_Only or else Inversion.On then
             Monitor.Test_Done;
          end if;
          Text_IO.Put_Line

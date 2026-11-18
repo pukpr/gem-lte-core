@@ -295,6 +295,17 @@ package body GEM.LTE.Primitives is
    --  "Singular result" failures as a side effect even at small values.
    Ridge_Lambda : constant Long_Float := GEM.Getenv ("RIDGE", 0.0);
 
+   --  WRIDGE (default 0.0 = off): ridge on the winding sin/cos columns only,
+   --  growing with winding number, so a winding at k costs
+   --  WRIDGE * (|k| / WRIDGE_K)**WRIDGE_P relative to its own column energy
+   --  (rows/2). P = 2 is the smoothness (Sobolev) prior on the transfer
+   --  m(F): the integral of m'(F)**2 weights each amplitude by k**2. High
+   --  windings are shrunk and contribute little to the score until the data
+   --  demand them, so the search grows the fit from the low windings first.
+   Winding_Ridge : constant Long_Float := GEM.Getenv ("WRIDGE", 0.0);
+   Winding_Ridge_K : constant Long_Float := GEM.Getenv ("WRIDGE_K", 1.0);
+   Winding_Ridge_P : constant Long_Float := GEM.Getenv ("WRIDGE_P", 2.0);
+
    --  Returns true if using minimum entropy metric for optimization
    function Is_Minimum_Entropy return Boolean is
    begin
@@ -1622,62 +1633,52 @@ package body GEM.LTE.Primitives is
       return Value;
    end Min_Entropy_RMS;
 
+   --  Spectrum of Series in the manifold coordinate (the Forcing values),
+   --  one bin per element of Spectrum (Series'Range) from F_Start, stepped
+   --  by FSTEP or FMULT; Value and Sum accumulate the bins and their roots
+   procedure Manifold_Power_Spectrum
+     (Forcing, Series : in Data_Pairs; Spectrum : out Data_Pairs;
+      Value, Sum : in out Long_Float; Phase : in Boolean := False)
+   is
+      use Ada.Numerics.Long_Elementary_Functions;
+      F : Long_Float := F_Start;
+      S, C : Long_Float; -- cumulative
+   begin
+      for J in Spectrum'Range loop
+         S := 0.0;
+         C := 0.0;
+         for I in Series'First + 8 .. Series'Last loop  -- remove Init value
+            S := S + Sin (2.0 * Pi * F * Forcing (I).Value) * Series (I).Value;
+            C := C + Cos (2.0 * Pi * F * Forcing (I).Value) * Series (I).Value;
+         end loop;
+         Spectrum (J).Date := F;
+         if Phase then
+            Spectrum (J).Value := S;
+         else
+            Spectrum (J).Value := (S * S + C * C);
+         end if;
+         Value := Value + Spectrum (J).Value;
+         Sum := Sum + Sqrt (Spectrum (J).Value);
+         if Linear_Step then
+            F := F + Step;
+         else
+            F := F * Mult;
+         end if;
+      end loop;
+   end Manifold_Power_Spectrum;
+
    procedure ME_Power_Spectrum
      (Forcing, Model, Data : in Data_Pairs;
       Model_Spectrum, Data_Spectrum : out Data_Pairs; RMS : out Long_Float;
       Phase : in Boolean := False)
    is
-      use Ada.Numerics.Long_Elementary_Functions;
       Model_S : Data_Pairs (Model'Range);
       Data_S : Data_Pairs (Data'Range);
       Value, Sum : Long_Float := 0.0;
-      F : Long_Float := F_Start;
-      S, C : Long_Float; -- cumulative
-      N : Integer := 1;
+      N : constant Integer := 1;
    begin
-      for J in Data'Range loop
-         S := 0.0;
-         C := 0.0;
-         for I in Data'First + 8 .. Data'Last loop  -- remove Init value
-            S := S + Sin (2.0 * Pi * F * Forcing (I).Value) * Data (I).Value;
-            C := C + Cos (2.0 * Pi * F * Forcing (I).Value) * Data (I).Value;
-         end loop;
-         Data_S (J).Date := F;
-         if Phase then
-            Data_S (J).Value := S;
-         else
-            Data_S (J).Value := (S * S + C * C);
-         end if;
-         Value := Value + Data_S (J).Value;
-         Sum := Sum + Sqrt (Data_S (J).Value);
-         if Linear_Step then
-            F := F + Step;
-         else
-            F := F * Mult;
-         end if;
-      end loop;
-      F := F_Start;
-      for J in Model'Range loop
-         S := 0.0;
-         C := 0.0;
-         for I in Model'First + 8 .. Model'Last loop  -- remove Init value
-            S := S + Sin (2.0 * Pi * F * Forcing (I).Value) * Model (I).Value;
-            C := C + Cos (2.0 * Pi * F * Forcing (I).Value) * Model (I).Value;
-         end loop;
-         Model_S (J).Date := F;
-         if Phase then
-            Model_S (J).Value := S;
-         else
-            Model_S (J).Value := (S * S + C * C);
-         end if;
-         Value := Value + Model_S (J).Value;
-         Sum := Sum + Sqrt (Model_S (J).Value);
-         if Linear_Step then
-            F := F + Step;
-         else
-            F := F * Mult;
-         end if;
-      end loop;
+      Manifold_Power_Spectrum (Forcing, Data, Data_S, Value, Sum, Phase);
+      Manifold_Power_Spectrum (Forcing, Model, Model_S, Value, Sum, Phase);
       Model_Spectrum := Model_S;
       Data_Spectrum := Data_S;
       Sum := Sum * Sum / Long_Float (N * N);
@@ -1874,28 +1875,123 @@ package body GEM.LTE.Primitives is
 
    -- Hoyer_Spectral_Peak
    --
-    function Hoyer_Spectral_Peak (Model, Data, Forcing : in Data_Pairs) return Long_Float is
-      Model_S : Data_Pairs := Model;
-      Data_S : Data_Pairs := Data;
-      L1, L2 : Long_Float := 0.0;
-      Len : Long_Float;
-      RMS : Long_Float;
-      Num, Den : Long_Float;
+   --  HOYER_LEGACY=TRUE: the original score, Hoyer sparsity of the data's
+   --  power on the ME grid (FSTART, FSTEP or FMULT), first bin dropped
+   Hoyer_Legacy : constant Boolean := GEM.Getenv ("HOYER_LEGACY", False);
+   --  bins at multiples of Base / HOYER_SUB, from HOYER_KMIN to HOYER_KMAX
+   --  times Base; the low cut keeps out the bins a collapsing manifold fills
+   Hoyer_K_Min : constant Long_Float := GEM.Getenv ("HOYER_KMIN", 0.1);
+   Hoyer_K_Max : constant Long_Float := GEM.Getenv ("HOYER_KMAX", 20.0);
+   Hoyer_Sub : constant Integer := GEM.Getenv ("HOYER_SUB", 4);
+   --  HOYER_POWER=TRUE: sparsity of the power, not the amplitude (greedier
+   --  for one dominant winding; the legacy score always uses power)
+   Hoyer_Power : constant Boolean := GEM.Getenv ("HOYER_POWER", False);
+
+   function Hoyer_Spectral_Peak
+     (Data, Forcing : in Data_Pairs; Base : in Long_Float) return Long_Float
+   is
       use Ada.Numerics.Long_Elementary_Functions;
+
+      function Hoyer (L1, L2_Squared : Long_Float; N : Integer)
+         return Long_Float is
+      begin
+         if L2_Squared <= 0.0 or else N < 2 then
+            return 0.0;
+         end if;
+         return (Sqrt (Long_Float (N)) - L1 / Sqrt (L2_Squared)) /
+           (Sqrt (Long_Float (N)) - 1.0);
+      end Hoyer;
+
    begin
-      ME_Power_Spectrum
-        (Forcing => Forcing, Model => Model, Data => Data, Model_Spectrum => Model_S,
-         Data_Spectrum => Data_S, RMS => RMS);
-      Len := Long_Float(Data_S'Length);
-      for I in Data_S'First+1 ..  Data_S'Last loop
-         L1 := L1 + Data_S(I).Value;
-         L2 := L2 + Data_S(I).Value * Data_S(I).Value;
-      end loop;
-      L2 := Sqrt(L2);
-      Num := Sqrt(Len) - L1/L2;
-      Den := Sqrt(Len) - 1.0;
-      return Num/Den;
-   end Hoyer_Spectral_Peak;  
+      if Hoyer_Legacy then
+         declare
+            Data_S : Data_Pairs (Data'Range);
+            Value, Sum : Long_Float := 0.0;
+            L1, L2 : Long_Float := 0.0;
+         begin
+            Manifold_Power_Spectrum (Forcing, Data, Data_S, Value, Sum);
+            for I in Data_S'First + 1 .. Data_S'Last loop
+               L1 := L1 + Data_S (I).Value;
+               L2 := L2 + Data_S (I).Value * Data_S (I).Value;
+            end loop;
+            L2 := Sqrt (L2);
+            return (Sqrt (Long_Float (Data_S'Length)) - L1 / L2) /
+              (Sqrt (Long_Float (Data_S'Length)) - 1.0);
+         end;
+      end if;
+
+      --  Hoyer (data) - Hoyer (surrogate), the surrogate being the same data
+      --  circularly shifted by half its length on the same manifold: a
+      --  collapsed or degenerate manifold makes both sparse, so only peaks
+      --  tied to the data's own timing score
+      declare
+         First : constant Integer := Data'First + 8;  -- remove Init value
+         Len : constant Integer := Data'Last - First + 1;
+         Half : constant Integer := Len / 2;
+         Sub : constant Integer := Integer'Max (Hoyer_Sub, 1);
+         B : constant Long_Float := abs Base;
+         J_Lo : constant Integer :=
+           Integer (Long_Float'Ceiling (Hoyer_K_Min * Long_Float (Sub)));
+         J_Hi : constant Integer :=
+           Integer (Long_Float'Floor (Hoyer_K_Max * Long_Float (Sub)));
+         X : array (0 .. Len - 1) of Long_Float;
+         Mean, F, S, C, SS, SC, V, VS : Long_Float := 0.0;
+         L1, L2, L1S, L2S : Long_Float := 0.0;
+         N_Valid : Integer := 0;
+      begin
+         if Len < 16 or else B = 0.0 or else J_Hi - Integer'Max (J_Lo, 1) < 1
+         then
+            return 0.0;
+         end if;
+         --  mean taken over the non-padded samples; zero padding stays zero
+         for I in X'Range loop
+            X (I) := Data (First + I).Value;
+            if X (I) /= 0.0 then
+               Mean := Mean + X (I);
+               N_Valid := N_Valid + 1;
+            end if;
+         end loop;
+         if N_Valid > 0 then
+            Mean := Mean / Long_Float (N_Valid);
+            for I in X'Range loop
+               if X (I) /= 0.0 then
+                  X (I) := X (I) - Mean;
+               end if;
+            end loop;
+         end if;
+         for J in Integer'Max (J_Lo, 1) .. J_Hi loop
+            F := 2.0 * Pi * B * Long_Float (J) / Long_Float (Sub);
+            S := 0.0;
+            C := 0.0;
+            SS := 0.0;
+            SC := 0.0;
+            for I in X'Range loop
+               declare
+                  Sn : constant Long_Float := Sin (F * Forcing (First + I).Value);
+                  Cs : constant Long_Float := Cos (F * Forcing (First + I).Value);
+                  XS : constant Long_Float := X ((I + Half) mod Len);
+               begin
+                  S := S + Sn * X (I);
+                  C := C + Cs * X (I);
+                  SS := SS + Sn * XS;
+                  SC := SC + Cs * XS;
+               end;
+            end loop;
+            V := S * S + C * C;
+            VS := SS * SS + SC * SC;
+            if not Hoyer_Power then
+               V := Sqrt (V);
+               VS := Sqrt (VS);
+            end if;
+            L1 := L1 + V;
+            L2 := L2 + V * V;
+            L1S := L1S + VS;
+            L2S := L2S + VS * VS;
+         end loop;
+         return Hoyer (L1, L2, J_Hi - Integer'Max (J_Lo, 1) + 1) -
+           Hoyer (L1S, L2S, J_Hi - Integer'Max (J_Lo, 1) + 1);
+      end;
+   end Hoyer_Spectral_Peak;
    
    procedure Dump (Model, Data : in Data_Pairs; Run_Time : Long_Float := 200.0)
    is
@@ -2140,8 +2236,11 @@ package body GEM.LTE.Primitives is
       return Result;
    end To_Row_Vector;
 
+   --  Penalty (optional): extra ridge per column, added to the diagonal on
+   --  top of Ridge_Lambda (WRIDGE); empty = none.
    function Regression_Coefficients
-     (Source : Vector; Regressors : Matrix) return Vector
+     (Source : Vector; Regressors : Matrix;
+      Penalty : Vector := (1 .. 0 => 0.0)) return Vector
    is
       Result : Matrix (Regressors'Range (2), 1 .. 1);
       Nil : Vector (1 .. 0);
@@ -2152,16 +2251,17 @@ package body GEM.LTE.Primitives is
       declare
          Regressors_T : constant Matrix := MLR.Transpose (Regressors);
          use MLR;
-      begin
-         Result :=
-           MLR.Inverse
-             (Regressors_T * Regressors +
+         Normal : Matrix := Regressors_T * Regressors +
               Ridge_Lambda *
                 MLR.Unit_Matrix
                   (Order   => Regressors'Length (2),
                    First_1 => Regressors'First (2),
-                   First_2 => Regressors'First (2))) *
-           Regressors_T * To_Matrix (Source);
+                   First_2 => Regressors'First (2));
+      begin
+         for J in Penalty'Range loop
+            Normal (J, J) := Normal (J, J) + Penalty (J);
+         end loop;
+         Result := MLR.Inverse (Normal) * Regressors_T * To_Matrix (Source);
       end;
       return To_Row_Vector (Source => Result);
    exception
@@ -2195,7 +2295,8 @@ package body GEM.LTE.Primitives is
       Alpha : in Long_Float := 0.0;
       M_Min : in Long_Float := 0.0;
       CW_Freq : in Long_Float := 0.0;
-      TS_Freq : in Long_Float := 0.0)
+      TS_Freq : in Long_Float := 0.0;
+      Winding_Penalty : in Boolean := False)
    is
 
       use Ada.Numerics.Long_Elementary_Functions;
@@ -2253,7 +2354,16 @@ package body GEM.LTE.Primitives is
       Uncompensated_Mode : constant Boolean :=
         GEM.Getenv ("UNCOMPENSATED", False);
       Year_Lag : constant Integer := IR_Lag_Samples;
+      --  WRIDGE: per-column penalty on the winding columns 3 .. Base
+      WR_On : constant Boolean := Winding_Penalty and then Winding_Ridge > 0.0;
+      Penalty : Vector (1 .. (if WR_On then Base else 0)) := (others => 0.0);
    begin
+      for K in 1 .. (if WR_On then NM else 0) loop
+         Penalty (2 + 2 * K - 1) := Winding_Ridge
+           * Long_Float (Last - First + 1) / 2.0
+           * (abs DBLT (K) / Winding_Ridge_K) ** Winding_Ridge_P;
+         Penalty (2 + 2 * K) := Penalty (2 + 2 * K - 1);
+      end loop;
       Annual := (0.0, 0.0, 0.0, 0.0, others => <>);
       --  The Accel column below is (Date - Forcing (First).Date)**2;
       --  returned so the caller evaluates the model around the SAME date
@@ -2375,7 +2485,8 @@ package body GEM.LTE.Primitives is
             declare
                C1 : constant Vector :=
                  Regression_Coefficients
-                   (Source => RData, Regressors => Pass1_Matrix);
+                   (Source => RData, Regressors => Pass1_Matrix,
+                    Penalty => Penalty);
                G, WSum : Long_Float;
             begin
                if C1'Length > 0 then
@@ -2418,7 +2529,8 @@ package body GEM.LTE.Primitives is
       declare
          Coefficients : constant Vector := -- MLR.
            Regression_Coefficients
-             (Source => RData, Regressors => Factors_Matrix);
+             (Source => RData, Regressors => Factors_Matrix,
+              Penalty => Penalty);
          K : Integer := 4;
       begin
          if Coefficients'Length = 0 then

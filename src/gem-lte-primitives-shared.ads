@@ -40,6 +40,7 @@ package GEM.LTE.Primitives.Shared is
       mB : Long_Float;   -- second pole of the impulse response (0 = first order as before; see Shape_Impulses)
       bg2 : Long_Float;   -- NM=1 Bessel: coefficient of the 2k cosine term (was bg, which also scales k; = bg when absent)
       delC : Long_Float;   -- quarter-year copy of the DelA/Asym impulses at -|delC|; sign = delay (+) or lead (-) (0 = off; see Impulse)
+      besK : Long_Float;   -- wavenumber of the manifold's Bessel correction ("besk"; was ltep(NM), or ltep(NM-1) with LOCKF, which seed it when absent)
 
       LPAP : Long_Periods_Amp_Phase (1 .. NLP);
       LT : Modulations (1 .. NLT);
@@ -52,10 +53,10 @@ package GEM.LTE.Primitives.Shared is
    --  in the random descent optimization algorithm.
    --
    --  STRUCTURE (for NLP=29, NLT=11):
-   --    - 27 scalar Long_Float fields (Offset through delC)
+   --    - 28 scalar Long_Float fields (Offset through besK)
    --    - LPAP array: NLP Amp_Phase records = NLP * 2 Long_Floats (58 floats)
    --    - LT array: NLT Long_Floats (11 floats)
-   --    TOTAL: 27 + 58 + 11 = 96 Long_Float values
+   --    TOTAL: 28 + 58 + 11 = 97 Long_Float values
    --
    --  SIZE CALCULATION:
    --    With GNAT compiler, unconstrained arrays have dope information (bounds)
@@ -109,6 +110,34 @@ package GEM.LTE.Primitives.Shared is
    procedure Save (P : in Param_S);
 
    procedure Load (P : in out Param_S);
+
+   --  LEG_WINDINGS: a leg's own post-manifold parameters -- ltep, harm and
+   --  IR -- in "<exe>.p.<leg>" (e.g. lt.exe.p.2), beside the shared
+   --  "<exe>.p". Read_Leg applies whichever of the three the file holds to
+   --  D (Found False when there is no such file); Write_Leg writes the
+   --  first NM ltep and NH harm values (both from the response files) and IR.
+   --  Own (LEG_P) widens the leg's own parameters beyond those three:
+   --    Own_Bessel: the manifold's Bessel correction -- impA, impB, besk,
+   --                offs, bg and bg2;
+   --    Own_Params: every .p parameter except lpap and year (and the
+   --                harm/ltep/IR already listed), cw1/cw2 included.
+   type Leg_Own_Set is (Own_None, Own_Bessel, Own_Params);
+   procedure Read_Leg (Leg : in Positive; D : in out Param_S; Found : out Boolean;
+                       Own : in Leg_Own_Set := Own_None);
+   procedure Write_Leg (Leg : in Positive; D : in Param_S;
+                        Own : in Leg_Own_Set := Own_None);
+
+   --  WISDOM_REF TRUE (the counterpart of DLOD_REF FALSE, which seeds lpap
+   --  from the dLOD fit): seed lpap from the crowd-median tidal set made by
+   --  experiments/lpap_wisdom.py. Wisdom_File is WISDOM_P when set, else
+   --  the first experiments/wisdom_lpap/wisdom_raw.lt.exe.p found in the
+   --  run folder or one of its parents ("" when none). Seed_LPAP copies
+   --  each nonzero row onto the table period within 1e-4 (relative) of it;
+   --  zero rows (lines the set leaves out, e.g. the diurnal ones) keep the
+   --  loaded values, since a zero would never be searched again.
+   function Wisdom_File return String;
+   procedure Seed_LPAP (D : in out Param_S; File : in String;
+                        Seeded, Skipped : out Natural);
 
    procedure Dump (D : in Param_S);
 
