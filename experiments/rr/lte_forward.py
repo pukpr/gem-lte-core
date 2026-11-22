@@ -427,8 +427,11 @@ def forward(cfg: Config, params: dict):
     # This is the exact argument mapping in Dipole_Model: the final LTE
     # modulation is the Bessel frequency and the second-harmonic coefficients
     # are Offset ("offs") and bg, not the fitted annual coefficients.
+    # The Bessel wavenumber is lt.exe.p's own "besk" (2026-11-17); files
+    # without it used ltep[NM-1], which the solver then seeds it with.
     m = np.concatenate([lt[:nm], [lt[nm - 1] * h for h in harms]])
-    forcing = bessel(forcing, B["impA"], B["impB"], m[nm - 1],
+    forcing = bessel(forcing, B["impA"], B["impB"],
+                     float(params.get("besk", m[nm - 1])),
                      B["offs"], B["bg"])
 
     # 7) least-squares regression over the (excluded) training set

@@ -130,7 +130,7 @@ jointly. First runs: `legs/soi_stationarity/common_planted` (recovery control) a
 10. **dLOD bound:** keep each line within a set number of dLOD standard errors during the search.
 11. **Asymmetry for the eastern Nino indices:** harmonics, `ALPHA_GAIN` and a power law do not give the
     skew; it is concentrated in 1976-1999 (see `legs/nino_skew/east_west.py`).
-12. **`VALIDATE`, `ALTERNATE`, `SPLIT_TRAINING`** with legs; **`TIDES ZONAL`** cache with two time grids.
+12. **`ALTERNATE`, `SPLIT_TRAINING`** with legs (`VALIDATE` done 2026-11-19); **`TIDES ZONAL`** cache with two time grids.
 13. **Plot scripts and `lte_gui.py`:** accept `lte_results.N.csv`.
 14. ~~First test run in a fresh directory printed nothing.~~ Not a program fault: my launch line put the
     scoring run in the background, so its output was never shown.

@@ -155,6 +155,34 @@ H = (√N − ‖S‖₁/‖S‖₂) / (√N − 1)
 
 where `S` is the power spectrum. Returns values in [0, 1]. 1.0 means a single spike (maximally sparse/peaked), 0.0 means flat spectrum. Uses the same frequency grid as FT/ME metrics.
 
+### `ZS` — Zone Sharpness (blended with CC)
+
+Added 2026-11-19. Scores how clearly the data collapses onto one pattern when the post-Bessel manifold is folded
+into one Brillouin zone, x = frac(k·F), with k the leg's base winding (its last `ltep`). Blended 50/50 with CC, so
+the search sharpens the folded pattern while keeping the time-domain fit:
+
+```
+Score = 0.5 · CC(Model, Data) + 0.5 · ZS,     ZS = 0.5 · (η²_cv + 1 − C)
+```
+
+- **Data:** IR-matched, y(n) + IR·y(n−12), only where the two samples are a year apart. The least-squares fit on
+  1, t, t² and F is removed, since none of these is periodic in x.
+- **η²_cv:** share of variance explained by x, from 40 bins. The bin means come from even years and are scored on
+  odd years, and the reverse.
+- **C (Geary's C along the zone):** the data sorted by x. The mean squared difference to the 6 nearest neighbours
+  in x that are at least 2 years apart in time, over 2·var.
+- **Why the year split and the 2-year gap:** F moves in yearly steps, so a year's 12 months share one x. Without
+  them the score would reward the record's own month-to-month persistence. With them, random fold wavenumbers
+  score about 0 (mean −0.04 to −0.01 on the 6-leg TNA extrapolate fit).
+- **Legs:** each leg uses its own k and IR. The composite averages them, so the shared lpap is pushed to sharpen
+  every leg's pattern at once.
+- **Check:** on that fit, the solver's ZS equals a Python reimplementation to 5 decimals on all 6 legs. A
+  2-minute search raised the mean ZS from 0.206 to 0.253, while CC fell from 0.776 to 0.766 and dLOD stayed at
+  0.984. The gain came from the per-leg Bessel and winding parameters; lpap moved by at most 1e-5 relative.
+- **Cost:** about 30% fewer search cycles per second than `CC`.
+- **Reported scores:** under `METRIC ZS`, the held-out and validate scores are also ZS blends. For a short window
+  (e.g. 10 years), η²_cv has few points per bin.
+
 ---
 
 ## Summary Table
@@ -173,6 +201,7 @@ where `S` is the power spectrum. Returns values in [0, 1]. 1.0 means a single sp
 | `CTW` | (alias of CID)             | (0, 1]    | matching total variation             | time         |
 | `W`   | Winding Agreement          | [0, 1]    | manifold step coherence              | time         |
 | `HOYER`| Hoyer Spectral Peak       | [0, 1]    | spectral sparsity / peakedness       | frequency    |
+| `ZS`  | Zone Sharpness (+CC)       | about [−0.5, 1] | data collapse in the folded zone | folded manifold |
 | `DC`  | DTW+CC composite           | —         | —                                    | —            |
 | `EC`  | EMD+CC composite           | —         | —                                    | —            |
 | `ED`  | EMD+DER composite          | —         | —                                    | —            |

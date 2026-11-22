@@ -67,7 +67,7 @@ package body GEM is
       FB_LO, FB_HI, FB_LO2, FB_HI2, LEGS, LEG_WEIGHT,
       SELECT_TOP, SELECT_TIE, LEG_IR, LEG_COMMON, LEG_SCALE, LEG_SCORE, FORECAST_YEARS,
       LEG_WINDINGS, LEG_BESSEL, LEG_P, DLOD_SHIFT, DLOD_SHIFT_STEP,
-      WISDOM_REF, WISDOM_P, MANIFOLD_PRE );
+      WISDOM_REF, WISDOM_P, MANIFOLD_PRE, VALIDATE_START );
 
    type Option_Pair is record
       Name, Value : Ada.Command_Line.Response_File.String_Access;

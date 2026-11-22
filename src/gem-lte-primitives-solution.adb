@@ -55,6 +55,7 @@ with GNAT.Traceback.Symbolic;
 with Ada.IO_Exceptions;
 with GNAT.OS_Lib;
 with Ada.Directories;
+with Ada.Containers.Generic_Array_Sort;
 
 package body GEM.LTE.Primitives.Solution is
    use type GEM.LTE.Primitives.Shared.Leg_Own_Set;
@@ -641,7 +642,9 @@ package body GEM.LTE.Primitives.Solution is
                end loop;
                Text_IO.Put_Line
                  ("SELECT_TOP" & Integer'Max (1, Select_Top)'Img &
-                  ": best training score" &
+                  (if Validate and then Paired
+                   then ": best composite validate score"
+                   else ": best training score") &
                   Top'Img & ", tie width" & Select_Tie'Img);
                for N in 1 .. Integer'Max (1, Select_Top) loop
                   Pick := 0;
@@ -657,8 +660,12 @@ package body GEM.LTE.Primitives.Solution is
                   exit when Pick = 0;
                   Used (Pick) := True;
                   Text_IO.Put_Line
-                    ("   candidate" & Pick'Img & ": training" &
-                     Fin_Train (Pick)'Img & ", held out" &
+                    ("   candidate" & Pick'Img &
+                     (if Validate and then Paired then ": validate"
+                      else ": training") &
+                     Fin_Train (Pick)'Img &
+                     (if Validate and then Paired then ", training"
+                      else ", held out") &
                      Fin_Held (Pick)'Img);
                   if Chosen = 0 or else Fin_Held (Pick) > Fin_Held (Chosen)
                   then
@@ -811,6 +818,14 @@ package body GEM.LTE.Primitives.Solution is
       --  candidate, for the followers to apply to the common windings.
       procedure Post_Amps (A : in Modulations_Amp_Phase);
       entry Get_Amps (Follower_Leg) (A : out Modulations_Amp_Phase);
+      --  VALIDATE with legs: at the end of the search each follower posts
+      --  its kept candidate's validate score (Post_Validate) and the leader
+      --  takes the weighted mean over the legs (Validate_Composite, which
+      --  waits for every follower still running). A leg that cannot be
+      --  scored (Long_Float'First) makes the composite Long_Float'First.
+      procedure Post_Validate (L : in Follower_Leg; Score, Weight : in Long_Float);
+      entry Validate_Composite
+        (Score, Weight : in Long_Float; Composite : out Long_Float);
       procedure Close;          -- leader has finished: release the followers
       procedure Follower_Gone (L : in Follower_Leg);  -- that follower failed
    private
@@ -825,6 +840,10 @@ package body GEM.LTE.Primitives.Solution is
       Pending : Natural := 0;  -- followers that have not yet answered
       SF, PF, WF : Leg_Scores := (others => 0.0);
       Comp : Long_Float := 0.0;
+      VF, VW : Leg_Scores := (others => 0.0);  -- VALIDATE: followers' scores
+      V_Posted : Flags := (others => False);
+      N_Followers : Natural := 0;  -- set by Propose
+      V_Done : Natural := 0;       -- followers posted or gone
    end Exchange;
 
    protected body Exchange is
@@ -839,6 +858,7 @@ package body GEM.LTE.Primitives.Solution is
          HB (1 .. H'Length) := H;
          HN := H'Length;
          Thr := Threshold;
+         N_Followers := Group - 1;
          Pending := 0;
          for L in 2 .. Group loop
             if not Gone (L) then
@@ -927,6 +947,35 @@ package body GEM.LTE.Primitives.Solution is
          Amps_Ready (L) := False;
       end Get_Amps;
 
+      procedure Post_Validate (L : in Follower_Leg; Score, Weight : in Long_Float)
+      is
+      begin
+         VF (L) := Score;
+         VW (L) := Weight;
+         if not V_Posted (L) and then not Gone (L) then
+            V_Done := V_Done + 1;
+         end if;
+         V_Posted (L) := True;
+      end Post_Validate;
+
+      entry Validate_Composite
+        (Score, Weight : in Long_Float; Composite : out Long_Float)
+        when V_Done >= N_Followers is
+         W : Long_Float := Weight;
+         S : Long_Float := Weight * Score;
+         Bad : Boolean := Score = Long_Float'First;
+      begin
+         for L in 2 .. Group loop
+            if V_Posted (L) and then not Gone (L) then
+               Bad := Bad or else VF (L) = Long_Float'First;
+               W := W + VW (L);
+               S := S + VW (L) * VF (L);
+            end if;
+         end loop;
+         Composite :=
+           (if Bad then Long_Float'First elsif W > 0.0 then S / W else Score);
+      end Validate_Composite;
+
       procedure Close is
       begin
          Closed := True;
@@ -934,6 +983,9 @@ package body GEM.LTE.Primitives.Solution is
 
       procedure Follower_Gone (L : in Follower_Leg) is
       begin
+         if not Gone (L) and then not V_Posted (L) then
+            V_Done := V_Done + 1;
+         end if;
          Gone (L) := True;
          Have (L) := False;
          if not Answered (L) and then Pending > 0 then
@@ -1301,6 +1353,9 @@ package body GEM.LTE.Primitives.Solution is
       DER_Metric : constant Boolean := GEM.Getenv ("METRIC", "CC") = "DER";
       EMD_Metric : constant Boolean := GEM.Getenv ("METRIC", "CC") = "EMD";
       Hoy_Metric : constant Boolean := GEM.Getenv ("METRIC", "CC") = "HOYER";
+      --  METRIC=ZS (2026-11-19): zone sharpness blended 50/50 with CC; see
+      --  Zone_Sharpness below and METRICS.md.
+      ZS_Metric : constant Boolean := GEM.Getenv ("METRIC", "CC") = "ZS";
       --  base winding D.B.LT (NM): the Hoyer bins are multiples of it
       Hoy_Base : constant Integer := GEM.Getenv ("NM", N_Modulations);
       DTW_CC : constant Boolean := GEM.Getenv ("METRIC", "CC") = "DC";
@@ -1483,6 +1538,201 @@ package body GEM.LTE.Primitives.Solution is
       --  into the climate forcing, amplitude-corrected per line (see GEM.Zonal)
       Lod_Term : constant Long_Float := GEM.Getenv ("LOD_TERM", 0.0);
 
+      --  Zone_Sharpness (METRIC=ZS): how clearly the data collapses onto one
+      --  pattern when the post-Bessel manifold Z is folded into one Brillouin
+      --  zone, x = frac (K * Z) with K the base winding. Spatial statistics
+      --  on the folded coordinate, not a time correlation with the model:
+      --    1. y = data IR-matched, y(n) + IR * y(n-12) (only where the two
+      --       samples are a year apart, so not across an EXCLUDE gap), less
+      --       its least-squares fit on 1, t, t^2 and Z (not periodic in x).
+      --    2. eta^2, cross-validated: means of y in 40 bins of x from even
+      --       years, scored on odd years, and the reverse (1 - SSE / SST).
+      --    3. Geary's C along the zone: y sorted by x, mean squared
+      --       difference to the 6 nearest neighbours in x that are at least
+      --       2 years apart in time, over 2 var (y).
+      --  Result 0.5 * (eta^2 + 1 - C): about 0 for a fold that orders
+      --  nothing, larger as the pattern sharpens. The year split and the
+      --  2-year gap keep the fold from scoring the record's own persistence
+      --  (Z moves in yearly steps, so a year's 12 months share one x).
+      function Zone_Sharpness (Y, Z : in Data_Pairs; K, IR : in Long_Float)
+        return Long_Float
+      is
+         N : constant Integer := Integer'Min (Y'Length, Z'Length);
+         NB : constant := 40;
+         W : constant := 6;
+         Gap : constant Long_Float := 2.0;
+         type Vec is array (1 .. N) of Long_Float;
+         T, V, F, Xz : Vec;
+         Idx : array (1 .. N) of Integer;
+      begin
+         if N < 48 or else K = 0.0 then
+            return 0.0;
+         end if;
+         for I in 1 .. N loop
+            T (I) := Y (Y'First + I - 1).Date;
+            V (I) := Y (Y'First + I - 1).Value;
+            F (I) := Z (Z'First + I - 1).Value;
+         end loop;
+         if IR /= 0.0 then
+            for I in reverse 13 .. N loop
+               if abs (T (I) - T (I - 12) - 1.0) < 0.02 then
+                  V (I) := V (I) + IR * Y (Y'First + I - 13).Value;
+               end if;
+            end loop;
+         end if;
+         --  1. remove 1, s, s^2, f (s = time scaled to 0..1, f = Z centred)
+         declare
+            T0 : constant Long_Float := T (1);
+            Span : constant Long_Float := Long_Float'Max (T (N) - T0, 1.0);
+            FM : Long_Float := 0.0;
+            A : array (1 .. 4, 1 .. 5) of Long_Float := (others => (others => 0.0));
+            C : array (1 .. 4) of Long_Float := (others => 0.0);
+            function Col (J, I : Integer) return Long_Float is
+               S : constant Long_Float := (T (I) - T0) / Span;
+            begin
+               case J is
+                  when 1 => return 1.0;
+                  when 2 => return S;
+                  when 3 => return S * S;
+                  when others => return F (I) - FM;
+               end case;
+            end Col;
+         begin
+            for I in 1 .. N loop
+               FM := FM + F (I);
+            end loop;
+            FM := FM / Long_Float (N);
+            for I in 1 .. N loop
+               for R in 1 .. 4 loop
+                  for Q in 1 .. 4 loop
+                     A (R, Q) := A (R, Q) + Col (R, I) * Col (Q, I);
+                  end loop;
+                  A (R, 5) := A (R, 5) + Col (R, I) * V (I);
+               end loop;
+            end loop;
+            for P in 1 .. 4 loop   -- Gauss-Jordan with partial pivoting
+               declare
+                  Best : Integer := P;
+               begin
+                  for R in P + 1 .. 4 loop
+                     if abs A (R, P) > abs A (Best, P) then
+                        Best := R;
+                     end if;
+                  end loop;
+                  if abs A (Best, P) < 1.0E-12 then
+                     goto Singular;  -- e.g. Z constant: skip that column
+                  end if;
+                  for Q in 1 .. 5 loop
+                     declare
+                        Tmp : constant Long_Float := A (P, Q);
+                     begin
+                        A (P, Q) := A (Best, Q);
+                        A (Best, Q) := Tmp;
+                     end;
+                  end loop;
+                  for R in 1 .. 4 loop
+                     if R /= P then
+                        declare
+                           M : constant Long_Float := A (R, P) / A (P, P);
+                        begin
+                           for Q in P .. 5 loop
+                              A (R, Q) := A (R, Q) - M * A (P, Q);
+                           end loop;
+                        end;
+                     end if;
+                  end loop;
+               end;
+               <<Singular>>
+            end loop;
+            for R in 1 .. 4 loop
+               C (R) := (if abs A (R, R) < 1.0E-12 then 0.0 else A (R, 5) / A (R, R));
+            end loop;
+            for I in 1 .. N loop
+               V (I) := V (I) - (C (1) * Col (1, I) + C (2) * Col (2, I) +
+                                 C (3) * Col (3, I) + C (4) * Col (4, I));
+            end loop;
+         end;
+         for I in 1 .. N loop
+            Xz (I) := K * F (I) - Long_Float'Floor (K * F (I));
+            Idx (I) := I;
+         end loop;
+         declare
+            --  2. cross-validated eta^2 over year parity
+            Sum, Cnt : array (Boolean, 0 .. NB - 1) of Long_Float :=
+              (others => (others => 0.0));
+            Mean_Of : array (Boolean) of Long_Float := (others => 0.0);
+            N_Of : array (Boolean) of Long_Float := (others => 0.0);
+            SSE, SST, Eta2 : Long_Float := 0.0;
+            function Bin (I : Integer) return Integer is
+              (Integer'Min (Integer (Long_Float'Floor (Xz (I) * Long_Float (NB))), NB - 1));
+            function Even (I : Integer) return Boolean is
+              (Integer (Long_Float'Floor (T (I))) mod 2 = 0);
+            --  3. Geary's C along the sorted zone coordinate
+            function Before (L, R : Integer) return Boolean is
+              (Xz (L) < Xz (R) or else (Xz (L) = Xz (R) and then L < R));
+            type Idx_Array is array (Positive range <>) of Integer;
+            procedure Sort is new Ada.Containers.Generic_Array_Sort
+              (Index_Type => Positive, Element_Type => Integer,
+               Array_Type => Idx_Array, "<" => Before);
+            Ord : Idx_Array (1 .. N);
+            Var, Dsum, Mean : Long_Float := 0.0;
+            Pairs : Natural := 0;
+         begin
+            for I in 1 .. N loop
+               Sum (Even (I), Bin (I)) := Sum (Even (I), Bin (I)) + V (I);
+               Cnt (Even (I), Bin (I)) := Cnt (Even (I), Bin (I)) + 1.0;
+               Mean_Of (Even (I)) := Mean_Of (Even (I)) + V (I);
+               N_Of (Even (I)) := N_Of (Even (I)) + 1.0;
+            end loop;
+            for E in Boolean loop
+               if N_Of (E) > 0.0 then
+                  Mean_Of (E) := Mean_Of (E) / N_Of (E);
+               end if;
+            end loop;
+            for I in 1 .. N loop   -- scored on parity E, means from the other
+               declare
+                  E : constant Boolean := Even (I);
+                  B : constant Integer := Bin (I);
+                  M : constant Long_Float :=
+                    (if Cnt (not E, B) > 0.0 then Sum (not E, B) / Cnt (not E, B) else 0.0);
+               begin
+                  SSE := SSE + (V (I) - M) ** 2;
+                  SST := SST + (V (I) - Mean_Of (E)) ** 2;
+               end;
+            end loop;
+            Eta2 := (if SST > 0.0 then 1.0 - SSE / SST else 0.0);
+            for I in 1 .. N loop
+               Ord (I) := Idx (I);
+               Mean := Mean + V (I);
+            end loop;
+            Mean := Mean / Long_Float (N);
+            for I in 1 .. N loop
+               Var := Var + (V (I) - Mean) ** 2;
+            end loop;
+            Var := Var / Long_Float (N);
+            Sort (Ord);
+            for I in 1 .. N loop
+               declare
+                  Got : Natural := 0;
+                  J : Integer := I + 1;
+               begin
+                  while Got < W and then J <= N loop
+                     if abs (T (Ord (J)) - T (Ord (I))) >= Gap then
+                        Dsum := Dsum + (V (Ord (J)) - V (Ord (I))) ** 2;
+                        Pairs := Pairs + 1;
+                        Got := Got + 1;
+                     end if;
+                     J := J + 1;
+                  end loop;
+               end;
+            end loop;
+            if Pairs = 0 or else Var <= 0.0 then
+               return 0.5 * Eta2;
+            end if;
+            return 0.5 * (Eta2 + 1.0 - (Dsum / Long_Float (Pairs)) / (2.0 * Var));
+         end;
+      end Zone_Sharpness;
+
       function Metric (X, Y, Z : in Data_Pairs) return Long_Float is
          Raw_Score : Long_Float;
       begin
@@ -1509,6 +1759,10 @@ package body GEM.LTE.Primitives.Solution is
             Raw_Score := DTW_Distance (X, Y, DTW_Window);
          elsif EMD_Metric then
             Raw_Score := EMD (X, Y);
+         elsif ZS_Metric then
+            Raw_Score := 0.5 * (CC (X, Y) + Zone_Sharpness
+              (Y, Z, D.B.LT (Integer'Max (1, Integer'Min (Hoy_Base, D.B.LT'Last))),
+               D.B.IR));
          elsif Hoy_Metric then
             Raw_Score := -- Ada.Numerics.Long_Elementary_Functions.Sqrt ()
                    (Hoyer_Spectral_Peak
@@ -1972,6 +2226,13 @@ package body GEM.LTE.Primitives.Solution is
 
       First : Integer := Find_Index (TS);
       Last : Integer := Find_Index (TE);
+      --  VALIDATE_START (date; default TRAIN_END): where VALIDATE's segment
+      --  begins, so a test gap can sit between training and validation,
+      --  e.g. EXCLUDE FALSE, TRAIN_END 1960, VALIDATE_START 1970: training
+      --  before 1960, test 1960-1970, validation from 1970 on.
+      Val_Start : constant Long_Float := GEM.Getenv ("VALIDATE_START", 0.0);
+      Val_First : constant Integer :=
+        (if Val_Start > 0.0 then Find_Index (Val_Start) else Last);
       Mid : Integer := (First + Last) / 2;
 
       --  COVERAGE (0.0 .. 1.0, default 1.0 = current unregularized
@@ -2107,13 +2368,13 @@ package body GEM.LTE.Primitives.Solution is
       --  display/store bug -- just the wrong region for what was wanted.
       function Validate_Metric (Scored_Model : Data_Pairs) return Long_Float is
       begin
-         if Scored_Model'Last - Last + 1 < Min_Validate_Segment then
+         if Scored_Model'Last - Val_First + 1 < Min_Validate_Segment then
             return Long_Float'First; -- too degenerate to trust; see above
          end if;
          return Metric
-           (Scored_Model (Last .. Scored_Model'Last),
-            Data_Records (Last .. Data_Records'Last),
-            Forcing (Last .. Forcing'Last));
+           (Scored_Model (Val_First .. Scored_Model'Last),
+            Data_Records (Val_First .. Data_Records'Last),
+            Forcing (Val_First .. Forcing'Last));
       end Validate_Metric;
 
       function Excluded (D : Data_Pairs) return Data_Pairs is
@@ -3645,8 +3906,33 @@ package body GEM.LTE.Primitives.Solution is
             --  acts as 1 = best training score), so that the leader and the
             --  follower of one and the same pair save: each task deciding
             --  for itself could leave the two leg files from different pairs.
+            --  VALIDATE with legs: the group is chosen by its legs' weighted
+            --  validate score instead of the training composite (reported in
+            --  the training slot, so Selected ranks by it; the training
+            --  composite goes in the held-out slot, for the printout).
             if (Select_Top > 0 or else Paired) and then not Test_Only then
-               if not Follower then
+               if Validate and then Paired then
+                  declare
+                     V : constant Long_Float :=
+                       (if Ever_Accepted then Validate_Metric (KeepModel)
+                        else Long_Float'First);
+                     VC : Long_Float;
+                  begin
+                     if Follower then
+                        Exchanges (Pair).Post_Validate (Leg, V, Leg_Weight);
+                     else
+                        Exchanges (Pair).Validate_Composite (V, Leg_Weight, VC);
+                        Text_IO.Put_Line
+                          ("VALIDATE group" & Pair'Img & ": leg 1 validate" &
+                           V'Img & ", composite validate" & VC'Img &
+                           ", training composite" & Keep_CC'Img);
+                        Final_Reported := True;
+                        Monitor.Final_Report
+                          (ID, (if Ever_Accepted then VC else Long_Float'First),
+                           Keep_CC);
+                     end if;
+                  end;
+               elsif not Follower then
                   Final_Reported := True;
                   Monitor.Final_Report
                     (ID, (if Ever_Accepted then Keep_CC else Long_Float'First),

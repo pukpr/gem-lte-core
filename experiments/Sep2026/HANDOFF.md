@@ -473,6 +473,49 @@ run_ir_pass.py: per quad, from Oct2026_layer, a 300 s control search (IR 0) and 
 quads first; ~4.3 h; results.jsonl, pass.log, PASS_DONE. Then compare both sets
 globally (held-out + 1880 back-cast) at equal effort.
 
+**dLOD floor released to 0.985 on the LAYER=1 set (2026-10-03/04, experiments/Oct2026_layer_floor).**
+IR pass result first (Oct2026_layer_ir, 89/89 done 16:27): warm-only IR vs control at equal
+300 s effort: train +0.002 / validate +0.006 / 2000-05 test +0.032 median, warm better 55-56/89,
+fitted IR median -0.196 (3 quads drifted toward 0), dLOD unchanged. Global warm vs ctrl:
+monthly det 0.814 vs 0.804, held-out 2000-05 +0.60/0.066 vs +0.56/0.071 (CC/RMSE), secular
+trend +0.070 vs +0.078 C/decade (IR shaves ~10% off the trend). 1880 back-cast lin-detr
+monthly +0.51 vs +0.52, 2-7 yr band +0.11 vs +0.17 (warm slightly worse pre-1950 ENSO).
+dLOD distribution across sets (CC from dlod_compare.csv): Sep2026/Feb2026_sweep med 0.9957
+(0.9942-0.9997), altquad 0.9957 (tight), LAYER=1 family med 0.9927, range 0.9897-0.9942, 88/89
+quads DOWN vs Feb2026_sweep (median -0.003) with no tail -- the shared k1~0.021/Bessel
+k~0.232 parameterization sets the dLOD level collectively; 0.994 would reject all 88 and 0.99
+was a cliff 3 quads sat within 0.0005 of. Per the user: neither floor is valid any more.
+Oct2026_layer_floor = copy of layer_ir/warm, one CC refinement pass (300 s, 4x4, same accept
+rules) with `--dlod-floor 0.985` (new option in sweep_cc_refine.py; default still
+sweep.DLOD_FLOOR). FIRST RUN REJECTED 68/68 ON "backbone": sweep.backbone_ok reads
+ltep[NM-1], which under LAYER=1 is a regressed winding (~4), outside 0.1..2.5. Fixed:
+sweep.read_backbone returns ltep[1] (the Bessel k ~0.232) when the resp has LAYER>0; the
+68 saved candidates were re-decided offline (67 installed, 1 test rejection; pre-fix log
+_refine/results.jsonl.pre_backbone_fix) and the remaining 21 run. Final 88/89 accepted.
+RESULT: the floor was never binding -- dLOD min 0.9901->0.9899, median 0.9927->0.9926,
+paired delta median -0.00002; the search does not trade dLOD for fit at 300 s. Gains:
+train +0.007 (89/89), validate +0.007 (85/89), fit CC +0.005, test +0.003 (55/89).
+Global: monthly det 0.814 -> 0.826, 12-mo det 0.907 -> 0.920, held-out 2000-05 +0.60/0.065
+(unchanged). vs Feb2026_sweep original 0.880 / 0.938 / +0.85/0.047: after four refinement-
+equivalents the LAYER family's held-out gap is not closing with effort (structural), while
+its 1880 back-cast lead (+0.52 vs +0.32 lin-detr monthly) is also structural.
+
+**Floor sweep applied to the full-record indices (2026-10-04 01:19-01:26,
+experiments/Oct2026_layer_floor_idx).** Copies of Feb2026/amo, pdo, nino4 (the user's
+LAYER=1 fits, data from 1880, STRICT/INIT_DATE 1880), same recipe, floor 0.985
+(sweep_cc_refine.py -set now accepts non-grid dirs). On the long records dLOD sits at
+0.988-0.991 BEFORE any search (below the quads' 0.9899 minimum, i.e. the longer interval
+lowers the collective dLOD level by a further ~0.003) and the search moves it -0.0003..
+-0.0009 only; 0.99 would have rejected nino4 and pdo outright, 0.985 was not approached.
+pdo kept_new (0.768/0.786/0.575 -> 0.770/0.783/0.550, fit 0.763->0.765). amo and nino4
+were rejected only on validate (-0.015, -0.012 vs the -0.01 tolerance) while test and train
+rose (amo 0.746/0.587/0.305 -> 0.788/0.572/0.454, fit 0.744->0.787, ltep/harm unchanged;
+nino4 0.718/0.809/0.765 -> 0.729/0.797/0.778); the user accepted both (installed as
+kept_new_override in _refine/results.jsonl, backups in _refine/backup/). Lesson: under
+VALIDATE=TRUE the middle number is the live running max across threads, so a -0.01
+tolerance is inside its own noise; the 2000-05 test window is the honest gate. Feb2026/amo,
+pdo, nino4 themselves are untouched -- copy from Oct2026_layer_floor_idx/<idx> if wanted.
+
 **ANNUAL_DITHER set aside (2026-10-03).** Dummy annual signal added to the manifold
 (ANNUAL_DITHER a, _PHASE, _STAGE 1 after layer / 0 before) with climatology removal of model
 output and regression columns. Grid (Oct2026_layer/_dither/grid.log): all a > 0 worse;

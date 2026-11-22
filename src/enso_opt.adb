@@ -37,6 +37,30 @@ procedure ENSO_Opt is  -- gprbuild lte.gpr enso_opt -largs -Wl, --stack=40000000
    Expect : constant Boolean := GEM.Getenv ("EXPECT", False);
    use type Ada.Calendar.Time;
 
+   --  DLOD_REF: TRUE/REF (default), FALSE/CAL, or the name of a
+   --  wisdom_lpap/<name>.lt.exe.p to seed lpap from; case-insensitive.
+   Dlod_Ref_Value : constant String := GEM.Getenv ("DLOD_REF", "TRUE");
+   type Dlod_Ref_Mode is (Ref, Cal, Named);
+   function Upper (S : String) return String is
+      R : String := S;
+   begin
+      for I in R'Range loop
+         if R (I) in 'a' .. 'z' then
+            R (I) := Character'Val (Character'Pos (R (I)) - 32);
+         end if;
+      end loop;
+      return R;
+   end Upper;
+   Dlod_Up : constant String := Upper (Dlod_Ref_Value);
+   Dlod_Mode : constant Dlod_Ref_Mode :=
+     (if Dlod_Up = "TRUE" or else Dlod_Up = "T" or else Dlod_Up = "REF"
+        or else Dlod_Up = "YES" or else Dlod_Up = "1" or else Dlod_Up = ""
+      then Ref
+      elsif Dlod_Up = "FALSE" or else Dlod_Up = "F" or else Dlod_Up = "CAL"
+        or else Dlod_Up = "NO" or else Dlod_Up = "0"
+      then Cal
+      else Named);
+
    --  D = Complete model parameter set (tidal periods, amplitudes, phases,
    --  LTE modulation parameters, impulse response coefficients)
    D : GEM.LTE.Primitives.Shared.Param_S :=
@@ -98,10 +122,14 @@ begin
 
       Text_IO.Put_Line ("YA=" & D.B.Year'Img);
 
-      --  Initialize tidal forcing amplitudes and phases from dLOD data
-      if GEM.Command_Line_Option_Exists ("r") or
-        not GEM.Getenv ("DLOD_REF", True)
-      then
+      --  Initialize tidal forcing amplitudes and phases from dLOD data.
+      --  DLOD_REF (case-insensitive):
+      --    TRUE / REF (default) : lpap as loaded; dLOD kept as reference
+      --    FALSE / CAL          : lpap set to the dLOD calibration
+      --    <name>               : lpap seeded from <name>.lt.exe.p in the
+      --                           nearest experiments/wisdom_lpap (its lpap
+      --                           rows only); dLOD kept as reference
+      if GEM.Command_Line_Option_Exists ("r") or Dlod_Mode = Cal then
          --  Fresh start: use dLOD data directly with optional scaling
          Text_IO.Put_Line ("Loading dLOD");
          for I in D.B.LPAP'Range loop
@@ -118,6 +146,26 @@ begin
             GEM.LTE.LPRef (I).Amplitude := AP (I).Amplitude;
             GEM.LTE.LPRef (I).Phase := AP (I).Phase;
          end loop;
+         if Dlod_Mode = Named then
+            declare
+               File : constant String :=
+                 GEM.LTE.Primitives.Shared.Wisdom_Named (Dlod_Ref_Value);
+               Seeded, Skipped : Natural;
+            begin
+               if File = "" then
+                  Text_IO.Put_Line
+                    ("DLOD_REF " & Dlod_Ref_Value & ": not TRUE/REF, FALSE/CAL " &
+                     "or a file in wisdom_lpap; found " &
+                     GEM.LTE.Primitives.Shared.Wisdom_Names);
+                  GNAT.OS_Lib.OS_Exit (1);
+               end if;
+               GEM.LTE.Primitives.Shared.Seed_LPAP (D, File, Seeded, Skipped);
+               Text_IO.Put_Line
+                 ("DLOD_REF " & Dlod_Ref_Value & ": seeding lpap from " & File &
+                  ":" & Seeded'Img & " lines seeded," & Skipped'Img &
+                  " rows left as loaded");
+            end;
+         end if;
       end if;
 
       --  WISDOM_REF TRUE: seed lpap from the crowd-median tidal set

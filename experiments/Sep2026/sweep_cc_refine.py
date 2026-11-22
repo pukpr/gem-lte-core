@@ -194,7 +194,7 @@ def process(q: str, args, ref, prior: dict | None = None) -> dict:
             if nt["train"] < bt["train"]: fails.append("train")
             if nt["validate"] < bt["validate"] - 0.01: fails.append("validate")
             if nt["test"] < bt["test"] - args.test_tol: fails.append("test")
-        if new["dlod"] is None or new["dlod"] < sweep.DLOD_FLOOR: fails.append(f"dLOD {new['dlod']}")
+        if new["dlod"] is None or new["dlod"] < args.dlod_floor: fails.append(f"dLOD {new['dlod']}")
         if not sweep.backbone_ok(d): fails.append("backbone")
         if ref is not None and (m is None or m < args.min_mcc): fails.append("manifold")
         ok = not fails
@@ -250,6 +250,9 @@ def main() -> int:
                     help="search threads per lt.exe (NUMBER_OF_PROCESSORS)")
     ap.add_argument("--test-tol", type=float, default=0.10,
                     help="allowed drop in the 2000-05 test CC (a 5-year CC is noisy)")
+    ap.add_argument("--dlod-floor", type=float, default=sweep.DLOD_FLOOR,
+                    help="minimum dLOD CC for acceptance (default sweep.DLOD_FLOOR; the LAYER=1 "
+                         "family sits collectively at ~0.993, so use e.g. 0.985 there)")
     ap.add_argument("--workers", type=int, default=2)
     ap.add_argument("--force-set", action="append", default=[], metavar="KEY=VALUE",
                     help="resp setting applied to the --force-quads (e.g. ALPHA=0.25); those quads always "
@@ -268,6 +271,8 @@ def main() -> int:
         if not (rdir / link).exists():
             (rdir / link).symlink_to(tgt)
     cells = sorted(p.name for p in args.root.iterdir() if p.is_dir() and sweep.parse_grid_name(p.name))
+    # -set may name non-grid index dirs (amo, pdo, nino4 ...) as long as they exist under root
+    cells += [c for c in (args.set or []) if c not in cells and (args.root / c / "lt.exe.p").exists()]
     targets = [c for c in (args.set or cells) if c in cells]
     res_path = rdir / "results.jsonl"
     done = {json.loads(l)["quad"] for l in res_path.read_text().splitlines() if l} if res_path.exists() else set()

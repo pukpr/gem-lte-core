@@ -34,6 +34,12 @@ across files, and writes one averaged triple per period.
     REF's lpap order exactly: REF periods without a crowd value get amplitude
     0 (e.g. the dropped diurnal lines), and crowd periods outside REF's table
     are left out of the lpap (they stay in the CSV, marked in_lpap=0).
+  * Selection: --include REGEX keeps only files whose full path (file name
+    or any folder name) matches it, case-insensitive; e.g. --include wow
+    keeps the fits saved as exceptional (lt.exe.p.*wow*, *WOW*, or any
+    lt.exe.p* in a *.wow* folder). --skip REGEX drops files by path alone,
+    without the copy rule of --exclude (use it for scratch copies of fits
+    that should still count where they were first saved).
   * Duplicates: identical lpap lists (copies of the same fit) count once
     unless --no-dedupe is given.
 
@@ -98,6 +104,10 @@ def main():
                     help='drop periods present in less than this fraction of the sets')
     ap.add_argument('--exclude', default='qbo',
                     help="regex (case-insensitive) on folder path / lt.exe.resp text; '' = none")
+    ap.add_argument('--include', default='',
+                    help="regex (case-insensitive) a file's full path must match; '' = all")
+    ap.add_argument('--skip', default='',
+                    help="regex (case-insensitive) on the file path: drop that file only")
     ap.add_argument('--no-dedupe', action='store_true', help='count copies of the same lpap separately')
     ap.add_argument('--min-period', type=float, default=2.0,
                     help='drop rows with |period| below this many days (default 2)')
@@ -110,10 +120,16 @@ def main():
     a = ap.parse_args()
 
     pat = re.compile(a.exclude, re.I) if a.exclude else None
+    inc = re.compile(a.include, re.I) if a.include else None
+    skp = re.compile(a.skip, re.I) if a.skip else None
+    nsel = 0
     found, bad = [], set()          # found: (path, kind, rows, hash)
     nfiles = {'used': 0, 'backup': 0}
     nolpap = 0
     for path, kind in find_files(a.roots):
+        if (inc and not inc.search(path)) or (skp and skp.search(path)):
+            continue
+        nsel += 1
         rows = load_lpap(path)
         if rows is None:
             nolpap += 1
@@ -216,12 +232,15 @@ def main():
                                'sign_folded': not a.keep_sign, 'min_period': a.min_period,
                                'normalized': not a.no_normalize, 'tol': a.tol, 'amp': a.amp,
                                'roots': a.roots, 'exclude': a.exclude,
+                               'include': a.include, 'skip': a.skip,
                                'files_excluded': nexcl, 'template': a.template}}, fh, indent=2)
     with open(a.csv, 'w', newline='') as fh:
         w = csv.DictWriter(fh, fieldnames=list(stats[0]))
         w.writeheader()
         w.writerows(stats)
 
+    if inc or skp:
+        print(f"selected {nsel} files (include {a.include!r}, skip {a.skip!r})")
     if nexcl:
         print(f"excluded {nexcl} files matching {a.exclude!r} (or copies of their lpap)")
     print(f"files with lpap: {nfiles['used']} used + {nfiles['backup']} backup "

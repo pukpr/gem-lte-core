@@ -10,6 +10,12 @@ excitation sources* (Science China Earth Sciences,
 <https://files.sciengine.com/pdfs/1674-7313/BF5E10A9A78D449CBE090BB90C5A6EC6.pdf>). The figure
 itself is not included here. The scripts read a local copy saved as `fig3.png`.
 
+**Note (2026-11-08):** the fits below describe the *published* Fig. 3 (equivalently its Table S1),
+not tide-gauge data. An attempt to reproduce Table S1 from PSMSL failed. The analysis is kept outside
+this repo:
+- gist: <https://gist.github.com/pukpr/5272687f14badcb46e50c8d0d8b7ca13>
+- PubPeer discussion: <https://pubpeer.com/publications/56137DD400627D3A3C7DE267AB3156>
+
 ## Summary
 
 | property | result from Fig. 3 | tesseral degree-2, order-1 (P21) expectation |

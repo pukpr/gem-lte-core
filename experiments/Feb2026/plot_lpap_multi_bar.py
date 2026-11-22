@@ -4,6 +4,12 @@ plot_lpap_multi_bar.py
 
 A command-line tool to make a horizontal multi-bar-chart of the absolute
 amplitudes of each tidal factor (lpap in lt.exe.p) across a list of subdirectories.
+
+--dlod [FILE] compares lpap with the dLOD-calibrated values: the dLOD set is added as one more dataset (default
+FILE: experiments/wisdom_lpap/dlod_calibrated.lt.exe.p; with no subdirectories given, the current folder's lt.exe.p
+is compared), and two panels are added beside the amplitudes: the amplitude ratio to dLOD (log2: +1 = doubled) and
+the phase shift from dLOD (degrees). Negative amplitudes are folded into the phase (+180 deg) before comparing.
+The comparison is also printed as a table.
 """
 
 import os
@@ -14,11 +20,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 
+DLOD_DEFAULT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "wisdom_lpap",
+                                            "dlod_calibrated.lt.exe.p"))
+
 def load_lpap(target_dir: str) -> list:
     """
-    Load the 'lpap' list from 'lt.exe.p' in *target_dir*.
+    Load the 'lpap' list from 'lt.exe.p' in *target_dir* (or from *target_dir* itself when it is a file).
     """
-    path = os.path.join(target_dir, "lt.exe.p")
+    path = target_dir if os.path.isfile(target_dir) else os.path.join(target_dir, "lt.exe.p")
     if not os.path.isfile(path):
         raise FileNotFoundError(f"'lt.exe.p' not found in: {target_dir}")
 
@@ -147,6 +156,20 @@ def parse_args():
         help="Custom figure size (width height) in inches. If omitted, height scales automatically with number of periods."
     )
     parser.add_argument(
+        "--dlod",
+        nargs="?",
+        const=DLOD_DEFAULT,
+        default=None,
+        metavar="FILE",
+        help="Compare with the dLOD-calibrated lpap (default file: %(const)s). Adds amplitude-ratio and phase-shift "
+             "panels and prints the comparison. With no subdirectories, the current folder's lt.exe.p is compared."
+    )
+    parser.add_argument(
+        "--log",
+        action="store_true",
+        help="Logarithmic amplitude axis (the minor lines are otherwise invisible next to Mf)."
+    )
+    parser.add_argument(
         "--short-labels",
         action="store_true",
         help="Use short labels (directory base names) in the legend instead of full paths."
@@ -158,6 +181,13 @@ def main():
     
     # 1. Discover subdirs if not provided
     subdirs = args.subdirs
+    if args.dlod and not subdirs and os.path.isfile("lt.exe.p"):
+        subdirs = ["."]
+    if args.dlod and not os.path.isfile(args.dlod):
+        print(f"Error: dLOD-calibrated lpap not found: {args.dlod}", file=sys.stderr)
+        sys.exit(1)
+    if args.dlod and args.output == "lpap_multi_bar_chart.png":
+        args.output = "lpap_vs_dlod.png"
     if not subdirs:
         subdirs = discover_subdirs()
         if not subdirs:
@@ -184,16 +214,22 @@ def main():
     # 2. Load and filter lpap from each subdirectory
     subdirs_data = {}
     all_raw_periods = set()
-    
-    for sd in subdirs:
+    phases = {}   # dataset -> {raw period: folded phase}; used by --dlod
+    DLOD_LABEL = "dLOD calibrated"
+    sources = [(sd, sd) for sd in subdirs] + ([(DLOD_LABEL, args.dlod)] if args.dlod else [])
+
+    for sd, src in sources:
         try:
-            lpap = load_lpap(sd)
+            lpap = load_lpap(src)
             filtered = []
+            phases[sd] = {}
             for triplet in lpap:
                 if len(triplet) < 2:
                     continue
                 period = float(triplet[0])
                 amp = abs(float(triplet[1]))
+                if len(triplet) >= 3:   # fold a negative amplitude into the phase
+                    phases[sd][period] = (float(triplet[2]) + (np.pi if float(triplet[1]) < 0 else 0.0)) % (2 * np.pi)
                 if amp >= args.min_amp:
                     filtered.append((period, amp))
                     all_raw_periods.add(period)
@@ -242,8 +278,13 @@ def main():
         # Scale figure height automatically based on number of periods
         figsize = (12, max(6, 0.28 * n_periods))
         
-    fig, ax = plt.subplots(figsize=figsize)
-    
+    if args.dlod:
+        if not args.figsize:
+            figsize = (17, figsize[1])
+        fig, (ax, axr, axp) = plt.subplots(1, 3, figsize=figsize, sharey=True, gridspec_kw={"width_ratios": [3, 1.4, 1.2]})
+    else:
+        fig, ax = plt.subplots(figsize=figsize)
+
     # Color selection
     sd_list = list(subdir_amplitudes.keys())
     M = len(sd_list)
@@ -271,7 +312,7 @@ def main():
                     ys.append(y_idx + y_offset)
                     amps.append(sd_amps[p])
             
-            label = os.path.basename(sd) if args.short_labels else sd
+            label = os.path.basename(os.path.abspath(sd)) if (args.short_labels or sd == ".") else sd
             ax.barh(
                 ys, amps,
                 height=bar_height,
@@ -320,15 +361,51 @@ def main():
         except ValueError:
             return f"{x}"
             
-    ax.xaxis.set_major_formatter(FuncFormatter(_sig5))
+    if args.log:
+        ax.set_xscale("log")
+    else:
+        ax.xaxis.set_major_formatter(FuncFormatter(_sig5))
+
+    # 7b. --dlod: amplitude ratio and phase shift of every other dataset against the dLOD calibration
+    if args.dlod and DLOD_LABEL in subdir_amplitudes:
+        ref_amp = subdir_amplitudes[DLOD_LABEL]
+        ref_ph = {period_mapping[p]: v for p, v in phases[DLOD_LABEL].items() if p in period_mapping}
+        others = [sd for sd in sd_list if sd != DLOD_LABEL]
+        K = max(len(others), 1); hgt = 0.8 / K
+        print(f"\n{'period (d)':>18s} {'dLOD amp':>10s} " + " ".join(f"{(os.path.basename(os.path.abspath(sd)) if args.short_labels or sd == '.' else sd)[:22]:>34s}" for sd in others))
+        table = {p: [] for p in sorted_periods}
+        for j, sd in enumerate(others):
+            col = colors[sd_list.index(sd)]
+            sph = {period_mapping[p]: v for p, v in phases[sd].items() if p in period_mapping}
+            ys, rat, yp, dph = [], [], [], []
+            for p in sorted_periods:
+                y = y_pos_map[p] + (j - (K - 1) / 2.0) * hgt
+                a, r = subdir_amplitudes[sd].get(p), ref_amp.get(p)
+                if a and r:
+                    ys.append(y); rat.append(np.log2(a / r))
+                    if p in sph and p in ref_ph:
+                        yp.append(y_pos_map[p]); dph.append(np.degrees(np.angle(np.exp(1j * (sph[p] - ref_ph[p])))))
+                table[p].append((a, r, np.log2(a / r) if a and r else None, dph[-1] if (a and r and yp and yp[-1] == y_pos_map[p]) else None))
+            axr.barh(ys, rat, height=hgt, color=col, alpha=0.85)
+            axp.plot(dph, yp, "o", ms=4, color=col)
+        for p, rows in table.items():
+            r = ref_amp.get(p)
+            print(f"{format_period(p):>18s} {r if r else 0:10.5f} " + " ".join(
+                f"{(a or 0):10.5f} {('x%.2f' % 2 ** q) if q is not None else '   -':>9s} {('%+5.0f deg' % d) if d is not None else '':>11s}" for a, _, q, d in rows))
+        axr.axvline(0, color="#52514e", lw=0.8); axr.grid(True, axis="x", ls=":", lw=0.5, alpha=0.7)
+        axr.set_xlabel("amplitude / dLOD (log2: +1 = doubled)", fontsize=10, fontweight="bold")
+        axp.axvline(0, color="#52514e", lw=0.8); axp.set_xlim(-180, 180); axp.set_xticks([-180, -90, 0, 90, 180])
+        axp.grid(True, ls=":", lw=0.5, alpha=0.7); axp.set_xlabel("phase - dLOD (deg)", fontsize=10, fontweight="bold")
+        axr.set_title("vs dLOD", fontsize=11, fontweight="bold"); axp.set_title("phase shift", fontsize=11, fontweight="bold")
     
     ax.set_xlabel("Absolute Amplitude (a.u.)", fontsize=11, fontweight="bold")
     ax.set_ylabel("Tidal Period (days)", fontsize=11, fontweight="bold")
     
     title_mode = "Grouped" if args.mode == "grouped" else "Overlaid"
     ax.set_title(
-        f"Tidal Amplitude Spectrum — {title_mode} Multi-Bar Chart ({len(subdir_amplitudes)} datasets)\n"
-        f"Filtered for Abs Amplitude >= {args.min_amp}",
+        (f"Tidal amplitudes vs the dLOD calibration ({os.path.basename(args.dlod)})\n" if args.dlod else
+         f"Tidal Amplitude Spectrum — {title_mode} Multi-Bar Chart ({len(subdir_amplitudes)} datasets)\n")
+        + f"Filtered for Abs Amplitude >= {args.min_amp}",
         fontsize=12,
         fontweight="bold"
     )

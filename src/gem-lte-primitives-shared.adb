@@ -1082,6 +1082,93 @@ package body GEM.LTE.Primitives.Shared is
       return "";
    end Wisdom_File;
 
+   --  The first experiments/wisdom_lpap at or above the run folder ("" none)
+   function Wisdom_Dir return String is
+      Dir : Ada.Strings.Unbounded.Unbounded_String :=
+        Ada.Strings.Unbounded.To_Unbounded_String
+          (Ada.Directories.Current_Directory);
+   begin
+      for Level in 0 .. 10 loop
+         declare
+            Here : constant String := Ada.Strings.Unbounded.To_String (Dir);
+            Name : constant String := Here & "/experiments/wisdom_lpap";
+         begin
+            if Ada.Directories.Exists (Name) then
+               return Name;
+            end if;
+            exit when Here = "/" or else Here = "";
+            Dir := Ada.Strings.Unbounded.To_Unbounded_String
+              (Ada.Directories.Containing_Directory (Here));
+         end;
+      end loop;
+      return "";
+   exception
+      when Ada.Directories.Use_Error | Ada.Directories.Name_Error =>
+         return "";
+   end Wisdom_Dir;
+
+   function Lower (S : String) return String is
+      R : String := S;
+   begin
+      for I in R'Range loop
+         if R (I) in 'A' .. 'Z' then
+            R (I) := Character'Val (Character'Pos (R (I)) + 32);
+         end if;
+      end loop;
+      return R;
+   end Lower;
+
+   function Wisdom_Named (Name : String) return String is
+      use Ada.Directories;
+      Dir : constant String := Wisdom_Dir;
+      Want : constant String := Lower (Name) & ".lt.exe.p";
+      Found : Ada.Strings.Unbounded.Unbounded_String;
+      S : Search_Type;
+      E : Directory_Entry_Type;
+   begin
+      if Dir = "" then
+         return "";
+      end if;
+      Start_Search (S, Dir, "*.lt.exe.p", (Ordinary_File => True, others => False));
+      while More_Entries (S) loop
+         Get_Next_Entry (S, E);
+         if Lower (Simple_Name (E)) = Want then
+            Found := Ada.Strings.Unbounded.To_Unbounded_String (Full_Name (E));
+         end if;
+      end loop;
+      End_Search (S);
+      return Ada.Strings.Unbounded.To_String (Found);
+   exception
+      when Use_Error | Name_Error =>
+         return "";
+   end Wisdom_Named;
+
+   function Wisdom_Names return String is
+      use Ada.Directories;
+      Dir : constant String := Wisdom_Dir;
+      List : Ada.Strings.Unbounded.Unbounded_String;
+      S : Search_Type;
+      E : Directory_Entry_Type;
+   begin
+      if Dir = "" then
+         return "(no experiments/wisdom_lpap found)";
+      end if;
+      Start_Search (S, Dir, "*.lt.exe.p", (Ordinary_File => True, others => False));
+      while More_Entries (S) loop
+         Get_Next_Entry (S, E);
+         declare
+            N : constant String := Simple_Name (E);
+         begin
+            Ada.Strings.Unbounded.Append (List, " " & N (N'First .. N'Last - 9));
+         end;
+      end loop;
+      End_Search (S);
+      return Dir & ":" & Ada.Strings.Unbounded.To_String (List);
+   exception
+      when Use_Error | Name_Error =>
+         return Dir;
+   end Wisdom_Names;
+
    procedure Seed_LPAP (D : in out Param_S; File : in String;
                         Seeded, Skipped : out Natural)
    is

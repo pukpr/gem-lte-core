@@ -136,6 +136,12 @@ package GEM.LTE.Primitives.Shared is
    --  zero rows (lines the set leaves out, e.g. the diurnal ones) keep the
    --  loaded values, since a zero would never be searched again.
    function Wisdom_File return String;
+   --  DLOD_REF <name> (anything other than TRUE/REF or FALSE/CAL): the file
+   --  <name>.lt.exe.p in the first experiments/wisdom_lpap found in the run
+   --  folder or one of its parents, the name matched case-insensitively
+   --  ("" when none). Wisdom_Names lists that folder's *.lt.exe.p names.
+   function Wisdom_Named (Name : String) return String;
+   function Wisdom_Names return String;
    procedure Seed_LPAP (D : in out Param_S; File : in String;
                         Seeded, Skipped : out Natural);
 

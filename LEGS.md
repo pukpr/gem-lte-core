@@ -51,6 +51,34 @@ Works with or without legs. Default 0: the search with the best training score s
   short held-out interval raises that score by selection (about 0.85 of its standard deviation for
   N = 3). Treat the saved held-out score as a tie-breaker, not as a test.
 
+## Choosing by a validation interval: `VALIDATE` with legs
+
+`VALIDATE TRUE` never steers the search. When every search has stopped, it picks which one to save
+by its score on a validation interval. Without legs that was already so. With legs (2026-11-19):
+
+- **Scoring:** each leg scores its kept candidate on the interval. The group's score is the
+  `LEG_WEIGHT`-weighted mean over its legs, and the group with the best one is saved, instead of
+  the best training composite.
+- **Log:** one line per group (`VALIDATE group N: leg 1 validate ..., composite validate ...,
+  training composite ...`), then the `SELECT_TOP` lines with the validate score in the first slot.
+  The `V:` in the status line is leg 1's score only.
+- **`VALIDATE_START`** (date; default `TRAIN_END`, as before): where the interval begins, so a test
+  gap can sit between training and validation. Train before 1960, test 1960-1970, validate from 1970:
+
+      EXCLUDE FALSE  TRAIN_START 1880  TRAIN_END 1960  VALIDATE TRUE  VALIDATE_START 1970
+
+  `leg_scores2.py --held 1960 1970` reports the test decade.
+- **Groups:** the choice is between groups, so it needs several: threads / legs, e.g. 18 threads
+  for 3 groups of 6 legs.
+- **`MANIFOLD_PRE TRUE`** works with it: column 4 is the shared pre-Bessel manifold of the saved
+  group.
+- **Checks** (2026-11-19, the 6-leg `.leg6` fit):
+  - With `VALIDATE` unset, and with `VALIDATE TRUE` in `TEST_ONLY`, the new binary's scores and
+    files are identical to the previous one's.
+  - 90 s search, 18 threads, `VALIDATE_START 1970`: group 3 was saved (validate 0.624, training
+    0.762) over group 2 (best training, 0.766). The six saved `lte_results` reproduce 0.62434 as
+    the mean of the legs' 1970-on CCs, and their column 4 agrees across legs to 0.9999.
+
 ## Legs that are the same index: `LEG_COMMON`
 
 For two different indices each leg regresses its own amplitudes and phases, which is right. For two
@@ -218,7 +246,7 @@ ulimit -s 65536
 
 ## Limits
 
-- `VALIDATE`, `ALTERNATE` and `SPLIT_TRAINING` are not supported with legs.
+- `ALTERNATE` and `SPLIT_TRAINING` are not supported with legs. `VALIDATE` is (see above).
 - `TIDES ZONAL` is untested with legs; its forcing cache is shared between tasks.
 - With `TREND TRUE` the annual terms are regressed per leg and the saved `lt.exe.p` holds the
   leader's.
