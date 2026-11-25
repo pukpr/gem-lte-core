@@ -39,3 +39,4 @@ lte_run.bat
 # per-leg parameter files (lt.exe.p.1, lt.exe.p.2; LEG_WINDINGS / LEG_P) belong with the run;
 # dated backups (lt.exe.p.11-11-2026-1, ...) stay ignored
 !lt.exe.p.[1-9]
+refine_work/

@@ -1,0 +1,122 @@
+{
+  "trend": -2.51159072175783E-02,
+  "accel": 1.80372081320572E-04,
+  "k0": 2.92131021704706E-02,
+  "level": 4.71868421674104E+01,
+  "IR": -2.89255916090660E-01,
+  "manifold": {
+    "delA": -9.40121757043590E-09,
+    "delB": -2.41278280773169E+01,
+    "asym": 6.26520827746106E+00,
+    "ma": 1.25799995322398E-05,
+    "mp": -4.46417806861620E-03,
+    "shiftT": 7.13839794338837E-05,
+    "rho": 1.14377021760370E-08,
+    "ztau": -2.99680506808289E-10,
+    "zdist": 2.98373330958329E-16,
+    "ztilt": 0.00000000000000E+00,
+    "ssaA": 0.00000000000000E+00,
+    "ssaP": 0.00000000000000E+00,
+    "mb": 7.47927262227568E-15,
+    "bg2": -1.54298023177550E-14,
+    "delC": 3.04273471050397E-15,
+    "besk": 2.00737079257143E-01,
+    "impA": -3.16782376580495E+00,
+    "impB": -1.86369038337124E+00,
+    "offs": 3.56016850897899E-04,
+    "bg": -4.08525786818473E-01,
+    "year": -8.32239657614202E-06
+  },
+  "k_amp_phase": [
+    [
+      -1.27988637333455E-01,
+      8.68011434062345E-02,
+      -2.04943501169301E+00
+    ],
+    [
+      -1.08658975495145E-01,
+      3.64270458859443E-02,
+      -2.04496846553931E+00
+    ],
+    [
+      -2.00521133226086E-01,
+      6.53250589505096E-02,
+      -1.10705387999244E+00
+    ],
+    [
+      -8.02084532904344E-01,
+      4.18202609770637E-02,
+      1.09205681188137E+00
+    ],
+    [
+      -1.20312679935652E+00,
+      8.42138253527385E-02,
+      -1.64904659396763E+00
+    ],
+    [
+      -4.01042266452172E-01,
+      7.12521115514698E-02,
+      6.83414708759072E-01
+    ],
+    [
+      -6.01563399678258E-01,
+      4.18114491321794E-02,
+      1.86398211283940E+00
+    ],
+    [
+      -1.00260566613043E+00,
+      1.52328911124919E-01,
+      7.02673212270218E-01
+    ]
+  ],
+  "aero": 0.00000000000000E+00,
+  "secular_context": {
+    "form": "model += level + k0*F(t) + trend*t + accel*(t - accel_ref)**2 + aero*A(t - aero_lag) + G*sum amp*sin(2*pi*k*F(t) + phase), G = ALPHA_GAIN if F(t)-m_min <= alpha*|m_min| and the sum > 0, else 1; t = decimal year, F = manifold (lte_results.csv col 4)",
+    "accel_enabled": true,
+    "aero_enabled": false,
+    "aero_file": "",
+    "aero_lag": 0.00000000000000E+00,
+    "alpha": 0.00000000000000E+00,
+    "m_min": 0.00000000000000E+00,
+    "layer": 0,
+    "tides": "TABLE",
+    "annual_dither": 0.00000000000000E+00,
+    "annual_dither_phase": 0.00000000000000E+00,
+    "annual_dither_stage": 1,
+    "ir_side": 0,
+    "ir_base_months": 121,
+    "layer_mix": false,
+    "layer_hp_months": 0,
+    "layer_k": 0.00000000000000E+00,
+    "alpha_slope_months": 0,
+    "alpha_sign": -1.00000000000000E+00,
+    "alpha_gain": 2.00000000000000E+00,
+    "accel_ref": 1.88000000000000E+03,
+    "accel_ref_note": "first date of the array the MLR was fitted on; the same date LTE evaluates accel around. Warming rate at year t is trend + 2*accel*(t - accel_ref).",
+    "fit_span": [
+      1.88000000000000E+03,
+      2.02500000000000E+03
+    ],
+    "train_start_end": [
+      1.96000000000000E+03,
+      1.97000000000000E+03
+    ],
+    "train_start_end_role": "excluded TEST interval (EXCLUDE=TRUE; training is the record outside it)",
+    "exclude": true,
+    "enclosing": false,
+    "coverage": 1.00000000000000E+00,
+    "record_span": [
+      1.88000000000000E+03,
+      2.02500000000000E+03
+    ],
+    "rate_at_record_start": -2.51159072175783E-02,
+    "rate_at_record_end": 2.71919963653877E-02,
+    "rise_over_record": 1.50516463216182E-01,
+    "lowest_winding": {
+      "index": 2,
+      "k": -1.08658975495145E-01,
+      "amp": 3.64270458859443E-02,
+      "phase": -2.04496846553931E+00
+    }
+  }
+}
