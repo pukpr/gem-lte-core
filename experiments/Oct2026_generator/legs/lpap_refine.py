@@ -64,8 +64,33 @@ for line in open(os.path.join(D, "lte_run.sh")):
     if m:
         for kv in m.group(1).split():
             if "=" in kv and "${" not in kv: k, v = kv.split("=", 1); env[k] = v
-EXE = os.path.abspath(os.path.join(D, "..", "lt.exe"))   # keep the lt.exe name: the binary reads <its name>.p
-dl = os.path.realpath(os.path.join(D, "dlod3.dat")) if os.path.exists(os.path.join(D, "dlod3.dat")) else os.path.realpath(os.path.join(D, "..", "dlod3.dat"))
+def _resolve_exe():
+    """Locate lt.exe; on Windows/no-symlink clones where ../lt.exe is missing or a text stub, fall back to Feb2026/enso_opt."""
+    cand = os.path.abspath(os.path.join(D, "..", "lt.exe"))
+    if os.path.isfile(cand) and os.path.getsize(cand) > 1024:
+        return cand
+    feb = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "Feb2026"))
+    for name in ("enso_opt", "enso_opt.exe", "lt.exe"):
+        src = os.path.join(feb, name)
+        if os.path.isfile(src) and os.path.getsize(src) > 1024:
+            dst = os.path.join(W, "lt.exe")
+            try:
+                if os.path.lexists(dst): os.unlink(dst)
+                os.symlink(src, dst)
+            except OSError:
+                shutil.copy2(src, dst)
+            return dst
+    return cand
+def _resolve_dlod():
+    """Locate dlod3.dat, skipping tiny git symlink text stubs on Windows."""
+    feb = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "Feb2026", "dlod3.dat"))
+    for p in (os.path.join(D, "dlod3.dat"), os.path.join(D, "..", "dlod3.dat"), feb):
+        rp = os.path.realpath(p)
+        if os.path.isfile(rp) and os.path.getsize(rp) > 1024:
+            return rp
+    sys.exit("dlod3.dat not found (checked run dir, parent dir, and experiments/Feb2026/dlod3.dat)")
+EXE = _resolve_exe()   # keep the lt.exe name: the binary reads <its name>.p
+dl = _resolve_dlod()
 shutil.copy(dl, os.path.join(W, "dlod3.dat"))
 _nlegs = re.findall(r"^\s*LEGS\s+(\d+)", open(os.path.join(D, "lt.exe.resp")).read(), re.M) if os.path.exists(os.path.join(D, "lt.exe.resp")) else []
 legs = list(range(1, int(_nlegs[-1]) + 1)) if _nlegs and int(_nlegs[-1]) > 1 else []   # LEGS in lt.exe.resp; per-leg files .1 .. .N
