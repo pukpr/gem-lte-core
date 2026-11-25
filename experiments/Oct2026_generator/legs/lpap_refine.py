@@ -524,8 +524,8 @@ def refine_per_leg(l, F_cur, leg_step, leg_lam, max_nfev=12):
     min_lt = float(leg_opt(l.suf, "MIN_LT", "0.01")) * 1.0001
     for i_k, (kind, _) in enumerate(keys):
         if kind == "ltep":
-            if z0[i_k] >= 0.0: lo[i_k] = max(lo[i_k], min_lt); hi[i_k] = max(hi[i_k], lo[i_k] + 1e-6)
-            else: hi[i_k] = min(hi[i_k], -min_lt); lo[i_k] = min(lo[i_k], hi[i_k] - 1e-6)
+            if z0[i_k] >= 0.0: lo[i_k] = max(lo[i_k], min(min_lt, z0[i_k])); hi[i_k] = max(hi[i_k], lo[i_k] + 1e-6)
+            else: hi[i_k] = min(hi[i_k], max(-min_lt, z0[i_k])); lo[i_k] = min(lo[i_k], hi[i_k] - 1e-6)
     d_sc = l.data[l.sc]; d_std = (d_sc - d_sc.mean()) / d_sc.std(); inv_n = 1.0 / np.sqrt(2 * len(d_sc))
     cc0 = l.cc_of(F_cur); snap0 = l.snapshot()
     def lresid(z):

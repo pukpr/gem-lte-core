@@ -80,3 +80,19 @@ Starting from `DLOD_REF=FALSE` (`dLOD = 1.0000`) with `--homotopy --full --lam 0
   - `after round 4`: mean **`0.7528`** train / `+0.0686` held-out (`NAO 0.650`, `NINO4 0.759`, `AMO 0.795`, `PDO 0.767`, `IODE 0.741`, `TNA 0.804`, `dLOD 0.9781`)
 
 **Generalization note**: On cold starts, held-out CC peaks right after `homotopy` / `round 1`, while additional rounds at low `--lam 0.3` push training CC higher (e.g., Baltic to `0.693`) at the expense of held-out overfitting. For best generalization, use `--lam 0.5–1.0` and stop after `1–2` rounds (or use `--accept validate` with `VALIDATE_START`).
+
+### 3. Hybrid Basin-Hopping (`basin_hop.py`) on 7-Leg `7indices` (`NAO, Baltic, AMO, TNA, NINO4, PDO, IODE`)
+For longer / overnight runs, `basin_hop.py` alternates **Phase A** (`LOCKT=TRUE` non-LPAP exploration, with optional `--perturb` kicks on stalls) and **Phase B** (`lpap_refine.py --full` deterministic polish), checkpointing best parameters after every accepted cycle:
+```bash
+python3 -u ../basin_hop.py . --cycles 12 --nonlpap-sec 180 --threads 14 --lam 1.0 --rounds 3 --iters 24 --perturb 0.03 --min-dlod 0.98
+```
+
+| Stage (`7indices`, `LEGS 7`, `STRICT_IDATE TRUE`, `IDATE 1880.0`) | Mean train | dLOD | NAO | Baltic | AMO | TNA | NINO4 | PDO | IODE |
+|---|---|---|---|---|---|---|---|---|---|
+| Seed (`atlantic_family` + `6indices` per-leg) | `0.7040` | `0.9818` | `0.828` | `0.622` | `0.773` | `0.822` | `0.560` | `0.596` | `0.725` |
+| Initial `lpap_refine.py --full --lam 1.0` | `0.7401` | `0.9828` | `0.820` | `0.575` | `0.769` | `0.815` | `0.688` | `0.752` | `0.760` |
+| `basin_hop.py` (3 + 12 cycles, `LOCKT=TRUE` + `--full`) | `0.7518` | `0.9824` | `0.816` | `0.591` | `0.767` | `0.820` | `0.714` | `0.779` | `0.775` |
+| `--lam 0.5` polish + 20 min joint `LOCKT=FALSE` + `--full --lam 1.0` | **`0.7531`** | **`0.9820`** | `0.816` | `0.592` | **`0.773`** | **`0.820`** | `0.713` | **`0.781`** | **`0.776`** |
+
+*(Pre-Bessel manifold agreement remains `1.00000` across all 7 legs; 2000–05 CCs include `NINO4 +0.704`, `TNA +0.609`, `PDO +0.579`, `Baltic +0.541`.)*
+

@@ -41,3 +41,4 @@ lte_run.bat
 !lt.exe.p.[1-9]
 !experiments/Oct2026_generator/legs/lt.exe
 refine_work/
+basin_hop_work/
