@@ -11,6 +11,7 @@
 
 with System.Task_Info;
 with GEM.LTE.Primitives.Solution;
+with GEM.LTE.Primitives.Refine;
 with GEM.LTE.Primitives.Shared;
 with Text_IO;
 with GEM.dLOD;
@@ -188,6 +189,12 @@ begin
               ("Seeding lpap from wisdom " & File & ":" & Seeded'Img &
                " lines seeded," & Skipped'Img & " rows left as loaded");
          end;
+      end if;
+
+      --  REFINE=TRUE: run deterministic in-process GN/homotopy refinement and exit
+      if GEM.Getenv ("REFINE", False) then
+         GEM.LTE.Primitives.Refine.Run (D);
+         return;
       end if;
 
       --  Store initialized parameters for worker tasks to access
