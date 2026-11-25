@@ -7,6 +7,7 @@ with Ada.Numerics.Long_Elementary_Functions;
 with Ada.Strings.Fixed;
 with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
+with System.Task_Info;
 
 package body GEM.LTE.Primitives.Refine is
 
@@ -726,24 +727,78 @@ package body GEM.LTE.Primitives.Refine is
 
             Obj0, Obj1 : Long_Float;
             Th_Try : Real_Vector (1 .. NP);
+            N_Workers : constant Positive :=
+              Integer'Max
+                (1, Integer'Min
+                   (GEM.Getenv ("NUMBER_OF_PROCESSORS",
+                                System.Task_Info.Number_Of_Processors),
+                    NF));
          begin
             Fill_Resid (Th, R0, Obj0);
             for It in 1 .. N_Iter loop
-               --  Build Jacobian JR (Tot_R x NF) via fast forward FD in surrogate
-               for C in 1 .. NF loop
+               --  Build Jacobian JR (Tot_R x NF) in parallel across N_Workers Ada tasks
+               if N_Workers = 1 then
+                  for C in 1 .. NF loop
+                     declare
+                        J_Idx : constant Integer := Free_Idx (C);
+                        H     : constant Long_Float := 1.0e-5 * X_Scl (J_Idx);
+                        Dummy : Long_Float;
+                     begin
+                        Th_Try := Th;
+                        Th_Try (J_Idx) := Th (J_Idx) + H;
+                        Fill_Resid (Th_Try, R1, Dummy);
+                        for Row in 1 .. Tot_R loop
+                           JR (Row, C) := (R1 (Row) - R0 (Row)) / H;
+                        end loop;
+                     end;
+                  end loop;
+               else
                   declare
-                     J_Idx : constant Integer := Free_Idx (C);
-                     H     : constant Long_Float := 1.0e-5 * X_Scl (J_Idx);
-                     Dummy : Long_Float;
+                     task type JR_Worker is
+                        pragma Storage_Size (8_388_608);
+                        entry Start (Lo, Hi : in Integer);
+                     end JR_Worker;
+
+                     task body JR_Worker is
+                        C_Lo, C_Hi : Integer;
+                        Th_Loc : Real_Vector (1 .. NP);
+                        R_Loc  : Real_Vector (1 .. Tot_R);
+                        Dummy  : Long_Float;
+                     begin
+                        accept Start (Lo, Hi : in Integer) do
+                           C_Lo := Lo;
+                           C_Hi := Hi;
+                        end Start;
+                        for C in C_Lo .. C_Hi loop
+                           declare
+                              J_Idx : constant Integer := Free_Idx (C);
+                              H     : constant Long_Float := 1.0e-5 * X_Scl (J_Idx);
+                           begin
+                              Th_Loc := Th;
+                              Th_Loc (J_Idx) := Th (J_Idx) + H;
+                              Fill_Resid (Th_Loc, R_Loc, Dummy);
+                              for Row in 1 .. Tot_R loop
+                                 JR (Row, C) := (R_Loc (Row) - R0 (Row)) / H;
+                              end loop;
+                           end;
+                        end loop;
+                     end JR_Worker;
+
+                     Workers : array (1 .. N_Workers) of JR_Worker;
+                     Chunk   : constant Integer := (NF + N_Workers - 1) / N_Workers;
+                     Lo_C, Hi_C : Integer;
                   begin
-                     Th_Try := Th;
-                     Th_Try (J_Idx) := Th (J_Idx) + H;
-                     Fill_Resid (Th_Try, R1, Dummy);
-                     for Row in 1 .. Tot_R loop
-                        JR (Row, C) := (R1 (Row) - R0 (Row)) / H;
+                     for W in 1 .. N_Workers loop
+                        Lo_C := (W - 1) * Chunk + 1;
+                        Hi_C := Integer'Min (W * Chunk, NF);
+                        if Lo_C <= NF then
+                           Workers (W).Start (Lo_C, Hi_C);
+                        else
+                           Workers (W).Start (1, 0);
+                        end if;
                      end loop;
                   end;
-               end loop;
+               end if;
 
                --  Normal equations: (JR^T JR + Prior_H + Mu * diag) d = -(JR^T R0 + Prior_g)
                declare

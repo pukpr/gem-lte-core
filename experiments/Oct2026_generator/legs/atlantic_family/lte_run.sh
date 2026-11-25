@@ -24,7 +24,26 @@
 #   --threads N                  Worker threads (default: 16)
 #   -h, --help                   Show this help
 set -euo pipefail
-cd "$(dirname "$0")"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# Stay in the caller's working directory so BOTH `./lte_run.sh` and `../lte_run.sh` work!
+
+# Locate lt.exe, dlod3.dat, and leg_scores2.py relative to SCRIPT_DIR or PWD/..
+find_asset() {
+  local name="$1"; shift
+  for cand in "$@"; do
+    if [[ -e "$cand" ]]; then echo "$cand"; return 0; fi
+  done
+  return 1
+}
+
+LT_EXE="$(find_asset lt.exe "$SCRIPT_DIR/lt.exe" "../lt.exe" "$SCRIPT_DIR/../../Feb2026/enso_opt" "$SCRIPT_DIR/../../../Feb2026/enso_opt" || true)"
+DLOD_PATH="$(find_asset dlod3.dat "$SCRIPT_DIR/dlod3.dat" "../dlod3.dat" "$SCRIPT_DIR/../../Feb2026/dlod3.dat" "$SCRIPT_DIR/../../../Feb2026/dlod3.dat" || true)"
+SCORES_PY="$(find_asset leg_scores2.py "$SCRIPT_DIR/leg_scores2.py" "../leg_scores2.py" || true)"
+
+if [[ -z "$LT_EXE" || ! -x "$LT_EXE" ]]; then
+  echo "ERROR: could not find executable lt.exe / enso_opt near $SCRIPT_DIR" >&2
+  exit 1
+fi
 
 # Defaults (preserve env overrides if set)
 T_START="${TRAIN_START:-1960}"
@@ -40,6 +59,7 @@ R_ITERS="${REFINE_ITERS:-8}"
 TOUT="${TIMEOUT:-18000}"
 NPROC="${NUMBER_OF_PROCESSORS:-16}"
 T_ONLY="${TEST_ONLY:-FALSE}"
+SEED_DIR="${SEED_DIR:-$SCRIPT_DIR/atlantic_family}"
 LEGS_FILES=()
 POS_ARGS=()
 
@@ -65,6 +85,7 @@ while [[ $# -gt 0 ]]; do
     --test)                T_ONLY=TRUE; shift ;;
     --timeout)             TOUT="$2"; shift 2 ;;
     --threads)             NPROC="$2"; shift 2 ;;
+    --seed)                SEED_DIR="$2"; shift 2 ;;
     -h|--help)
       sed -n '2,24p' "$0" | sed 's/^# \{0,1\}//'
       exit 0
@@ -96,9 +117,16 @@ leg_label() {
   esac
 }
 
-# If --legs was provided, auto-generate lt.exe.resp.1..N and update LEGS in lt.exe.resp
+# If --legs was provided, auto-populate missing .dat / resp / .p files, write lt.exe.resp.1..N, and update LEGS
 if [[ ${#LEGS_FILES[@]} -gt 0 ]]; then
   N_NEW=${#LEGS_FILES[@]}
+  # Auto-bootstrap lt.exe.resp and lt.exe.p if running in a brand-new empty directory
+  if [[ ! -f lt.exe.resp && -f "$SEED_DIR/lt.exe.resp" ]]; then
+    cp "$SEED_DIR/lt.exe.resp" lt.exe.resp
+  fi
+  if [[ ! -f lt.exe.p && -f "$SEED_DIR/lt.exe.p" ]]; then
+    cp "$SEED_DIR/lt.exe.p" lt.exe.p
+  fi
   # Remove stale lt.exe.resp.<k> beyond N_NEW
   for old in lt.exe.resp.[0-9]*; do
     [[ -e "$old" ]] || continue
@@ -109,7 +137,25 @@ if [[ ${#LEGS_FILES[@]} -gt 0 ]]; then
   done
   for i in "${!LEGS_FILES[@]}"; do
     k=$((i + 1))
-    printf "CLIMATE_INDEX                  %s\n" "${LEGS_FILES[$i]}" > "lt.exe.resp.${k}"
+    dat_f="${LEGS_FILES[$i]}"
+    # Auto-link .dat file from known sibling directories if not present in PWD
+    if [[ ! -e "$dat_f" ]]; then
+      for sdir in "$SEED_DIR" "$SCRIPT_DIR" "$SCRIPT_DIR/atlantic_family" "$SCRIPT_DIR/indopacific_family" "$SCRIPT_DIR/7indices" "$SCRIPT_DIR/6indices" "$SCRIPT_DIR/nao_family/data"; do
+        if [[ -e "$sdir/$dat_f" ]]; then
+          ln -sf "$sdir/$dat_f" "$dat_f"
+          break
+        fi
+      done
+    fi
+    # Auto-seed lt.exe.p.<k> if absent
+    if [[ ! -f "lt.exe.p.${k}" ]]; then
+      if [[ -f "$SEED_DIR/lt.exe.p.${k}" ]]; then
+        cp "$SEED_DIR/lt.exe.p.${k}" "lt.exe.p.${k}"
+      elif [[ -f "$SEED_DIR/lt.exe.p.1" ]]; then
+        cp "$SEED_DIR/lt.exe.p.1" "lt.exe.p.${k}"
+      fi
+    fi
+    printf "CLIMATE_INDEX                  %s\n" "$dat_f" > "lt.exe.resp.${k}"
   done
   if [[ -f lt.exe.resp ]]; then
     if grep -qE '^LEGS[[:space:]]+' lt.exe.resp; then
@@ -134,26 +180,25 @@ for k in 1 2 3 4 5 6 7 8 9; do
 done
 
 export DLOD_REF="$DLOD_MODE" EXCLUDE="$EXC" TRAIN_START="$T_START" TRAIN_END="$T_END"
+if [[ -n "$DLOD_PATH" ]]; then export DLOD_DAT="$DLOD_PATH"; fi
 export F9="${F9:-1}" LOCKA="${LOCKA:-FALSE}" LOCKT="${LOCKT:-FALSE}" METRIC="${METRIC:-CC}" TREND="${TREND:-true}" ACCEL="${ACCEL:-TRUE}"
 export MANIFOLD_PRE="${MANIFOLD_PRE:-TRUE}"
 export TIMEOUT="$TOUT" NUMBER_OF_PROCESSORS="$NPROC" TEST_ONLY="$T_ONLY"
 
 ulimit -s 65536 2>/dev/null || true
-[ -x ../lt.exe ] && [ "$(wc -c < ../lt.exe)" -gt 1024 ] || ln -sf ../../Feb2026/enso_opt ../lt.exe 2>/dev/null || cp -f ../../../Feb2026/enso_opt ../lt.exe
-[ -s ../dlod3.dat ] && [ "$(wc -c < ../dlod3.dat)" -gt 1024 ] || ln -sf ../../Feb2026/dlod3.dat ../dlod3.dat 2>/dev/null || cp -f ../../../Feb2026/dlod3.dat ../dlod3.dat
 
 if [[ "${RUN_REFINE^^}" == "TRUE" || "${RUN_REFINE}" == "1" ]]; then
   export REFINE=TRUE REFINE_HOMOTOPY="$RUN_HOMOTOPY" REFINE_LAM="$R_LAM" REFINE_HOMOTOPY_LAM="$R_HLAM"
   export REFINE_ROUNDS="$R_ROUNDS" REFINE_ITERS="$R_ITERS" REFINE_APPLY="${REFINE_APPLY:-TRUE}"
-  ../lt.exe
+  "$LT_EXE"
   # Follow up with TEST_ONLY=TRUE to write lte_results.*.csv and score held-out window
   export REFINE=FALSE TEST_ONLY=TRUE DLOD_REF=TRUE
-  ../lt.exe
+  "$LT_EXE"
 else
   export REFINE=FALSE
-  ../lt.exe
+  "$LT_EXE"
 fi
 
-if [[ ${#LABELS[@]} -gt 0 && -f ../leg_scores2.py ]]; then
-  python3 ../leg_scores2.py . "${LABELS[@]}" --held "$T_START" "$T_END" --post
+if [[ ${#LABELS[@]} -gt 0 && -n "$SCORES_PY" ]]; then
+  python3 "$SCORES_PY" . "${LABELS[@]}" --held "$T_START" "$T_END" --post
 fi
