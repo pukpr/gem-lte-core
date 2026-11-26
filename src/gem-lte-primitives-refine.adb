@@ -356,6 +356,7 @@ package body GEM.LTE.Primitives.Refine is
       Max_Swaps    : constant Natural    := GEM.Getenv ("REFINE_HARM_MAX_SWAPS", 3);
       Min_Gain     : constant Long_Float := GEM.Getenv ("REFINE_HARM_MIN_GAIN", 1.0e-4);
       Do_Apply     : constant Boolean    := GEM.Getenv ("REFINE_APPLY", True);
+      Anchor_Seed  : constant Boolean    := GEM.Getenv ("REFINE_ANCHOR_SEED", False);
 
       F9_N         : constant Integer    := GEM.Getenv ("F9", 0);
       Exclude_On   : constant Boolean    := GEM.Getenv ("EXCLUDE", False);
@@ -717,7 +718,8 @@ package body GEM.LTE.Primitives.Refine is
                   end;
                end loop;
                declare
-                  Dth  : constant Real_Vector := Th_In - Th_Ref;
+                  Dth  : constant Real_Vector :=
+                    Th_In - (if Anchor_Seed then Th_0 else Th_Ref);
                   Prior : constant Long_Float :=
                     Cur_L * (Dth * (Phi_G * Dth));
                begin
@@ -804,7 +806,8 @@ package body GEM.LTE.Primitives.Refine is
                declare
                   H_Mat : Real_Matrix (1 .. NF, 1 .. NF) := (others => (others => 0.0));
                   Grad  : Real_Vector (1 .. NF) := (others => 0.0);
-                  Dth_R : constant Real_Vector := Th - Th_Ref;
+                  Dth_R : constant Real_Vector :=
+                    Th - (if Anchor_Seed then Th_0 else Th_Ref);
                   Pg_Full : constant Real_Vector := Phi_G * Dth_R;
                   P_Scale : constant Long_Float := Cur_L;
                   Step_V  : Real_Vector (1 .. NF);
@@ -1104,6 +1107,316 @@ package body GEM.LTE.Primitives.Refine is
             Set_Vec (X_Cur);
          end;
       end Block_B_Leg;
+
+      --  Block B (shared mode, LEG_P = Own_None): jointly optimize shared
+      --  (ImpA, ImpB, BesK, Offs, BG, LT, IR) across all N_Legs legs
+      procedure Block_B_Shared
+        (Th_Cur : in Real_Vector;
+         L_Step : in Long_Float)
+      is
+         type P_Kind is (K_ImpA, K_ImpB, K_BesK, K_Offs, K_BG, K_LT, K_IR);
+         type P_Key is record
+            Kind : P_Kind;
+            Idx  : Integer := 0;
+         end record;
+         Keys : array (1 .. 16) of P_Key;
+         NK   : Integer := 0;
+         Tot_R : Integer := 0;
+
+         procedure Add_Key (K : P_Kind; I : Integer := 0) is
+         begin
+            NK := NK + 1;
+            Keys (NK) := (Kind => K, Idx => I);
+         end Add_Key;
+
+         function Get_Vec return Real_Vector is
+            V : Real_Vector (1 .. NK);
+            L : Leg_State renames Legs (1);
+         begin
+            for I in 1 .. NK loop
+               case Keys (I).Kind is
+                  when K_ImpA => V (I) := L.ImpA;
+                  when K_ImpB => V (I) := L.ImpB;
+                  when K_BesK => V (I) := L.BesK;
+                  when K_Offs => V (I) := L.Offs;
+                  when K_BG   => V (I) := L.BG;
+                  when K_LT   => V (I) := L.LT (Keys (I).Idx);
+                  when K_IR   => V (I) := L.IR;
+               end case;
+            end loop;
+            return V;
+         end Get_Vec;
+
+         procedure Set_Vec (V : in Real_Vector) is
+         begin
+            for K in 1 .. N_Legs loop
+               declare
+                  L : Leg_State renames Legs (K);
+               begin
+                  for I in 1 .. NK loop
+                     case Keys (I).Kind is
+                        when K_ImpA => L.ImpA := V (I);
+                        when K_ImpB => L.ImpB := V (I);
+                        when K_BesK => L.BesK := V (I);
+                        when K_Offs => L.Offs := V (I);
+                        when K_BG   => L.BG   := V (I);
+                        when K_LT   => L.LT (Keys (I).Idx) := V (I);
+                        when K_IR   => L.IR   := V (I);
+                     end case;
+                  end loop;
+               end;
+            end loop;
+         end Set_Vec;
+      begin
+         for K in 1 .. N_Legs loop
+            Tot_R := Tot_R + Legs (K).N_Train;
+         end loop;
+         Add_Key (K_ImpA);
+         Add_Key (K_ImpB);
+         Add_Key (K_BesK);
+         Add_Key (K_Offs);
+         Add_Key (K_BG);
+         for J in 1 .. Legs (1).NM loop
+            if abs Legs (1).LT (J) > 0.0 then
+               Add_Key (K_LT, J);
+            end if;
+         end loop;
+         Add_Key (K_IR);
+
+         declare
+            X0  : Real_Vector := Get_Vec;
+            X_S : Real_Vector (1 .. NK);
+            R0  : Real_Vector (1 .. Tot_R);
+            R1  : Real_Vector (1 .. Tot_R);
+            JR  : Real_Matrix (1 .. Tot_R, 1 .. NK);
+            C0, C1 : Long_Float;
+            Mu  : Long_Float := 1.0e-2;
+            F_Arr : array (1 .. N_Legs) of Vec_Acc;
+
+            procedure Fill_R (X_In : in Real_Vector; Res : out Real_Vector; C_Out : out Long_Float) is
+               Pos    : Integer := 0;
+               Sum_CC : Long_Float := 0.0;
+            begin
+               Set_Vec (X_In);
+               for K in 1 .. N_Legs loop
+                  declare
+                     L : Leg_State renames Legs (K);
+                     M_Buf : Real_Vector (1 .. L.N);
+                     Ck : Long_Float;
+                     Cnt, Sy, Sd, My, Md, Vy, Vd : Long_Float := 0.0;
+                     W : constant Long_Float :=
+                       1.0 / Sqrt (2.0 * Long_Float (L.N_Train * N_Legs));
+                  begin
+                     Eval_Leg (L, F_Arr (K).all, M_Buf, Ck);
+                     Sum_CC := Sum_CC + Ck;
+                     for I in 1 .. L.N loop
+                        if L.Mask (I) > 0.5 then
+                           Cnt := Cnt + 1.0; Sy := Sy + M_Buf (I); Sd := Sd + L.Data (I);
+                        end if;
+                     end loop;
+                     My := Sy / Cnt; Md := Sd / Cnt;
+                     for I in 1 .. L.N loop
+                        if L.Mask (I) > 0.5 then
+                           Vy := Vy + (M_Buf (I) - My) ** 2;
+                           Vd := Vd + (L.Data (I) - Md) ** 2;
+                        end if;
+                     end loop;
+                     declare
+                        Sy_S : constant Long_Float := Long_Float'Max (Sqrt (Vy / Cnt), 1.0e-12);
+                        Sd_S : constant Long_Float := Long_Float'Max (Sqrt (Vd / Cnt), 1.0e-12);
+                     begin
+                        for I in 1 .. L.N loop
+                           if L.Mask (I) > 0.5 then
+                              Pos := Pos + 1;
+                              Res (Pos) := ((M_Buf (I) - My) / Sy_S - (L.Data (I) - Md) / Sd_S) * W;
+                           end if;
+                        end loop;
+                     end;
+                  end;
+               end loop;
+               C_Out := Sum_CC / Long_Float (N_Legs);
+            end Fill_R;
+
+            X_Cur : Real_Vector := X0;
+            X_Try : Real_Vector (1 .. NK);
+         begin
+            for K in 1 .. N_Legs loop
+               F_Arr (K) := new Real_Vector'(Legs (K).F_Zero.all + Legs (K).J.all * Th_Cur);
+            end loop;
+            for I in 1 .. NK loop
+               X_S (I) := Long_Float'Max (abs X0 (I), 0.05);
+            end loop;
+            Fill_R (X_Cur, R0, C0);
+
+            for It in 1 .. 6 loop
+               for C in 1 .. NK loop
+                  declare
+                     H : constant Long_Float := 1.0e-5 * X_S (C);
+                     D_C : Long_Float;
+                  begin
+                     X_Try := X_Cur;
+                     X_Try (C) := X_Cur (C) + H;
+                     Fill_R (X_Try, R1, D_C);
+                     for Row in 1 .. Tot_R loop
+                        JR (Row, C) := (R1 (Row) - R0 (Row)) / H;
+                     end loop;
+                  end;
+               end loop;
+
+               declare
+                  H_Mat : Real_Matrix (1 .. NK, 1 .. NK) := (others => (others => 0.0));
+                  Grad  : Real_Vector (1 .. NK) := (others => 0.0);
+                  Step_V : Real_Vector (1 .. NK);
+                  Accepted : Boolean := False;
+               begin
+                  for C1_I in 1 .. NK loop
+                     for Row in 1 .. Tot_R loop
+                        Grad (C1_I) := Grad (C1_I) + JR (Row, C1_I) * R0 (Row);
+                     end loop;
+                     Grad (C1_I) := Grad (C1_I) + Leg_Lam * (X_Cur (C1_I) - X0 (C1_I)) / (X_S (C1_I) ** 2);
+                     for C2_I in C1_I .. NK loop
+                        declare
+                           S_H : Long_Float := 0.0;
+                        begin
+                           for Row in 1 .. Tot_R loop
+                              S_H := S_H + JR (Row, C1_I) * JR (Row, C2_I);
+                           end loop;
+                           H_Mat (C1_I, C2_I) := S_H;
+                        end;
+                     end loop;
+                     H_Mat (C1_I, C1_I) := H_Mat (C1_I, C1_I) + Leg_Lam / (X_S (C1_I) ** 2);
+                  end loop;
+                  for C1_I in 1 .. NK loop
+                     for C2_I in 1 .. C1_I - 1 loop
+                        H_Mat (C1_I, C2_I) := H_Mat (C2_I, C1_I);
+                     end loop;
+                  end loop;
+
+                  for Try in 1 .. 4 loop
+                     declare
+                        H_Damp : Real_Matrix := H_Mat;
+                     begin
+                        for C in 1 .. NK loop
+                           H_Damp (C, C) := H_Mat (C, C) + Mu * Long_Float'Max (H_Mat (C, C), 1.0e-6);
+                        end loop;
+                        Step_V := Solve_Normal (H_Damp, -Grad, Ridge => 1.0e-12);
+                     end;
+                     X_Try := X_Cur;
+                     for C in 1 .. NK loop
+                        declare
+                           Lim : constant Long_Float := L_Step * X_S (C);
+                           Dv  : Long_Float := Step_V (C);
+                           Val : Long_Float;
+                        begin
+                           if Dv > Lim then Dv := Lim;
+                           elsif Dv < -Lim then Dv := -Lim;
+                           end if;
+                           Val := X_Cur (C) + Dv;
+                           if Keys (C).Kind = K_LT then
+                              if X0 (C) > 0.0 and then Val < Min_LT then
+                                 Val := Min_LT;
+                              elsif X0 (C) < 0.0 and then Val > -Min_LT then
+                                 Val := -Min_LT;
+                              end if;
+                           elsif Keys (C).Kind = K_IR then
+                              if Val < -0.95 then Val := -0.95;
+                              elsif Val > 0.95 then Val := 0.95;
+                              end if;
+                           end if;
+                           X_Try (C) := Val;
+                        end;
+                     end loop;
+
+                     Fill_R (X_Try, R1, C1);
+                     if C1 > C0 + 1.0e-6 then
+                        X_Cur := X_Try;
+                        R0 := R1;
+                        C0 := C1;
+                        Mu := Long_Float'Max (Mu * 0.4, 1.0e-5);
+                        Accepted := True;
+                        exit;
+                     else
+                        Mu := Long_Float'Min (Mu * 4.0, 1.0e4);
+                     end if;
+                  end loop;
+
+                  exit when not Accepted;
+               end;
+            end loop;
+
+            Set_Vec (X_Cur);
+         end;
+      end Block_B_Shared;
+
+      --  Block C (shared mode, LEG_P = Own_None): greedy 1-swap harmonic
+      --  screening optimizing mean CC across all N_Legs legs
+      procedure Block_C_Harm_Shared (Th_Cur : in Real_Vector) is
+         F_Arr : array (1 .. N_Legs) of Vec_Acc;
+         Base_CC, Cand_CC, Best_CC : Long_Float;
+         Best_Slot, Best_H : Integer;
+
+         function Eval_Shared return Long_Float is
+            S : Long_Float := 0.0;
+         begin
+            for K in 1 .. N_Legs loop
+               declare
+                  M_Buf : Real_Vector (1 .. Legs (K).N);
+                  Ck : Long_Float;
+               begin
+                  Eval_Leg (Legs (K), F_Arr (K).all, M_Buf, Ck);
+                  S := S + Ck;
+               end;
+            end loop;
+            return S / Long_Float (N_Legs);
+         end Eval_Shared;
+      begin
+         for K in 1 .. N_Legs loop
+            F_Arr (K) := new Real_Vector'(Legs (K).F_Zero.all + Legs (K).J.all * Th_Cur);
+         end loop;
+         Base_CC := Eval_Shared;
+         for Swap in 1 .. Max_Swaps loop
+            Best_CC := Base_CC;
+            Best_Slot := 0;
+            Best_H := 0;
+            for Slot in 1 .. Legs (1).NH loop
+               declare
+                  Old_H : constant Integer := Legs (1).Harm (Slot);
+               begin
+                  for H in 2 .. Max_H loop
+                     declare
+                        Used : Boolean := False;
+                     begin
+                        for J in 1 .. Legs (1).NH loop
+                           if Legs (1).Harm (J) = H then
+                              Used := True;
+                              exit;
+                           end if;
+                        end loop;
+                        if not Used then
+                           for K in 1 .. N_Legs loop
+                              Legs (K).Harm (Slot) := H;
+                           end loop;
+                           Cand_CC := Eval_Shared;
+                           if Cand_CC > Best_CC + Min_Gain then
+                              Best_CC := Cand_CC;
+                              Best_Slot := Slot;
+                              Best_H := H;
+                           end if;
+                        end if;
+                     end;
+                  end loop;
+                  for K in 1 .. N_Legs loop
+                     Legs (K).Harm (Slot) := Old_H;
+                  end loop;
+               end;
+            end loop;
+            exit when Best_Slot = 0;
+            for K in 1 .. N_Legs loop
+               Legs (K).Harm (Best_Slot) := Best_H;
+            end loop;
+            Base_CC := Best_CC;
+         end loop;
+      end Block_C_Harm_Shared;
 
       --  Block C: greedy 1-swap harmonic screening on Leg L_Idx
       procedure Block_C_Harm
@@ -1421,12 +1734,16 @@ package body GEM.LTE.Primitives.Refine is
          end;
       end if;
 
-      --  4. Alternating Block C (harm) + Block A (lpap) + Block B (per-leg)
+      --  4. Alternating Block C (harm) + Block A (lpap) + Block B (per-leg / shared)
       for Rnd in 1 .. Rounds loop
          if Do_Harm then
-            for K in 1 .. N_Legs loop
-               Block_C_Harm (K, Th_Best);
-            end loop;
+            if Multi_Leg and then Leg_P = Shared.Own_None then
+               Block_C_Harm_Shared (Th_Best);
+            else
+               for K in 1 .. N_Legs loop
+                  Block_C_Harm (K, Th_Best);
+               end loop;
+            end if;
          end if;
 
          declare
@@ -1434,9 +1751,13 @@ package body GEM.LTE.Primitives.Refine is
          begin
             Block_A_GN (Th_Best, Lam, Step_Cur, Iters);
             if Do_Per_Leg then
-               for K in 1 .. N_Legs loop
-                  Block_B_Leg (K, Th_Best, LStep_Cur);
-               end loop;
+               if Multi_Leg and then Leg_P = Shared.Own_None then
+                  Block_B_Shared (Th_Best, LStep_Cur);
+               else
+                  for K in 1 .. N_Legs loop
+                     Block_B_Leg (K, Th_Best, LStep_Cur);
+                  end loop;
+               end if;
             end if;
             Mean1 := Eval_Mean_CC (Th_Best);
             if Mean1 > Pre_M then
@@ -1494,7 +1815,7 @@ package body GEM.LTE.Primitives.Refine is
          end if;
          Shared.Save (D);
 
-         if Multi_Leg then
+         if Multi_Leg and then Leg_P /= Shared.Own_None then
             for K in 1 .. N_Legs loop
                declare
                   L : Leg_State renames Legs (K);
