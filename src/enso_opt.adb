@@ -15,6 +15,7 @@ with GEM.LTE.Primitives.Refine;
 with GEM.LTE.Primitives.Shared;
 with Text_IO;
 with GEM.dLOD;
+with GEM.Tidal_Poly;
 with GNAT.OS_Lib;
 with Ada.Calendar;
 with Ada.Directories;
@@ -114,11 +115,25 @@ begin
 
       Text_IO.Put_Line (N'Img & " processors available, timeout=" & Cycle'Img);
 
+      --  For TIDES=POLY, set the polynomial basis periods BEFORE Shared.Load
+      --  so saved .p files match their polynomial triplets by period.
+      if GEM.Tidal_Poly.On then
+         for I in D.A.LP'Range loop
+            if I <= GEM.Tidal_Poly.Active_Count then
+               D.A.LP (I) := GEM.Tidal_Poly.Term_Period_Days (I);
+            else
+               D.A.LP (I) := 0.0;
+            end if;
+         end loop;
+      end if;
+
       --  Load previously saved parameters if available (warm start)
       GEM.LTE.Primitives.Shared.Load (D);
 
       --  Set the startup candidate periods before calibrating dLOD phases.
-      GEM.LTE.Year_Adjustment (D.B.Year, D.A.LP);
+      if not GEM.Tidal_Poly.On then
+         GEM.LTE.Year_Adjustment (D.B.Year, D.A.LP);
+      end if;
       AP := GEM.dLOD (dLOD_dat, D.B.Year);
 
       Text_IO.Put_Line ("YA=" & D.B.Year'Img);

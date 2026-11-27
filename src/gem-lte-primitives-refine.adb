@@ -8,6 +8,7 @@ with Ada.Strings.Fixed;
 with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 with System.Task_Info;
+with GEM.Tidal_Poly;
 
 package body GEM.LTE.Primitives.Refine is
 
@@ -96,9 +97,10 @@ package body GEM.LTE.Primitives.Refine is
       Strict_IDate : in Boolean;
       IDate        : in Long_Float;
       SPY          : in Long_Float;
-      Impulse_Only : in Boolean;
-      Imp_Mod12    : in Boolean;
-      Use_LagC     : in Boolean := True) return Real_Vector
+      Impulse_Only  : in Boolean;
+      Imp_Mod12     : in Boolean;
+      Impulse_Exact : in Boolean := False;
+      Use_LagC      : in Boolean := True) return Real_Vector
    is
       SPY_Int : constant Integer := Integer (SPY);
 
@@ -161,13 +163,57 @@ package body GEM.LTE.Primitives.Refine is
 
       function Impulse_Amplify is new Amplify (Impulse => Impulse);
 
+      function Exact_Template (T : Data_Pairs) return Data_Pairs is
+      begin
+         if not Impulse_Exact or else not Impulse_Only then
+            return T;
+         end if;
+         declare
+            R : Data_Pairs := T;
+            Tau : constant Long_Float :=
+              abs B.DelB - Long_Float'Floor (abs B.DelB);
+            F, D1, D2 : Long_Float;
+         begin
+            for I in T'Range loop
+               if Impulse (T (I).Date) /= 0.0 then
+                  F := T (I).Date - Long_Float'Floor (T (I).Date);
+                  D1 := Tau - F;
+                  D1 := D1 - Long_Float'Rounding (D1);
+                  D2 := Tau + 0.5 - F;
+                  D2 := D2 - Long_Float'Rounding (D2);
+                  if B.delC /= 0.0 then
+                     D1 := (if abs D1 <= abs D2 then D1 else D2);
+                     D2 := Tau + 0.25 - F;
+                     D2 := D2 - Long_Float'Rounding (D2 * 2.0) / 2.0;
+                  end if;
+                  R (I).Date := T (I).Date + (if abs D1 <= abs D2 then D1 else D2);
+               end if;
+            end loop;
+            return R;
+         end;
+      end Exact_Template;
+
+      procedure Restore_Dates (T : in out Data_Pairs; Orig : in Data_Pairs) is
+      begin
+         if not Impulse_Exact or else not Impulse_Only then
+            return;
+         end if;
+         for I in T'Range loop
+            T (I).Date := Orig (I).Date;
+         end loop;
+      end Restore_Dates;
+
+      Step_Scale : constant Long_Float := 12.0 / SPY;
+
       function Shape (Raw : Data_Pairs) return Data_Pairs is
       begin
          if B.mB = 0.0 then
             return Raw;
          end if;
          declare
-            R2 : constant Long_Float := Long_Float'Min (abs B.mB, 0.9999);
+            B_Abs : constant Long_Float := Long_Float'Min (abs B.mB, 0.9999);
+            R2 : constant Long_Float :=
+              (if SPY_Int = 12 then B_Abs else B_Abs ** Step_Scale);
             G  : Data_Pairs := Raw;
          begin
             G (G'First).Value := (1.0 - R2) * Raw (Raw'First).Value;
@@ -178,53 +224,61 @@ package body GEM.LTE.Primitives.Refine is
          end;
       end Shape;
 
-      Der   : constant Long_Float := 1.0 - B.mA;
-      Lag_C : constant Long_Float := (if Use_LagC then B.mP else 0.0);
+      Der   : constant Long_Float := 1.0 - B.mA * Step_Scale;
+      Lag_C : constant Long_Float := (if Use_LagC then B.mP * Step_Scale else 0.0);
       Out_F : Real_Vector (1 .. Template'Length);
    begin
       if Strict_IDate then
          declare
             Ext : constant Data_Pairs :=
               Extend_Backward (Template, IDate, SPY);
-            Tide : constant Data_Pairs :=
+            Tide : Data_Pairs :=
               Tide_Sum
-                (Template => Ext, Constituents => Constituents, Periods => LP,
+                (Template => Exact_Template (Ext), Constituents => Constituents, Periods => LP,
                  Ref_Time => 0.0, Scaling => 0.0,
                  Year_Len => Year_Length (B.Year), Integ => B.shiftT,
                  Lod => 0.0, Rho => B.rho, ZTau => B.ztau, ZDist => B.zdist,
                  ZTilt => B.ztilt, SsaA => B.ssaA, SsaP => B.ssaP);
-            Imp : constant Data_Pairs :=
-              Impulse_Amplify
-                (Raw => Tide, Offset => 0.0, Ramp => 0.0,
-                 Start => Ext (Ext'First).Date);
-            Ext_F : constant Data_Pairs :=
-              IIR (Raw => Shape (Imp), lagA => Der, lagC => Lag_C,
-                   iA => Init_Val, Start => IDate - 0.1 / SPY);
          begin
-            for I in Template'Range loop
-               Out_F (I - Template'First + 1) := Ext_F (I).Value;
-            end loop;
+            Restore_Dates (Tide, Ext);
+            declare
+               Imp : constant Data_Pairs :=
+                 Impulse_Amplify
+                   (Raw => Tide, Offset => 0.0, Ramp => 0.0,
+                    Start => Ext (Ext'First).Date);
+               Ext_F : constant Data_Pairs :=
+                 IIR (Raw => Shape (Imp), lagA => Der, lagC => Lag_C,
+                      iA => Init_Val, Start => IDate - 0.1 / SPY);
+            begin
+               for I in Template'Range loop
+                  Out_F (I - Template'First + 1) := Ext_F (I).Value;
+               end loop;
+            end;
          end;
       else
          declare
-            Tide : constant Data_Pairs :=
+            Tide : Data_Pairs :=
               Tide_Sum
-                (Template => Template, Constituents => Constituents,
+                (Template => Exact_Template (Template), Constituents => Constituents,
                  Periods => LP, Ref_Time => 0.0, Scaling => 0.0,
                  Year_Len => Year_Length (B.Year), Integ => B.shiftT,
                  Lod => 0.0, Rho => B.rho, ZTau => B.ztau, ZDist => B.zdist,
                  ZTilt => B.ztilt, SsaA => B.ssaA, SsaP => B.ssaP);
-            Imp : constant Data_Pairs :=
-              Impulse_Amplify
-                (Raw => Tide, Offset => 0.0, Ramp => 0.0,
-                 Start => Template (Template'First).Date);
-            F_Res : constant Data_Pairs :=
-              IIR (Raw => Shape (Imp), lagA => Der, lagC => Lag_C,
-                   iA => Init_Val, Start => IDate);
          begin
-            for I in Template'Range loop
-               Out_F (I - Template'First + 1) := F_Res (I).Value;
-            end loop;
+            Restore_Dates (Tide, Template);
+            declare
+               Imp : constant Data_Pairs :=
+                 Impulse_Amplify
+                   (Raw => Tide, Offset => 0.0, Ramp => 0.0,
+                    Start => Template (Template'First).Date);
+               F_Res : constant Data_Pairs :=
+                 IIR (Raw => Shape (Imp), lagA => Der, lagC => Lag_C,
+                      iA => Init_Val, Start => IDate);
+            begin
+               for I in Template'Range loop
+                  Out_F (I - Template'First + 1) := F_Res (I).Value;
+               end loop;
+            end;
          end;
       end if;
       return Out_F;
@@ -357,6 +411,41 @@ package body GEM.LTE.Primitives.Refine is
       Min_Gain     : constant Long_Float := GEM.Getenv ("REFINE_HARM_MIN_GAIN", 1.0e-4);
       Do_Apply     : constant Boolean    := GEM.Getenv ("REFINE_APPLY", True);
       Anchor_Seed  : constant Boolean    := GEM.Getenv ("REFINE_ANCHOR_SEED", False);
+      Tidal_Mask   : constant String     := GEM.Getenv ("REFINE_TIDAL_MASK", "ALL");
+
+      function In_Tidal_Mask (J : Integer) return Boolean is
+      begin
+         if GEM.Tidal_Poly.On then
+            return J <= GEM.Tidal_Poly.Active_Count;
+         elsif Tidal_Mask = "Z18" then
+            return J = 4 or else J = 5 or else J = 6 or else J = 7
+              or else J = 11 or else J = 20 or else J = 21
+              or else J = 33 or else J = 42;
+         elsif Tidal_Mask = "Z20" then
+            return J = 4 or else J = 5 or else J = 6 or else J = 7
+              or else J = 11 or else J = 20 or else J = 21
+              or else J = 33 or else J = 34 or else J = 42;
+         elsif Tidal_Mask = "Z30" then
+            return J = 1 or else J = 2 or else J = 4 or else J = 5
+              or else J = 6 or else J = 7 or else J = 11 or else J = 13
+              or else J = 16 or else J = 20 or else J = 21 or else J = 25
+              or else J = 33 or else J = 34 or else J = 42;
+         elsif Tidal_Mask = "F30" then
+            return J = 4 or else J = 5 or else J = 6 or else J = 7
+              or else J = 11 or else J = 20 or else J = 21
+              or else J = 33 or else J = 42
+              or else J = 44 or else J = 45 or else J = 49
+              or else J = 50 or else J = 51 or else J = 52;
+         elsif Tidal_Mask = "F32" then
+            return J = 4 or else J = 5 or else J = 6 or else J = 7
+              or else J = 11 or else J = 20 or else J = 21
+              or else J = 33 or else J = 34 or else J = 42
+              or else J = 44 or else J = 45 or else J = 49
+              or else J = 50 or else J = 51 or else J = 52;
+         else
+            return True;
+         end if;
+      end In_Tidal_Mask;
 
       F9_N         : constant Integer    := GEM.Getenv ("F9", 0);
       Exclude_On   : constant Boolean    := GEM.Getenv ("EXCLUDE", False);
@@ -365,13 +454,17 @@ package body GEM.LTE.Primitives.Refine is
       Strict_IDate : constant Boolean    := GEM.Getenv ("STRICT_IDATE", False);
       IDate        : constant Long_Float := GEM.Getenv ("IDATE", 1880.0);
       SPY          : constant Long_Float := GEM.Getenv ("SAMPLING", 12.0);
-      Impulse_Only : constant Boolean    := GEM.Getenv ("IMPULSE", True);
-      Imp_Mod12    : constant Boolean    := GEM.Getenv ("IMPULSE_MOD12", False);
-      Trend_On     : constant Boolean    := GEM.Getenv ("TREND", True);
-      Accel_On     : constant Boolean    := GEM.Getenv ("ACCEL", True);
-      Max_H        : constant Integer    := GEM.Getenv ("MAXH", 30);
-      IR_Lag       : constant Integer    := IR_Lag_Samples;
-      NM_Cfg       : constant Integer    := GEM.Getenv ("NM", 3);
+      Impulse_Only  : constant Boolean    := GEM.Getenv ("IMPULSE", True);
+      Imp_Mod12     : constant Boolean    := GEM.Getenv ("IMPULSE_MOD12", False);
+      Impulse_Exact : constant Boolean    := GEM.Getenv ("IMPULSE_EXACT", False);
+      IR_Side       : constant Integer    := GEM.Getenv ("IR_SIDE", 0);
+      IR_Base       : constant Integer    := GEM.Getenv ("IR_BASE", 121);
+      Uncompensated : constant Boolean    := GEM.Getenv ("UNCOMPENSATED", False);
+      Trend_On      : constant Boolean    := GEM.Getenv ("TREND", True);
+      Accel_On      : constant Boolean    := GEM.Getenv ("ACCEL", True);
+      Max_H         : constant Integer    := GEM.Getenv ("MAXH", 30);
+      IR_Lag_Env    : constant Integer    := GEM.Getenv ("IR_LAG", 0);
+      NM_Cfg        : constant Integer    := GEM.Getenv ("NM", 3);
 
       --  Count NH from response file's NH list (e.g. "1 1 1 1 1 1 1")
       function Count_NH return Integer is
@@ -411,6 +504,7 @@ package body GEM.LTE.Primitives.Refine is
          CW_Freq : Long_Float := 0.0;
          NM      : Integer := 3;
          NH      : Integer := 5;
+         IR_Lag  : Integer := 12;
          Acc_Ref : Long_Float := 1880.0;
          --  Per-leg continuous state (Block B)
          ImpA, ImpB, BesK, Offs, BG, BG2, IR : Long_Float := 0.0;
@@ -514,13 +608,38 @@ package body GEM.LTE.Primitives.Refine is
                XtY : Real_Vector (1 .. NC) := (others => 0.0);
                Y_Tgt : Real_Vector (1 .. N);
                Beta : Real_Vector (1 .. NC);
-               Lag : constant Integer := Integer'Max (1, IR_Lag);
+               Lag : constant Integer := Integer'Max (1, L.IR_Lag);
+               type Side_Mask is array (1 .. N) of Boolean;
+
+               function Compute_IR_Mask (V : in Real_Vector) return Side_Mask is
+                  R   : Side_Mask := (others => True);
+                  Cum : array (0 .. N) of Long_Float;
+                  H   : constant Integer := Integer'Max (1, IR_Base / 2);
+                  A, B_Idx : Integer;
+                  Mean_V : Long_Float;
+               begin
+                  if IR_Side = 0 or else Uncompensated then
+                     return R;
+                  end if;
+                  Cum (0) := 0.0;
+                  for I in 1 .. N loop
+                     Cum (I) := Cum (I - 1) + V (I);
+                  end loop;
+                  for I in 1 .. N loop
+                     A := Integer'Max (1, I - H);
+                     B_Idx := Integer'Min (N, I + H);
+                     Mean_V := (Cum (B_Idx) - Cum (A - 1)) / Long_Float (B_Idx - A + 1);
+                     R (I) := (if IR_Side > 0 then V (I) > Mean_V else V (I) < Mean_V);
+                  end loop;
+                  return R;
+               end Compute_IR_Mask;
+
+               Mask_D : constant Side_Mask := Compute_IR_Mask (L.Data.all);
             begin
-               --  Target y_ir = Data - IR * Data(t - lag) on training rows?
-               --  Wait: in lt.exe, Model = LTE(Fp) + IR * Data(t - lag), so
-               --  OLS regresses (Data - IR * Data_lag) on X!
                for I in 1 .. N loop
-                  if L.IR /= 0.0 and then I > Lag then
+                  if L.IR /= 0.0 and then not Uncompensated
+                    and then I > Lag and then Mask_D (I - Lag)
+                  then
                      Y_Tgt (I) := L.Data (I) + L.IR * L.Data (I - Lag);
                   else
                      Y_Tgt (I) := L.Data (I);
@@ -560,6 +679,15 @@ package body GEM.LTE.Primitives.Refine is
                      end;
                   end if;
                end loop;
+
+               --  Uncompensated=TRUE: fold lag-IR delay differential into basis columns
+               if Uncompensated and then L.IR /= 0.0 then
+                  for I in reverse Lag + 1 .. N loop
+                     for C1 in 1 .. NC loop
+                        X (I, C1) := X (I, C1) - L.IR * X (I - Lag, C1);
+                     end loop;
+                  end loop;
+               end if;
 
                --  Accumulate normal equations on training mask
                for I in 1 .. N loop
@@ -601,17 +729,25 @@ package body GEM.LTE.Primitives.Refine is
                         M_Raw (I) := S;
                      end;
                   end loop;
-                  for I in 1 .. N loop
-                     if L.IR /= 0.0 and then I > Lag then
-                        Model (I) := M_Raw (I) - L.IR * M_Raw (I - Lag);
-                     else
-                        Model (I) := M_Raw (I);
-                     end if;
-                  end loop;
+                  if Uncompensated or else L.IR = 0.0 then
+                     Model := M_Raw;
+                  else
+                     declare
+                        Mask_M : constant Side_Mask := Compute_IR_Mask (M_Raw);
+                     begin
+                        for I in 1 .. N loop
+                           if I > Lag and then Mask_M (I - Lag) then
+                              Model (I) := M_Raw (I) - L.IR * M_Raw (I - Lag);
+                           else
+                              Model (I) := M_Raw (I);
+                           end if;
+                        end loop;
+                     end;
+                  end if;
                end;
 
                if F9_N > 0 then
-                  Apply_F9 (Model, F9_N);
+                  Apply_F9_Exact (L.T.all, Model, F9_N);
                end if;
                CC_Tr := Pearson_CC (Model, L.Data.all, L.Mask.all);
             end;
@@ -1496,29 +1632,40 @@ package body GEM.LTE.Primitives.Refine is
             Sub_T (I) := DL_Raw (DL_Raw'First + (I - 1) * Stride);
          end loop;
          for J in 1 .. NLP loop
-            Unit_AP (J) := (Amplitude => 1.0, Phase => 0.0);
-            declare
-               T1 : constant Data_Pairs :=
-                 Tide_Sum (Template => Sub_T, Constituents => Unit_AP,
-                           Periods => D.A.LP, Ref_Time => 0.0, Scaling => 1.0,
-                           Cos_Phase => False, Year_Len => Y_Len);
-            begin
+            --  For TIDES=POLY, dLOD3.dat constrains sub-annual terms only;
+            --  multi-year nodal/perigee terms (Is_Long_Term) stay free of Phi_G.
+            if (not In_Tidal_Mask (J))
+              or else (GEM.Tidal_Poly.On and then GEM.Tidal_Poly.Is_Long_Term (J))
+            then
                for I in 1 .. N_Sub loop
-                  B_Mat (I, 2 * J - 1) := T1 (I).Value;
+                  B_Mat (I, 2 * J - 1) := 0.0;
+                  B_Mat (I, 2 * J)     := 0.0;
                end loop;
-            end;
-            Unit_AP (J) := (Amplitude => 1.0, Phase => Pi / 2.0);
-            declare
-               T2 : constant Data_Pairs :=
-                 Tide_Sum (Template => Sub_T, Constituents => Unit_AP,
-                           Periods => D.A.LP, Ref_Time => 0.0, Scaling => 1.0,
-                           Cos_Phase => False, Year_Len => Y_Len);
-            begin
-               for I in 1 .. N_Sub loop
-                  B_Mat (I, 2 * J) := T2 (I).Value;
-               end loop;
-            end;
-            Unit_AP (J) := (Amplitude => 0.0, Phase => 0.0);
+            else
+               Unit_AP (J) := (Amplitude => 1.0, Phase => 0.0);
+               declare
+                  T1 : constant Data_Pairs :=
+                    Tide_Sum (Template => Sub_T, Constituents => Unit_AP,
+                              Periods => D.A.LP, Ref_Time => 0.0, Scaling => 1.0,
+                              Cos_Phase => False, Year_Len => Y_Len);
+               begin
+                  for I in 1 .. N_Sub loop
+                     B_Mat (I, 2 * J - 1) := T1 (I).Value;
+                  end loop;
+               end;
+               Unit_AP (J) := (Amplitude => 1.0, Phase => Pi / 2.0);
+               declare
+                  T2 : constant Data_Pairs :=
+                    Tide_Sum (Template => Sub_T, Constituents => Unit_AP,
+                              Periods => D.A.LP, Ref_Time => 0.0, Scaling => 1.0,
+                              Cos_Phase => False, Year_Len => Y_Len);
+               begin
+                  for I in 1 .. N_Sub loop
+                     B_Mat (I, 2 * J) := T2 (I).Value;
+                  end loop;
+               end;
+               Unit_AP (J) := (Amplitude => 0.0, Phase => 0.0);
+            end if;
          end loop;
 
          --  Mean-center columns and form Phi_G = (1/N_Sub) * B^T B
@@ -1551,31 +1698,58 @@ package body GEM.LTE.Primitives.Refine is
       --  Normalize Phi_G so Th_Ref^T * Phi_G * Th_Ref = 1.0 (matches 1 - dLOD_CC scale)
       declare
          Ref_Var : constant Long_Float := Th_Ref * (Phi_G * Th_Ref);
+         N5_Ridge : constant Long_Float := GEM.Getenv ("POLY_N5_RIDGE", 0.05);
       begin
          if Ref_Var > 1.0e-24 then
             Phi_G := (1.0 / Ref_Var) * Phi_G;
+         end if;
+         --  Add light L2 ridge on multi-year N5 terms so they remain free of
+         --  the detrended dlod3.dat signal without overfitting short windows.
+         if GEM.Tidal_Poly.On and then N5_Ridge > 0.0 then
+            for J in 1 .. NLP loop
+               if In_Tidal_Mask (J) and then GEM.Tidal_Poly.Is_Long_Term (J) then
+                  Phi_G (2 * J - 1, 2 * J - 1) := N5_Ridge;
+                  Phi_G (2 * J,     2 * J)     := N5_Ridge;
+               end if;
+            end loop;
          end if;
       end;
       LPAP_To_Theta (D.B.LPAP, Th_0);
       Th_Best := Th_0;
 
       for J in 1 .. NLP loop
-         declare
-            Amp_R : constant Long_Float :=
-              Sqrt (Th_Ref (2 * J - 1) ** 2 + Th_Ref (2 * J) ** 2);
-            Amp_0 : constant Long_Float :=
-              Sqrt (Th_0 (2 * J - 1) ** 2 + Th_0 (2 * J) ** 2);
-            Sc : constant Long_Float := Long_Float'Max (Long_Float'Max (Amp_R, Amp_0), 1.0e-3);
-         begin
-            X_Scl (2 * J - 1) := Sc;
-            X_Scl (2 * J)     := Sc;
-            if Is_Fixed (D.A.LP (J)) then
-               Free_M (2 * J - 1) := False;
-               Free_M (2 * J)     := False;
-            else
-               N_Free := N_Free + 2;
-            end if;
-         end;
+         if not In_Tidal_Mask (J) then
+            Th_0    (2 * J - 1) := 0.0;
+            Th_0    (2 * J)     := 0.0;
+            Th_Best (2 * J - 1) := 0.0;
+            Th_Best (2 * J)     := 0.0;
+            Th_Ref  (2 * J - 1) := 0.0;
+            Th_Ref  (2 * J)     := 0.0;
+            X_Scl   (2 * J - 1) := 1.0e-3;
+            X_Scl   (2 * J)     := 1.0e-3;
+            Free_M  (2 * J - 1) := False;
+            Free_M  (2 * J)     := False;
+         else
+            declare
+               Amp_R : constant Long_Float :=
+                 Sqrt (Th_Ref (2 * J - 1) ** 2 + Th_Ref (2 * J) ** 2);
+               Amp_0 : constant Long_Float :=
+                 Sqrt (Th_0 (2 * J - 1) ** 2 + Th_0 (2 * J) ** 2);
+               Sc : constant Long_Float :=
+                 (if GEM.Tidal_Poly.On and then GEM.Tidal_Poly.Is_Long_Term (J)
+                  then Long_Float'Max (Long_Float'Max (Amp_R, Amp_0), 0.05)
+                  else Long_Float'Max (Long_Float'Max (Amp_R, Amp_0), 1.0e-3));
+            begin
+               X_Scl (2 * J - 1) := Sc;
+               X_Scl (2 * J)     := Sc;
+               if (not GEM.Tidal_Poly.On) and then Is_Fixed (D.A.LP (J)) then
+                  Free_M (2 * J - 1) := False;
+                  Free_M (2 * J)     := False;
+               else
+                  N_Free := N_Free + 2;
+               end if;
+            end;
+         end if;
       end loop;
 
       --  2. Load each leg and compute exact analytic pre-Bessel Jacobian J
@@ -1587,6 +1761,7 @@ package body GEM.LTE.Primitives.Refine is
          end if;
          declare
             Idx_File : constant String := GEM.Getenv ("CLIMATE_INDEX", "nino4.dat");
+            SPY_K    : constant Long_Float := GEM.Getenv ("SAMPLING", SPY);
             Raw_Data : constant Data_Pairs := Make_Data (Idx_File);
             N : constant Integer := Raw_Data'Length;
             L : Leg_State renames Legs (K);
@@ -1635,6 +1810,9 @@ package body GEM.LTE.Primitives.Refine is
             L.Acc_Ref := L.T (1);
             L.NM      := Integer'Min (NM_Cfg, NLT);
             L.NH      := NH_Cfg;
+            L.IR_Lag  :=
+              (if IR_Lag_Env > 0 then IR_Lag_Env
+               else Integer'Max (1, Integer (SPY_K)));
             L.CW_On   := (L.P.CW1 /= 0.0);
             L.CW_Freq :=
               Year_Length (L.P.B.Year) / (GEM.LTE.Draconic / 2.0)
@@ -1653,28 +1831,35 @@ package body GEM.LTE.Primitives.Refine is
             --  F_Zero + J * Th = F_Cur + J * (Th - Th_0) is exact locally!
             L.F_Cur.all :=
               Calc_Pre_Bessel (Raw_Data, D.A.LP, D.B.LPAP, L.P.B, L.P.B.init,
-                               Strict_IDate, IDate, SPY, Impulse_Only, Imp_Mod12,
-                               Use_LagC => True);
+                               Strict_IDate, IDate, SPY_K, Impulse_Only, Imp_Mod12,
+                               Impulse_Exact => Impulse_Exact, Use_LagC => True);
             for J in 1 .. NLP loop
-               Unit_AP (J) := (Amplitude => 1.0, Phase => 0.0);
-               declare
-                  C1 : constant Real_Vector :=
-                    Calc_Pre_Bessel (Raw_Data, D.A.LP, Unit_AP, L.P.B, 0.0,
-                                     Strict_IDate, IDate, SPY, Impulse_Only, Imp_Mod12,
-                                     Use_LagC => False);
-               begin
-                  for I in 1 .. N loop L.J (I, 2 * J - 1) := C1 (I); end loop;
-               end;
-               Unit_AP (J) := (Amplitude => 1.0, Phase => Pi / 2.0);
-               declare
-                  C2 : constant Real_Vector :=
-                    Calc_Pre_Bessel (Raw_Data, D.A.LP, Unit_AP, L.P.B, 0.0,
-                                     Strict_IDate, IDate, SPY, Impulse_Only, Imp_Mod12,
-                                     Use_LagC => False);
-               begin
-                  for I in 1 .. N loop L.J (I, 2 * J) := C2 (I); end loop;
-               end;
-               Unit_AP (J) := (Amplitude => 0.0, Phase => 0.0);
+               if not In_Tidal_Mask (J) then
+                  for I in 1 .. N loop
+                     L.J (I, 2 * J - 1) := 0.0;
+                     L.J (I, 2 * J)     := 0.0;
+                  end loop;
+               else
+                  Unit_AP (J) := (Amplitude => 1.0, Phase => 0.0);
+                  declare
+                     C1 : constant Real_Vector :=
+                       Calc_Pre_Bessel (Raw_Data, D.A.LP, Unit_AP, L.P.B, 0.0,
+                                        Strict_IDate, IDate, SPY_K, Impulse_Only, Imp_Mod12,
+                                        Impulse_Exact => Impulse_Exact, Use_LagC => False);
+                  begin
+                     for I in 1 .. N loop L.J (I, 2 * J - 1) := C1 (I); end loop;
+                  end;
+                  Unit_AP (J) := (Amplitude => 1.0, Phase => Pi / 2.0);
+                  declare
+                     C2 : constant Real_Vector :=
+                       Calc_Pre_Bessel (Raw_Data, D.A.LP, Unit_AP, L.P.B, 0.0,
+                                        Strict_IDate, IDate, SPY_K, Impulse_Only, Imp_Mod12,
+                                        Impulse_Exact => Impulse_Exact, Use_LagC => False);
+                  begin
+                     for I in 1 .. N loop L.J (I, 2 * J) := C2 (I); end loop;
+                  end;
+                  Unit_AP (J) := (Amplitude => 0.0, Phase => 0.0);
+               end if;
             end loop;
 
             L.F_Zero.all := L.F_Cur.all - L.J.all * Th_0;
@@ -1691,8 +1876,8 @@ package body GEM.LTE.Primitives.Refine is
                declare
                   F_Pert : constant Real_Vector :=
                     Calc_Pre_Bessel (Raw_Data, D.A.LP, AP_P, L.P.B, L.P.B.init,
-                                     Strict_IDate, IDate, SPY, Impulse_Only, Imp_Mod12,
-                                     Use_LagC => True);
+                                     Strict_IDate, IDate, SPY_K, Impulse_Only, Imp_Mod12,
+                                     Impulse_Exact => Impulse_Exact, Use_LagC => True);
                   F_Lin  : constant Real_Vector := L.F_Zero.all + L.J.all * Th_P;
                begin
                   for I in 1 .. N loop

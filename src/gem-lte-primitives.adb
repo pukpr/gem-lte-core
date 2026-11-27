@@ -1,4 +1,5 @@
 with GEM.Zonal;
+with GEM.Tidal_Poly;
 --  GEM.LTE.Primitives - Core Algorithms for Laplace's Tidal Equation Modeling
 --
 --  This package body implements the mathematical core of the GEM-LTE climate model:
@@ -851,6 +852,28 @@ package body GEM.LTE.Primitives is
       Res : Data_Pairs := Template;
       pragma Unreferenced (Ref_Time);
    begin
+      --  TIDES=POLY: Meeus-free compact gravitational polynomial forcing
+      if GEM.Tidal_Poly.On then
+         declare
+            T : GEM.Tidal_Poly.LF_Vec (Template'Range);
+         begin
+            for I in T'Range loop
+               T (I) := Template (I).Date;
+            end loop;
+            declare
+               F : constant GEM.Tidal_Poly.LF_Vec :=
+                 GEM.Tidal_Poly.Forcing_Series
+                   (T, Constituents,
+                    (if Tide_Legacy then Year_Length else Year_Len),
+                    (if Tide_Legacy then 0.0 else Integ), Lod);
+            begin
+               for I in Res'Range loop
+                  Res (I).Value := F (I);
+               end loop;
+            end;
+         end;
+         return Res;
+      end if;
       --  TIDES=ZONAL: closed-form zonal tide rate (GEM.Zonal) instead of
       --  the constituent table; Integ (jerk) applied as in Tide_Sum_Diff.
       if GEM.Zonal.On then

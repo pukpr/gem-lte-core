@@ -41,13 +41,19 @@
 
 with Text_IO;
 with GEM.LTE.Primitives;
+with GEM.Tidal_Poly;
 
 function GEM.dLOD
   (File_Name : in String; Year_Correction : in Long_Float := 0.0)
    return GEM.LTE.Long_Periods_Amp_Phase
 is
    use GEM.LTE, GEM.LTE.Primitives;
-   D : Data_Pairs := Make_Data (File_Name);  -- Load dLOD observations
+begin
+   if GEM.Tidal_Poly.On then
+      return GEM.Tidal_Poly.Calibrate_dLOD (File_Name, Year_Correction);
+   end if;
+   declare
+      D : Data_Pairs := Make_Data (File_Name);  -- Load dLOD observations
    First, Last : Integer;
    Singular : Boolean;  -- Flags if regression matrix is singular
    Forcing : Data_Pairs := D;  -- Will hold time-based forcing function
@@ -137,5 +143,6 @@ begin
    Put (Year_Length (Year_Correction), "=Yr", True);
 
    return DBLTAP;
+   end;
 
 end GEM.dLOD;
