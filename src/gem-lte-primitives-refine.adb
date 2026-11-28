@@ -224,9 +224,10 @@ package body GEM.LTE.Primitives.Refine is
          end;
       end Shape;
 
-      Der   : constant Long_Float := 1.0 - B.mA * Step_Scale;
-      Lag_C : constant Long_Float := (if Use_LagC then B.mP * Step_Scale else 0.0);
-      Out_F : Real_Vector (1 .. Template'Length);
+      Der      : constant Long_Float := 1.0 - B.mA * Step_Scale;
+      Lag_C    : constant Long_Float := (if Use_LagC then B.mP * Step_Scale else 0.0);
+      Lod_Term : constant Long_Float := GEM.Getenv ("LOD_TERM", 0.0);
+      Out_F    : Real_Vector (1 .. Template'Length);
    begin
       if Strict_IDate then
          declare
@@ -237,7 +238,7 @@ package body GEM.LTE.Primitives.Refine is
                 (Template => Exact_Template (Ext), Constituents => Constituents, Periods => LP,
                  Ref_Time => 0.0, Scaling => 0.0,
                  Year_Len => Year_Length (B.Year), Integ => B.shiftT,
-                 Lod => 0.0, Rho => B.rho, ZTau => B.ztau, ZDist => B.zdist,
+                 Lod => Lod_Term, Rho => B.rho, ZTau => B.ztau, ZDist => B.zdist,
                  ZTilt => B.ztilt, SsaA => B.ssaA, SsaP => B.ssaP);
          begin
             Restore_Dates (Tide, Ext);
@@ -262,7 +263,7 @@ package body GEM.LTE.Primitives.Refine is
                 (Template => Exact_Template (Template), Constituents => Constituents,
                  Periods => LP, Ref_Time => 0.0, Scaling => 0.0,
                  Year_Len => Year_Length (B.Year), Integ => B.shiftT,
-                 Lod => 0.0, Rho => B.rho, ZTau => B.ztau, ZDist => B.zdist,
+                 Lod => Lod_Term, Rho => B.rho, ZTau => B.ztau, ZDist => B.zdist,
                  ZTilt => B.ztilt, SsaA => B.ssaA, SsaP => B.ssaP);
          begin
             Restore_Dates (Tide, Template);
@@ -535,16 +536,14 @@ package body GEM.LTE.Primitives.Refine is
          return Num / Sqrt (D1 * D2);
       end DLOD_CC;
 
-      --  Apply Bessel correction to pre-Bessel F for Leg L
+      --  Apply Bessel correction to pre-Bessel F for Leg L (shared NM=1 / NM>1 resolver)
       procedure Post_Bessel
         (L : in Leg_State; F_In : in Real_Vector; F_Out : out Real_Vector)
       is
-         K_B  : constant Long_Float :=
-           (if L.NM = 1 then L.BesK * (1.0 - L.BG) else L.BesK);
-         E2S  : constant Long_Float := L.Offs;
-         E2C  : constant Long_Float := (if L.NM = 1 then L.BG2 else L.BG);
-         Arg  : Long_Float;
+         K_B, E2S, E2C : Long_Float;
+         Arg : Long_Float;
       begin
+         Resolve_Bessel_Params (L.BesK, L.Offs, L.BG, L.BG2, L.NM, K_B, E2S, E2C);
          for I in F_In'Range loop
             Arg := Two_Pi * K_B * F_In (I);
             F_Out (I) :=

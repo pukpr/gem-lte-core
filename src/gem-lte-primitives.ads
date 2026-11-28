@@ -90,6 +90,24 @@ package GEM.LTE.Primitives is
    --  call site, using that call's own TRAIN_START-resolved First) to
    --  fix this whenever Model is built over an array other than the one
    --  Accel was fit on.
+   --  Resolve effective Bessel parameters (K_Eff, E2S, E2C) for NM = 1 vs NM > 1
+   --  and apply the 1x + 2x Bessel manifold phase modulation in one shared place.
+   procedure Resolve_Bessel_Params
+     (BesK, Offs, BG, BG2 : in Long_Float;
+      NM                  : in Positive;
+      K_Eff, E2S, E2C     : out Long_Float);
+
+   function Apply_Bessel
+     (Model            : in Data_Pairs;
+      ImpA, ImpB, K_Eff : in Long_Float;
+      E2S              : in Long_Float := 0.0;
+      E2C              : in Long_Float := 0.0) return Data_Pairs;
+
+   function Apply_Bessel
+     (Model                      : in Data_Pairs;
+      ImpA, ImpB, BesK, Offs, BG, BG2 : in Long_Float;
+      NM                         : in Positive) return Data_Pairs;
+
    --  Quantity the ALPHA window is tested on at index I: the manifold
    --  value, or (ALPHA_SLOPE > 0) its signed slope; see the body.
    function Alpha_Signal (F : Data_Pairs; I : Integer) return Long_Float;

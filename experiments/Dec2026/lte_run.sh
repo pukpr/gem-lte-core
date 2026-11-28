@@ -14,8 +14,10 @@
 #   --legs f1.dat [f2.dat ...]  Multi-leg climate indices (auto-links from data/, writes lt.exe.resp.1..N)
 #   --dat FILE                  Single climate index file (default: pdo.dat when --legs not given)
 #   --tides MODE                TIDES mode: POLY (default) or TABLE
-#   --tier TIER                 POLY_TIER: Z9, Z10, Z15, Z10_D6, Z10_N5, Z10_D6_N5, Z10_S5_N5, Z10_S5_D6_N5
+#   --tier TIER                 POLY_TIER: Z9, Z10, Z12, Z15, Z10_D6, Z10_N5, Z10_D6_N5, Z10_S5_N5, Z12_S5_N5, Z10_S5_D6_N5, Z12_S5_D6_N5
 #   --n5-ridge VAL              L2 ridge on multi-year N5 terms (default: 0.05)
+#   --ir-side -1|0|1            One-sided delayed oscillator (-1 cold-only, +1 warm-only, 0 symmetric; default: 0)
+#   --uncompensated             Fold IR symmetrically into MLR basis (UNCOMPENSATED=TRUE; ignores --ir-side)
 #   --start YEAR                TRAIN_START (default: 1960)
 #   --end YEAR                  TRAIN_END   (default: 1970)
 #   --exclude true|false        EXCLUDE hold-out window (default: true)
@@ -56,6 +58,8 @@ DAT="${CLIMATE_INDEX:-pdo.dat}"
 TIDES_MODE="${TIDES:-POLY}"
 TIER="${POLY_TIER:-Z10}"
 N5_RIDGE="${POLY_N5_RIDGE:-0.05}"
+IR_SIDE_VAL="${IR_SIDE:-0}"
+UNCOMP_VAL="${UNCOMPENSATED:-FALSE}"
 T_START="${TRAIN_START:-1960}"
 T_END="${TRAIN_END:-1970}"
 EXC="${EXCLUDE:-TRUE}"
@@ -83,6 +87,8 @@ while [[ $# -gt 0 ]]; do
     --tides)               TIDES_MODE="${2^^}"; shift 2 ;;
     --tier)                TIER="${2^^}"; shift 2 ;;
     --n5-ridge)            N5_RIDGE="$2"; shift 2 ;;
+    --ir-side)             IR_SIDE_VAL="$2"; shift 2 ;;
+    --uncompensated)       UNCOMP_VAL="TRUE"; shift ;;
     --start|--train-start) T_START="$2"; shift 2 ;;
     --end|--train-end)     T_END="$2"; shift 2 ;;
     --exclude)             EXC="${2^^}"; shift 2 ;;
@@ -279,6 +285,8 @@ COMMON_ENV=(
   "TIDES=$TIDES_MODE"
   "POLY_TIER=$TIER"
   "POLY_N5_RIDGE=$N5_RIDGE"
+  "IR_SIDE=$IR_SIDE_VAL"
+  "UNCOMPENSATED=$UNCOMP_VAL"
   "TRAIN_START=$T_START"
   "TRAIN_END=$T_END"
   "EXCLUDE=$EXC"

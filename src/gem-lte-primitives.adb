@@ -950,6 +950,54 @@ package body GEM.LTE.Primitives is
       return Res;
    end Tide_Sum;
 
+   procedure Resolve_Bessel_Params
+     (BesK, Offs, BG, BG2 : in Long_Float;
+      NM                  : in Positive;
+      K_Eff, E2S, E2C     : out Long_Float)
+   is
+   begin
+      E2S := Offs;
+      if NM = 1 then
+         K_Eff := BesK * (1.0 - BG);
+         E2C   := BG2;
+      else
+         K_Eff := BesK;
+         E2C   := BG;
+      end if;
+   end Resolve_Bessel_Params;
+
+   function Apply_Bessel
+     (Model            : in Data_Pairs;
+      ImpA, ImpB, K_Eff : in Long_Float;
+      E2S              : in Long_Float := 0.0;
+      E2C              : in Long_Float := 0.0) return Data_Pairs
+   is
+      M   : Data_Pairs := Model;
+      Two_Pi_K : constant Long_Float := 2.0 * Ada.Numerics.Pi * K_Eff;
+      Arg : Long_Float;
+      use Ada.Numerics.Long_Elementary_Functions;
+   begin
+      for I in Model'Range loop
+         Arg := Two_Pi_K * Model (I).Value;
+         M (I).Value :=
+           Model (I).Value
+           + ImpA * Sin (Arg) + ImpB * Cos (Arg)
+           + E2S * ImpA * Sin (2.0 * Arg) + E2C * ImpB * Cos (2.0 * Arg);
+      end loop;
+      return M;
+   end Apply_Bessel;
+
+   function Apply_Bessel
+     (Model                           : in Data_Pairs;
+      ImpA, ImpB, BesK, Offs, BG, BG2 : in Long_Float;
+      NM                              : in Positive) return Data_Pairs
+   is
+      K_Eff, E2S, E2C : Long_Float;
+   begin
+      Resolve_Bessel_Params (BesK, Offs, BG, BG2, NM, K_Eff, E2S, E2C);
+      return Apply_Bessel (Model, ImpA, ImpB, K_Eff, E2S, E2C);
+   end Apply_Bessel;
+
    --  LTE: Laplace's Tidal Equation solver
    --
    --  Implements the solution to Laplace's Tidal Equation (LTE) which models

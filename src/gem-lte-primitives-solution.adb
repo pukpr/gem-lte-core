@@ -1993,24 +1993,7 @@ package body GEM.LTE.Primitives.Solution is
 --         return M;
 --      end Annual_Add;
 
-      function Bessel
-        (Model : in Data_Pairs; 
-         eS, eC, k, k2, eS2, eC2 : in Long_Float) return Data_Pairs
-      is
-         M : Data_Pairs := Model;
-         Pi : Long_Float := Ada.Numerics.Pi;
-         use Ada.Numerics.Long_Elementary_Functions;
-      begin
-         for I in Model'Range loop
-            M (I).Value := M (I).Value + eS*Sin(2.0 * Pi * k * M (I).Value) + 
-                                         eC*Cos(2.0 * Pi * k * M (I).Value) +
-                                     eS2*eS*Sin(4.0 * Pi * k * M (I).Value) + 
-                                     eC2*eC*Cos(4.0 * Pi * k * M (I).Value);
-                                     --eS2*eS*Sin(2.0 * Pi * k2* M (I).Value) + 
-                                     --eC2*eC*Cos(2.0 * Pi * k2* M (I).Value);
-         end loop;
-         return M;
-      end Bessel;
+      --  Bessel modulation moved to shared GEM.LTE.Primitives.Apply_Bessel.
 
       --  LAYER (default 0 = off): two-stage manifold. The LOWEST winding
       --  M(1) is taken out of the MLR and instead builds a new manifold
@@ -2170,6 +2153,48 @@ package body GEM.LTE.Primitives.Solution is
          end loop;
          return M;
       end Frictional;
+
+      --  Unified manifold post-processing: optional pre-dither, Bessel / LAYER /
+      --  FRICTION transform, and optional post-dither. Saves Pre_Out before the
+      --  Bessel/layer step for MANIFOLD_PRE output.
+      function Transform_Manifold
+        (Raw     : in Data_Pairs;
+         B       : in Shared.Param_B;
+         M_Winds : in Modulations;
+         NM_Val  : in Positive;
+         Pre_Out : out Data_Pairs) return Data_Pairs
+      is
+         F : Data_Pairs := Raw;
+      begin
+         if Dither_A /= 0.0 and then Dither_Stage = 0 then
+            F := Add_Dither (F);
+         end if;
+         Pre_Out := F;
+         if Layer > 0 and then NM_Val >= 2 then
+            declare
+               Layer_BesK : constant Long_Float :=
+                 (if Layer_K > 0.0 then Layer_K
+                  elsif NM_Val >= 3 then M_Winds (2)
+                  elsif Lock_Freq then M_Winds (NM_Val - 1)
+                  else M_Winds (NM_Val));
+               W_Mix : constant Long_Float :=
+                 (if Layer = 1 and then Layer_Mix then B.ImpC else 0.0);
+            begin
+               F := Layered
+                 (Apply_Bessel (F, B.ImpA, B.ImpB, Layer_BesK, 0.0, 0.0),
+                  B.Offset, B.bg, M_Winds (1), W_Mix => W_Mix);
+            end;
+         elsif Has_Friction then
+            F := Frictional (F, B.ImpA, B.ImpB, 0.0);
+         else
+            F := Apply_Bessel
+              (F, B.ImpA, B.ImpB, B.besK, B.Offset, B.bg, B.bg2, NM_Val);
+         end if;
+         if Dither_A /= 0.0 and then Dither_Stage /= 0 then
+            F := Add_Dither (F);
+         end if;
+         return F;
+      end Transform_Manifold;
 
       
       --  Val_Validate sits between Val1 (train) and Val2 (test), and prints
@@ -3176,40 +3201,7 @@ package body GEM.LTE.Primitives.Solution is
             --  Regression_Factors folds the delay differential into its
             --  own basis columns instead (see IR parameter below).
             
---            DR := Annual_Add (DR, -1.0);
-            if Dither_A /= 0.0 and then Dither_Stage = 0 then
-               Forcing := Add_Dither (Forcing);
-            end if;
-            Pre_Forcing := Forcing;  -- MANIFOLD_PRE: the manifold before Bessel
-            if Layer > 0 and then NM >= 2 then
-               Forcing := Layered
-                 (Bessel (Forcing, D.B.ImpA, D.B.ImpB,
-                          (if Layer_K > 0.0 then Layer_K
-                           elsif NM >= 3 then M (2)
-                           elsif Lock_Freq then M (NM - 1) else M (NM)),
-                          0.0, 0.0, 0.0),
-                  D.B.Offset, D.B.bg, M (1),
-                  W_Mix => (if Layer = 1 and then Layer_Mix then D.B.ImpC
-                            else 0.0));
-            elsif Has_Friction then
-               Forcing := Frictional(Forcing, D.B.ImpA, D.B.ImpB, 0.0);
-            elsif NM = 1 then
-               --  bg scales the winding (1 - bg); the 2k cosine term has its
-               --  own coefficient bg2 (2026-11-02; it used to be bg as well,
-               --  so a .p without bg2 loads bg2 = bg and reproduces).
-               --  The Bessel wavenumber is the manifold's own besk (2026-11-17),
-               --  no longer ltep (NM) -- or ltep (NM - 1) with LOCKF -- so the
-               --  windings can move (or differ per leg, LEG_WINDINGS) without
-               --  moving the manifold; a .p without besk is seeded from the
-               --  ltep it used, so older fits reproduce. (The fourth argument
-               --  is unused by Bessel.) LAYER above still reads M (1) and M (2).
-               Forcing := Bessel(Forcing, D.B.ImpA, D.B.ImpB, D.B.besK*(1.0-D.B.BG), 0.0, D.B.Offset, D.B.bg2);
-            else
-               Forcing := Bessel(Forcing, D.B.ImpA, D.B.ImpB, D.B.besK, 0.0, D.B.Offset, D.B.bg);
-            end if;
-            if Dither_A /= 0.0 and then Dither_Stage /= 0 then
-               Forcing := Add_Dither (Forcing);
-            end if;
+            Forcing := Transform_Manifold (Forcing, D.B, M, NM, Pre_Forcing);
             if Alpha /= 0.0 then
                M_Min := Manifold_Min (Forcing);
             end if;
