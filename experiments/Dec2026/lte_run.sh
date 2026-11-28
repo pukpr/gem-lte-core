@@ -18,6 +18,7 @@
 #   --n5-ridge VAL              L2 ridge on multi-year N5 terms (default: 0.05)
 #   --ir-side -1|0|1            One-sided delayed oscillator (-1 cold-only, +1 warm-only, 0 symmetric; default: 0)
 #   --uncompensated             Fold IR symmetrically into MLR basis (UNCOMPENSATED=TRUE; ignores --ir-side)
+#   --wridge VAL                Frequency-weighted ridge on outer windings (default: 0.0; try 0.05 on PDO/AMO)
 #   --start YEAR                TRAIN_START (default: 1960)
 #   --end YEAR                  TRAIN_END   (default: 1970)
 #   --exclude true|false        EXCLUDE hold-out window (default: true)
@@ -60,6 +61,7 @@ TIER="${POLY_TIER:-Z10}"
 N5_RIDGE="${POLY_N5_RIDGE:-0.05}"
 IR_SIDE_VAL="${IR_SIDE:-0}"
 UNCOMP_VAL="${UNCOMPENSATED:-FALSE}"
+WRIDGE_VAL="${WRIDGE:-0.0}"
 T_START="${TRAIN_START:-1960}"
 T_END="${TRAIN_END:-1970}"
 EXC="${EXCLUDE:-TRUE}"
@@ -89,6 +91,7 @@ while [[ $# -gt 0 ]]; do
     --n5-ridge)            N5_RIDGE="$2"; shift 2 ;;
     --ir-side)             IR_SIDE_VAL="$2"; shift 2 ;;
     --uncompensated)       UNCOMP_VAL="TRUE"; shift ;;
+    --wridge)              WRIDGE_VAL="$2"; shift 2 ;;
     --start|--train-start) T_START="$2"; shift 2 ;;
     --end|--train-end)     T_END="$2"; shift 2 ;;
     --exclude)             EXC="${2^^}"; shift 2 ;;
@@ -287,6 +290,7 @@ COMMON_ENV=(
   "POLY_N5_RIDGE=$N5_RIDGE"
   "IR_SIDE=$IR_SIDE_VAL"
   "UNCOMPENSATED=$UNCOMP_VAL"
+  "WRIDGE=$WRIDGE_VAL"
   "TRAIN_START=$T_START"
   "TRAIN_END=$T_END"
   "EXCLUDE=$EXC"

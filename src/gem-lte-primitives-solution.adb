@@ -1435,7 +1435,6 @@ package body GEM.LTE.Primitives.Solution is
                 "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 18 19 23 27"));
       Canon_Subharmonic : constant Integer := GEM.Getenv ("CANON_SUBHARMONIC", 11);
       Impulse_Only  : constant Boolean := GEM.Getenv ("IMPULSE", True);
-      Has_Friction : constant Boolean := GEM.Getenv ("FRICTION", False);
       Jerk : constant Long_Float := GEM.Getenv ("JERK", 0.0);
       --  Read independently from GEM.LTE.Primitives' own Ridge_Lambda (that
       --  one lives in the parent package BODY, not visible here) — used
@@ -1534,9 +1533,6 @@ package body GEM.LTE.Primitives.Solution is
          else Empty_Data);
       --  TIDES=HYBRID: ridge weight on the table's correction lines (see GEM.Zonal)
       Hybrid_Lambda : constant Long_Float := GEM.Getenv ("HYBRID_LAMBDA", 1.0);
-      --  LOD_TERM: mixes a little LOD (time integral of the dLOD-rate forcing)
-      --  into the climate forcing, amplitude-corrected per line (see GEM.Zonal)
-      Lod_Term : constant Long_Float := GEM.Getenv ("LOD_TERM", 0.0);
 
       --  Zone_Sharpness (METRIC=ZS): how clearly the data collapses onto one
       --  pattern when the post-Bessel manifold Z is folded into one Brillouin
@@ -1995,32 +1991,6 @@ package body GEM.LTE.Primitives.Solution is
 
       --  Bessel modulation moved to shared GEM.LTE.Primitives.Apply_Bessel.
 
-      --  LAYER (default 0 = off): two-stage manifold. The LOWEST winding
-      --  M(1) is taken out of the MLR and instead builds a new manifold
-      --  from the tidal one F (after its usual first-order Bessel
-      --  correction by impA/impB, which keep their meaning),
-      --     LAYER=1:  F2 = eS*sin(2 pi M(1) F) + eC*cos(2 pi M(1) F)
-      --     LAYER=2:  F2 = F + the same term
-      --  and the remaining windings M(2..) are regressed on F2. eS/eC are
-      --  the offs/bg search parameters (otherwise only the Bessel stage's
-      --  second-order factors, dropped in this mode), so the lowest
-      --  winding's amplitude and phase (and M(1) itself) are found
-      --  iteratively by the search, not by the regression. Needs NM >= 2.
-      --  LAYER_MIX=TRUE (default FALSE) with LAYER=1 mixes back a weight W
-      --  of the Bessel-corrected tidal manifold, F2 = W*Fb + (layer term),
-      --  with W = impC (otherwise the once-a-year model impulse, which
-      --  contributed nothing measurable); W = 0 reproduces the pure layer.
-      --  Opt-in so that existing fits, which carry small nonzero impC
-      --  values as impulses, keep their meaning. LAYER=2 is W = 1 and
-      --  keeps impC as the annual impulse.
-      Layer_Mix : constant Boolean := GEM.Getenv ("LAYER_MIX", False);
-      --  LAYER_HP (months, default 0 = off): the mixed-back Fb is first
-      --  HIGH-PASSED, Fb minus its centred LAYER_HP-month running mean
-      --  (shortened at the ends), so W restores the fast tidal content
-      --  the layer suppresses at its crest without tilting the slow
-      --  (~120-yr) part that sets the layer's quantized levels.
-      Layer_HP : constant Integer := GEM.Getenv ("LAYER_HP", 0);
-
       --  IR_SIDE (default 0 = symmetric): one-sided 12-month delay
       --  differential. +1 applies the IR term only where the value a year
       --  earlier was WARM, -1 only where it was COLD; "warm" means above
@@ -2080,87 +2050,12 @@ package body GEM.LTE.Primitives.Solution is
          end loop;
          return R;
       end IR_Mask;
-      Layer : constant Integer := GEM.Getenv ("LAYER", 0);
-      --  LAYER_K (default 0 = off): wavenumber of the impA/impB Bessel
-      --  correction in LAYER mode. By default that is M(NM) (M(NM-1)
-      --  with LOCKF), i.e. it moves when NM changes; reducing NM to a
-      --  single regressed winding would then re-key the correction to
-      --  that winding and change the layered manifold. LAYER_K pins it
-      --  (e.g. to the old backbone).
-      --  With NM >= 3 (and LAYER_K unset) the Bessel wavenumber is instead
-      --  the SECOND winding M(2), which then also leaves the MLR: M(1)
-      --  builds the layer, M(2) keys the Bessel correction, M(3..) (and
-      --  integer harmonics of M(NM)) are regressed -- all three found
-      --  independently by the search.
-      Layer_K : constant Long_Float := GEM.Getenv ("LAYER_K", 0.0);
-
-      function Layered
-        (Model : in Data_Pairs; eS, eC, k : in Long_Float;
-         W_Mix : in Long_Float := 0.0) return Data_Pairs
-      is
-         M : Data_Pairs := Model;
-         Pi : constant Long_Float := Ada.Numerics.Pi;
-         use Ada.Numerics.Long_Elementary_Functions;
-         W : Long_Float;
-         --  Mixed-back part: Fb itself, or Fb minus its running mean.
-         Mix : array (Model'Range) of Long_Float;
-      begin
-         if Layer = 1 and then W_Mix /= 0.0 and then Layer_HP > 1 then
-            declare
-               Cum : array (Model'First - 1 .. Model'Last) of Long_Float;
-               H : constant Integer := Layer_HP / 2;
-               A, B : Integer;
-            begin
-               Cum (Model'First - 1) := 0.0;
-               for I in Model'Range loop
-                  Cum (I) := Cum (I - 1) + Model (I).Value;
-               end loop;
-               for I in Model'Range loop
-                  A := Integer'Max (Model'First, I - H);
-                  B := Integer'Min (Model'Last, I + H);
-                  Mix (I) := Model (I).Value
-                    - (Cum (B) - Cum (A - 1)) / Long_Float (B - A + 1);
-               end loop;
-            end;
-         else
-            for I in Model'Range loop
-               Mix (I) := Model (I).Value;
-            end loop;
-         end if;
-         for I in Model'Range loop
-            W := eS * Sin (2.0 * Pi * k * M (I).Value)
-               + eC * Cos (2.0 * Pi * k * M (I).Value);
-            M (I).Value :=
-              (if Layer = 2 then M (I).Value + W else W_Mix * Mix (I) + W);
-         end loop;
-         return M;
-      end Layered;
-
-      function Frictional (Model : in Data_Pairs;
-                           Offset, Saturate, Eps : in Long_Float) return Data_Pairs
-      is
-         M : Data_Pairs := Model;
-         use Ada.Numerics.Long_Elementary_Functions;
-         k : Long_Float := 0.0001 + abs Saturate;
-         Y : Long_Float;
-      begin
-         for I in Model'Range loop
-            --Y := abs (M (I).Value - abs Offset);
-            Y := sqrt( (abs(M (I).Value - abs Offset))**2.25 + abs Eps );
-            --Y := sqrt (abs ( (M (I).Value - abs Offset) )) + abs Eps;
-            --Y := abs (M (I).Value - abs Offset) + abs Eps;
-            M (I).Value := 1.0/k*(1.0 - exp(-k*Y));
-         end loop;
-         return M;
-      end Frictional;
-
-      --  Unified manifold post-processing: optional pre-dither, Bessel / LAYER /
-      --  FRICTION transform, and optional post-dither. Saves Pre_Out before the
-      --  Bessel/layer step for MANIFOLD_PRE output.
+      --  Unified manifold post-processing: optional pre-dither, Bessel phase
+      --  modulation, and optional post-dither. Saves Pre_Out before Bessel
+      --  for MANIFOLD_PRE output.
       function Transform_Manifold
         (Raw     : in Data_Pairs;
          B       : in Shared.Param_B;
-         M_Winds : in Modulations;
          NM_Val  : in Positive;
          Pre_Out : out Data_Pairs) return Data_Pairs
       is
@@ -2170,26 +2065,8 @@ package body GEM.LTE.Primitives.Solution is
             F := Add_Dither (F);
          end if;
          Pre_Out := F;
-         if Layer > 0 and then NM_Val >= 2 then
-            declare
-               Layer_BesK : constant Long_Float :=
-                 (if Layer_K > 0.0 then Layer_K
-                  elsif NM_Val >= 3 then M_Winds (2)
-                  elsif Lock_Freq then M_Winds (NM_Val - 1)
-                  else M_Winds (NM_Val));
-               W_Mix : constant Long_Float :=
-                 (if Layer = 1 and then Layer_Mix then B.ImpC else 0.0);
-            begin
-               F := Layered
-                 (Apply_Bessel (F, B.ImpA, B.ImpB, Layer_BesK, 0.0, 0.0),
-                  B.Offset, B.bg, M_Winds (1), W_Mix => W_Mix);
-            end;
-         elsif Has_Friction then
-            F := Frictional (F, B.ImpA, B.ImpB, 0.0);
-         else
-            F := Apply_Bessel
-              (F, B.ImpA, B.ImpB, B.besK, B.Offset, B.bg, B.bg2, NM_Val);
-         end if;
+         F := Apply_Bessel
+           (F, B.ImpA, B.ImpB, B.besK, B.Offset, B.bg, B.bg2, NM_Val);
          if Dither_A /= 0.0 and then Dither_Stage /= 0 then
             F := Add_Dither (F);
          end if;
@@ -2853,7 +2730,7 @@ package body GEM.LTE.Primitives.Solution is
                          Constituents => Jerked_Tidal_Factors,
                          Periods => D.A.LP, Ref_Time => 0.0, Scaling => 0.0,
                          Year_Len => Year_Length (D.B.Year), Integ => D.B.ShiftT,
-                         Lod => Lod_Term, Rho => D.B.rho,
+                         Lod => 0.0, Rho => D.B.rho,
                          ZTau => D.B.ztau, ZDist => D.B.zdist, ZTilt => D.B.ztilt,
                          SsaA => D.B.ssaA, SsaP => D.B.ssaP), Extended_Template),
                     Offset => 0.0, Ramp => 0.0,
@@ -2894,7 +2771,7 @@ package body GEM.LTE.Primitives.Solution is
                      (Template => Exact_Template (Data_Records), Constituents => Jerked_Tidal_Factors,
                       Periods => D.A.LP, Ref_Time => 0.0, Scaling => 0.0,
                       Year_Len => Year_Length (D.B.Year), Integ => D.B.ShiftT,
-                         Lod => Lod_Term, Rho => D.B.rho,
+                         Lod => 0.0, Rho => D.B.rho,
                          ZTau => D.B.ztau, ZDist => D.B.zdist, ZTilt => D.B.ztilt,
                          SsaA => D.B.ssaA, SsaP => D.B.ssaP), Data_Records),
                  Offset => 0.0, Ramp => 0.0,
@@ -3201,16 +3078,12 @@ package body GEM.LTE.Primitives.Solution is
             --  Regression_Factors folds the delay differential into its
             --  own basis columns instead (see IR parameter below).
             
-            Forcing := Transform_Manifold (Forcing, D.B, M, NM, Pre_Forcing);
+            Forcing := Transform_Manifold (Forcing, D.B, NM, Pre_Forcing);
             if Alpha /= 0.0 then
                M_Min := Manifold_Min (Forcing);
             end if;
             declare
-               --  LAYER: the lowest winding is not a regressor.
-               Lo : constant Integer :=
-                 (if Layer > 0 and then NM >= 3 and then Layer_K <= 0.0
-                  then 3
-                  elsif Layer > 0 and then NM >= 2 then 2 else 1);
+               Lo : constant Integer := 1;
                --  LEG_COMMON: Idx lists the windings this task regresses; the
                --  others (harmonics above the split, on a follower) take the
                --  leader's amplitudes. Without it Idx is simply Lo .. NM+NH.
@@ -3330,13 +3203,6 @@ package body GEM.LTE.Primitives.Solution is
                MAP (Idx (R)) := RMAP (R);
             end loop;
             end;
-            --  Zero amplitude for the windings that are not regressors
-            --  (layer, and Bessel with NM >= 3): LTE (given the full
-            --  arrays) then adds nothing for them, and the windings JSON
-            --  shows them as 0.
-            for J in 1 .. Lo - 1 loop
-               MAP (J) := (Amplitude => 0.0, Phase => 0.0);
-            end loop;
             if Leader and then Common_Split > 0 then
                Exchanges (Pair).Post_Amps (MAP);
             end if;
@@ -3399,9 +3265,7 @@ package body GEM.LTE.Primitives.Solution is
                if Dither_A /= 0.0 then
                   Model := Remove_Climatology (Model);
                end if;
-               if D.B.ImpC /= 0.0
-                 and then not (Layer = 1 and then Layer_Mix)
-               then
+               if D.B.ImpC /= 0.0 then
                   for I in Model'Range loop
                      Model (I).Value :=
                        Model (I).Value + Annual_Impulse (Model (I).Date);

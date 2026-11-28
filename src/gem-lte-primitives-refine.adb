@@ -224,10 +224,9 @@ package body GEM.LTE.Primitives.Refine is
          end;
       end Shape;
 
-      Der      : constant Long_Float := 1.0 - B.mA * Step_Scale;
-      Lag_C    : constant Long_Float := (if Use_LagC then B.mP * Step_Scale else 0.0);
-      Lod_Term : constant Long_Float := GEM.Getenv ("LOD_TERM", 0.0);
-      Out_F    : Real_Vector (1 .. Template'Length);
+      Der   : constant Long_Float := 1.0 - B.mA * Step_Scale;
+      Lag_C : constant Long_Float := (if Use_LagC then B.mP * Step_Scale else 0.0);
+      Out_F : Real_Vector (1 .. Template'Length);
    begin
       if Strict_IDate then
          declare
@@ -238,7 +237,7 @@ package body GEM.LTE.Primitives.Refine is
                 (Template => Exact_Template (Ext), Constituents => Constituents, Periods => LP,
                  Ref_Time => 0.0, Scaling => 0.0,
                  Year_Len => Year_Length (B.Year), Integ => B.shiftT,
-                 Lod => Lod_Term, Rho => B.rho, ZTau => B.ztau, ZDist => B.zdist,
+                 Lod => 0.0, Rho => B.rho, ZTau => B.ztau, ZDist => B.zdist,
                  ZTilt => B.ztilt, SsaA => B.ssaA, SsaP => B.ssaP);
          begin
             Restore_Dates (Tide, Ext);
@@ -263,7 +262,7 @@ package body GEM.LTE.Primitives.Refine is
                 (Template => Exact_Template (Template), Constituents => Constituents,
                  Periods => LP, Ref_Time => 0.0, Scaling => 0.0,
                  Year_Len => Year_Length (B.Year), Integ => B.shiftT,
-                 Lod => Lod_Term, Rho => B.rho, ZTau => B.ztau, ZDist => B.zdist,
+                 Lod => 0.0, Rho => B.rho, ZTau => B.ztau, ZDist => B.zdist,
                  ZTilt => B.ztilt, SsaA => B.ssaA, SsaP => B.ssaP);
          begin
             Restore_Dates (Tide, Template);
@@ -461,6 +460,9 @@ package body GEM.LTE.Primitives.Refine is
       IR_Side       : constant Integer    := GEM.Getenv ("IR_SIDE", 0);
       IR_Base       : constant Integer    := GEM.Getenv ("IR_BASE", 121);
       Uncompensated : constant Boolean    := GEM.Getenv ("UNCOMPENSATED", False);
+      WRidge        : constant Long_Float := GEM.Getenv ("WRIDGE", 0.0);
+      WRidge_K      : constant Long_Float := GEM.Getenv ("WRIDGE_K", 1.0);
+      WRidge_P      : constant Long_Float := GEM.Getenv ("WRIDGE_P", 2.0);
       Trend_On      : constant Boolean    := GEM.Getenv ("TREND", True);
       Accel_On      : constant Boolean    := GEM.Getenv ("ACCEL", True);
       Max_H         : constant Integer    := GEM.Getenv ("MAXH", 30);
@@ -712,6 +714,22 @@ package body GEM.LTE.Primitives.Refine is
                      XtX (C1, C2) := XtX (C2, C1);
                   end loop;
                end loop;
+
+               --  WRIDGE: frequency-weighted penalty on winding sin/cos columns 3 .. 2+2*NK
+               if WRidge > 0.0 then
+                  for J in 1 .. NK loop
+                     declare
+                        Pen : constant Long_Float :=
+                          WRidge * Long_Float (L.N_Train) / 2.0
+                          * (abs Ks (J) / WRidge_K) ** WRidge_P;
+                     begin
+                        XtX (2 + 2 * J - 1, 2 + 2 * J - 1) :=
+                          XtX (2 + 2 * J - 1, 2 + 2 * J - 1) + Pen;
+                        XtX (2 + 2 * J, 2 + 2 * J) :=
+                          XtX (2 + 2 * J, 2 + 2 * J) + Pen;
+                     end;
+                  end loop;
+               end if;
 
                Beta := Solve_Normal (XtX, XtY, Ridge => 1.0e-10);
 

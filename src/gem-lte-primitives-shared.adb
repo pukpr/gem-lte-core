@@ -380,15 +380,6 @@ package body GEM.LTE.Primitives.Shared is
          --  ALPHA_SLOPE > 0: the window is tested on the manifold's signed
          --  slope over that many months (negated when alpha_sign > 0), and
          --  m_min is the minimum of that quantity, not of F.
-         --  LAYER > 0: two-stage manifold -- F (col 4) is then
-         --  [Fb +] offs*sin(2 pi k1 Fb) + bg*cos(2 pi k1 Fb), Fb = tidal
-         --  manifold after the first-order impA/impB Bessel correction,
-         --  k1 = the lowest winding (listed with amplitude 0: not regressed).
-         --  The Bessel wavenumber is layer_k if > 0, else (NM >= 3) the
-         --  second winding (also listed with amplitude 0), else the last.
-         --  With LAYER=1 and LAYER_MIX=TRUE, impC is the mixing weight W
-         --  of Fb in F2 (F2 = W*Fb + layer term), not the annual impulse.
-         Set_Field (Sec, "layer", Create (Integer'(GEM.Getenv ("LAYER", 0))));
          Set_Field (Sec, "tides", GEM.Getenv ("TIDES", "TABLE"));
          Set_Field (Sec, "annual_dither",
                     Create (Long_Float'(GEM.Getenv ("ANNUAL_DITHER", 0.0))));
@@ -400,12 +391,6 @@ package body GEM.LTE.Primitives.Shared is
                     Create (Integer'(GEM.Getenv ("IR_SIDE", 0))));
          Set_Field (Sec, "ir_base_months",
                     Create (Integer'(GEM.Getenv ("IR_BASE", 121))));
-         Set_Field (Sec, "layer_mix",
-                    Create (Boolean'(GEM.Getenv ("LAYER_MIX", False))));
-         Set_Field (Sec, "layer_hp_months",
-                    Create (Integer'(GEM.Getenv ("LAYER_HP", 0))));
-         Set_Field (Sec, "layer_k",
-                    Create (Long_Float'(GEM.Getenv ("LAYER_K", 0.0))));
          Set_Field (Sec, "alpha_slope_months",
                     Create (Integer'(GEM.Getenv ("ALPHA_SLOPE", 0))));
          Set_Field (Sec, "alpha_sign",
