@@ -57,7 +57,7 @@ package body GEM.Tidal_Poly is
    type Tier_Kind is
      (Tier_Z9, Tier_Z10, Tier_Z12, Tier_Z15, Tier_Z10_D6, Tier_Z15_D6,
       Tier_Z10_N5, Tier_Z10_D6_N5, Tier_Z10_S5_N5, Tier_Z12_S5_N5,
-      Tier_Z10_S5_D6_N5, Tier_Z12_S5_D6_N5);
+      Tier_Z10_S5_D6_N5, Tier_Z12_S5_D6_N5, Tier_Z35, Tier_Z40, Tier_Z52);
 
    function Resolve_Tier return Tier_Kind is
    begin
@@ -85,6 +85,12 @@ package body GEM.Tidal_Poly is
          return Tier_Z10_S5_D6_N5;
       elsif Tier_Raw = "Z12_S5_D6_N5" then
          return Tier_Z12_S5_D6_N5;
+      elsif Tier_Raw = "Z35" then
+         return Tier_Z35;
+      elsif Tier_Raw = "Z40" then
+         return Tier_Z40;
+      elsif Tier_Raw = "Z52" or else Tier_Raw = "FULL" then
+         return Tier_Z52;
       else
          return Tier_Z10;
       end if;
@@ -143,7 +149,30 @@ package body GEM.Tidal_Poly is
       29 => ( 0,  0,  1,  2, 0, "MSf_nod-  "),  -- 14.7975 d
       30 => ( 2, -1, -1,  2, 0, "Mtm_nod   "),  --  9.5435 d
       31 => ( 2,  2,  0,  0, 0, "Mqm(6.86) "),  --  6.8594 d
-      32 => ( 2,  0,  0,  2, 0, "Msqm(7.1) ")); --  7.0958 d
+      32 => ( 2,  0,  0,  2, 0, "Msqm(7.1) "),  --  7.0958 d
+      33 => ( 0,  2,  0,  0, 0, "2Mp(13.8) "),  -- 13.7773 d
+      34 => ( 2,  2, -1,  0, 0, "Mqm_nod   "),  --  6.8525 d
+      35 => ( 2,  0, -1,  2, 0, "Msqm_nod  "),  --  7.0884 d
+      --  5 extra multi-year nodal/perigee combinations (Z40)
+      36 => ( 2, -2, -2,  0, 0, "2p+2N(3y) "),  -- 1095.18 d
+      37 => ( 2, -2, -1,  0, 0, "2p+N(3.6y)"),  -- 1305.66 d
+      38 => ( 1, -1,  1,  0, 0, "p-N(16.9y)"),  -- 6167.21 d
+      39 => (-2,  2, -1,  0, 0, "-2p+N(5.8)"),  -- -2120.9 d
+      40 => ( 1, -1, -2,  0, 0, "p+2N(4.5y)"),  -- 1656.32 d
+      --  13 remaining Doodson-matched sub-annual monomials (Z52 skips #27 MSm_nod)
+      41 => ( 0,  1,  1,  0, 0, "Mp+Om     "),  -- 27.6668 d
+      42 => ( 2,  1, -2,  0, 0, "Mt_2n     "),  --  9.1085 d
+      43 => ( 0,  3,  0,  0, 0, "3Mp       "),  --  9.1848 d
+      44 => ( 2,  1,  0,  2, 0, "M5_1      "),  --  5.6427 d
+      45 => ( 2, -1,  0,  0, 0, "2L-Mp     "),  -- 27.0927 d
+      46 => ( 2,  1, -1,  2, 0, "M5_1n     "),  --  5.6380 d
+      47 => ( 2,  3,  0,  0, 0, "2L+3Mp    "),  --  5.4922 d
+      48 => (-1,  0,  0,  3, 0, "3D-L      "),  -- 15.3874 d
+      49 => ( 2,  1,  0, -2, 0, "2L+Mp-2D  "),  -- 23.9421 d
+      50 => ( 3,  0,  0, -1, 1, "OO1       "),  --  0.9294 d
+      51 => ( 0,  0,  0, -1, 1, "M1        "),  --  1.0351 d
+      52 => ( 1,  1,  0, -1, 1, "J1        "),  --  0.9624 d
+      53 => (-1, -1,  0, -1, 1, "Q1        ")); --  1.1195 d
 
    --  Map active slot K (1 .. Active_Count) to its Catalog index
    function Catalog_Index (K : Positive) return Positive is
@@ -221,6 +250,17 @@ package body GEM.Tidal_Poly is
             else
                return K - 2;  --  18..23 -> 16..21 (D6), 24..28 -> 22..26 (N5)
             end if;
+         when Tier_Z35 =>
+            return K;         --  35-term Meeus-free gravitational basis
+         when Tier_Z40 =>
+            return K;         --  40-term basis (Z35 + 5 extra multi-year)
+         when Tier_Z52 =>
+            --  All 52 Doodson-matched Meeus-free monomials (skip #27 MSm_nod)
+            if K < 27 then
+               return K;
+            else
+               return K + 1;
+            end if;
       end case;
    end Catalog_Index;
 
@@ -241,6 +281,9 @@ package body GEM.Tidal_Poly is
          when Tier_Z12_S5_N5    => return "Z12_S5_N5";
          when Tier_Z10_S5_D6_N5 => return "Z10_S5_D6_N5";
          when Tier_Z12_S5_D6_N5 => return "Z12_S5_D6_N5";
+         when Tier_Z35          => return "Z35";
+         when Tier_Z40          => return "Z40";
+         when Tier_Z52          => return "Z52";
       end case;
    end Tier_Name;
 
@@ -259,6 +302,9 @@ package body GEM.Tidal_Poly is
          when Tier_Z12_S5_N5    => return 22;
          when Tier_Z10_S5_D6_N5 => return 26;
          when Tier_Z12_S5_D6_N5 => return 28;
+         when Tier_Z35          => return 35;
+         when Tier_Z40          => return 40;
+         when Tier_Z52          => return 52;
       end case;
    end Active_Count;
 
@@ -439,7 +485,10 @@ package body GEM.Tidal_Poly is
         Active_Tier = Tier_Z10_D6 or else Active_Tier = Tier_Z15_D6
         or else Active_Tier = Tier_Z10_D6_N5
         or else Active_Tier = Tier_Z10_S5_D6_N5
-        or else Active_Tier = Tier_Z12_S5_D6_N5;
+        or else Active_Tier = Tier_Z12_S5_D6_N5
+        or else Active_Tier = Tier_Z35
+        or else Active_Tier = Tier_Z40
+        or else Active_Tier = Tier_Z52;
       Res      : LF_Vec (T'Range);
       First_C  : constant Integer := Constituents'First;
 
@@ -496,7 +545,10 @@ package body GEM.Tidal_Poly is
         Active_Tier = Tier_Z10_D6 or else Active_Tier = Tier_Z15_D6
         or else Active_Tier = Tier_Z10_D6_N5
         or else Active_Tier = Tier_Z10_S5_D6_N5
-        or else Active_Tier = Tier_Z12_S5_D6_N5;
+        or else Active_Tier = Tier_Z12_S5_D6_N5
+        or else Active_Tier = Tier_Z35
+        or else Active_Tier = Tier_Z40
+        or else Active_Tier = Tier_Z52;
       --  Calibrate only sub-annual terms (|period| <= 1 yr) against dlod3.dat;
       --  multi-year nodal/perigee terms stay at 0.0 (free of sub-annual dLOD prior).
       Sub_Idx  : array (1 .. Max_Poly_Terms) of Positive := (others => 1);

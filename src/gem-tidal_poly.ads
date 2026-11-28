@@ -22,6 +22,9 @@
 --    Z12_S5_N5   : 22 monomials (Z12 + Mtm + S4 + N5, 44 params)
 --    Z10_S5_D6_N5: 26 monomials (Z10 + Mtm + S4 + D6 + N5, 52 params)
 --    Z12_S5_D6_N5: 28 monomials (Z12 + Mtm + S4 + D6 + N5, 56 params)
+--    Z35         : 35 monomials (Z12_S5_D6_N5 + L, F, Mp-Om, 2L-Mp-Om, 2Mp, Mqm_nod, Msqm_nod, 70 params)
+--    Z40         : 40 monomials (Z35 + 5 extra multi-year nodal/perigee lines, 80 params)
+--    Z52         : 52 monomials (all 52 Doodson-matched Meeus-free gravitational monomials, 104 params)
 --
 --  Sub-annual terms (|period| <= 1 yr) are calibrated & anchored to dlod3.dat;
 --  multi-year terms (Is_Long_Term, |period| > 1 yr) are left free of the dLOD
@@ -35,7 +38,7 @@ with GEM.LTE;
 
 package GEM.Tidal_Poly is
 
-   Max_Poly_Terms : constant Positive := 32;
+   Max_Poly_Terms : constant Positive := 53;
 
    type LF_Vec is array (Integer range <>) of Long_Float;
 
